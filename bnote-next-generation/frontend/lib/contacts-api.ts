@@ -43,6 +43,43 @@ export interface ContactGroup {
   is_active?: boolean;
 }
 
+export interface IntegrationMemberRow {
+  id: number;
+  name: string;
+  surname: string;
+  nickname?: string;
+  email?: string;
+  instrumentname?: string;
+  label: string;
+}
+
+export interface IntegrationEventRow {
+  id: number;
+  begin?: string;
+  label?: string;
+  name?: string;
+  /** Concert title (rehearsals omit). */
+  title?: string;
+  location_name?: string;
+  notes?: string;
+  status?: string;
+}
+
+export interface IntegrationBundle {
+  members: IntegrationMemberRow[];
+  rehearsals: IntegrationEventRow[];
+  phases: IntegrationEventRow[];
+  concerts: IntegrationEventRow[];
+  votes: IntegrationEventRow[];
+}
+
+export interface IntegrateResult {
+  success: boolean;
+  message?: string;
+  created?: number;
+  errors?: string[];
+}
+
 export const contactsApi = {
   list: (group?: string | null) =>
     api.get<Contact[]>("contacts", "list", group && group !== "all" ? { group } : {}),
@@ -53,4 +90,19 @@ export const contactsApi = {
     api.post<{ success: boolean; message: string }>("contacts", "update", { id, ...data } as Record<string, unknown>),
   delete: (id: number) => api.post<{ success: boolean; message: string }>("contacts", "delete", { id }),
   getGroups: () => api.get<ContactGroup[]>("contacts", "getGroups"),
+  getIntegrationBundle: (groupId?: string | null) =>
+    api.get<IntegrationBundle>(
+      "contacts",
+      "getIntegrationBundle",
+      groupId != null && groupId !== "" ? { group: String(groupId) } : {}
+    ),
+  integrate: (body: {
+    group?: string | null;
+    members: number[];
+    rehearsals: number[];
+    /** Matches PHP `contacts::integrate` (`rehearsalphases`). */
+    rehearsalphases: number[];
+    concerts: number[];
+    votes: number[];
+  }) => api.post<IntegrateResult>("contacts", "integrate", { ...body }),
 };

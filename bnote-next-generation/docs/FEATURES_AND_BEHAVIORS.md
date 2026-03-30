@@ -17,7 +17,8 @@ This document describes each feature and expected behavior of the Next.js app. U
 ## 2. Authentication
 
 - **Login flow:** User submits username and password on `/login`. API `POST /api/v1/auth/login` creates session. On success, redirect to `redirect` query param or `/dashboard`.
-- **Registration:** When `user_registration` is on, `getPublicConfig` exposes it and `/register` loads `getRegistrationOptions`, then `register` creates the user via the API layer in `bnote-next-generation/api/nextgen_registration.php` (same DB rules as legacy). Success paths depend on `auto_user_activation` and mail delivery. Legal footer includes `/legal/terms/`.
+- **Registration:** When `user_registration` is on, `getPublicConfig` exposes it and `/register` loads `getRegistrationOptions`, then `register` creates the user via the API layer in `bnote-next-generation/api/nextgen_registration.php` (same DB rules as legacy). The contact row sets **`gdpr_ok = 1`** when registration completes with accepted terms on this path. Success paths depend on `auto_user_activation` and mail delivery. Legal footer includes `/legal/terms/`.
+- **Admin email (new registration):** After success, the API may notify administrators via the Next Gen mail stack (`api/mail/`, PHPMailer): one send with the first admin in **To** and the rest in **BCC**. Copy lives in `lang/*.json` (`mail.*`). Configure SMTP with `MAIL_*` env vars; deep links use `NEXTGEN_PUBLIC_URL` (or `NEXTGEN_PUBLIC_ORIGIN` + `NEXT_PUBLIC_BASE_PATH`). Failures are logged only. Details: **[MAIL.md](MAIL.md)**.
 - **Session check:** `GET /api/v1/auth/me` (or equivalent) used to verify session; 401 → redirect to login with current path as `redirect`.
 - **Logout:** Calls API to clear session; redirect to `/login`.
 - **Remember me:** If supported, document behavior here.
@@ -39,6 +40,7 @@ This document describes each feature and expected behavior of the Next.js app. U
 - **Company subtitle:** Band/company name from API `company`; use `normalizeCompany()` so SimpleXMLElement/cast issues are handled. Translation key `js.dashboard.subtitle` with `%p` for company.
 - **Quick actions:** Card with quick action buttons; currently visible (product decision: was hidden in legacy UI).
 - **Events needing response:** Section listing events where the user has not yet responded. Event cards show date, title, type tag, time, location; link to entity detail.
+- **Admin overview (administrators only):** Includes a **Pending accounts** tile when there are users with **`isActive = 0`** whose contact has **no** rows in **`rehearsal_contact`**, **`concert_contact`**, **`rehearsalphase_contact`**, **`tour_contact`**, and **no** **`vote_group`** row for that user—i.e. inactive accounts that still need **phase-in** (typically brand-new registrations), not every deactivated user. The count is included in **`action_needed_count`**. The tile links to **Contacts → integration** with the default member group when applicable.
 - **Event cards:** Desktop: timeline + card layout. Mobile: compact list item without timeline.
 - **Filters:** By type (rehearsal/concert), year, month if applicable.
 
@@ -60,8 +62,9 @@ This document describes each feature and expected behavior of the Next.js app. U
 ## 6. Contacts
 
 - **Route:** `/contacts`. Page: `app/(app)/contacts/page.tsx`.
+- **Phase in (integration):** Route **`/contacts/integration`**. Same **Contacts** module permission as the list. A **`SelectPicker`** (same shared control as profile / entity edits) at the top drives the member list; it defaults to the **members group** (same id as legacy `KontakteData::$GROUP_MEMBER`, usually **2** / “Mitglieder” in default installs). A valid **`?group=`** in the URL overrides the default; invalid or missing `group` is replaced with the default. Users search/filter per list, then multi-select members, rehearsals, concerts, and votes. **Save** → `POST contacts` **`integrate`**. Data: **`getIntegrationBundle`**. Header **Phase in** opens the page; optional **`?group=`** from the contacts list filter.
 - **Title/subtitle:** i18n `js.contacts.title`, `js.contacts.subtitle`.
-- **Actions:** “Add Contact” (primary). Secondary (Integration, Groups, Print, vCard, Datenschutz) as implemented.
+- **Actions:** **Phase in** (outline) and **Add Contact** (primary); other secondary actions as implemented.
 - **Filter tabs:** “All” + group tabs from API; selection filters list.
 - **Search:** Client-side filter by name, surname, nickname, email.
 - **Table (see [UI_PATTERNS.md](UI_PATTERNS.md)):** Columns: **First name, Last name, Nickname, Instrument, Email, Phone, City**. No ID column. No Edit or Delete buttons in list rows.
@@ -113,7 +116,7 @@ This document describes each feature and expected behavior of the Next.js app. U
   - Auth: login, me, logout.  
   - Dashboard: company, events, events needing response.  
   - Users: list, get, create, update, delete, activate, getPrivileges, updatePrivileges, getContacts.  
-  - Contacts: list, get, create, update, delete, getGroups.  
+  - Contacts: list, get, create, update, delete, getGroups, getIntegrationBundle, integrate.  
   - Search: search (with filters).  
   - Participation: get participation, set participation.  
   - Translations: list of keys or full locale JSON.
@@ -126,7 +129,8 @@ This document describes each feature and expected behavior of the Next.js app. U
 - **Branding:** Logo and “BNote” in sidebar/mobile/login; favicon if required.
 - **Dashboard:** Greeting + company subtitle; events needing response; event cards; Quick Actions (if enabled); filters.
 - **Users:** Title/subtitle; Add User; search; sortable table (no ID column; correct last-login date sort); Active/Inactive pills; row actions only Privileges and Activate/Deactivate (no Edit/Delete in list).
-- **Contacts:** Title/subtitle; Add Contact; group tabs; search; sortable table (no ID column; no Edit/Delete in list); row click opens edit modal.
+- **Contacts:** Title/subtitle; Phase in + Add Contact in header; group tabs; search; sortable table (no ID column; no Edit/Delete in list); row click opens detail/edit flow; integration page uses event-style rows (icon, date, time, location) and Avatars for members.
+- **Dashboard (admin):** Pending accounts tile and action count use the “inactive + unintegrated” rule above, not all inactive users.
 - **Lists (all modules):** No ID column; no Edit (pencil) or Delete (trash) in list rows. See [UI_PATTERNS.md](UI_PATTERNS.md).
 - **Search:** Top-bar overlay; search results page with query in URL; filters; result list with type icon, date, tag, time, location.
 - **Entity detail:** Path-based view/edit; type title + icon + tag; metadata; map links; participation widget; overview bar; participants with group-by and status icons. Edit mode in URL; delete only in edit view (DetailDeleteSection + ConfirmModal).

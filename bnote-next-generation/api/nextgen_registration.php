@@ -126,7 +126,8 @@ class NextGenRegistration {
         ]);
 
         $bdVal = $birthday !== '' ? $birthday : null;
-        $contactQ = 'INSERT INTO contact (surname, name, nickname, phone, mobile, email, address, instrument, birthday) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        // Terms accepted on this path → mirror explicit GDPR consent (legacy bug: left 0).
+        $contactQ = 'INSERT INTO contact (surname, name, nickname, phone, mobile, email, address, instrument, birthday, gdpr_ok) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
         $cid = $db->prepStatement($contactQ, [
             ['s', $surname],
             ['s', $name],
@@ -137,6 +138,7 @@ class NextGenRegistration {
             ['i', $aid],
             ['i', (int) $instrument],
             ['s', $bdVal],
+            ['i', 1],
         ]);
 
         $defaultGroup = $system_data->getDynamicConfigParameter('default_contact_group');
@@ -214,6 +216,17 @@ class NextGenRegistration {
             $mailOk = false;
             $outMsg = Lang::txt('LoginController_register.message_5');
         }
+
+        require_once __DIR__ . '/mail/RegistrationAdminNotifier.php';
+        RegistrationAdminNotifier::sendSafe($system_data, [
+            'userId' => (int) $uid,
+            'contactId' => (int) $cid,
+            'name' => $name,
+            'surname' => $surname,
+            'email' => $email,
+            'login' => $email,
+            'autoUserActivation' => (bool) $system_data->autoUserActivation(),
+        ]);
 
         return [
             'user' => (int) $uid,

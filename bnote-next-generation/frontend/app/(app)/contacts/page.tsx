@@ -148,10 +148,24 @@ export default function ContactsPage() {
         title={t("js.contacts.title") !== "js.contacts.title" ? t("js.contacts.title") : "Contacts"}
         subtitle={t("js.contacts.subtitle") !== "js.contacts.subtitle" ? t("js.contacts.subtitle") : "Manage contacts and groups"}
         actions={(
-          <ActionButton onClick={() => router.push(getEntityPath("contact", "new", "edit"))}>
-            <Plus className="h-4 w-4" />
-            {t("js.contacts.addContact") !== "js.contacts.addContact" ? t("js.contacts.addContact") : "Add Contact"}
-          </ActionButton>
+          <>
+            <ActionButton
+              variant="outline"
+              onClick={() =>
+                router.push(
+                  selectedGroup != null
+                    ? `/contacts/integration/?group=${encodeURIComponent(selectedGroup)}`
+                    : "/contacts/integration/"
+                )
+              }
+            >
+              {t("js.contacts.integration")}
+            </ActionButton>
+            <ActionButton onClick={() => router.push(getEntityPath("contact", "new", "edit"))}>
+              <Plus className="h-4 w-4" />
+              {t("js.contacts.addContact") !== "js.contacts.addContact" ? t("js.contacts.addContact") : "Add Contact"}
+            </ActionButton>
+          </>
         )}
       />
 

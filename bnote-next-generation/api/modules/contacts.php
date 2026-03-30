@@ -82,6 +82,8 @@ class ContactsModule {
                 return $this->normalizeResponse($this->getVotes(), $action);
             case 'integrate':
                 return $this->normalizeResponse($this->integrate(), $action);
+            case 'getIntegrationBundle':
+                return $this->normalizeResponse($this->getIntegrationBundle(), $action);
             // Groups submodule
             case 'listGroups':
                 return $this->normalizeResponse($this->listGroups(), $action);
@@ -117,8 +119,9 @@ class ContactsModule {
 
     private function normalizeResponse($payload, $action) {
         $textFields = [
-            'name', 'surname', 'label', 'nickname', 'instrument', 'notes', 'message',
-            'groupName', 'title', 'status', 'business', 'address', 'city', 'street', 'zip'
+            'name', 'surname', 'label', 'nickname', 'instrument', 'instrumentname', 'notes', 'message',
+            'groupName', 'title', 'status', 'business', 'address', 'city', 'street', 'zip',
+            'location_name', 'email',
         ];
         $stats = ['count' => 0, 'samples' => []];
         $normalized = TextNormalizer::normalizeFieldsRecursive($payload, $textFields, $stats, true);
@@ -171,6 +174,9 @@ class ContactsModule {
                 'id' => intval($member['id']),
                 'name' => $member['name'] ?? '',
                 'surname' => $member['surname'] ?? '',
+                'nickname' => $member['nickname'] ?? '',
+                'email' => $member['email'] ?? '',
+                'instrumentname' => $member['instrumentname'] ?? '',
                 'label' => trim(($member['name'] ?? '') . ' ' . ($member['surname'] ?? ''))
             ];
         }
@@ -190,7 +196,10 @@ class ContactsModule {
             $result[] = [
                 'id' => intval($rehearsal['id']),
                 'begin' => $rehearsal['begin'] ?? '',
-                'label' => $rehearsal['begin'] ?? '' // Will be formatted on frontend
+                'label' => $rehearsal['begin'] ?? '',
+                'location_name' => $rehearsal['name'] ?? '',
+                'notes' => $rehearsal['notes'] ?? '',
+                'status' => $rehearsal['status'] ?? '',
             ];
         }
         
@@ -228,7 +237,11 @@ class ContactsModule {
             $result[] = [
                 'id' => intval($concert['id']),
                 'begin' => $concert['begin'] ?? '',
-                'label' => $concert['begin'] ?? '' // Will be formatted on frontend
+                'label' => $concert['begin'] ?? '',
+                'title' => $concert['title'] ?? '',
+                'location_name' => $concert['location_name'] ?? '',
+                'notes' => $concert['notes'] ?? '',
+                'status' => $concert['status'] ?? '',
             ];
         }
         
@@ -322,6 +335,19 @@ class ContactsModule {
             'message' => "Integration completed. $successCount relations created.",
             'created' => $successCount,
             'errors' => $errors
+        ];
+    }
+
+    /**
+     * Single round-trip for integration UI (honours GET group for members list).
+     */
+    private function getIntegrationBundle() {
+        return [
+            'members' => $this->getMembers(),
+            'rehearsals' => $this->getRehearsals(),
+            'phases' => $this->getPhases(),
+            'concerts' => $this->getConcerts(),
+            'votes' => $this->getVotes(),
         ];
     }
     

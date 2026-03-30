@@ -14,6 +14,7 @@ const TABLER_MAP: Record<string, string> = {
   "layout-dashboard": "icon-[tabler--layout-dashboard]",
   dashboard: "icon-[tabler--layout-dashboard]",
   users: "icon-[tabler--users]",
+  "user-plus": "icon-[tabler--user-plus]",
   user: "icon-[tabler--user]",
   "user-cog": "icon-[tabler--user-cog]",
   "calendar-days": "icon-[tabler--calendar-event]",
@@ -123,6 +124,7 @@ export const Save = (p: IconProps) => <Icon name="save" {...p} />;
 export const Plus = (p: IconProps) => <Icon name="plus" {...p} />;
 export const LayoutList = (p: IconProps) => <Icon name="layout-list" {...p} />;
 export const ArrowUp = (p: IconProps) => <Icon name="arrow-up" {...p} />;
+export const ArrowLeft = (p: IconProps) => <Icon name="arrow-left" {...p} />;
 export const ArrowDown = (p: IconProps) => <Icon name="arrow-down" {...p} />;
 export const ArrowUpDown = (p: IconProps) => <Icon name="arrow-up-down" {...p} />;
 export const ChevronRight = (p: IconProps) => <Icon name="chevron-right" {...p} />;

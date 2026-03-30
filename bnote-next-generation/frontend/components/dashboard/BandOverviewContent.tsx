@@ -41,6 +41,7 @@ const TILE_ORDER_KEY = "band-overview-tile-order";
 
 const DEFAULT_TILE_ORDER = [
   "participation_gaps",
+  "pending_accounts",
   "open_votes",
   "missed_deadlines",
   "cancellations",
@@ -60,6 +61,18 @@ export type AdminOverviewData = {
   instrument_gaps?: { count: number; events?: unknown[] };
   pending_invitations?: { count: number; total_members: number; events?: unknown[] };
   upcoming_events?: { events?: unknown[] };
+  pending_accounts?: {
+    count: number;
+    users?: Array<{
+      userId: number;
+      contactId: number;
+      login: string;
+      name: string;
+      surname: string;
+      email: string;
+    }>;
+    default_integration_group?: number;
+  };
   action_needed_count?: number;
 };
 
@@ -374,6 +387,33 @@ function renderAdminTile(
               </div>
             );
           })}
+        </DashboardTile>
+      );
+    }
+    case "pending_accounts": {
+      const pa = data.pending_accounts;
+      const cnt = pa?.count ?? 0;
+      const group = pa?.default_integration_group ?? 2;
+      const preview = pa?.users ?? [];
+      return (
+        <DashboardTile
+          titleKey="js.dashboard.pendingAccounts"
+          badgeVariant={cnt > 0 ? "warning" : "success"}
+          href={`/contacts/integration/?group=${group}`}
+          icon="user-plus"
+          iconClass={cnt > 0 ? "text-warning" : "text-success"}
+          statValue={cnt}
+          statDesc={t("js.dashboard.pendingAccountsHint")}
+          dragHandleProps={dragHandleProps}
+        >
+          {preview.slice(0, 5).map((u) => (
+            <div key={u.userId} className="flex items-center justify-between gap-2 text-xs">
+              <span className="truncate min-w-0">
+                {[u.name, u.surname].filter(Boolean).join(" ") || u.login || u.email}
+              </span>
+              <span className="text-base-content/60 shrink-0 truncate max-w-[40%]">{u.email}</span>
+            </div>
+          ))}
         </DashboardTile>
       );
     }

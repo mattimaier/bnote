@@ -7,6 +7,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { CHECKBOX_ROW_INPUT_CLASS, CHECKBOX_ROW_LABEL_CLASS } from "@/components/CheckboxRow";
 import { LayoutList, Trash2 } from "@/components/icons";
 import { PersonOptionRow } from "@/components/PersonOptionRow";
 import type { SimpleOption } from "@/lib/entities/event/types";
@@ -135,11 +136,13 @@ export function MultiSelect({
           />
           <div className="max-h-80 overflow-y-auto rounded-field border border-base-300">
             {filtered.map((opt) => (
-              <label
-                key={opt.id}
-                className="flex items-center gap-3 px-3 py-3 text-sm border-b border-base-300 hover:bg-base-200/60 active:bg-base-200 cursor-pointer"
-              >
-                <input type="checkbox" className="checkbox checkbox-primary checkbox-sm shrink-0" checked={selectedSet.has(opt.id)} onChange={() => toggle(opt.id)} />
+              <label key={opt.id} className={CHECKBOX_ROW_LABEL_CLASS}>
+                <input
+                  type="checkbox"
+                  className={CHECKBOX_ROW_INPUT_CLASS}
+                  checked={selectedSet.has(opt.id)}
+                  onChange={() => toggle(opt.id)}
+                />
                 {(opt.email != null || opt.instrument != null) ? (
                   <PersonOptionRow
                     name={opt.name ?? "-"}
@@ -190,11 +193,13 @@ export function MultiSelect({
             />
             <div className="mx-4 mb-4 mt-3 flex-1 min-h-0 overflow-y-auto rounded-field border border-base-300 md:max-h-[78vh]">
               {filtered.map((opt) => (
-                <label
-                  key={opt.id}
-                  className="flex items-center gap-3 px-3 py-3 text-sm border-b border-base-300 hover:bg-base-200/60 active:bg-base-200 cursor-pointer"
-                >
-                  <input type="checkbox" className="checkbox checkbox-primary checkbox-sm shrink-0" checked={selectedSet.has(opt.id)} onChange={() => toggle(opt.id)} />
+                <label key={opt.id} className={CHECKBOX_ROW_LABEL_CLASS}>
+                  <input
+                    type="checkbox"
+                    className={CHECKBOX_ROW_INPUT_CLASS}
+                    checked={selectedSet.has(opt.id)}
+                    onChange={() => toggle(opt.id)}
+                  />
                   {(opt.email != null || opt.instrument != null) ? (
                     <PersonOptionRow
                       name={opt.name ?? "-"}

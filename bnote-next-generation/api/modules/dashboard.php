@@ -880,13 +880,15 @@ class DashboardModule {
         $instrumentGaps = $this->getAdminInstrumentGaps($uid);
         $pendingInvitations = $this->getAdminPendingInvitations($uid);
         $upcomingEvents = $this->getAdminUpcomingEvents($uid);
+        $pendingAccounts = $this->getAdminPendingAccounts($system_data);
 
         $actionNeeded = count($participationGaps['events'])
             + count($votesSummary['votes_closing_soon'])
             + count($missedDeadlines['events'])
             + $cancellations['total_count']
             + $tasksOverview['overdue_count']
-            + $tasksOverview['open_count'];
+            + $tasksOverview['open_count']
+            + (int) ($pendingAccounts['count'] ?? 0);
 
         return [
             'participation_gaps' => $participationGaps,
@@ -897,7 +899,63 @@ class DashboardModule {
             'instrument_gaps' => $instrumentGaps,
             'pending_invitations' => $pendingInvitations,
             'upcoming_events' => $upcomingEvents,
+            'pending_accounts' => $pendingAccounts,
             'action_needed_count' => $actionNeeded,
+        ];
+    }
+
+    /**
+     * Inactive users who still need “phase-in”: isActive = 0 and not linked to any rehearsal,
+     * rehearsal phase, concert, tour, or vote roster (same dimensions as contacts integrate()).
+     */
+    private function getAdminPendingAccounts($system_data) {
+        $db = $system_data->dbcon;
+        $integrationUnassigned = ''
+            . ' AND NOT EXISTS (SELECT 1 FROM rehearsal_contact rc WHERE rc.contact = c.id)'
+            . ' AND NOT EXISTS (SELECT 1 FROM concert_contact cc WHERE cc.contact = c.id)'
+            . ' AND NOT EXISTS (SELECT 1 FROM rehearsalphase_contact rpc WHERE rpc.contact = c.id)'
+            . ' AND NOT EXISTS (SELECT 1 FROM tour_contact tc WHERE tc.contact = c.id)'
+            . ' AND NOT EXISTS (SELECT 1 FROM vote_group vg WHERE vg.user = u.id)';
+
+        $countRow = $db->getSelection(
+            'SELECT COUNT(*) AS cnt FROM user u INNER JOIN contact c ON u.contact = c.id '
+            . 'WHERE u.isActive = 0' . $integrationUnassigned,
+            []
+        );
+        $total = 0;
+        if (is_array($countRow) && isset($countRow[1]['cnt'])) {
+            $total = (int) $countRow[1]['cnt'];
+        }
+
+        $q = 'SELECT u.id AS userId, c.id AS contactId, u.login, c.name, c.surname, c.email '
+            . 'FROM user u INNER JOIN contact c ON u.contact = c.id '
+            . 'WHERE u.isActive = 0' . $integrationUnassigned
+            . ' ORDER BY u.id DESC LIMIT 20';
+        $rows = $db->getSelection($q, []);
+        $users = [];
+        if (is_array($rows)) {
+            for ($i = 1; $i < count($rows); $i++) {
+                $r = $rows[$i];
+                $users[] = [
+                    'userId' => (int) ($r['userId'] ?? 0),
+                    'contactId' => (int) ($r['contactId'] ?? 0),
+                    'login' => (string) ($r['login'] ?? ''),
+                    'name' => (string) ($r['name'] ?? ''),
+                    'surname' => (string) ($r['surname'] ?? ''),
+                    'email' => (string) ($r['email'] ?? ''),
+                ];
+            }
+        }
+
+        $defGroup = $system_data->getDynamicConfigParameter('default_contact_group');
+        if ($defGroup === null || $defGroup === '') {
+            $defGroup = 2;
+        }
+
+        return [
+            'count' => $total,
+            'users' => $users,
+            'default_integration_group' => (int) $defGroup,
         ];
     }
 
