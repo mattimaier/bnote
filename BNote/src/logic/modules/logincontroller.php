@@ -78,6 +78,8 @@ class LoginController extends DefaultController {
 		}
 		
 		$requestedUserId = $this->getData()->getUserIdForLogin($_POST["login"]);
+		
+		// when no user is found for login/username, try email address (bugfix for #549)
 		if($requestedUserId < 0 || $requestedUserId === NULL) {
 			$requestedUserId = $this->getData()->getUserIdForEMail($_POST["login"]);
 		}
