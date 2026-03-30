@@ -87,17 +87,20 @@ function ConfirmInner() {
           <div className="mx-auto mb-4 flex justify-center">
             <BNoteLogo size="lg" padding="tight" />
           </div>
-          <h1 className="mb-2 text-2xl font-bold text-base-content">{t("js.resetPassword.confirmTitle")}</h1>
-          <p className="text-base-content/60">{t("js.resetPassword.confirmSubtitle")}</p>
+          <h1 className="mb-2 text-2xl font-bold text-base-content">
+            {missingToken ? t("js.resetPassword.confirmInvalidTitle") : t("js.resetPassword.confirmTitle")}
+          </h1>
+          <p className="text-base-content/60">
+            {missingToken ? t("js.resetPassword.confirmInvalidSubtitle") : t("js.resetPassword.confirmSubtitle")}
+          </p>
         </div>
 
         {missingToken ? (
           <div className="space-y-4">
-            <p className="text-sm text-error">{t("js.resetPassword.missingToken")}</p>
             <Link href="/reset-password/" className="btn btn-primary btn-block">
               {t("js.resetPassword.title")}
             </Link>
-            <Link href="/login/" className="btn btn-ghost btn-block">
+            <Link href="/login/" className="btn btn-outline btn-block text-base-content">
               {t("js.resetPassword.backToLogin")}
             </Link>
           </div>
