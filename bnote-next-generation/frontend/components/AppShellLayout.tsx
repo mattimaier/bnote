@@ -1,6 +1,6 @@
 /**
  * BNote Next Generation - Conditional app shell wrapper
- * Wraps authenticated routes with AppShell; leaves login and root unwrapped.
+ * Wraps authenticated routes with AppShell; public routes (see PUBLIC_PATHS) stay unwrapped.
  *
  * Copyright (C) 2026 BNote Contributors
  */
@@ -16,7 +16,14 @@ import { EditingBarProvider } from "@/contexts/EditingBarContext";
 import { AppShell } from "@/components/AppShell";
 import { ToastContainer } from "@/components/ToastContainer";
 
-const PUBLIC_PATHS = ["/", "/login", "/legal/imprint", "/legal/privacy"];
+const PUBLIC_PATHS = [
+  "/",
+  "/login",
+  "/register",
+  "/legal/imprint",
+  "/legal/privacy",
+  "/legal/terms",
+];
 
 function isPublicPath(pathname: string | null): boolean {
   if (!pathname) return true;

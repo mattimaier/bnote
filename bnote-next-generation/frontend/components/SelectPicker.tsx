@@ -32,6 +32,11 @@ export interface SelectPickerProps {
   labelSelect?: string;
   labelNoMatches?: string;
   labelClose?: string;
+  /**
+   * If true, sets `data-1p-ignore` so 1Password (and similar) does not treat this control
+   * as part of the address/contact sequence (e.g. app-specific pickers between standard fields).
+   */
+  passwordManagerIgnore?: boolean;
 }
 
 export function SelectPicker({
@@ -43,6 +48,7 @@ export function SelectPicker({
   labelSelect = "Select…",
   labelNoMatches = "No matches",
   labelClose = "Close",
+  passwordManagerIgnore = false,
 }: SelectPickerProps) {
   const { t } = useI18n();
   const resolvedEmptyLabel = emptyLabel ?? (t("js.common.empty") !== "js.common.empty" ? t("js.common.empty") : "");
@@ -66,7 +72,11 @@ export function SelectPicker({
   }, [open]);
 
   return (
-    <div ref={rootRef} className="relative w-full min-w-[12rem] max-w-[20rem] space-y-2">
+    <div
+      ref={rootRef}
+      className="relative w-full min-w-[12rem] max-w-[20rem] space-y-2"
+      {...(passwordManagerIgnore ? { "data-1p-ignore": "" as const } : {})}
+    >
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}

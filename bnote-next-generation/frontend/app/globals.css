@@ -177,8 +177,15 @@ body {
   --radius: var(--radius);
 }
 
-/* Construction tape banner (login) */
+/* Construction tape banner (login/register). Non-interactive so fixed mobile
+   placement does not steal taps. Descendants default to pointer-events: auto,
+   so they must be disabled too (otherwise footer/terms area stays blocked). */
+.construction-tape * {
+  pointer-events: none;
+}
+
 .construction-tape {
+  pointer-events: none;
   background: repeating-linear-gradient(
     45deg,
     #000000,

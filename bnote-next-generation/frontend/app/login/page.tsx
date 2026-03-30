@@ -21,11 +21,14 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { BNoteLogo } from "@/components/BNoteLogo";
 import { safeString } from "@/lib/string-utils";
 import { Spinner } from "@/components/Spinner";
+import { LegalFooter } from "@/components/auth/LegalFooter";
 
 interface PublicConfig {
   lang?: string;
   country?: string | null;
   company?: unknown;
+  user_registration?: boolean;
+  auto_user_activation?: boolean;
 }
 
 function LoginFormInner() {
@@ -37,6 +40,7 @@ function LoginFormInner() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [welcomeText, setWelcomeText] = useState("Welcome");
+  const [userRegistration, setUserRegistration] = useState(false);
 
   useEffect(() => {
     checkSession().then((session) => {
@@ -56,6 +60,7 @@ function LoginFormInner() {
         setWelcomeText(
           company ? t("js.dashboard.subtitle", [company]) : t("js.common.appName")
         );
+        setUserRegistration(Boolean(config?.user_registration));
       })
       .catch(() => {
         setWelcomeText(t("js.common.appName"));
@@ -136,7 +141,9 @@ function LoginFormInner() {
             </label>
             <input
               id="username"
+              name="username"
               type="text"
+              autoComplete="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
@@ -153,7 +160,9 @@ function LoginFormInner() {
             </label>
             <input
               id="password"
+              name="password"
               type="password"
+              autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -174,18 +183,16 @@ function LoginFormInner() {
             {loading ? t("js.login.loggingIn") : t("js.login.login")}
           </button>
         </form>
+        {userRegistration ? (
+          <p className="mt-6 text-center text-sm text-base-content/70">
+            {t("js.login.signUpQuestion")}{" "}
+            <Link href="/register/" className="link link-primary font-medium">
+              {t("js.login.signUpLink")}
+            </Link>
+          </p>
+        ) : null}
       </div>
-      <div className="mt-8 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 px-1 text-center text-xs text-base-content/60 sm:mt-10">
-        <Link href="/legal/imprint/" className="transition-colors hover:text-base-content">
-          Impressum
-        </Link>
-        <span aria-hidden className="text-base-content/30">
-          ·
-        </span>
-        <Link href="/legal/privacy/" className="transition-colors hover:text-base-content">
-          Datenschutz
-        </Link>
-      </div>
+      <LegalFooter />
     </div>
   );
 }

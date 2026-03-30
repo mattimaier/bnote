@@ -45,9 +45,17 @@ export interface DatePickerProps {
   className?: string;
   disabled?: boolean;
   id?: string;
+  /** When `mode` uses a visible alt input, sets `name` on that field (e.g. `birthday` for registration). */
+  inputName?: string;
   locale?: string;
   /** For datetime mode, if true outputs YYYY-MM-DD HH:mm:00 instead of YYYY-MM-DD HH:mm */
   appendSeconds?: boolean;
+  /**
+   * Applied to the user-visible control: flatpickr alt input for date/datetime, otherwise this element.
+   * The hidden native input (date/datetime) uses `autocomplete="off"` and `data-1p-ignore` so password
+   * managers only see one birthday/date field.
+   */
+  autoComplete?: string;
 }
 
 function getBaseOptions(mode: DatePickerMode, locale?: string) {
@@ -90,8 +98,10 @@ export function DatePicker({
   className,
   disabled,
   id,
+  inputName,
   locale,
   appendSeconds = false,
+  autoComplete: autoCompleteProp,
 }: DatePickerProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const fpRef = useRef<flatpickr.Instance | null>(null);
@@ -106,9 +116,13 @@ export function DatePicker({
     if (!el) return;
 
     const base = getBaseOptions(mode, locale);
+    const altAc = autoCompleteProp ?? "off";
+
     fpRef.current = flatpickr(el, {
       ...base,
-      ...(base.altInput && { altInputClass: className ?? "input max-w-sm" }),
+      ...(base.altInput && {
+        altInputClass: className ?? "input max-w-sm",
+      }),
       defaultDate: value || undefined,
       closeOnSelect: true,
       onChange: (_dates, dateStr, instance) => {
@@ -129,6 +143,18 @@ export function DatePicker({
       },
     });
 
+    // flatpickr 4.x has no altInputAttributes; it also copies tabIndex from the native input onto
+    // the visible alt field — so we must not leave tabIndex -1 on the native element before init.
+    if (base.altInput && fpRef.current.altInput) {
+      const alt = fpRef.current.altInput;
+      if (id) alt.id = id;
+      if (inputName) alt.setAttribute("name", inputName);
+      alt.setAttribute("autocomplete", altAc);
+      alt.tabIndex = 0;
+      el.tabIndex = -1;
+      el.setAttribute("aria-hidden", "true");
+    }
+
     if (base.altInput) {
       el.style.position = "absolute";
       el.style.width = "1px";
@@ -146,7 +172,7 @@ export function DatePicker({
       fpRef.current?.destroy();
       fpRef.current = null;
     };
-  }, [mode, locale]); // eslint-disable-line react-hooks/exhaustive-deps -- init only on mode/locale
+  }, [mode, locale, className, autoCompleteProp, id, inputName]); // eslint-disable-line react-hooks/exhaustive-deps -- flatpickr options
 
   // Sync value when it changes externally
   useEffect(() => {
@@ -162,7 +188,9 @@ export function DatePicker({
   useEffect(() => {
     const fp = fpRef.current;
     if (!fp?.input) return;
-    fp.input.disabled = !!disabled;
+    const d = !!disabled;
+    fp.input.disabled = d;
+    if (fp.altInput) fp.altInput.disabled = d;
   }, [disabled]);
 
   const langKey = locale?.split("-")[0]?.toLowerCase() ?? "en";
@@ -174,6 +202,8 @@ export function DatePicker({
         ? localePlaceholders.time
         : localePlaceholders.datetime;
 
+  const usesAltInput = mode === "date" || mode === "datetime";
+
   return (
     <input
       ref={inputRef}
@@ -181,8 +211,9 @@ export function DatePicker({
       className={className ?? "input max-w-sm"}
       placeholder={placeholder ?? placeholderFallback}
       disabled={disabled}
-      id={id}
-      autoComplete="off"
+      id={usesAltInput ? undefined : id}
+      autoComplete={usesAltInput ? "off" : autoCompleteProp ?? "off"}
+      {...(usesAltInput ? { "data-1p-ignore": "" as const } : {})}
     />
   );
 }

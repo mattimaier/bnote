@@ -9,7 +9,7 @@ This document describes each feature and expected behavior of the Next.js app. U
 ## 1. Overview
 
 - **App:** Next.js UI (static export) in `frontend/`, PHP REST API in `api/`.
-- **Entry points:** `/` (redirects to `/dashboard` or `/login`), `/login`, `/dashboard`, `/users`, `/contacts`, `/search`, `/entity` (entity detail).
+- **Entry points:** `/` (redirects to `/dashboard` or `/login`), `/login`, `/register` (when `user_registration` is enabled in BNote config), `/dashboard`, `/users`, `/contacts`, `/search`, `/entity` (entity detail).
 - **Auth:** Session-based; API uses PHP session cookie. Unauthenticated users are redirected to `/login?redirect=…`.
 
 ---
@@ -17,6 +17,7 @@ This document describes each feature and expected behavior of the Next.js app. U
 ## 2. Authentication
 
 - **Login flow:** User submits username and password on `/login`. API `POST /api/v1/auth/login` creates session. On success, redirect to `redirect` query param or `/dashboard`.
+- **Registration:** When `user_registration` is on, `getPublicConfig` exposes it and `/register` loads `getRegistrationOptions`, then `register` creates the user via the API layer in `bnote-next-generation/api/nextgen_registration.php` (same DB rules as legacy). Success paths depend on `auto_user_activation` and mail delivery. Legal footer includes `/legal/terms/`.
 - **Session check:** `GET /api/v1/auth/me` (or equivalent) used to verify session; 401 → redirect to login with current path as `redirect`.
 - **Logout:** Calls API to clear session; redirect to `/login`.
 - **Remember me:** If supported, document behavior here.

@@ -33,17 +33,15 @@ require_once BNOTE_ROOT . '/src/logic/defaultcontroller.php';
 require_once BNOTE_ROOT . '/src/data/modules/logindata.php';
 require_once BNOTE_ROOT . '/src/logic/modules/logincontroller.php';
 require_once __DIR__ . '/../response.php';
+require_once __DIR__ . '/../register_rate_limit.php';
+require_once __DIR__ . '/../nextgen_registration.php';
 require_once __DIR__ . '/../auth.php';
 
 class AuthModule {
     private $loginData;
-    private $loginController;
-    
+
     public function __construct() {
-        // Auth module doesn't require authentication check (it's for login)
         $this->loginData = new LoginData();
-        $this->loginController = new LoginController();
-        $this->loginController->setData($this->loginData);
     }
     
     public function handle() {
@@ -60,6 +58,10 @@ class AuthModule {
                 return $this->getUserLang();
             case 'getPublicConfig':
                 return $this->getPublicConfig();
+            case 'getRegistrationOptions':
+                return $this->getRegistrationOptions();
+            case 'register':
+                return $this->registerAction();
             case 'getModules':
                 return $this->getModules();
             default:
@@ -187,10 +189,13 @@ class AuthModule {
         $country = $system_data->getDynamicConfigParameter('default_country');
         $country = $this->countryAlpha3ToAlpha2($country);
         $company = $system_data->getCompany();
+        $userReg = $system_data->getDynamicConfigParameter('user_registration');
         $out = [
             'lang' => $lang ?: 'de',
             'country' => $country ?: null,
-            'company' => $company ?: ''
+            'company' => $company ?: '',
+            'user_registration' => strval($userReg) === '1',
+            'auto_user_activation' => $system_data->autoUserActivation(),
         ];
         $debug = isset($_GET['debug']) && $_GET['debug'] === '1';
         if ($debug) {
@@ -459,5 +464,93 @@ class AuthModule {
             }
         }
         return isset($map[$upper]) ? $map[$upper] : null;
+    }
+
+    private function registrationEnabled(): bool {
+        global $system_data;
+        return strval($system_data->getDynamicConfigParameter('user_registration')) === '1';
+    }
+
+    /**
+     * Public form data for /register (instruments, countries). GET.
+     */
+    private function getRegistrationOptions(): array {
+        global $system_data;
+        if (!$this->registrationEnabled()) {
+            Response::error('register_deactivated', 403);
+        }
+
+        $instruments = $this->loginData->getInstruments();
+        $cats = $system_data->getInstrumentCategories();
+        $list = [];
+        if (is_array($instruments)) {
+            for ($i = 1; $i < count($instruments); $i++) {
+                $row = $instruments[$i];
+                if (!in_array($row['cat'], $cats)) {
+                    continue;
+                }
+                $list[] = [
+                    'id' => (int) ($row['id'] ?? 0),
+                    'name' => ($row['category'] ?? '') . ': ' . ($row['instrument'] ?? ''),
+                ];
+            }
+        }
+
+        $countries = $this->loginData->getCountries();
+        $lang = $system_data->getLang() ?: 'de';
+        $countryList = [];
+        foreach ($countries as $c) {
+            $name = $c[$lang] ?? $c['en'] ?? $c['de'] ?? '';
+            $countryList[] = [
+                'code' => $c['code'] ?? '',
+                'label' => trim($name . ' - ' . ($c['code'] ?? '')),
+                'name' => $name,
+            ];
+        }
+
+        $defaultCountry = $system_data->getDynamicConfigParameter('default_country');
+        $defaultCountry = $defaultCountry !== null ? trim((string) $defaultCountry) : '';
+
+        return [
+            'instruments' => $list,
+            'countries' => $countryList,
+            'defaultCountry' => $defaultCountry,
+            'autoUserActivation' => $system_data->autoUserActivation(),
+        ];
+    }
+
+    /**
+     * Create user via legacy LoginController::register(false).
+     */
+    private function registerAction(): array {
+        global $system_data;
+        if (!$this->registrationEnabled()) {
+            Response::error('register_deactivated', 403);
+        }
+
+        RegisterRateLimit::consumeOr429();
+
+        $body = $GLOBALS['API_REQUEST_BODY'] ?? null;
+        if (!is_array($body)) {
+            Response::error('register_validation', 400);
+        }
+
+        $result = NextGenRegistration::execute($body);
+
+        $auto = $system_data->autoUserActivation();
+        $mailOk = (bool) ($result['mailOk'] ?? false);
+        $nextStep = 'done';
+        if ($auto) {
+            $nextStep = $mailOk ? 'confirm_email' : 'mail_failed';
+        } else {
+            $nextStep = 'wait_admin';
+        }
+
+        return [
+            'userId' => (int) ($result['user'] ?? 0),
+            'mailOk' => $mailOk,
+            'autoUserActivation' => $auto,
+            'nextStep' => $nextStep,
+        ];
     }
 }

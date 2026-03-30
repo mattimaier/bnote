@@ -121,6 +121,30 @@ Check current session status.
 
 ---
 
+### GET `api/index.php?module=auth&action=getPublicConfig`
+
+Public config for the Next.js login page (no authentication).
+
+**Response (200):** `lang`, `country`, `company`, `user_registration` (boolean), `auto_user_activation` (boolean).
+
+---
+
+### GET `api/index.php?module=auth&action=getRegistrationOptions`
+
+Instruments and countries for the registration form. **403** with `error: register_deactivated` when public registration is off.
+
+**Response (200):** `instruments`, `countries`, `defaultCountry`, `autoUserActivation`.
+
+---
+
+### POST `api/index.php?module=auth&action=register`
+
+Create a new inactive user (same rules as legacy registration). JSON body: `name`, `surname`, optional `nickname`, optional `birthday` (`YYYY-MM-DD`), `instrument` (id), `email`, optional `phone`/`mobile`, `street`, `zip`, `city`, `country` (ISO alpha-3), optional `state`, `pw1`, `pw2`, `terms` (boolean / `"on"`).
+
+**Errors:** JSON `{ "success": false, "error": "<code>" }` with stable codes such as `register_validation`, `register_email_in_use`, `register_password_mismatch`, `register_terms_required`, `register_deactivated`, `register_rate_limited`. **429** when the per-IP rate limit is exceeded (~5 attempts / 15 minutes).
+
+---
+
 ## Dashboard
 
 ### GET /api/v1/dashboard
