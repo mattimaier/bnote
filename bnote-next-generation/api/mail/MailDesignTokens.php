@@ -36,6 +36,17 @@ final class MailDesignTokens {
         'textMutedDark' => "#8b95a5",
         'borderDark' => "#3d4654",
         'shadowCardDark' => "0 1px 3px rgba(0,0,0,0.45)",
+        'participationSuccess' => "#25a65a",
+        'participationSuccessBgMuted' => "#e9f6ef",
+        'participationSuccessBorderMuted' => "#d3edde",
+        'participationWarning' => "#ffaa1a",
+        'participationWarningBgMuted' => "#fff7e8",
+        'participationWarningBorderMuted' => "#ffeed1",
+        'participationDestructive' => "#e52b3c",
+        'participationDestructiveBgMuted' => "#fceaec",
+        'participationDestructiveBorderMuted' => "#fad5d8",
+        'participationBtnSizePx' => "48",
+        'participationBtnGapPx' => "12",
         ];
     }
 

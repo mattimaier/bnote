@@ -6,6 +6,7 @@ require_once dirname(__DIR__) . '/MailEnv.php';
 require_once dirname(__DIR__) . '/MailHtmlShell.php';
 require_once dirname(__DIR__) . '/MailDesignTokens.php';
 require_once dirname(__DIR__) . '/MailEntityColors.php';
+require_once dirname(__DIR__) . '/MailEntityCard.php';
 require_once dirname(__DIR__) . '/MailLocaleDateTime.php';
 require_once dirname(__DIR__) . '/MailAssets.php';
 require_once dirname(__DIR__) . '/MailBodyText.php';
@@ -88,7 +89,21 @@ final class CommentDiscussionMailBuilder {
         }
 
         $headerHtml = $entityCard !== null
-            ? self::entityHeaderHtml($entityCard, $cardBg, $border, $text, $textMuted, $fsSmall, $fsBody)
+            ? MailEntityCard::entityHeaderHtml(
+                $entityCard,
+                $cardBg,
+                $border,
+                $text,
+                $textMuted,
+                $fsSmall,
+                $fsBody,
+                $openUrl !== '' ? $openUrl : null,
+                $openUrl !== ''
+                    ? MailI18n::interpolate(MailI18n::t('mail.entityCard.linkAria', $locale), [
+                        'title' => trim((string) ($entityCard['title'] ?? $entityTitle)),
+                    ])
+                    : null
+            )
             : '';
 
         $threadTitle = '';
@@ -301,80 +316,6 @@ final class CommentDiscussionMailBuilder {
             'orgPrefix' => $orgPrefix,
             'entityTitle' => $entityTitle,
         ]);
-    }
-
-    /**
-     * @param array{
-     *   icon_bg:string,
-     *   icon_inner_html?:string,
-     *   icon_char:string,
-     *   title:string,
-     *   badge_label:string,
-     *   badge_bg:string,
-     *   badge_border:string,
-     *   badge_text:string,
-     *   meta_line:string,
-     *   location_line:string
-     * } $card
-     */
-    private static function entityHeaderHtml(
-        array $card,
-        string $cardBg,
-        string $borderOuter,
-        string $text,
-        string $textMuted,
-        string $fsSmall,
-        string $fsBody
-    ): string {
-        $defPill = MailEntityColors::commentDiscussionCardAccents('rehearsal');
-        $iconBg = htmlspecialchars($card['icon_bg'] ?? $defPill['icon_bg'], ENT_QUOTES, 'UTF-8');
-        $iconChar = htmlspecialchars($card['icon_char'] ?? '♫', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-        $iconInner = '';
-        if (isset($card['icon_inner_html']) && is_string($card['icon_inner_html']) && $card['icon_inner_html'] !== '') {
-            $iconInner = $card['icon_inner_html'];
-        } else {
-            $iconInner = '<span style="font-size:20px;line-height:40px;display:block;text-align:center;">' . $iconChar . '</span>';
-        }
-        $title = htmlspecialchars($card['title'] ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-        $badgeLabel = htmlspecialchars($card['badge_label'] ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-        $badgeBg = htmlspecialchars($card['badge_bg'] ?? $defPill['badge_bg'], ENT_QUOTES, 'UTF-8');
-        $badgeBorder = htmlspecialchars($card['badge_border'] ?? $defPill['badge_border'], ENT_QUOTES, 'UTF-8');
-        $badgeText = htmlspecialchars($card['badge_text'] ?? $defPill['badge_text'], ENT_QUOTES, 'UTF-8');
-        $meta = htmlspecialchars($card['meta_line'] ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-        $loc = htmlspecialchars($card['location_line'] ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-        $cardBgEsc = htmlspecialchars($cardBg, ENT_QUOTES, 'UTF-8');
-        $borderEsc = htmlspecialchars($borderOuter, ENT_QUOTES, 'UTF-8');
-        $textEsc = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
-        $mutedEsc = htmlspecialchars($textMuted, ENT_QUOTES, 'UTF-8');
-
-        $locBlock = '';
-        if ($loc !== '') {
-            $locBlock = '<p style="margin:4px 0 0;font-size:' . htmlspecialchars($fsSmall, ENT_QUOTES, 'UTF-8')
-                . ';line-height:1.45;color:' . $mutedEsc . ';">' . $loc . '</p>';
-        }
-
-        return '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px;border:1px solid '
-            . $borderEsc . ';border-radius:16px;background-color:' . $cardBgEsc . ';">'
-            . '<tr><td style="padding:16px 18px;">'
-            . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>'
-            . '<td valign="top" style="width:48px;padding:0 12px 0 0;">'
-            . '<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">'
-            . '<tr><td align="center" valign="middle" width="40" height="40" '
-            . 'style="width:40px;height:40px;border-radius:9999px;background-color:' . $iconBg
-            . ';color:#ffffff;mso-line-height-rule:exactly;">' . $iconInner . '</td></tr></table>'
-            . '</td>'
-            . '<td valign="top" style="padding:0;">'
-            . '<table role="presentation" cellpadding="0" cellspacing="0"><tr><td style="padding:0 0 4px 0;">'
-            . '<span style="font-size:22px;font-weight:700;line-height:1.25;color:' . $textEsc . ';">' . $title . '</span>'
-            . ' <span style="display:inline-block;margin-left:6px;vertical-align:middle;padding:2px 8px;border-radius:6px;'
-            . 'border:1px solid ' . $badgeBorder . ';background-color:' . $badgeBg . ';color:' . $badgeText . ';'
-            . 'font-size:12px;line-height:1.25;font-weight:500;">' . $badgeLabel . '</span>'
-            . '</td></tr></table>'
-            . '<p style="margin:6px 0 0;font-size:' . htmlspecialchars($fsSmall, ENT_QUOTES, 'UTF-8')
-            . ';line-height:1.45;color:' . $mutedEsc . ';">' . $meta . '</p>'
-            . $locBlock
-            . '</td></tr></table>'
-            . '</td></tr></table>';
     }
 
     /**

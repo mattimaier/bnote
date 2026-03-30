@@ -1032,7 +1032,9 @@ export function EventDetail({
                       type === "concert" ? concertMeta?.groupMembers : rehearsalMeta?.groupMembers
                     );
                     const nextManual = next.filter((id) => !groupContacts.has(id));
-                    const nextExcluded = form.excludedContacts.filter((id) => next.includes(id));
+                    // Group members removed from the picker must be recorded as excluded; otherwise
+                    // deriveEventContacts() re-adds them from rehearsal/concert groups on the next render.
+                    const nextExcluded = Array.from(groupContacts).filter((id) => !next.includes(id));
                     setForm({
                       ...form,
                       manualContacts: nextManual,

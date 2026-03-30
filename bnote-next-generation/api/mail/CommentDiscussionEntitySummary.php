@@ -74,7 +74,6 @@ final class CommentDiscussionEntitySummary {
 
         return [
             'icon_bg' => $acc['icon_bg'],
-            'icon_inner_html' => MailEntityIcons::inlineSvgForEntityKey('rehearsal'),
             'icon_char' => "\u{266B}",
             'title' => $title,
             'badge_label' => MailI18n::t('js.event.rehearsal', $locale),

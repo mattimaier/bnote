@@ -13,6 +13,18 @@ final class MailPreviewFixtures {
             public function getCompany(): string {
                 return 'Demo Band';
             }
+
+            public function getLang(): string {
+                return 'en';
+            }
+
+            /** @param mixed $key */
+            public function getDynamicConfigParameter($key) {
+                if ($key === 'allow_participation_maybe') {
+                    return 1;
+                }
+                return 0;
+            }
         };
     }
 
@@ -185,6 +197,74 @@ final class MailPreviewFixtures {
             'thread' => [
                 ['author' => 'Taylor N.', 'message' => 'Doors open at 19:00 — please arrive by 18:15 for sound check.', 'created_at' => '2026-03-30 14:00:00', 'is_new' => true],
             ],
+        ];
+    }
+
+    /**
+     * @return array{otype:string,oid:int,entityTitle:string,entityCard:array,recipientFirstName:string,plainToken:string,allowMaybe:bool}
+     */
+    public static function eventInviteRehearsal(string $locale = 'en'): array {
+        $ctx = self::commentDiscussionRehearsalShort($locale);
+
+        return [
+            'otype' => 'R',
+            'oid' => (int) $ctx['oid'],
+            'entityTitle' => (string) $ctx['entityTitle'],
+            'entityCard' => $ctx['entityCard'],
+            'recipientFirstName' => self::recipientPreviewFirstName(),
+            'plainToken' => str_repeat('b', 64),
+            'allowMaybe' => true,
+        ];
+    }
+
+    /**
+     * @return array{otype:string,oid:int,entityTitle:string,entityCard:array,recipientFirstName:string,plainToken:string,allowMaybe:bool}
+     */
+    public static function eventInviteRehearsalNoMaybe(string $locale = 'en'): array {
+        $x = self::eventInviteRehearsal($locale);
+        $x['allowMaybe'] = false;
+
+        return $x;
+    }
+
+    /**
+     * @return array{otype:string,oid:int,entityTitle:string,entityCard:array,recipientFirstName:string,plainToken:string,allowMaybe:bool}
+     */
+    public static function eventInviteConcert(string $locale = 'en'): array {
+        $ctx = self::commentDiscussionConcert($locale);
+
+        return [
+            'otype' => 'C',
+            'oid' => (int) $ctx['oid'],
+            'entityTitle' => (string) $ctx['entityTitle'],
+            'entityCard' => $ctx['entityCard'],
+            'recipientFirstName' => self::recipientPreviewFirstName(),
+            'plainToken' => str_repeat('c', 64),
+            'allowMaybe' => true,
+        ];
+    }
+
+    /**
+     * @return array{mode:string,title:string,description:string,taskId:int}
+     */
+    public static function taskNotifyCreate(): array {
+        return [
+            'mode' => 'create',
+            'title' => 'Print posters for April concert',
+            'description' => "Use the template in the shared drive.\nDeadline: Friday EOD.",
+            'taskId' => 501,
+        ];
+    }
+
+    /**
+     * @return array{mode:string,title:string,description:string,taskId:int}
+     */
+    public static function taskNotifyUpdate(): array {
+        return [
+            'mode' => 'update',
+            'title' => 'Print posters for April concert',
+            'description' => 'Venue confirmed — use the updated address on the PDF.',
+            'taskId' => 501,
         ];
     }
 }

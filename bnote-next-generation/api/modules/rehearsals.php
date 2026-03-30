@@ -33,6 +33,7 @@ require_once BNOTE_ROOT . '/src/data/modules/repertoiredata.php';
 require_once BNOTE_ROOT . '/src/data/database.php';
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
+require_once __DIR__ . '/../mail/EventParticipantNotifier.php';
 require_once __DIR__ . '/../text_normalizer.php';
 
 class RehearsalsModule {
@@ -643,6 +644,7 @@ class RehearsalsModule {
         }
 
         if (array_key_exists('contacts', $payload)) {
+            $previousContactIds = $this->rehearsalContactIds($id);
             $contacts = array_map('intval', $payload['contacts'] ?? []);
             $system_data->dbcon->execute("DELETE FROM rehearsal_contact WHERE rehearsal = ?", [['i', $id]]);
             if (count($contacts) > 0) {
@@ -667,6 +669,11 @@ class RehearsalsModule {
                 $system_data->dbcon->execute($query, $params);
             } else {
                 $system_data->dbcon->execute("DELETE FROM rehearsal_user WHERE rehearsal = ?", [['i', $id]]);
+            }
+
+            $addedContacts = array_values(array_diff($contacts, $previousContactIds));
+            if (count($addedContacts) > 0) {
+                EventParticipantNotifier::sendSafe($system_data, new StartData(), 'R', $id, $addedContacts);
             }
         }
 
@@ -1301,6 +1308,7 @@ class RehearsalsModule {
         if ($rid <= 0) {
             return;
         }
+        $previousContactIds = $this->rehearsalContactIds($rid);
         $system_data->dbcon->execute("DELETE FROM rehearsal_group WHERE rehearsal = ?", [['i', $rid]]);
         $groupIds = array_values(array_filter(array_map('intval', $groups ?? []), fn($id) => $id > 0));
         if (count($groupIds) > 0) {
@@ -1344,6 +1352,29 @@ class RehearsalsModule {
         } else {
             $system_data->dbcon->execute("DELETE FROM rehearsal_user WHERE rehearsal = ?", [['i', $rid]]);
         }
+
+        $addedContacts = array_values(array_diff($contactIds, $previousContactIds));
+        if (count($addedContacts) > 0) {
+            EventParticipantNotifier::sendSafe($system_data, new StartData(), 'R', $rid, $addedContacts);
+        }
+    }
+
+    /** @return list<int> */
+    private function rehearsalContactIds(int $rehearsalId): array {
+        global $system_data;
+        $sel = $system_data->dbcon->getSelection(
+            'SELECT contact FROM rehearsal_contact WHERE rehearsal = ?',
+            [['i', $rehearsalId]]
+        );
+        if (!is_array($sel) || count($sel) < 2) {
+            return [];
+        }
+        $ids = [];
+        for ($i = 1; $i < count($sel); $i++) {
+            $ids[] = (int) ($sel[$i]['contact'] ?? 0);
+        }
+
+        return $ids;
     }
 
     private function insertRehearsalWithRelations($payload, $fields, $seriesId = null) {
@@ -1473,6 +1504,8 @@ class RehearsalsModule {
                 );
             }
         }
+
+        EventParticipantNotifier::sendSafe($system_data, new StartData(), 'R', $newId, null);
 
         return $newId;
     }

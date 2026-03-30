@@ -37,6 +37,7 @@ require_once BNOTE_ROOT . '/src/data/database.php';
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
 require_once __DIR__ . '/../text_normalizer.php';
+require_once __DIR__ . '/../mail/EventParticipantNotifier.php';
 
 class ConcertsModule {
     private $data;
@@ -717,6 +718,7 @@ class ConcertsModule {
         }
 
         if (array_key_exists('contacts', $payload)) {
+            $previousContactIds = $this->concertContactIds($id);
             $contacts = array_map('intval', $payload['contacts'] ?? []);
             $system_data->dbcon->execute("DELETE FROM concert_contact WHERE concert = ?", [['i', $id]]);
             if (count($contacts) > 0) {
@@ -741,6 +743,11 @@ class ConcertsModule {
                 $system_data->dbcon->execute($query, $params);
             } else {
                 $system_data->dbcon->execute("DELETE FROM concert_user WHERE concert = ?", [['i', $id]]);
+            }
+
+            $addedContacts = array_values(array_diff($contacts, $previousContactIds));
+            if (count($addedContacts) > 0) {
+                EventParticipantNotifier::sendSafe($system_data, new StartData(), 'C', $id, $addedContacts);
             }
         }
 
@@ -912,7 +919,27 @@ class ConcertsModule {
             }
         }
 
+        EventParticipantNotifier::sendSafe($system_data, new StartData(), 'C', $newId, null);
+
         return ['id' => $newId];
+    }
+
+    /** @return list<int> */
+    private function concertContactIds(int $concertId): array {
+        global $system_data;
+        $sel = $system_data->dbcon->getSelection(
+            'SELECT contact FROM concert_contact WHERE concert = ?',
+            [['i', $concertId]]
+        );
+        if (!is_array($sel) || count($sel) < 2) {
+            return [];
+        }
+        $ids = [];
+        for ($i = 1; $i < count($sel); $i++) {
+            $ids[] = (int) ($sel[$i]['contact'] ?? 0);
+        }
+
+        return $ids;
     }
 
     private function deleteConcert() {

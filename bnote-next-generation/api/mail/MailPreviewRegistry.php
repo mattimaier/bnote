@@ -6,6 +6,8 @@ require_once __DIR__ . '/builders/PasswordResetMailBuilder.php';
 require_once __DIR__ . '/builders/NewUserAdminMailBuilder.php';
 require_once __DIR__ . '/builders/LongDemoMailBuilder.php';
 require_once __DIR__ . '/builders/CommentDiscussionMailBuilder.php';
+require_once __DIR__ . '/builders/EventParticipantInviteMailBuilder.php';
+require_once __DIR__ . '/builders/TaskNotificationMailBuilder.php';
 require_once __DIR__ . '/NextGenMailMessage.php';
 
 final class MailPreviewRegistry {
@@ -20,6 +22,11 @@ final class MailPreviewRegistry {
             ['id' => 'comment_discussion_concert', 'label' => 'Comment discussion (concert, short thread)'],
             ['id' => 'comment_discussion_vote', 'label' => 'Comment discussion (vote)'],
             ['id' => 'comment_discussion_single_new', 'label' => 'Comment discussion (single new message)'],
+            ['id' => 'event_invite_rehearsal', 'label' => 'Event invite (rehearsal, maybe on)'],
+            ['id' => 'event_invite_rehearsal_no_maybe', 'label' => 'Event invite (rehearsal, maybe off)'],
+            ['id' => 'event_invite_concert', 'label' => 'Event invite (concert)'],
+            ['id' => 'task_assigned', 'label' => 'Task assigned (create)'],
+            ['id' => 'task_updated', 'label' => 'Task updated'],
         ];
     }
 
@@ -101,6 +108,55 @@ final class MailPreviewRegistry {
                     $sd,
                     $locale,
                     $ctxSingle,
+                    [MailPreviewFixtures::previewToEmail()],
+                    []
+                );
+            case 'event_invite_rehearsal':
+                $ctxEv = MailPreviewFixtures::eventInviteRehearsal($locale);
+                $ctxEv['recipientFirstName'] = MailPreviewFixtures::recipientPreviewFirstName();
+
+                return EventParticipantInviteMailBuilder::buildForPreview(
+                    $sd,
+                    $locale,
+                    $ctxEv,
+                    [MailPreviewFixtures::previewToEmail()],
+                    []
+                );
+            case 'event_invite_rehearsal_no_maybe':
+                $ctxEvNm = MailPreviewFixtures::eventInviteRehearsalNoMaybe($locale);
+                $ctxEvNm['recipientFirstName'] = MailPreviewFixtures::recipientPreviewFirstName();
+
+                return EventParticipantInviteMailBuilder::buildForPreview(
+                    $sd,
+                    $locale,
+                    $ctxEvNm,
+                    [MailPreviewFixtures::previewToEmail()],
+                    []
+                );
+            case 'event_invite_concert':
+                $ctxCon = MailPreviewFixtures::eventInviteConcert($locale);
+                $ctxCon['recipientFirstName'] = MailPreviewFixtures::recipientPreviewFirstName();
+
+                return EventParticipantInviteMailBuilder::buildForPreview(
+                    $sd,
+                    $locale,
+                    $ctxCon,
+                    [MailPreviewFixtures::previewToEmail()],
+                    []
+                );
+            case 'task_assigned':
+                return TaskNotificationMailBuilder::buildForPreview(
+                    $sd,
+                    $locale,
+                    MailPreviewFixtures::taskNotifyCreate(),
+                    [MailPreviewFixtures::previewToEmail()],
+                    []
+                );
+            case 'task_updated':
+                return TaskNotificationMailBuilder::buildForPreview(
+                    $sd,
+                    $locale,
+                    MailPreviewFixtures::taskNotifyUpdate(),
                     [MailPreviewFixtures::previewToEmail()],
                     []
                 );

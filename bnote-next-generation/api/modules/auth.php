@@ -37,6 +37,9 @@ require_once __DIR__ . '/../register_rate_limit.php';
 require_once __DIR__ . '/../password_reset_rate_limit.php';
 require_once __DIR__ . '/../nextgen_registration.php';
 require_once __DIR__ . '/../nextgen_password_reset.php';
+require_once __DIR__ . '/../participation_magic_rate_limit.php';
+require_once __DIR__ . '/../nextgen_participation_token.php';
+require_once __DIR__ . '/../participation_magic_apply.php';
 require_once __DIR__ . '/../auth.php';
 
 class AuthModule {
@@ -68,6 +71,10 @@ class AuthModule {
                 return $this->requestPasswordReset();
             case 'completePasswordReset':
                 return $this->completePasswordReset();
+            case 'applyParticipationToken':
+                return $this->applyParticipationToken();
+            case 'getParticipationTokenInfo':
+                return $this->getParticipationTokenInfo();
             case 'getModules':
                 return $this->getModules();
             default:
@@ -637,5 +644,79 @@ class AuthModule {
         NextGenPasswordReset::deleteTokensForUser($userId, $db);
 
         return ['ok' => true];
+    }
+
+    /**
+     * Public: set participation (yes/maybe/no/undecided) using token from event invite email.
+     */
+    private function applyParticipationToken(): array {
+        ParticipationMagicRateLimit::consumeOr429();
+
+        $body = $GLOBALS['API_REQUEST_BODY'] ?? null;
+        if (!is_array($body)) {
+            $body = [];
+        }
+        $token = isset($body['token']) && is_string($body['token']) ? trim($body['token']) : '';
+        $status = isset($body['status']) && is_string($body['status']) ? trim($body['status']) : '';
+        if ($token === '' || $status === '') {
+            Response::error('participation_token_invalid', 400);
+        }
+
+        global $system_data;
+        $db = $system_data->dbcon;
+        $row = NextGenParticipationToken::loadValidTokenRow($token, $db);
+        if ($row === null) {
+            Response::error('participation_token_invalid', 400);
+        }
+
+        $reason = '';
+        if (isset($body['reason']) && is_string($body['reason'])) {
+            $reason = function_exists('mb_substr')
+                ? mb_substr(trim($body['reason']), 0, 2000, 'UTF-8')
+                : substr(trim($body['reason']), 0, 2000);
+        }
+        $result = ParticipationMagicApply::apply($system_data, $row, $status, $reason);
+        if (empty($result['ok'])) {
+            $code = isset($result['error']) ? (string) $result['error'] : 'participation_failed';
+            $http = ($code === 'participation_locked' || $code === 'participation_maybe_disabled') ? 403 : 400;
+            Response::error($code, $http);
+        }
+
+        return [
+            'ok' => true,
+            'status' => $result['status'],
+            'eventType' => (string) $row['event_type'],
+            'eventId' => (int) $row['event_id'],
+            'expiresAt' => isset($row['expiresAt']) && is_string($row['expiresAt']) ? $row['expiresAt'] : '',
+        ];
+    }
+
+    /**
+     * Public: read magic-link expiry (and confirm token is valid) without changing participation.
+     */
+    private function getParticipationTokenInfo(): array {
+        ParticipationMagicRateLimit::consumeOr429();
+
+        $body = $GLOBALS['API_REQUEST_BODY'] ?? null;
+        if (!is_array($body)) {
+            $body = [];
+        }
+        $token = isset($body['token']) && is_string($body['token']) ? trim($body['token']) : '';
+        if ($token === '') {
+            Response::error('participation_token_invalid', 400);
+        }
+
+        global $system_data;
+        $db = $system_data->dbcon;
+        $row = NextGenParticipationToken::loadValidTokenRow($token, $db);
+        if ($row === null) {
+            Response::error('participation_token_invalid', 400);
+        }
+
+        return [
+            'ok' => true,
+            'expiresAt' => isset($row['expiresAt']) && is_string($row['expiresAt']) ? $row['expiresAt'] : '',
+            'reusable' => true,
+        ];
     }
 }

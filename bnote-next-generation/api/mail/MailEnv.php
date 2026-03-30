@@ -78,6 +78,53 @@ final class MailEnv {
     }
 
     /**
+     * Absolute URL for participation magic-link landing page (token + choice in query).
+     */
+    public static function nextgenParticipationRespondAbsoluteUrl(string $plainToken, string $choice): string {
+        $base = self::nextgenPublicBaseUrl();
+        if ($base === '') {
+            return '';
+        }
+        return $base . '/participation/respond/?' . http_build_query([
+            'token' => $plainToken,
+            'choice' => $choice,
+        ]);
+    }
+
+    /** Root-relative participation respond URL (same host as SPA). */
+    public static function nextgenParticipationRespondRelativeUrl(string $plainToken, string $choice): string {
+        $prefix = self::nextgenAppPathPrefix();
+        $suffix = '/participation/respond/?' . http_build_query([
+            'token' => $plainToken,
+            'choice' => $choice,
+        ]);
+        return ($prefix === '' ? '' : $prefix) . $suffix;
+    }
+
+    /**
+     * Absolute task deep link for mail CTA, or '' if not configured.
+     */
+    public static function nextgenTaskEntityAbsoluteUrl(int $taskId): string {
+        $base = self::nextgenPublicBaseUrl();
+        if ($base === '') {
+            return '';
+        }
+        return $base . '/entity?' . http_build_query([
+            'type' => 'task',
+            'id' => (string) $taskId,
+        ]);
+    }
+
+    public static function nextgenTaskEntityRelativeUrl(int $taskId): string {
+        $prefix = self::nextgenAppPathPrefix();
+        $suffix = '/entity?' . http_build_query([
+            'type' => 'task',
+            'id' => (string) $taskId,
+        ]);
+        return ($prefix === '' ? '' : $prefix) . $suffix;
+    }
+
+    /**
      * Delay between consecutive sends when using {@see NextGenMailer::sendBulk()} (comment / admin fan-out).
      * Env `NEXTGEN_MAIL_BULK_DELAY_MS`: milliseconds, 0 = no pause. Unset defaults to 100 ms to reduce SMTP rate limits.
      */

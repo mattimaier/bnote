@@ -82,12 +82,15 @@ final class EventParticipantNotifier {
                 }
 
                 $plainToken = '';
+                $magicUntilDisplay = null;
                 if (NextGenParticipationToken::userIdForContact($cid, $db) > 0) {
                     try {
                         $plainToken = NextGenParticipationToken::newTokenRow($db, $otype, $oid, $cid, $ttl)['plainToken'];
+                        $magicUntilDisplay = NextGenParticipationToken::formatApproxExpiryForMail($locale, $ttl);
                     } catch (Throwable $e) {
                         error_log('EventParticipantNotifier token: ' . $e->getMessage());
                         $plainToken = '';
+                        $magicUntilDisplay = null;
                     }
                 }
 
@@ -102,6 +105,7 @@ final class EventParticipantNotifier {
                     $firstName !== '' ? $firstName : null,
                     $plainToken,
                     $allowMaybe,
+                    $magicUntilDisplay,
                     [$email],
                     []
                 );
