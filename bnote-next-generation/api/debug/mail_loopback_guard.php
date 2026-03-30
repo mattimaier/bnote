@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 /**
- * Shared guard for local-only mail debug endpoints (127.0.0.1 / ::1).
+ * Shared guard for local-only api/debug/* endpoints (127.0.0.1 / ::1).
  */
 function mail_loopback_guard(): void {
     $ip = $_SERVER['REMOTE_ADDR'] ?? '';

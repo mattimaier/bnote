@@ -7,7 +7,7 @@
     "sync:mail-design": "node scripts/sync-mail-design.mjs",
     "dev": "next dev",
     "dev:webpack": "next dev --webpack",
-    "build": "npm run generate:logo && npm run sync:mail-design && next build",
+    "build": "npm run generate:logo && npm run sync:mail-design && next build && node scripts/prune-dev-artifacts.mjs",
     "start": "next start",
     "lint": "eslint"
   },

@@ -18,9 +18,9 @@ If SMTP is not configured, or BNote runs in **demo mode**, those emails are skip
 | Task assignee create/update | `api/modules/tasks.php` | `TaskNotificationMailBuilder` | Yes | `NextGenMailer::send` |
 | Entity comment added | `api/modules/comments.php` | `CommentDiscussionNotifier` / `CommentDiscussionMailBuilder` | Yes | `NextGenMailer::sendBulk` |
 
-**Preview template IDs** (for `mail_preview.php?template=…`): canonical list is **`MailPreviewRegistry::templates()`** in [`api/mail/MailPreviewRegistry.php`](../api/mail/MailPreviewRegistry.php) — `password_reset`, `new_user_admin`, `long_demo`, `comment_discussion_*`, `event_invite_*`, `task_assigned`, `task_updated`.
+**Preview template IDs** (for `api/debug/mail_preview.php?template=…`): canonical list is **`MailPreviewRegistry::templates()`** in [`api/mail/MailPreviewRegistry.php`](../api/mail/MailPreviewRegistry.php) — `password_reset`, `new_user_admin`, `long_demo`, `comment_discussion_*`, `event_invite_*`, `task_assigned`, `task_updated`.
 
-**Local JSON helper:** [`api/mail_comment_recipients.php`](../api/mail_comment_recipients.php) exposes who would receive discussion mail (same rules as `CommentDiscussionNotifier`).
+**Local JSON helper:** [`api/debug/mail_comment_recipients.php`](../api/debug/mail_comment_recipients.php) exposes who would receive discussion mail (same rules as `CommentDiscussionNotifier`).
 
 ---
 
@@ -29,7 +29,7 @@ If SMTP is not configured, or BNote runs in **demo mode**, those emails are skip
 - **SMTP + `MailEnv`:** Next Gen outbound mail uses PHPMailer SMTP and env vars; not the legacy `mail()` transport.
 - **Password reset:** `password_reset_token` table (`PasswordResetSchema`), rate limiting, `PasswordResetMailBuilder`, links via `MailEnv::nextgenPublicBaseUrl` / path helpers.
 - **Registration:** `RegistrationAdminNotifier` emails administrators after public signup (first admin in To, rest BCC).
-- **HTML shell:** Shared layout, branding, CID logo, dark-mode-oriented tokens in `frontend/mail-design-tokens.json`; previews via `mail_debug.php` / `mail_preview.php`.
+- **HTML shell:** Shared layout, branding, CID logo, dark-mode-oriented tokens in `frontend/mail-design-tokens.json`; previews via `api/debug/mail_debug.php` / `api/debug/mail_preview.php` (loopback only).
 - **`NextGenMailPolicy`:** Transactional fan-out respects guest contacts, inactive users, and `email_notification` for active users (do not use `contactEmailNotificationOn` for these paths).
 - **Comments:** `CommentDiscussionNotifier` — entity cards, thread bubbles, deep links to `/entity?…&focus=comments`.
 - **Participation invites:** `EventParticipantNotifier` + magic-link URLs from `MailEnv` (`nextgenParticipationRespondAbsoluteUrl`, etc.).
@@ -129,23 +129,23 @@ In **`BNote/config/config.xml`**, set **`<DemoMode>False</DemoMode>`** so Next G
 ## Build and deploy
 
 - Run **`./build.sh`** from `bnote-next-generation/`. The script runs **`composer install`** in **`api/`** so **`vendor/`** (PHPMailer) is included in the upload bundle.
-- The production bundle **does not** include local diagnostic scripts **`mail_test_send.php`** and **`mail_config_check.php`** (they stay in the git repo for developers only).
+- The production **`./build.sh`** bundle **does not** include the **`api/debug/`** folder (loopback mail previews, `mail_config_check.php`, `mail_test_send.php`, etc.). Those files remain in the git repo; set **`NEXT_PUBLIC_ENABLE_DEVELOPER_TOOLS=1`** when running **`./build.sh`** to ship them for staging.
 
 ---
 
 ## Local testing (developers only)
 
-These scripts work only from **127.0.0.1** or **::1** and are **not** shipped in the official build:
+These scripts live under **`api/debug/`**, work only from **127.0.0.1** or **::1**, and are **not** shipped in the default **`./build.sh`** output (set **`NEXT_PUBLIC_ENABLE_DEVELOPER_TOOLS=1`** when building to include them):
 
 1. **Config check** (JSON, no secrets except presence flags):  
-   `http://127.0.0.1:…/bnote-next-generation/api/mail_config_check.php`  
+   `http://127.0.0.1:…/bnote-next-generation/api/debug/mail_config_check.php`  
    (adjust path to match your local server.)
 
-2. **Test send** — **required** query parameter **`to`**:  
-   `…/api/mail_test_send.php?to=you@example.com`
+2. **Test send** — **required** query **`to`**; optional **`template`** (default `password_reset`) and **`locale`** (`en` / `de` / `es` / `fr`, default `en`). The message is built with **`MailPreviewRegistry::build()`** (same bodies as **`mail_preview.php`**), then addressed only to **`to`**.  
+   Example: `…/api/debug/mail_test_send.php?to=you@example.com&template=event_invite_concert&locale=de`
 
-3. **HTML preview** (no SMTP): open **`mail_debug.php`** for a list of templates and locales, or call **`mail_preview.php?template=password_reset&locale=en`**. Every supported `template=` id is listed in **`MailPreviewRegistry::templates()`** (see [Subsystem map](#subsystem-map-handover)); examples include **`long_demo`** (stress-test layout), **`comment_discussion_*`**, **`event_invite_*`**, **`task_assigned`** / **`task_updated`**. Example: `mail_preview.php?template=comment_discussion_rehearsal_short&locale=de`  
-   The JSON from **`mail_config_check.php`** includes a **`mailDebug`** object with the same paths. Logo uses a data URL in the browser; real sends use a CID attachment.
+3. **HTML preview** (no SMTP): open **`api/debug/mail_debug.php`** for a list of templates and locales, or call **`api/debug/mail_preview.php?template=password_reset&locale=en`**. Every supported `template=` id is listed in **`MailPreviewRegistry::templates()`** (see [Subsystem map](#subsystem-map-handover)); examples include **`long_demo`** (stress-test layout), **`comment_discussion_*`**, **`event_invite_*`**, **`task_assigned`** / **`task_updated`**. Example: `api/debug/mail_preview.php?template=comment_discussion_rehearsal_short&locale=de`  
+   The JSON from **`mail_config_check.php`** includes a **`mailDebug`** object with paths under **`api/debug/`**. Logo uses a data URL in the browser; real sends use a CID attachment.
 
 **Dark mode:** HTML mail sets `color-scheme: light dark`, meta `color-scheme` / `supported-color-schemes`, and **`@media (prefers-color-scheme: dark)`** using dark palette tokens in **`frontend/mail-design-tokens.json`** (aligned with FlyonUI `bnotedark`). Apple Mail and many iOS clients follow this; Gmail and other webmail may keep a light canvas or apply their own rules.
 

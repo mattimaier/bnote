@@ -20,7 +20,7 @@ $oldErrorReporting = error_reporting(E_ALL & ~E_NOTICE);
 $oldDisplayErrors = ini_get('display_errors');
 ini_set('display_errors', 0);
 
-require_once __DIR__ . '/paths.php';
+require_once __DIR__ . '/../paths.php';
 $projectRoot = BNOTE_ROOT;
 chdir($projectRoot);
 if (!isset($GLOBALS['dir_prefix'])) {
@@ -47,8 +47,8 @@ require_once $projectRoot . '/src/logic/init.php';
 error_reporting($oldErrorReporting);
 ini_set('display_errors', $oldDisplayErrors);
 
-require_once __DIR__ . '/bootstrap.php';
-require_once __DIR__ . '/mail/CommentDiscussionNotifier.php';
+require_once __DIR__ . '/../bootstrap.php';
+require_once __DIR__ . '/../mail/CommentDiscussionNotifier.php';
 
 $otype = strtoupper((string) ($_GET['otype'] ?? 'R'));
 $oid = (int) ($_GET['id'] ?? $_GET['oid'] ?? 0);

@@ -13,8 +13,8 @@ if ($locale === '') {
     $locale = 'en';
 }
 
-require_once __DIR__ . '/mail/MailPreviewRegistry.php';
-require_once __DIR__ . '/mail/MailPreviewHtml.php';
+require_once __DIR__ . '/../mail/MailPreviewRegistry.php';
+require_once __DIR__ . '/../mail/MailPreviewHtml.php';
 
 if (!MailPreviewRegistry::isValidTemplate($template)) {
     http_response_code(404);

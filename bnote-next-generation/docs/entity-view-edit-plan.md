@@ -11,7 +11,7 @@ This document merges the original refactor plan, the feasibility review, edge ca
 - Move edit mode into the URL using path-based routes.
 - Split the monolithic event detail page into reusable components and logic.
 - Provide a shared entity-detail foundation with customization hooks.
-- Add debug pages per entity with mocked data.
+- Add debug pages per entity with mocked data (discoverable from the **`/developer`** hub when developer tools are enabled).
 - Preserve and share UX patterns across entities.
 - Support creating new entities in the edit UI with safe error handling.
 - Include special handling for pickers used in rehearsal/concert pages.

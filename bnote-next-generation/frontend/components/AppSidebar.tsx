@@ -15,11 +15,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
+import { checkSession } from "@/lib/auth";
 import { useI18n } from "@/contexts/I18nContext";
 import { BNoteLogo } from "@/components/BNoteLogo";
 import { getEntityConfig } from "@/lib/entity-config";
 import { getIcon } from "@/components/icons";
 import { getSidebarModuleKey, isImprintNavActive, isPrivacyNavActive } from "@/lib/sidebar-active";
+import { DEVELOPER_SIDEBAR_MODULE_ID, mergeDeveloperSidebarModule } from "@/lib/developer-tools";
 
 interface SidebarModule {
   id: number;
@@ -35,24 +37,37 @@ export function AppSidebar() {
   const [modules, setModules] = useState<SidebarModule[]>([]);
 
   useEffect(() => {
-    api
-      .get<SidebarModule[] | { modules: SidebarModule[] }>("auth", "getModules")
-      .then((res) => {
+    let cancelled = false;
+    (async () => {
+      const session = await checkSession();
+      if (cancelled) return;
+      const isAdminUser = Boolean(session.isAdmin);
+      try {
+        const res = await api.get<SidebarModule[] | { modules: SidebarModule[] }>("auth", "getModules");
+        if (cancelled) return;
         const list = Array.isArray(res) ? res : (res as { modules: SidebarModule[] }).modules ?? [];
+        const normalized = list.map((m) => ({
+          ...m,
+          route: (m.route ?? "").replace(".html", "") || m.name.toLowerCase(),
+        }));
+        setModules(mergeDeveloperSidebarModule(normalized, isAdminUser));
+      } catch {
+        if (cancelled) return;
         setModules(
-          list.map((m) => ({
-            ...m,
-            route: (m.route ?? "").replace(".html", "") || m.name.toLowerCase(),
-          }))
+          mergeDeveloperSidebarModule(
+            [
+              { id: 1, name: "Start", route: "dashboard", icon: "layout-dashboard", i18n: "js.sidebar.dashboard" },
+              { id: 3, name: "Kontakte", route: "contacts", icon: "users", i18n: "js.sidebar.contacts" },
+              { id: 4, name: "Benutzer", route: "users", icon: "user", i18n: "js.sidebar.users" },
+            ],
+            isAdminUser
+          )
         );
-      })
-      .catch(() => {
-        setModules([
-          { id: 1, name: "Start", route: "dashboard", icon: "layout-dashboard", i18n: "js.sidebar.dashboard" },
-          { id: 3, name: "Kontakte", route: "contacts", icon: "users", i18n: "js.sidebar.contacts" },
-          { id: 4, name: "Benutzer", route: "users", icon: "user", i18n: "js.sidebar.users" },
-        ]);
-      });
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const activeModuleKey = getSidebarModuleKey(pathname);
@@ -112,7 +127,9 @@ export function AppSidebar() {
               >
                 <Icon className="h-5 w-5" />
               </span>
-              <span className="flex-1 truncate">{t(m.i18n) || m.name}</span>
+              <span className="flex-1 truncate">
+                {m.id === DEVELOPER_SIDEBAR_MODULE_ID ? m.name : t(m.i18n) || m.name}
+              </span>
             </Link>
           );
         })}

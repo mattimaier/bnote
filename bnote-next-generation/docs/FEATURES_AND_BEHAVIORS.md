@@ -83,7 +83,7 @@ This document describes each feature and expected behavior of the Next.js app. U
 
 ## 8. Entity Detail
 
-- **Routes (see [UI_PATTERNS.md](UI_PATTERNS.md)):** Production uses **query params** on **`/entity`:** `type`, `id`, optional **`edit=1`**. Links must use **`getEntityPath`** from `lib/entities/paths.ts`. Path-segment URLs exist under **`/debug/entity/…`** only; a path-based `(app)/entity/[type]/[id]` route may land later (see **[entity-view-edit-plan.md](entity-view-edit-plan.md)**).
+- **Routes (see [UI_PATTERNS.md](UI_PATTERNS.md)):** Production uses **query params** on **`/entity`:** `type`, `id`, optional **`edit=1`**. Links must use **`getEntityPath`** from `lib/entities/paths.ts`. Path-segment URLs exist under **`/debug/entity/…`** for development (see **`/developer`** when tools are enabled). **`/developer`** and **`/debug/*`** are **admin-only** in the app (session **`isAdmin`** from **`auth`**, same rule as Band Overview: superuser or admin group). Default static exports omit **`/debug`** and **`/developer`** unless built with **`NEXT_PUBLIC_ENABLE_DEVELOPER_TOOLS=1`**.
 - **Header:** Event type title + icon + tag from entity config. **DetailPageHeader** with **DetailEditButton** (right, baseline-aligned).
 - **Metadata:** Date, time, status, response deadline, conductor, location (full address). Buttons: “In Google Maps öffnen”, “In Apple Maps öffnen” (or equivalent).
 - **Participation widget:** Yes / Maybe / No with correct colors (green, orange, red). Submission via API.
@@ -98,6 +98,7 @@ This document describes each feature and expected behavior of the Next.js app. U
 - **Languages:** DE, EN, ES, FR. Files in `lang/*.json` (e.g. `en.json`, `de.json`). API can serve translations; frontend may load from `lang/` or API.
 - **Keys:** Format `js.{module}.{key}` (e.g. `js.dashboard.welcome`, `js.users.title`). Placeholder `%p` for dynamic text (e.g. company name in subtitle).
 - **Adding keys:** Add to all `lang/*.json` files so no key appears raw in UI. No hardcoded user-facing strings in code.
+- **Exception — Developer tools:** The **`/developer`** hub and the sidebar entry **Developer** use **fixed English** copy only (not translated). They appear **only for admin users** and when developer tools are build-enabled (`next dev` or **`NEXT_PUBLIC_ENABLE_DEVELOPER_TOOLS=1`**). Interactive helpers and the **mail-design-tokens.json** preview live there for engineers.
 
 ---
 

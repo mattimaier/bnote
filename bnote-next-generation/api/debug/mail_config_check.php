@@ -10,7 +10,7 @@ mail_loopback_guard();
 
 header('Content-Type: application/json; charset=UTF-8');
 
-require_once __DIR__ . '/mail/MailEnv.php';
+require_once __DIR__ . '/../mail/MailEnv.php';
 
 $host = MailEnv::host();
 $from = MailEnv::fromAddress();

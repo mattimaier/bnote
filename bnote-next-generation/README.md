@@ -131,7 +131,9 @@ Routing uses the Next.js App Router (static export). Module pages under **`front
 
 **Rehearsals:** `/rehearsals/series`, `/rehearsals/series/detail` (series flows).
 
-**Debug (development):** `/debug`, `/debug/entity`, etc.
+**Developer tools:** Sidebar entry **Developer** (`/developer/`) appears only for **admin** users (same **`isAdmin`** rule as Band Overview: BNote superuser or admin group) and when running **`npm run dev`** or when the frontend is built with **`NEXT_PUBLIC_ENABLE_DEVELOPER_TOOLS=1`**. The hub links to **`/debug`** (API tester, entity mocks) and to loopback-only PHP scripts under **`api/debug/`** (mail previews, config JSON, etc.).
+
+**Debug routes:** **`/debug`**, **`/debug/entity`**, etc. (source **`frontend/app/(dev)/debug/`**) are **admin-only** in the app under the same conditions. For production static bundles, `npm run build` runs **`scripts/prune-dev-artifacts.mjs`**, which removes **`/debug`** and **`/developer`** from **`frontend/out/`** unless **`NEXT_PUBLIC_ENABLE_DEVELOPER_TOOLS=1`**. **`./build.sh`** also removes **`api/debug/`** from the deploy copy unless that same variable is set when you run the script.
 
 **Deep linking:** Unauthenticated users on a protected URL go to `/login?redirect=…`; after login they return to the original URL.
 

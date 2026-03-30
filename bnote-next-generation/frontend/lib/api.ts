@@ -28,6 +28,27 @@ export function getApiUrl(): string {
   return `${prefix}/api/index.php`;
 }
 
+/** Directory URL for PHP under `/api` (no `index.php`), e.g. `https://host/bnote-next-generation/api`. */
+export function getApiPhpDirectoryUrl(): string {
+  const apiUrl = getApiUrl();
+  if (apiUrl.includes("/index.php")) {
+    const trimmed = apiUrl.replace(/\/index\.php$/, "");
+    return trimmed.endsWith("/") ? trimmed.slice(0, -1) : trimmed;
+  }
+  const basePath = getBasePath();
+  if (typeof window !== "undefined") {
+    const p = basePath ? `${basePath}/api` : "/api";
+    return `${window.location.origin}${p}`;
+  }
+  return basePath ? `${basePath}/api` : "/api";
+}
+
+/** Loopback mail debug scripts live under `api/debug/`. */
+export function getApiDebugScriptUrl(file: string): string {
+  const name = file.replace(/^\/+/, "");
+  return `${getApiPhpDirectoryUrl()}/debug/${name}`;
+}
+
 export async function apiRequest<T>(
   module: string,
   action: string,

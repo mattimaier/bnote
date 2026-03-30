@@ -58,6 +58,7 @@ const TABLER_MAP: Record<string, string> = {
   "shield-alert": "icon-[tabler--shield-exclamation]",
   "shield-check": "icon-[tabler--shield-check]",
   mail: "icon-[tabler--mail]",
+  send: "icon-[tabler--send]",
   phone: "icon-[tabler--phone]",
   tag: "icon-[tabler--tag]",
   bell: "icon-[tabler--bell]",
@@ -86,6 +87,8 @@ const TABLER_MAP: Record<string, string> = {
   settings: "icon-[tabler--settings]",
   "alert-triangle": "icon-[tabler--alert-triangle]",
   building: "icon-[tabler--building]",
+  terminal: "icon-[tabler--terminal-2]",
+  "external-link": "icon-[tabler--external-link]",
 };
 
 export interface IconProps {
@@ -97,6 +100,13 @@ export interface IconProps {
 function Icon({ name, className = "h-5 w-5", ...props }: IconProps & { name: string }) {
   const iconClass = TABLER_MAP[name?.toLowerCase()] ?? TABLER_MAP["layout-dashboard"];
   return <span className={`${iconClass} ${className}`} {...props} />;
+}
+
+/** Renders a Tabler icon by name without creating a new component type each render (eslint static-components). */
+export function TablerIconByName({ name, ...props }: IconProps & { name: string }) {
+  const key = String(name || "").toLowerCase().trim();
+  const resolved = Object.keys(TABLER_MAP).find((k) => k === key) ?? "layout-dashboard";
+  return <Icon name={resolved} {...props} />;
 }
 
 /** Returns a React component that renders the Tabler icon for the given name */

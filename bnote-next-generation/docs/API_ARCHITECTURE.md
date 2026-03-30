@@ -83,7 +83,7 @@ bnote-next-generation/api/
 ├── password_reset_schema.php / password_reset_rate_limit.php
 ├── register_rate_limit.php
 ├── mail/                      # Next Gen outbound mail (PHPMailer, builders, notifiers)
-├── mail_config_check.php, mail_test_send.php, mail_preview.php, …  # dev/diagnostics (see MAIL.md)
+├── debug/   # loopback-only mail previews & diagnostics (see MAIL.md); omitted from default build.sh
 └── modules/
     ├── auth.php
     ├── dashboard.php

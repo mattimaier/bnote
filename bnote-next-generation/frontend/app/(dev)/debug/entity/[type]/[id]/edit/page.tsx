@@ -27,7 +27,16 @@ export async function generateStaticParams() {
 
 export default function DebugEntityEditPage(props: PageProps) {
   return (
-    <Suspense fallback={<div className="flex items-center justify-center py-12"><Spinner /></div>}>
+    <Suspense
+      fallback={
+        <div className="mx-auto flex min-h-[40vh] w-full max-w-7xl items-center justify-center px-4 py-12">
+          <div className="flex flex-col items-center gap-3 text-base-content/60">
+            <Spinner />
+            <span className="text-sm">Loading mock editor…</span>
+          </div>
+        </div>
+      }
+    >
       <DebugEntityEdit params={props.params} />
     </Suspense>
   );

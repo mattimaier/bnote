@@ -25,6 +25,7 @@ import CalendarPage from "@/app/_modules/calendar/page";
 import BandOverviewPage from "@/app/_modules/band-overview/page";
 import ImprintModulePage from "@/app/_modules/imprint/page";
 import PrivacyModulePage from "@/app/_modules/privacy/page";
+import DeveloperModulePage from "@/app/_modules/developer/page";
 
 const MODULE_PAGES: Record<string, () => ReactNode> = {
   dashboard: () => <DashboardPage />,
@@ -45,6 +46,7 @@ const MODULE_PAGES: Record<string, () => ReactNode> = {
   "band-overview": () => <BandOverviewPage />,
   imprint: () => <ImprintModulePage />,
   privacy: () => <PrivacyModulePage />,
+  developer: () => <DeveloperModulePage />,
 };
 
 const MODULE_KEYS = Object.keys(MODULE_PAGES);
