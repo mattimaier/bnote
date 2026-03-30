@@ -59,9 +59,11 @@ final class EventParticipantNotifier {
                 $deadline = is_array($ev) ? ($ev['approve_until'] ?? null) : null;
                 $begin = is_array($ev) ? ($ev['begin'] ?? null) : null;
             }
+            $backupTtl = NextGenParticipationToken::maxTtlSecondsFromConfig($system_data);
             $ttl = NextGenParticipationToken::ttlSecondsForEvent(
                 is_string($deadline) ? $deadline : null,
-                is_string($begin) ? $begin : null
+                is_string($begin) ? $begin : null,
+                $backupTtl
             );
 
             $messages = [];

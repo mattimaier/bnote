@@ -376,7 +376,7 @@ final class EventParticipantInviteMailBuilder {
 
         $magic = isset($ctx['magicLinkExpiresDisplay']) ? trim((string) $ctx['magicLinkExpiresDisplay']) : '';
         if ($magic === '') {
-            $magic = NextGenParticipationToken::formatApproxExpiryForMail($locale, NextGenParticipationToken::MAX_TTL_SECONDS);
+            $magic = NextGenParticipationToken::formatApproxExpiryForMail($locale, NextGenParticipationToken::defaultMaxTtlSeconds());
         }
 
         return self::build(

@@ -14,8 +14,39 @@ require_once __DIR__ . '/mail/MailLocaleDateTime.php';
 final class NextGenParticipationToken {
     private const TOKEN_BYTES = 32;
 
-    /** Upper bound for participation magic-link lifetime (30 days). */
-    public const MAX_TTL_SECONDS = 2592000;
+    /**
+     * Default / backup validity when the event has no participation deadline (`approve_until`).
+     * Optional override: configuration parameter `invitation_link_validity_days` (integer days, 1–365).
+     */
+    public const DEFAULT_INVITATION_LINK_VALIDITY_DAYS = 30;
+
+    /** Hard ceiling for any magic-link TTL (deadline-driven or backup). */
+    private const ABSOLUTE_MAX_LINK_TTL_SECONDS = 365 * 86400;
+
+    public static function defaultMaxTtlSeconds(): int {
+        return self::DEFAULT_INVITATION_LINK_VALIDITY_DAYS * 86400;
+    }
+
+    /**
+     * Backup TTL when `approve_until` is unset (see ttlSecondsForEvent).
+     *
+     * @param object $system_data BNote system_data with getDynamicConfigParameter()
+     */
+    public static function maxTtlSecondsFromConfig($system_data): int {
+        $raw = $system_data->getDynamicConfigParameter('invitation_link_validity_days');
+        if ($raw === null || $raw === '') {
+            return self::defaultMaxTtlSeconds();
+        }
+        $days = (int) $raw;
+        if ($days < 1) {
+            return self::defaultMaxTtlSeconds();
+        }
+        if ($days > 365) {
+            $days = 365;
+        }
+
+        return $days * 86400;
+    }
 
     /**
      * Resolve user id for a contact, or 0.
@@ -32,32 +63,44 @@ final class NextGenParticipationToken {
     }
 
     /**
-     * TTL in seconds until token expiry (MySQL DATE_ADD), capped; uses approve_until / begin when valid.
+     * TTL until token expiry (MySQL DATE_ADD).
+     * If `approve_until` is set and in the future, the link lasts until that deadline (or event start if sooner —
+     * participation is locked after begin). Not limited by the backup window.
+     * Without a participation deadline, uses min(backupCap, time until begin) if begin is future, else backupCap only.
+     *
+     * @param int|null $backupTtlSeconds when no `approve_until`; from maxTtlSecondsFromConfig / default 30 days
      */
-    public static function ttlSecondsForEvent(?string $approveUntil, ?string $eventBegin): int {
+    public static function ttlSecondsForEvent(?string $approveUntil, ?string $eventBegin, ?int $backupTtlSeconds = null): int {
+        $backup = $backupTtlSeconds ?? self::defaultMaxTtlSeconds();
         $now = time();
-        $candidates = [];
-        foreach ([$approveUntil, $eventBegin] as $dt) {
-            if ($dt === null || $dt === '' || $dt === '-') {
-                continue;
+
+        $approveEnd = self::futureEpochEnd($approveUntil, $now);
+        $beginEnd = self::futureEpochEnd($eventBegin, $now);
+
+        if ($approveEnd !== null) {
+            $end = $approveEnd;
+            if ($beginEnd !== null) {
+                $end = min($end, $beginEnd);
             }
-            $ts = strtotime((string) $dt);
-            if ($ts !== false && $ts > $now) {
-                $candidates[] = $ts - $now;
-            }
-        }
-        if (count($candidates) > 0) {
-            return min(self::MAX_TTL_SECONDS, max(3600, min($candidates)));
+            $ttl = $end - $now;
+
+            return max(3600, min(self::ABSOLUTE_MAX_LINK_TTL_SECONDS, $ttl));
         }
 
-        return self::MAX_TTL_SECONDS;
+        if ($beginEnd !== null) {
+            $ttl = $beginEnd - $now;
+
+            return min($backup, max(3600, min(self::ABSOLUTE_MAX_LINK_TTL_SECONDS, $ttl)));
+        }
+
+        return min(self::ABSOLUTE_MAX_LINK_TTL_SECONDS, $backup);
     }
 
     /**
      * Human-readable “valid until” for mail (band timezone), ~DATE_ADD(NOW(), ttl) when the token is minted.
      */
     public static function formatApproxExpiryForMail(string $locale, int $ttlSeconds): string {
-        $ttlSeconds = max(300, min(self::MAX_TTL_SECONDS, $ttlSeconds));
+        $ttlSeconds = max(300, min(self::ABSOLUTE_MAX_LINK_TTL_SECONDS, $ttlSeconds));
         $tz = new DateTimeZone(MailLocaleDateTime::defaultTimezone());
         $until = (new DateTimeImmutable('now', $tz))->add(new DateInterval('PT' . $ttlSeconds . 'S'));
 
@@ -86,7 +129,7 @@ final class NextGenParticipationToken {
         }
 
         $userId = self::userIdForContact($contactId, $db);
-        $ttlSeconds = max(300, min(self::MAX_TTL_SECONDS, $ttlSeconds));
+        $ttlSeconds = max(300, min(self::ABSOLUTE_MAX_LINK_TTL_SECONDS, $ttlSeconds));
 
         if ($userId > 0) {
             $db->execute(
@@ -148,6 +191,21 @@ final class NextGenParticipationToken {
             'contact_id' => $cid,
             'expiresAt' => $expiresAt,
         ];
+    }
+
+    /**
+     * @return int|null Unix timestamp when participation / link relevance ends, or null if unset / not in the future
+     */
+    private static function futureEpochEnd(?string $dt, int $now): ?int {
+        if ($dt === null || $dt === '' || $dt === '-') {
+            return null;
+        }
+        $ts = strtotime((string) $dt);
+        if ($ts === false || $ts <= $now) {
+            return null;
+        }
+
+        return $ts;
     }
 
     private static function expiresAtIso8601($mysqlRaw): string {
