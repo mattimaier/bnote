@@ -22,6 +22,9 @@ export const MAIL_TEST_TEMPLATES: readonly { id: string; label: string }[] = [
   { id: "event_info_concert", label: "Event info (concert)" },
   { id: "reminder_digest_weekly", label: "Reminder digest (weekly summary)" },
   { id: "reminder_digest_empty", label: "Reminder digest (empty sections)" },
+  { id: "escalation_deadline_pending", label: "Escalation alert (deadline pending)" },
+  { id: "escalation_instrument_gap", label: "Escalation alert (instrument minimum gap)" },
+  { id: "escalation_dropout_critical", label: "Escalation alert (late dropout, critical)" },
   { id: "task_assigned", label: "Task assigned (create)" },
   { id: "task_updated", label: "Task updated" },
 ];

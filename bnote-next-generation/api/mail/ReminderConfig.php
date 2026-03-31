@@ -11,8 +11,6 @@ final class ReminderConfig {
     public static function defaults(): array {
         return [
             'enabled' => true,
-            'weekday_utc' => 7,
-            'time_utc' => '19:00',
             'recipient_scope' => 'actionable_only',
             'event_window_days' => 90,
             'max_events' => 99,
@@ -20,6 +18,14 @@ final class ReminderConfig {
             'max_votes' => 99,
             'include_tasks' => true,
             'max_tasks' => 99,
+            'escalation' => [
+                'enabled' => false,
+                'deadline_windows_hours' => [48, 12],
+                'dropout_window_hours' => 24,
+                'pending_threshold_percent' => 20,
+                'escalation_target_group_id' => 0,
+                'include_event_organizer' => true,
+            ],
         ];
     }
 
@@ -81,29 +87,31 @@ final class ReminderConfig {
         $d = self::defaults();
         $x = array_merge($d, $raw);
 
-        $weekday = (int) ($x['weekday_utc'] ?? $d['weekday_utc']);
-        if ($weekday < 1 || $weekday > 7) {
-            $weekday = (int) $d['weekday_utc'];
-        }
-
-        $time = trim((string) ($x['time_utc'] ?? $d['time_utc']));
-        if (!preg_match('/^\d{1,2}:\d{2}$/', $time)) {
-            $time = (string) $d['time_utc'];
-        }
-        [$hhRaw, $mmRaw] = array_map('intval', explode(':', $time));
-        $hh = max(0, min(23, $hhRaw));
-        $mm = max(0, min(59, $mmRaw));
-        $time = str_pad((string) $hh, 2, '0', STR_PAD_LEFT) . ':' . str_pad((string) $mm, 2, '0', STR_PAD_LEFT);
-
         $scope = (string) ($x['recipient_scope'] ?? $d['recipient_scope']);
         if (!in_array($scope, ['actionable_only', 'all_opted_in'], true)) {
             $scope = (string) $d['recipient_scope'];
         }
 
+        $escInput = (isset($x['escalation']) && is_array($x['escalation'])) ? $x['escalation'] : [];
+        $escDefault = (isset($d['escalation']) && is_array($d['escalation'])) ? $d['escalation'] : [];
+        $esc = array_merge($escDefault, $escInput);
+        $deadlineWindows = [];
+        $rawWindows = $esc['deadline_windows_hours'] ?? $escDefault['deadline_windows_hours'] ?? [48, 12];
+        if (is_array($rawWindows)) {
+            foreach ($rawWindows as $w) {
+                $n = (int) $w;
+                if ($n > 0 && $n <= 240) {
+                    $deadlineWindows[] = $n;
+                }
+            }
+        }
+        if (count($deadlineWindows) < 1) {
+            $deadlineWindows = [48, 12];
+        }
+        rsort($deadlineWindows);
+
         return [
             'enabled' => self::toBool($x['enabled']),
-            'weekday_utc' => $weekday,
-            'time_utc' => $time,
             'recipient_scope' => $scope,
             'event_window_days' => max(1, min(180, (int) ($x['event_window_days'] ?? $d['event_window_days']))),
             'max_events' => max(1, min(99, (int) ($x['max_events'] ?? $d['max_events']))),
@@ -111,6 +119,14 @@ final class ReminderConfig {
             'max_votes' => max(1, min(99, (int) ($x['max_votes'] ?? $d['max_votes']))),
             'include_tasks' => self::toBool($x['include_tasks']),
             'max_tasks' => max(1, min(99, (int) ($x['max_tasks'] ?? $d['max_tasks']))),
+            'escalation' => [
+                'enabled' => self::toBool($esc['enabled'] ?? false),
+                'deadline_windows_hours' => $deadlineWindows,
+                'dropout_window_hours' => max(1, min(240, (int) ($esc['dropout_window_hours'] ?? 24))),
+                'pending_threshold_percent' => max(1, min(100, (int) ($esc['pending_threshold_percent'] ?? 20))),
+                'escalation_target_group_id' => max(0, (int) ($esc['escalation_target_group_id'] ?? 0)),
+                'include_event_organizer' => self::toBool($esc['include_event_organizer'] ?? true),
+            ],
         ];
     }
 

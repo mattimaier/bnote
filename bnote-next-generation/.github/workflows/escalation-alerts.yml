@@ -1,9 +1,9 @@
-name: BNote Reminder Digest
+name: BNote Escalation Alerts
 
 on:
   schedule:
-    # Once per week on Sunday at 19:00 UTC.
-    - cron: "0 19 * * 0"
+    # Twice per day (08:00 and 20:00 UTC).
+    - cron: "0 8,20 * * *"
   workflow_dispatch:
     inputs:
       dryRun:
@@ -12,7 +12,7 @@ on:
         default: true
         type: boolean
       force:
-        description: "If true, bypass due-time gating (admin/operator use)"
+        description: "If true, bypass disabled checks"
         required: false
         default: false
         type: boolean
@@ -21,13 +21,17 @@ on:
         required: false
         default: false
         type: boolean
-      onlyUserId:
-        description: "Optional: if set, process reminders only for this user ID"
+      onlyEventType:
+        description: "Optional: event type (R or C)"
+        required: false
+        type: string
+      onlyEventId:
+        description: "Optional: event ID"
         required: false
         type: string
 
 jobs:
-  run-reminder:
+  run-escalation:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -38,7 +42,7 @@ jobs:
           SECRET: ${{ secrets.BNOTE_NEXT_GENERATION_REMINDER_SECRET }}
         run: |
           set -euo pipefail
-          echo "::group::Reminder secret validation"
+          echo "::group::Escalation secret validation"
           echo "Workflow: ${GITHUB_WORKFLOW}"
           echo "Event name: ${GITHUB_EVENT_NAME}"
           echo "Ref: ${GITHUB_REF}"
@@ -52,24 +56,22 @@ jobs:
           else
             echo "Secret endpoint configured: no"
           fi
-          if [ -z "${SECRET_ENDPOINT:-}" ]; then
-            echo "Missing BNOTE_NEXT_GENERATION_REMINDER_ENDPOINT secret"
-            exit 1
-          fi
+          test -n "${SECRET_ENDPOINT:-}" || { echo "Missing BNOTE_NEXT_GENERATION_REMINDER_ENDPOINT secret"; exit 1; }
           echo "::endgroup::"
 
-      - name: Call signed reminder endpoint
+      - name: Call signed escalation endpoint
         env:
           SECRET_ENDPOINT: ${{ secrets.BNOTE_NEXT_GENERATION_REMINDER_ENDPOINT }}
           SECRET: ${{ secrets.BNOTE_NEXT_GENERATION_REMINDER_SECRET }}
           INPUT_DRY_RUN: ${{ github.event.inputs.dryRun }}
           INPUT_FORCE: ${{ github.event.inputs.force }}
           INPUT_BUG_LOG: ${{ github.event.inputs.bugLog }}
-          INPUT_ONLY_USER_ID: ${{ github.event.inputs.onlyUserId }}
+          INPUT_ONLY_EVENT_TYPE: ${{ github.event.inputs.onlyEventType }}
+          INPUT_ONLY_EVENT_ID: ${{ github.event.inputs.onlyEventId }}
         run: |
           set -euo pipefail
 
-          echo "::group::Reminder trigger context"
+          echo "::group::Escalation trigger context"
           echo "Workflow: ${GITHUB_WORKFLOW}"
           echo "Event name: ${GITHUB_EVENT_NAME}"
           echo "Actor: ${GITHUB_ACTOR}"
@@ -80,50 +82,34 @@ jobs:
           echo "SHA: ${GITHUB_SHA}"
           echo "::endgroup::"
 
-          # Safe default: no sending unless explicitly turned off.
           DRY_RUN="${INPUT_DRY_RUN:-true}"
           FORCE_RUN="${INPUT_FORCE:-false}"
           BUG_LOG="${INPUT_BUG_LOG:-false}"
-          ONLY_USER_ID="$(printf '%s' "${INPUT_ONLY_USER_ID:-}" | xargs)"
+          ONLY_EVENT_TYPE="$(printf '%s' "${INPUT_ONLY_EVENT_TYPE:-}" | tr '[:lower:]' '[:upper:]' | xargs)"
+          ONLY_EVENT_ID="$(printf '%s' "${INPUT_ONLY_EVENT_ID:-}" | xargs)"
           BUG_LOG="$(printf '%s' "${BUG_LOG}" | tr '[:upper:]' '[:lower:]')"
           case "${BUG_LOG}" in
             1|true|yes|on) BUG_LOG=true ;;
             *) BUG_LOG=false ;;
           esac
-          if [ -n "${ONLY_USER_ID}" ]; then
-            case "${ONLY_USER_ID}" in
-              ''|*[!0-9]*)
-                echo "Invalid onlyUserId input (must be digits only): ${ONLY_USER_ID}"
-                exit 1
-                ;;
+          if [ -n "${ONLY_EVENT_TYPE}" ] || [ -n "${ONLY_EVENT_ID}" ]; then
+            case "${ONLY_EVENT_TYPE}" in
+              R|C) ;;
+              *) echo "Invalid onlyEventType input (must be R or C): ${ONLY_EVENT_TYPE}"; exit 1 ;;
             esac
-            if [ "${ONLY_USER_ID}" = "0" ]; then
-              echo "Invalid onlyUserId input (must be > 0)."
+            case "${ONLY_EVENT_ID}" in
+              ''|*[!0-9]*) echo "Invalid onlyEventId input (must be digits only): ${ONLY_EVENT_ID}"; exit 1 ;;
+            esac
+            if [ "${ONLY_EVENT_ID}" = "0" ]; then
+              echo "Invalid onlyEventId input (must be > 0)."
               exit 1
             fi
           fi
-          export DRY_RUN FORCE_RUN BUG_LOG ONLY_USER_ID
+          export DRY_RUN FORCE_RUN BUG_LOG ONLY_EVENT_TYPE ONLY_EVENT_ID
           ENDPOINT="${SECRET_ENDPOINT:-}"
           export ENDPOINT
           test -n "${ENDPOINT}" || { echo "No endpoint available"; exit 1; }
-
-          echo "::group::Reminder request parameters"
-          echo "Endpoint source: GitHub secret BNOTE_NEXT_GENERATION_REMINDER_ENDPOINT"
-          echo "dryRun input: ${DRY_RUN}"
-          echo "force input: ${FORCE_RUN}"
-          echo "bugLog input: ${BUG_LOG}"
-          echo "onlyUserId input: ${ONLY_USER_ID:-<not set>}"
-          echo "Endpoint URL: ${ENDPOINT}"
-          ENDPOINT_SCHEME="$(python3 -c 'import os, urllib.parse; u=urllib.parse.urlparse(os.environ["ENDPOINT"]); print(u.scheme)')"
-          ENDPOINT_HOST="$(python3 -c 'import os, urllib.parse; u=urllib.parse.urlparse(os.environ["ENDPOINT"]); print(u.netloc)')"
-          ENDPOINT_PATH="$(python3 -c 'import os, urllib.parse; u=urllib.parse.urlparse(os.environ["ENDPOINT"]); print(u.path or "/")')"
-          echo "Endpoint scheme: ${ENDPOINT_SCHEME}"
-          echo "Endpoint host: ${ENDPOINT_HOST}"
-          echo "Endpoint path: ${ENDPOINT_PATH}"
-          echo "::endgroup::"
-
-          BODY="$(python3 -c 'import json, os; b=lambda v: str(v).strip().lower() in ("1","true","yes","on"); payload={"job":"digest","dryRun": b(os.environ.get("DRY_RUN","true")), "force": b(os.environ.get("FORCE_RUN","false"))}; uid=str(os.environ.get("ONLY_USER_ID","")).strip(); payload["onlyUserId"]=int(uid) if uid.isdigit() and int(uid)>0 else None; payload = {k:v for k,v in payload.items() if v is not None}; print(json.dumps(payload, separators=(",", ":")))' )"
-
+          BODY="$(python3 -c 'import json, os; b=lambda v: str(v).strip().lower() in ("1","true","yes","on"); et=str(os.environ.get("ONLY_EVENT_TYPE","")).strip().upper(); eid=str(os.environ.get("ONLY_EVENT_ID","")).strip(); payload={"job":"escalation","dryRun": b(os.environ.get("DRY_RUN","true")), "force": b(os.environ.get("FORCE_RUN","false")), "onlyEventType": et if et in ("R","C") else None, "onlyEventId": int(eid) if eid.isdigit() and int(eid)>0 else None}; payload = {k:v for k,v in payload.items() if v is not None}; print(json.dumps(payload, separators=(",", ":")))' )"
           TS="$(date +%s)"
           ISO_TS="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
           NONCE="$(openssl rand -hex 16)"
@@ -131,7 +117,13 @@ jobs:
           CANONICAL="POST|${PATH_ONLY}|${TS}|${NONCE}|${BODY}"
           SIG="$(printf '%s' "${CANONICAL}" | openssl dgst -sha256 -hmac "${SECRET}" -hex | sed 's/^.* //')"
 
-          echo "::group::Reminder signing details (safe)"
+          echo "::group::Escalation request parameters"
+          echo "dryRun input: ${DRY_RUN}"
+          echo "force input: ${FORCE_RUN}"
+          echo "bugLog input: ${BUG_LOG}"
+          echo "onlyEventType input: ${ONLY_EVENT_TYPE:-<not set>}"
+          echo "onlyEventId input: ${ONLY_EVENT_ID:-<not set>}"
+          echo "Endpoint URL: ${ENDPOINT}"
           echo "Timestamp (epoch): ${TS}"
           echo "Timestamp (UTC): ${ISO_TS}"
           echo "Nonce: ${NONCE}"
@@ -146,7 +138,7 @@ jobs:
           fi
           echo "::endgroup::"
 
-          echo "::group::Reminder curl command"
+          echo "::group::Escalation curl command"
           if [ "${BUG_LOG}" = "true" ]; then
             echo "curl --location --request POST '${ENDPOINT}' \\"
             echo "  --header 'Content-Type: application/json' \\"
@@ -164,7 +156,7 @@ jobs:
           fi
           echo "::endgroup::"
 
-          echo "::group::Reminder endpoint response"
+          echo "::group::Escalation endpoint response"
           HTTP_CODE="$(curl --show-error --silent --location --verbose \
             -X POST "${ENDPOINT}" \
             -H "Content-Type: application/json" \
@@ -191,7 +183,7 @@ jobs:
           case "${HTTP_CODE}" in
             2* ) ;;
             * )
-              echo "Reminder request failed with HTTP status ${HTTP_CODE}"
+              echo "Escalation request failed with HTTP status ${HTTP_CODE}"
               exit 1
               ;;
           esac

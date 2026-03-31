@@ -7,16 +7,25 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { useI18n } from "@/contexts/I18nContext";
 import { useToast } from "@/contexts/ToastContext";
 import { kontaktdatenApi } from "@/lib/kontaktdaten-api";
-import { remindersApi, type ReminderConfig } from "@/lib/reminders-api";
+import { contactsApi } from "@/lib/contacts-api";
+import { remindersApi, type EscalationGroup, type ReminderConfig } from "@/lib/reminders-api";
 import { checkSession } from "@/lib/auth";
 import { DetailPageHeader } from "@/components/DetailPageHeader";
 import { DetailSection } from "@/components/DetailSection";
 import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/error-utils";
 import { PAGE_CONTENT_CLASS } from "@/lib/layout";
+
+interface EscalationConfigDraft {
+  enabled: boolean;
+  pending_threshold_percent: number;
+  dropout_window_hours: number;
+  escalation_target_group_id: number;
+}
 
 export default function SettingsPage() {
   const { t, ready } = useI18n();
@@ -26,7 +35,10 @@ export default function SettingsPage() {
   const [emailNotification, setEmailNotification] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [reminderConfig, setReminderConfig] = useState<ReminderConfig | null>(null);
+  const [escalationGroups, setEscalationGroups] = useState<EscalationGroup[]>([]);
+  const [escalationDraft, setEscalationDraft] = useState<EscalationConfigDraft | null>(null);
   const [savingReminderConfig, setSavingReminderConfig] = useState(false);
+  const [savingEscalation, setSavingEscalation] = useState(false);
   const [runningReminder, setRunningReminder] = useState(false);
   const [runOutput, setRunOutput] = useState<string | null>(null);
 
@@ -45,8 +57,40 @@ export default function SettingsPage() {
       if (admin) {
         const cfgRes = await remindersApi.getConfig();
         setReminderConfig(cfgRes?.config ?? null);
+        setEscalationDraft(cfgRes?.config?.escalation ? {
+          enabled: Boolean(cfgRes.config.escalation.enabled),
+          pending_threshold_percent: Number(cfgRes.config.escalation.pending_threshold_percent ?? 20),
+          dropout_window_hours: Number(cfgRes.config.escalation.dropout_window_hours ?? 24),
+          escalation_target_group_id: Number(cfgRes.config.escalation.escalation_target_group_id ?? 0),
+        } : null);
+        let groups: EscalationGroup[] = [];
+        try {
+          const groupsRes = await remindersApi.getEscalationGroups();
+          if (Array.isArray(groupsRes?.groups)) {
+            groups = groupsRes.groups
+              .map((g) => ({ id: Number(g.id) || 0, name: String(g.name ?? "") }))
+              .filter((g) => g.id > 0 && g.name.trim() !== "");
+          }
+        } catch {
+          // fall back below
+        }
+        if (groups.length === 0) {
+          try {
+            const fallback = await contactsApi.getGroups();
+            if (Array.isArray(fallback)) {
+              groups = fallback
+                .map((g) => ({ id: Number(g.id) || 0, name: String(g.name ?? "") }))
+                .filter((g) => g.id > 0 && g.name.trim() !== "");
+            }
+          } catch {
+            // keep empty if fallback also fails
+          }
+        }
+        setEscalationGroups(groups);
       } else {
         setReminderConfig(null);
+        setEscalationGroups([]);
+        setEscalationDraft(null);
       }
     } catch (err) {
       showToast(getErrorMessage(err, t, "js.settings.loadError"), "error");
@@ -82,6 +126,14 @@ export default function SettingsPage() {
     try {
       const res = await remindersApi.updateConfig(next);
       setReminderConfig(res.config);
+      if (res.config?.escalation) {
+        setEscalationDraft({
+          enabled: Boolean(res.config.escalation.enabled),
+          pending_threshold_percent: Number(res.config.escalation.pending_threshold_percent ?? 20),
+          dropout_window_hours: Number(res.config.escalation.dropout_window_hours ?? 24),
+          escalation_target_group_id: Number(res.config.escalation.escalation_target_group_id ?? 0),
+        });
+      }
       showToast(label("js.settings.saved", "Saved"), "success");
     } catch (err) {
       showToast(getErrorMessage(err, t, "js.common.saveFailed"), "error");
@@ -93,6 +145,32 @@ export default function SettingsPage() {
       }
     } finally {
       setSavingReminderConfig(false);
+    }
+  }
+
+  async function saveEscalationConfig() {
+    if (!reminderConfig || !escalationDraft) return;
+    setSavingEscalation(true);
+    try {
+      const res = await remindersApi.updateConfig({
+        escalation: {
+          ...reminderConfig.escalation,
+          ...escalationDraft,
+          include_event_organizer: false,
+        },
+      });
+      setReminderConfig(res.config);
+      setEscalationDraft({
+        enabled: Boolean(res.config.escalation?.enabled),
+        pending_threshold_percent: Number(res.config.escalation?.pending_threshold_percent ?? 20),
+        dropout_window_hours: Number(res.config.escalation?.dropout_window_hours ?? 24),
+        escalation_target_group_id: Number(res.config.escalation?.escalation_target_group_id ?? 0),
+      });
+      showToast(label("js.settings.saved", "Saved"), "success");
+    } catch (err) {
+      showToast(getErrorMessage(err, t, "js.common.saveFailed"), "error");
+    } finally {
+      setSavingEscalation(false);
     }
   }
 
@@ -170,6 +248,7 @@ export default function SettingsPage() {
       </DetailSection>
 
       {isAdmin && reminderConfig && (
+        <>
         <DetailSection className="space-y-4">
           <div>
             <span className="text-xs font-medium text-base-content/60">
@@ -178,7 +257,7 @@ export default function SettingsPage() {
             <p className="mt-1 text-sm text-base-content/70">
               {label(
                 "js.settings.reminder.sectionHelp",
-                "Configure weekly summary emails sent by the external scheduler (UTC)."
+                "Configure weekly summary emails sent by the external scheduler."
               )}
             </p>
           </div>
@@ -198,51 +277,13 @@ export default function SettingsPage() {
             </span>
           </label>
 
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-            <label className="form-control">
-              <span className="label-text text-xs font-medium text-base-content/70">
-                {label("js.settings.reminder.weekday", "Weekday (UTC)")}
-              </span>
-              <select
-                className="select select-bordered select-sm"
-                value={String(reminderConfig.weekday_utc)}
-                disabled={savingReminderConfig}
-                onChange={(e) => {
-                  void saveReminderConfig({ weekday_utc: Number(e.target.value) });
-                }}
-              >
-                <option value="1">Monday</option>
-                <option value="2">Tuesday</option>
-                <option value="3">Wednesday</option>
-                <option value="4">Thursday</option>
-                <option value="5">Friday</option>
-                <option value="6">Saturday</option>
-                <option value="7">Sunday</option>
-              </select>
-            </label>
-            <label className="form-control">
-              <span className="label-text text-xs font-medium text-base-content/70">
-                {label("js.settings.reminder.timeUtc", "Time (UTC)")}
-              </span>
-              <input
-                type="time"
-                className="input input-bordered input-sm"
-                value={reminderConfig.time_utc}
-                disabled={savingReminderConfig}
-                onChange={(e) => {
-                  void saveReminderConfig({ time_utc: e.target.value });
-                }}
-              />
-              <span className="label-text-alt mt-1 text-xs text-base-content/60">
-                {label("js.settings.reminder.timeUtcHint", "Must match your external scheduler trigger time (UTC).")}
-              </span>
-            </label>
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <label className="form-control">
               <span className="label-text text-xs font-medium text-base-content/70">
                 {label("js.settings.reminder.recipientScope", "Recipients")}
               </span>
               <select
-                className="select select-bordered select-sm"
+                className="select select-bordered"
                 value={reminderConfig.recipient_scope}
                 disabled={savingReminderConfig}
                 onChange={(e) => {
@@ -253,9 +294,6 @@ export default function SettingsPage() {
                 <option value="all_opted_in">{label("js.settings.reminder.recipient.all", "All opted-in active users")}</option>
               </select>
             </label>
-          </div>
-
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
             <label className="form-control">
               <span className="label-text text-xs font-medium text-base-content/70">
                 {label("js.settings.reminder.windowDays", "Event window (days)")}
@@ -264,7 +302,7 @@ export default function SettingsPage() {
                 type="number"
                 min={1}
                 max={180}
-                className="input input-bordered input-sm"
+                className="input input-bordered"
                 value={reminderConfig.event_window_days}
                 disabled={savingReminderConfig}
                 onChange={(e) => {
@@ -272,6 +310,9 @@ export default function SettingsPage() {
                 }}
               />
             </label>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
             <label className="form-control">
               <span className="label-text text-xs font-medium text-base-content/70">
                 {label("js.settings.reminder.maxEvents", "Max events")}
@@ -280,7 +321,7 @@ export default function SettingsPage() {
                 type="number"
                 min={1}
                 max={99}
-                className="input input-bordered input-sm"
+                className="input input-bordered"
                 value={reminderConfig.max_events}
                 disabled={savingReminderConfig}
                 onChange={(e) => {
@@ -296,7 +337,7 @@ export default function SettingsPage() {
                 type="number"
                 min={1}
                 max={99}
-                className="input input-bordered input-sm"
+                className="input input-bordered"
                 value={reminderConfig.max_votes}
                 disabled={savingReminderConfig || !reminderConfig.include_votes}
                 onChange={(e) => {
@@ -312,7 +353,7 @@ export default function SettingsPage() {
                 type="number"
                 min={1}
                 max={99}
-                className="input input-bordered input-sm"
+                className="input input-bordered"
                 value={reminderConfig.max_tasks}
                 disabled={savingReminderConfig || !reminderConfig.include_tasks}
                 onChange={(e) => {
@@ -356,7 +397,7 @@ export default function SettingsPage() {
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
-                className="btn btn-soft btn-sm"
+                  className="btn btn-soft"
                 disabled={runningReminder}
                 onClick={() => {
                   void runReminderNow(true);
@@ -366,7 +407,7 @@ export default function SettingsPage() {
               </button>
               <button
                 type="button"
-                className="btn btn-soft btn-primary btn-sm"
+                  className="btn btn-soft btn-primary"
                 disabled={runningReminder}
                 onClick={() => {
                   void runReminderNow(false);
@@ -382,6 +423,152 @@ export default function SettingsPage() {
             ) : null}
           </div>
         </DetailSection>
+
+        <DetailSection className="space-y-4">
+          <div>
+            <span className="text-xs font-medium text-base-content/60">
+              {label("js.settings.escalation.title", "Escalation alerts")}
+            </span>
+            <p className="mt-1 text-sm text-base-content/70">
+              {label(
+                "js.settings.escalation.help",
+                "Escalate at-risk events to a dedicated group. Scheduling is handled by GitHub workflow."
+              )}
+            </p>
+          </div>
+
+          <div className="overflow-x-auto rounded-box border border-base-300">
+            <table className="table">
+              <tbody>
+                <tr>
+                  <th className="w-72 align-middle text-sm font-medium text-base-content/80">
+                    {label("js.settings.escalation.enabled", "Enable escalation alerts")}
+                  </th>
+                  <td className="align-middle">
+                    <label className="flex cursor-pointer items-center gap-3">
+                      <input
+                        type="checkbox"
+                        className="checkbox checkbox-primary checkbox-sm"
+                        checked={Boolean(escalationDraft?.enabled)}
+                        disabled={savingEscalation}
+                        onChange={(e) => {
+                          setEscalationDraft((prev) =>
+                            prev ? { ...prev, enabled: e.target.checked } : prev
+                          );
+                        }}
+                      />
+                      <span className="text-sm text-base-content/70">
+                        {label("js.settings.escalation.enabledHelp", "Turn escalation warning emails on or off.")}
+                      </span>
+                    </label>
+                  </td>
+                </tr>
+                <tr>
+                  <th className="align-middle text-sm font-medium text-base-content/80">
+                    {label("js.settings.escalation.group", "Escalation group")}
+                  </th>
+                  <td className="align-middle">
+                    <select
+                      className="select select-bordered w-full max-w-xl"
+                      value={String(escalationDraft?.escalation_target_group_id ?? 0)}
+                      disabled={savingEscalation}
+                      onChange={(e) => {
+                        setEscalationDraft((prev) =>
+                          prev
+                            ? { ...prev, escalation_target_group_id: Number(e.target.value) }
+                            : prev
+                        );
+                      }}
+                    >
+                      <option value="0">{label("js.settings.escalation.groupNone", "Select group…")}</option>
+                      {escalationGroups.map((g) => (
+                        <option key={g.id} value={g.id}>
+                          {g.name}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <th className="align-middle text-sm font-medium text-base-content/80">
+                    {label("js.settings.escalation.pendingThreshold", "Pending threshold (%)")}
+                  </th>
+                  <td className="align-middle">
+                    <input
+                      type="number"
+                      min={1}
+                      max={100}
+                      className="input input-bordered w-full max-w-xs"
+                      value={Number(escalationDraft?.pending_threshold_percent ?? 20)}
+                      disabled={savingEscalation}
+                      onChange={(e) => {
+                        setEscalationDraft((prev) =>
+                          prev
+                            ? { ...prev, pending_threshold_percent: Number(e.target.value) }
+                            : prev
+                        );
+                      }}
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <th className="align-middle text-sm font-medium text-base-content/80">
+                    {label("js.settings.escalation.dropoutWindow", "Dropout window (hours)")}
+                  </th>
+                  <td className="align-middle">
+                    <input
+                      type="number"
+                      min={1}
+                      max={240}
+                      className="input input-bordered w-full max-w-xs"
+                      value={Number(escalationDraft?.dropout_window_hours ?? 24)}
+                      disabled={savingEscalation}
+                      onChange={(e) => {
+                        setEscalationDraft((prev) =>
+                          prev
+                            ? { ...prev, dropout_window_hours: Number(e.target.value) }
+                            : prev
+                        );
+                      }}
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <th className="align-middle text-sm font-medium text-base-content/80">
+                    {label("js.settings.escalation.minimums", "Instrument minimums")}
+                  </th>
+                  <td className="align-middle">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <Link
+                        href="/settings/instrument-minimums"
+                        className="btn btn-soft btn-primary"
+                      >
+                        {label("js.settings.escalation.minimumsOpen", "Open instrument minimum table")}
+                      </Link>
+                      <span className="text-sm text-base-content/70">
+                        {label("js.settings.escalation.minimumsHelpShort", "Manage defaults in a dedicated table view.")}
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              className="btn btn-soft btn-primary"
+              disabled={savingEscalation || !escalationDraft}
+              onClick={() => {
+                void saveEscalationConfig();
+              }}
+            >
+              {savingEscalation ? label("js.common.saving", "Saving…") : label("js.common.save", "Save")}
+            </button>
+          </div>
+        </DetailSection>
+        </>
       )}
     </div>
   );

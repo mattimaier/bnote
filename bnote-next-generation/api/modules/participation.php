@@ -29,6 +29,7 @@ require_once BNOTE_ROOT . '/src/data/modules/startdata.php';
 require_once BNOTE_ROOT . '/src/data/database.php';
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
+require_once __DIR__ . '/../mail/EscalationAlertService.php';
 
 class ParticipationModule {
     private $data;
@@ -230,9 +231,37 @@ class ParticipationModule {
             // Reason validation is done in saveParticipation method
         }
         
+        $previousParticipation = null;
+        if ($eventType === 'R') {
+            $previousParticipation = $this->data->doesParticipateInRehearsal($eventId);
+        } else {
+            $previousParticipation = $this->data->doesParticipateInConcert($eventId, $userId);
+        }
+
         // Save participation using StartData
         // Note: StartData::saveParticipation expects 'R' or 'C' as first parameter
         $this->data->saveParticipation($eventType, $userId, $eventId, $participate, $reason);
+
+        $previous = is_array($previousParticipation) ? (int) ($previousParticipation['participate'] ?? -1) : -1;
+        if ($participate === 0 && $previous !== 0) {
+            try {
+                $contactId = (int) ($system_data->dbcon->colValue(
+                    'SELECT contact FROM user WHERE id = ?',
+                    'contact',
+                    [['i', $userId]]
+                ) ?? 0);
+                EscalationAlertService::triggerImmediateDropout(
+                    $system_data,
+                    $eventType,
+                    $eventId,
+                    $contactId,
+                    'participation_no',
+                    false
+                );
+            } catch (Throwable $e) {
+                error_log('ParticipationModule escalation hook failed: ' . $e->getMessage());
+            }
+        }
         
         return [
             'success' => true,

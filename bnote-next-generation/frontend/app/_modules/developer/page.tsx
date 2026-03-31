@@ -18,7 +18,7 @@ import { getApiDebugScriptUrl } from "@/lib/api";
 import { getEntityConfig } from "@/lib/entity-config";
 import mailDesignTokens from "@/mail-design-tokens.json";
 import { MAIL_TEST_LOCALES, MAIL_TEST_TEMPLATES } from "@/lib/mail-test-templates";
-import { remindersApi, type ReminderRecipient } from "@/lib/reminders-api";
+import { remindersApi, type EscalationAuditEntry, type ReminderRecipient } from "@/lib/reminders-api";
 import { calendarApi, type CalendarSubscriptionLink } from "@/lib/calendar-api";
 
 const COMMENT_ENTITY_KINDS = [
@@ -151,6 +151,15 @@ function DeveloperModulePageContent() {
   const [reminderRunOutput, setReminderRunOutput] = useState<string | null>(null);
   const [reminderRecipients, setReminderRecipients] = useState<ReminderRecipient[]>([]);
   const [reminderSelectedUserId, setReminderSelectedUserId] = useState<number>(0);
+  const [escEventType, setEscEventType] = useState<"R" | "C">("R");
+  const [escEventId, setEscEventId] = useState("0");
+  const [escContactId, setEscContactId] = useState("0");
+  const [escTestRecipients, setEscTestRecipients] = useState("");
+  const [escLoading, setEscLoading] = useState(false);
+  const [escOutput, setEscOutput] = useState<string | null>(null);
+  const [escAuditLoading, setEscAuditLoading] = useState(false);
+  const [escAuditEntries, setEscAuditEntries] = useState<EscalationAuditEntry[]>([]);
+  const [escAuditOutput, setEscAuditOutput] = useState<string | null>(null);
   const [calendarSubLoading, setCalendarSubLoading] = useState(false);
   const [calendarSubData, setCalendarSubData] = useState<CalendarSubscriptionLink | null>(null);
   const [calendarSubOutput, setCalendarSubOutput] = useState<string | null>(null);
@@ -239,6 +248,116 @@ function DeveloperModulePageContent() {
       setReminderRunLoading(false);
     }
   }, [reminderRunDry, reminderSelectedUserId, reminderRunIgnoreLimits]);
+
+  const parseTestRecipients = useCallback((): string[] => {
+    return escTestRecipients
+      .split(/[,\s;]/g)
+      .map((x) => x.trim())
+      .filter((x) => x.length > 0);
+  }, [escTestRecipients]);
+
+  const runEscalationScheduledDryRun = useCallback(async () => {
+    setEscLoading(true);
+    setEscOutput(null);
+    try {
+      const out = await remindersApi.runEscalationNow({
+        dryRun: true,
+        force: true,
+      });
+      setEscOutput(JSON.stringify(out, null, 2));
+    } catch (e) {
+      setEscOutput(e instanceof Error ? e.message : String(e));
+    } finally {
+      setEscLoading(false);
+    }
+  }, []);
+
+  const runEscalationRealForEvent = useCallback(async () => {
+    const eventIdNum = parseInt(escEventId, 10);
+    if (!Number.isFinite(eventIdNum) || eventIdNum < 1) {
+      setEscOutput("Event id must be a positive number.");
+      return;
+    }
+    const recipients = parseTestRecipients();
+    if (recipients.length < 1) {
+      setEscOutput("At least one test recipient is required for real send.");
+      return;
+    }
+    setEscLoading(true);
+    setEscOutput(null);
+    try {
+      const out = await remindersApi.runEscalationNow({
+        dryRun: false,
+        force: true,
+        eventType: escEventType,
+        eventId: eventIdNum,
+        testRecipients: recipients,
+        isTest: true,
+      });
+      setEscOutput(JSON.stringify(out, null, 2));
+    } catch (e) {
+      setEscOutput(e instanceof Error ? e.message : String(e));
+    } finally {
+      setEscLoading(false);
+    }
+  }, [escEventId, escEventType, parseTestRecipients]);
+
+  const runEscalationDropoutSimulation = useCallback(async () => {
+    const eventIdNum = parseInt(escEventId, 10);
+    const contactIdNum = parseInt(escContactId, 10);
+    if (!Number.isFinite(eventIdNum) || eventIdNum < 1) {
+      setEscOutput("Event id must be a positive number.");
+      return;
+    }
+    setEscLoading(true);
+    setEscOutput(null);
+    try {
+      const out = await remindersApi.simulateEscalationDropout({
+        dryRun: true,
+        eventType: escEventType,
+        eventId: eventIdNum,
+        contactId: Number.isFinite(contactIdNum) && contactIdNum > 0 ? contactIdNum : undefined,
+      });
+      setEscOutput(JSON.stringify(out, null, 2));
+    } catch (e) {
+      setEscOutput(e instanceof Error ? e.message : String(e));
+    } finally {
+      setEscLoading(false);
+    }
+  }, [escContactId, escEventId, escEventType]);
+
+  const runEscalationEligibility = useCallback(async () => {
+    const eventIdNum = parseInt(escEventId, 10);
+    if (!Number.isFinite(eventIdNum) || eventIdNum < 1) {
+      setEscOutput("Event id must be a positive number.");
+      return;
+    }
+    setEscLoading(true);
+    setEscOutput(null);
+    try {
+      const out = await remindersApi.getEscalationEligibility(escEventType, eventIdNum);
+      setEscOutput(JSON.stringify(out, null, 2));
+    } catch (e) {
+      setEscOutput(e instanceof Error ? e.message : String(e));
+    } finally {
+      setEscLoading(false);
+    }
+  }, [escEventId, escEventType]);
+
+  const loadEscalationAudit = useCallback(async () => {
+    setEscAuditLoading(true);
+    setEscAuditOutput(null);
+    try {
+      const out = await remindersApi.getEscalationAudit(30);
+      const entries = Array.isArray(out.entries) ? out.entries : [];
+      setEscAuditEntries(entries);
+      setEscAuditOutput(`Loaded ${entries.length} audit entries.`);
+    } catch (e) {
+      setEscAuditOutput(e instanceof Error ? e.message : String(e));
+    } finally {
+      setEscAuditLoading(false);
+    }
+  }, []);
 
   const loadReminderRecipients = useCallback(async () => {
     try {
@@ -655,6 +774,102 @@ function DeveloperModulePageContent() {
             </button>
             {reminderRunOutput !== null && (
               <pre className="max-h-56 overflow-auto rounded-box bg-base-300/40 p-3 text-xs leading-relaxed whitespace-pre-wrap">{reminderRunOutput}</pre>
+            )}
+          </DevPanel>
+          <DevPanel
+            title="Escalation alert test tools"
+            description="Dry-run previews, real send (test-recipient override), dropout simulation, recipient eligibility, and audit log."
+            iconName="alert-triangle"
+            accentColor={accent}
+          >
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="flex flex-col gap-1 text-sm">
+                <span className="text-base-content/80">Event type</span>
+                <select className="select select-bordered select-sm" value={escEventType} onChange={(e) => setEscEventType(e.target.value as "R" | "C")}>
+                  <option value="R">Rehearsal (R)</option>
+                  <option value="C">Concert (C)</option>
+                </select>
+              </label>
+              <label className="flex flex-col gap-1 text-sm">
+                <span className="text-base-content/80">Event id</span>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  className="input input-bordered input-sm font-mono"
+                  value={escEventId}
+                  onChange={(e) => setEscEventId(e.target.value)}
+                  placeholder="123"
+                />
+              </label>
+            </div>
+            <label className="flex flex-col gap-1 text-sm">
+              <span className="text-base-content/80">Contact id for dropout simulation (optional)</span>
+              <input
+                type="text"
+                inputMode="numeric"
+                className="input input-bordered input-sm font-mono"
+                value={escContactId}
+                onChange={(e) => setEscContactId(e.target.value)}
+                placeholder="456"
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-sm">
+              <span className="text-base-content/80">Test recipients for real send (comma/space separated)</span>
+              <input
+                type="text"
+                className="input input-bordered input-sm font-mono"
+                value={escTestRecipients}
+                onChange={(e) => setEscTestRecipients(e.target.value)}
+                placeholder="you@example.com teammate@example.com"
+              />
+            </label>
+            <div className="flex flex-wrap gap-2">
+              <button type="button" className="btn btn-soft btn-sm" disabled={escLoading} onClick={() => void runEscalationScheduledDryRun()}>
+                {escLoading ? "Running…" : "Scheduled dry-run"}
+              </button>
+              <button type="button" className="btn btn-soft btn-sm btn-primary" disabled={escLoading} onClick={() => void runEscalationRealForEvent()}>
+                {escLoading ? "Sending…" : "Real send for event (test recipients)"}
+              </button>
+              <button type="button" className="btn btn-soft btn-sm" disabled={escLoading} onClick={() => void runEscalationDropoutSimulation()}>
+                {escLoading ? "Simulating…" : "Simulate dropout trigger"}
+              </button>
+              <button type="button" className="btn btn-soft btn-sm" disabled={escLoading} onClick={() => void runEscalationEligibility()}>
+                {escLoading ? "Checking…" : "Check eligibility"}
+              </button>
+            </div>
+            {escOutput !== null && (
+              <pre className="max-h-56 overflow-auto rounded-box bg-base-300/40 p-3 text-xs leading-relaxed whitespace-pre-wrap">{escOutput}</pre>
+            )}
+            <div className="flex items-center justify-between gap-2 pt-1">
+              <span className="text-xs text-base-content/70">Audit log (read-only)</span>
+              <button type="button" className="btn btn-soft btn-xs" disabled={escAuditLoading} onClick={() => void loadEscalationAudit()}>
+                {escAuditLoading ? "Loading…" : "Load audit"}
+              </button>
+            </div>
+            {escAuditOutput && <p className="text-xs text-base-content/70">{escAuditOutput}</p>}
+            {escAuditEntries.length > 0 && (
+              <div className="max-h-56 overflow-auto rounded-box bg-base-300/40 p-2">
+                <table className="table table-xs">
+                  <thead>
+                    <tr>
+                      <th>At</th>
+                      <th>Event</th>
+                      <th>Result</th>
+                      <th>Test</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {escAuditEntries.map((entry) => (
+                      <tr key={entry.id}>
+                        <td>{entry.created_at}</td>
+                        <td>{entry.event_title || `${entry.otype}${entry.oid}`}</td>
+                        <td>{entry.reason_summary || "—"}</td>
+                        <td>{entry.is_test ? "yes" : "no"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </DevPanel>
         </div>

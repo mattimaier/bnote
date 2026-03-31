@@ -32,6 +32,7 @@ require_once BNOTE_ROOT . '/src/logic/mailing.php';
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
 require_once __DIR__ . '/../text_normalizer.php';
+require_once __DIR__ . '/../mail/EscalationAlertService.php';
 require_once __DIR__ . '/contacts/ContactsCRUD.php';
 
 class ContactsModule {
@@ -452,6 +453,7 @@ class ContactsModule {
      * Process remove mode (bulk delete relations).
      */
     private function bulkRemove() {
+        global $system_data;
         $rawInput = file_get_contents('php://input');
         $data = json_decode($rawInput, true);
         if (!$data) {
@@ -491,6 +493,18 @@ class ContactsModule {
                     $removedCount += $res;
                     $affected['rehearsals'] += $res;
                     $this->data->cleanupParticipationForContact('rehearsal', $rid, $cid);
+                    try {
+                        EscalationAlertService::triggerImmediateDropout(
+                            $system_data,
+                            'R',
+                            $rid,
+                            $cid,
+                            'contact_removed_from_event',
+                            false
+                        );
+                    } catch (Throwable $e) {
+                        error_log('ContactsModule rehearsal escalation hook failed: ' . $e->getMessage());
+                    }
                 }
             }
 
@@ -516,6 +530,18 @@ class ContactsModule {
                     $removedCount += $res;
                     $affected['concerts'] += $res;
                     $this->data->cleanupParticipationForContact('concert', $conid, $cid);
+                    try {
+                        EscalationAlertService::triggerImmediateDropout(
+                            $system_data,
+                            'C',
+                            $conid,
+                            $cid,
+                            'contact_removed_from_event',
+                            false
+                        );
+                    } catch (Throwable $e) {
+                        error_log('ContactsModule concert escalation hook failed: ' . $e->getMessage());
+                    }
                 }
             }
 

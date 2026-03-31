@@ -33,14 +33,6 @@ final class ReminderDigestService {
         }
         $cfg = ReminderConfig::get($db);
         $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
-        if (!$force && !ReminderConfig::isScheduleDueNow($cfg, $now)) {
-            return [
-                'status' => 'not_due',
-                'runKey' => self::runKeyForNow($now),
-                'dryRun' => $dryRun,
-                'config' => $cfg,
-            ];
-        }
         if (empty($cfg['enabled']) && !$force) {
             return [
                 'status' => 'disabled',
@@ -91,10 +83,12 @@ final class ReminderDigestService {
                 'no_future_events' => 0,
                 'already_sent' => 0,
                 'invalid_email' => 0,
+                'identity_conflict' => 0,
                 'send_failed' => 0,
             ],
             'config' => $cfg,
         ];
+        $identityConflictsByUserId = self::indexRecipientIdentityConflicts($recipients);
 
         foreach ($recipients as $recipient) {
             $result['users_scanned']++;
@@ -103,6 +97,19 @@ final class ReminderDigestService {
             $contactId = (int) ($recipient['contact_id'] ?? 0);
             if ($uid < 1 || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $result['skipped']['invalid_email']++;
+                continue;
+            }
+            if (isset($identityConflictsByUserId[$uid])) {
+                $result['skipped']['identity_conflict']++;
+                $result['details'][] = [
+                    'user' => [
+                        'id' => $uid,
+                        'name' => (string) ($recipient['name'] ?? ''),
+                        'email' => $email,
+                    ],
+                    'status' => 'identity_conflict',
+                    'reason' => (string) $identityConflictsByUserId[$uid],
+                ];
                 continue;
             }
 
@@ -249,6 +256,53 @@ final class ReminderDigestService {
             ];
         }
         return $out;
+    }
+
+    /**
+     * Safety guard against sending one user's digest to another recipient:
+     * if active opted-in users share contact or email, skip until data is cleaned up.
+     *
+     * @param list<array{id:int,contact_id:int,name:string,email:string}> $recipients
+     * @return array<int,string> map user_id => reason
+     */
+    private static function indexRecipientIdentityConflicts(array $recipients): array {
+        $contactCounts = [];
+        $emailCounts = [];
+        foreach ($recipients as $r) {
+            $contactId = (int) ($r['contact_id'] ?? 0);
+            if ($contactId > 0) {
+                $contactCounts[$contactId] = ($contactCounts[$contactId] ?? 0) + 1;
+            }
+            $emailKey = self::normalizeEmail((string) ($r['email'] ?? ''));
+            if ($emailKey !== '') {
+                $emailCounts[$emailKey] = ($emailCounts[$emailKey] ?? 0) + 1;
+            }
+        }
+
+        $conflicts = [];
+        foreach ($recipients as $r) {
+            $uid = (int) ($r['id'] ?? 0);
+            if ($uid < 1) {
+                continue;
+            }
+            $reasons = [];
+            $contactId = (int) ($r['contact_id'] ?? 0);
+            $emailKey = self::normalizeEmail((string) ($r['email'] ?? ''));
+            if ($contactId > 0 && ($contactCounts[$contactId] ?? 0) > 1) {
+                $reasons[] = 'duplicate_contact_mapping';
+            }
+            if ($emailKey !== '' && ($emailCounts[$emailKey] ?? 0) > 1) {
+                $reasons[] = 'duplicate_email_mapping';
+            }
+            if (count($reasons) > 0) {
+                $conflicts[$uid] = implode(',', $reasons);
+            }
+        }
+        return $conflicts;
+    }
+
+    private static function normalizeEmail(string $email): string {
+        return strtolower(trim($email));
     }
 
     /**

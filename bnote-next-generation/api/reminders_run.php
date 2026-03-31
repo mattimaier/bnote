@@ -1,6 +1,6 @@
 <?php
 /**
- * Public scheduler endpoint for weekly reminder digest.
+ * Public scheduler endpoint for digest/escalation jobs.
  * Authentication is HMAC header based (no session required).
  */
 declare(strict_types=1);
@@ -101,6 +101,7 @@ require_once __DIR__ . '/mail/ReminderSchema.php';
 require_once __DIR__ . '/mail/ReminderConfig.php';
 require_once __DIR__ . '/mail/ReminderEndpointAuth.php';
 require_once __DIR__ . '/mail/ReminderDigestService.php';
+require_once __DIR__ . '/mail/EscalationAlertService.php';
 
 global $system_data;
 $db = $system_data->dbcon;
@@ -146,6 +147,11 @@ if (!is_array($json)) {
 
 $dryRun = !empty($json['dryRun']);
 $force = !empty($json['force']);
+$job = strtolower(trim((string) ($json['job'] ?? 'digest')));
+if (!in_array($job, ['digest', 'escalation', 'all'], true)) {
+    reminder_fail_json(400, 'invalid_job');
+    exit;
+}
 $onlyUserId = 0;
 if (isset($json['onlyUserId'])) {
     $rawOnlyUserId = trim((string) $json['onlyUserId']);
@@ -162,14 +168,54 @@ if (isset($json['onlyUserId'])) {
     }
 }
 
+$onlyEvent = null;
+$rawOnlyEventType = strtoupper(trim((string) ($json['onlyEventType'] ?? '')));
+$rawOnlyEventId = trim((string) ($json['onlyEventId'] ?? ''));
+if ($rawOnlyEventType !== '' || $rawOnlyEventId !== '') {
+    if (!in_array($rawOnlyEventType, ['R', 'C'], true)) {
+        reminder_fail_json(400, 'invalid_only_event_type');
+        exit;
+    }
+    if (!preg_match('/^\d+$/', $rawOnlyEventId)) {
+        reminder_fail_json(400, 'invalid_only_event_id');
+        exit;
+    }
+    $oid = (int) $rawOnlyEventId;
+    if ($oid < 1) {
+        reminder_fail_json(400, 'invalid_only_event_id');
+        exit;
+    }
+    if ($job === 'digest') {
+        reminder_fail_json(400, 'only_event_requires_escalation_job');
+        exit;
+    }
+    $onlyEvent = [
+        'otype' => $rawOnlyEventType,
+        'oid' => $oid,
+    ];
+}
+
 try {
     $phase = 'run_scheduled';
-    $result = ReminderDigestService::runScheduled($system_data, [
-        'dryRun' => $dryRun,
-        'force' => $force,
-        'mode' => 'scheduled',
-        'onlyUserId' => $onlyUserId,
-    ]);
+    $result = [];
+    if ($job === 'digest' || $job === 'all') {
+        $result['digest'] = ReminderDigestService::runScheduled($system_data, [
+            'dryRun' => $dryRun,
+            'force' => $force,
+            'mode' => 'scheduled',
+            'onlyUserId' => $onlyUserId,
+        ]);
+    }
+    if ($job === 'escalation' || $job === 'all') {
+        $result['escalation'] = EscalationAlertService::runScheduled($system_data, [
+            'dryRun' => $dryRun,
+            'force' => $force,
+            'mode' => 'scheduled',
+            'triggerKind' => 'scheduled',
+            'isTest' => $dryRun,
+            'onlyEvent' => $onlyEvent,
+        ]);
+    }
     while (ob_get_level() > 0) {
         ob_end_clean();
     }

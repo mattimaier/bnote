@@ -36,6 +36,7 @@ require_once BNOTE_ROOT . '/src/data/modules/aufgabendata.php';
 require_once BNOTE_ROOT . '/src/data/database.php';
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
+require_once __DIR__ . '/../text_normalizer.php';
 require_once __DIR__ . '/../mail/ReminderInboxSource.php';
 
 class DashboardModule {
@@ -1220,22 +1221,33 @@ class DashboardModule {
     }
 
     /**
-     * Get list of instruments (id, name). Available to any authenticated user.
+     * Get list of instruments (id, name, family/category). Available to any authenticated user.
      */
     private function getInstruments() {
         global $system_data;
         if (!Auth::check()) {
             Response::error('Not authenticated', 401);
         }
-        $query = "SELECT id, name FROM instrument ORDER BY name ASC";
+        $query = "SELECT i.id, i.name, c.id AS category_id, c.name AS category_name
+                  FROM instrument i
+                  LEFT JOIN category c ON i.category = c.id
+                  ORDER BY c.name ASC, i.name ASC";
         $rows = $system_data->dbcon->getSelection($query, []);
         $list = [];
         if (is_array($rows)) {
             for ($i = 1; $i < count($rows); $i++) {
                 $r = $rows[$i];
-                $list[] = ['id' => (int) ($r['id'] ?? 0), 'name' => $r['name'] ?? ''];
+                $list[] = [
+                    'id' => (int) ($r['id'] ?? 0),
+                    'name' => $r['name'] ?? '',
+                    'category_id' => (int) ($r['category_id'] ?? 0),
+                    'category_name' => $r['category_name'] ?? '',
+                ];
             }
         }
+        $stats = ['count' => 0, 'samples' => []];
+        $list = TextNormalizer::normalizeFieldsRecursive($list, ['name', 'category_name'], $stats, true);
+        TextNormalizer::logStats('dashboard', 'getInstruments', $stats);
         return ['instruments' => $list];
     }
 
@@ -1293,7 +1305,6 @@ class DashboardModule {
                 [['s', 'instrument_minimums'], ['s', $json]]
             );
         }
-        $system_data->cfg_dynamic = null;
         return ['success' => true, 'minimums' => $sanitized];
     }
 

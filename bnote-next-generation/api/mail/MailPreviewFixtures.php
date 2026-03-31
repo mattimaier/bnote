@@ -425,4 +425,134 @@ final class MailPreviewFixtures {
             'tasks' => [],
         ];
     }
+
+    /**
+     * @return array{
+     *   eventTitle:string,
+     *   otype:string,
+     *   eventBegin:string,
+     *   eventEnd:string,
+     *   eventLocation:string,
+     *   urgency:string,
+     *   reasons:list<string>,
+     *   gaps:list<array{instrument_name:string,current:int,minimum:int}>,
+     *   eventUrl:string,
+     *   counts:array{invited_users:int,pending_users:int,yes:int,maybe:int,no:int}
+     * }
+     */
+    public static function escalationDeadlinePending(string $locale = 'en'): array {
+        return [
+            'eventTitle' => 'Rehearsal 24.04.2026',
+            'otype' => 'R',
+            'eventBegin' => '2026-04-24 19:30',
+            'eventEnd' => '',
+            'eventLocation' => '',
+            'urgency' => 'soon',
+            'reasons' => [
+                MailI18n::interpolate(MailI18n::t('mail.escalation.reasonPendingThreshold', $locale), [
+                    'pending' => '12',
+                    'total' => '30',
+                    'percent' => '40',
+                ]),
+            ],
+            'gaps' => [],
+            'eventUrl' => 'https://example.org/bnote-next-generation/entity?type=rehearsal&id=2404',
+            'counts' => [
+                'invited_users' => 30,
+                'pending_users' => 12,
+                'yes' => 10,
+                'maybe' => 5,
+                'no' => 3,
+            ],
+        ];
+    }
+
+    /**
+     * @return array{
+     *   eventTitle:string,
+     *   otype:string,
+     *   eventBegin:string,
+     *   eventEnd:string,
+     *   eventLocation:string,
+     *   urgency:string,
+     *   reasons:list<string>,
+     *   gaps:list<array{instrument_name:string,current:int,minimum:int}>,
+     *   eventUrl:string,
+     *   counts:array{invited_users:int,pending_users:int,yes:int,maybe:int,no:int}
+     * }
+     */
+    public static function escalationInstrumentGap(string $locale = 'en'): array {
+        return [
+            'eventTitle' => 'Moonlight Jam Session',
+            'otype' => 'C',
+            'eventBegin' => '2026-05-02 20:00',
+            'eventEnd' => '',
+            'eventLocation' => '',
+            'urgency' => 'soon',
+            'reasons' => [
+                MailI18n::interpolate(MailI18n::t('mail.escalation.reasonInstrumentGaps', $locale), [
+                    'count' => '2',
+                ]),
+            ],
+            'gaps' => [
+                ['instrument_name' => 'Tenor Sax', 'current' => 1, 'minimum' => 2],
+                ['instrument_name' => 'Trumpet', 'current' => 0, 'minimum' => 2],
+            ],
+            'eventUrl' => 'https://example.org/bnote-next-generation/entity?type=concert&id=502',
+            'counts' => [
+                'invited_users' => 24,
+                'pending_users' => 6,
+                'yes' => 11,
+                'maybe' => 4,
+                'no' => 3,
+            ],
+        ];
+    }
+
+    /**
+     * @return array{
+     *   eventTitle:string,
+     *   otype:string,
+     *   eventBegin:string,
+     *   eventEnd:string,
+     *   eventLocation:string,
+     *   urgency:string,
+     *   reasons:list<string>,
+     *   gaps:list<array{instrument_name:string,current:int,minimum:int}>,
+     *   eventUrl:string,
+     *   counts:array{invited_users:int,pending_users:int,yes:int,maybe:int,no:int}
+     * }
+     */
+    public static function escalationDropoutCritical(string $locale = 'en'): array {
+        return [
+            'eventTitle' => 'Festival Opening Night',
+            'otype' => 'C',
+            'eventBegin' => '2026-04-01 19:00',
+            'eventEnd' => '',
+            'eventLocation' => '',
+            'urgency' => 'critical',
+            'reasons' => [
+                MailI18n::interpolate(MailI18n::t('mail.escalation.reasonDropoutDetected', $locale), [
+                    'source' => MailI18n::t('mail.escalation.sourceContactRemoved', $locale),
+                    'contact' => 'Anna Mueller',
+                ]),
+                MailI18n::interpolate(MailI18n::t('mail.escalation.reasonPendingThreshold', $locale), [
+                    'pending' => '5',
+                    'total' => '18',
+                    'percent' => '28',
+                ]),
+            ],
+            'gaps' => [
+                ['instrument_name' => 'Bass', 'current' => 0, 'minimum' => 1],
+            ],
+            'eventUrl' => 'https://example.org/bnote-next-generation/entity?type=concert&id=401',
+            'counts' => [
+                'invited_users' => 18,
+                'pending_users' => 5,
+                'yes' => 8,
+                'maybe' => 2,
+                'no' => 3,
+            ],
+        ];
+    }
 }

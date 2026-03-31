@@ -10,6 +10,7 @@ require_once __DIR__ . '/builders/EventParticipantInviteMailBuilder.php';
 require_once __DIR__ . '/builders/EventInfoMailBuilder.php';
 require_once __DIR__ . '/builders/TaskNotificationMailBuilder.php';
 require_once __DIR__ . '/builders/ReminderDigestMailBuilder.php';
+require_once __DIR__ . '/builders/EscalationAlertMailBuilder.php';
 require_once __DIR__ . '/NextGenMailMessage.php';
 
 final class MailPreviewRegistry {
@@ -30,6 +31,9 @@ final class MailPreviewRegistry {
             ['id' => 'event_info_concert', 'label' => 'Event info (concert)'],
             ['id' => 'reminder_digest_weekly', 'label' => 'Reminder digest (weekly summary)'],
             ['id' => 'reminder_digest_empty', 'label' => 'Reminder digest (empty sections)'],
+            ['id' => 'escalation_deadline_pending', 'label' => 'Escalation alert (deadline pending)'],
+            ['id' => 'escalation_instrument_gap', 'label' => 'Escalation alert (instrument minimum gap)'],
+            ['id' => 'escalation_dropout_critical', 'label' => 'Escalation alert (late dropout, critical)'],
             ['id' => 'task_assigned', 'label' => 'Task assigned (create)'],
             ['id' => 'task_updated', 'label' => 'Task updated'],
         ];
@@ -182,6 +186,60 @@ final class MailPreviewRegistry {
                     $empty['tasks'],
                     [MailPreviewFixtures::previewToEmail()],
                     []
+                );
+            case 'escalation_deadline_pending':
+                $escDeadline = MailPreviewFixtures::escalationDeadlinePending($locale);
+                return EscalationAlertMailBuilder::build(
+                    $sd,
+                    $locale,
+                    $escDeadline['eventTitle'],
+                    $escDeadline['otype'],
+                    $escDeadline['eventBegin'],
+                    $escDeadline['eventEnd'],
+                    $escDeadline['eventLocation'],
+                    $escDeadline['urgency'],
+                    $escDeadline['reasons'],
+                    $escDeadline['gaps'],
+                    $escDeadline['eventUrl'],
+                    [MailPreviewFixtures::previewToEmail()],
+                    [],
+                    $escDeadline['counts']
+                );
+            case 'escalation_instrument_gap':
+                $escGap = MailPreviewFixtures::escalationInstrumentGap($locale);
+                return EscalationAlertMailBuilder::build(
+                    $sd,
+                    $locale,
+                    $escGap['eventTitle'],
+                    $escGap['otype'],
+                    $escGap['eventBegin'],
+                    $escGap['eventEnd'],
+                    $escGap['eventLocation'],
+                    $escGap['urgency'],
+                    $escGap['reasons'],
+                    $escGap['gaps'],
+                    $escGap['eventUrl'],
+                    [MailPreviewFixtures::previewToEmail()],
+                    [],
+                    $escGap['counts']
+                );
+            case 'escalation_dropout_critical':
+                $escDropout = MailPreviewFixtures::escalationDropoutCritical($locale);
+                return EscalationAlertMailBuilder::build(
+                    $sd,
+                    $locale,
+                    $escDropout['eventTitle'],
+                    $escDropout['otype'],
+                    $escDropout['eventBegin'],
+                    $escDropout['eventEnd'],
+                    $escDropout['eventLocation'],
+                    $escDropout['urgency'],
+                    $escDropout['reasons'],
+                    $escDropout['gaps'],
+                    $escDropout['eventUrl'],
+                    [MailPreviewFixtures::previewToEmail()],
+                    [],
+                    $escDropout['counts']
                 );
             case 'task_assigned':
                 return TaskNotificationMailBuilder::buildForPreview(

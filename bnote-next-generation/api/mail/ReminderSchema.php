@@ -48,6 +48,23 @@ CREATE TABLE IF NOT EXISTS `nextgen_reminder_run_log` (
   KEY `idx_user` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8
 SQL,
+            <<<SQL
+CREATE TABLE IF NOT EXISTS `nextgen_escalation_audit` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `is_test` tinyint(1) NOT NULL DEFAULT 0,
+  `trigger_kind` varchar(32) NOT NULL DEFAULT 'scheduled',
+  `delivery_mode` varchar(32) NOT NULL DEFAULT 'scheduled',
+  `otype` char(1) NOT NULL DEFAULT '',
+  `oid` int(10) unsigned NOT NULL DEFAULT 0,
+  `event_title` varchar(255) NOT NULL DEFAULT '',
+  `reason_summary` varchar(255) NOT NULL DEFAULT '',
+  `payload_json` mediumtext NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_created_at` (`created_at`),
+  KEY `idx_event` (`otype`,`oid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+SQL,
         ];
 
         foreach ($statements as $sql) {
@@ -109,6 +126,82 @@ SQL,
         } catch (Throwable $e) {
             return false;
         }
+    }
+
+    /**
+     * @param array<string,mixed> $payload
+     */
+    public static function addEscalationAudit(object $db, array $payload): bool {
+        $isTest = !empty($payload['is_test']) ? 1 : 0;
+        $triggerKind = substr(trim((string) ($payload['trigger_kind'] ?? 'scheduled')), 0, 32);
+        $deliveryMode = substr(trim((string) ($payload['delivery_mode'] ?? 'scheduled')), 0, 32);
+        $otype = strtoupper(substr(trim((string) ($payload['otype'] ?? '')), 0, 1));
+        $oid = max(0, (int) ($payload['oid'] ?? 0));
+        $eventTitle = substr(trim((string) ($payload['event_title'] ?? '')), 0, 255);
+        $reasonSummary = substr(trim((string) ($payload['reason_summary'] ?? '')), 0, 255);
+        $json = json_encode($payload, JSON_UNESCAPED_SLASHES);
+        if (!is_string($json)) {
+            $json = '{}';
+        }
+        try {
+            $db->execute(
+                'INSERT INTO nextgen_escalation_audit
+                    (is_test, trigger_kind, delivery_mode, otype, oid, event_title, reason_summary, payload_json)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+                [
+                    ['i', $isTest],
+                    ['s', $triggerKind !== '' ? $triggerKind : 'scheduled'],
+                    ['s', $deliveryMode !== '' ? $deliveryMode : 'scheduled'],
+                    ['s', $otype],
+                    ['i', $oid],
+                    ['s', $eventTitle],
+                    ['s', $reasonSummary],
+                    ['s', $json],
+                ]
+            );
+            return true;
+        } catch (Throwable $e) {
+            return false;
+        }
+    }
+
+    /**
+     * @return list<array<string,mixed>>
+     */
+    public static function listEscalationAudit(object $db, int $limit = 50): array {
+        $limit = max(1, min(200, $limit));
+        $sel = $db->getSelection(
+            'SELECT id, created_at, is_test, trigger_kind, delivery_mode, otype, oid, event_title, reason_summary, payload_json
+             FROM nextgen_escalation_audit
+             ORDER BY id DESC
+             LIMIT ?',
+            [['i', $limit]]
+        );
+        if (!is_array($sel) || count($sel) < 2) {
+            return [];
+        }
+        $out = [];
+        for ($i = 1; $i < count($sel); $i++) {
+            $row = $sel[$i];
+            $payloadRaw = (string) ($row['payload_json'] ?? '');
+            $payload = json_decode($payloadRaw, true);
+            if (!is_array($payload)) {
+                $payload = null;
+            }
+            $out[] = [
+                'id' => (int) ($row['id'] ?? 0),
+                'created_at' => (string) ($row['created_at'] ?? ''),
+                'is_test' => ((int) ($row['is_test'] ?? 0) === 1),
+                'trigger_kind' => (string) ($row['trigger_kind'] ?? ''),
+                'delivery_mode' => (string) ($row['delivery_mode'] ?? ''),
+                'otype' => (string) ($row['otype'] ?? ''),
+                'oid' => (int) ($row['oid'] ?? 0),
+                'event_title' => (string) ($row['event_title'] ?? ''),
+                'reason_summary' => (string) ($row['reason_summary'] ?? ''),
+                'payload' => $payload,
+            ];
+        }
+        return $out;
     }
 
     private static function mysqliFromDatabase(object $db): ?mysqli {
