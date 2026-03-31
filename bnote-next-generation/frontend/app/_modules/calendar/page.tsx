@@ -74,7 +74,6 @@ export default function CalendarPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectMenuOpen, setSelectMenuOpen] = useState(false);
   const [selectRange, setSelectRange] = useState<{ start: string; end: string; allDay: boolean } | null>(null);
-  const [listScope, setListScope] = useState<"upcoming" | "all">("upcoming");
   const [listSortKey, setListSortKey] = useState<"title" | "start" | "type">("start");
   const [listSortDir, setListSortDir] = useState<SortDirection>("asc");
 
@@ -187,13 +186,10 @@ export default function CalendarPage() {
         const start = (ev.start ?? "").trim();
         if (start.length < 10 || start.startsWith("0000-00-00")) return false;
       }
-      if (listScope === "upcoming") {
-        const startTs = ev.start ? new Date(ev.start.replace(" ", "T").slice(0, 19)).getTime() : 0;
-        const evDateStart = new Date(startTs);
-        evDateStart.setHours(0, 0, 0, 0);
-        return evDateStart.getTime() >= todayStart;
-      }
-      return true;
+      const startTs = ev.start ? new Date(ev.start.replace(" ", "T").slice(0, 19)).getTime() : 0;
+      const evDateStart = new Date(startTs);
+      evDateStart.setHours(0, 0, 0, 0);
+      return evDateStart.getTime() >= todayStart;
     });
     if (listSortKey === "start") {
       arr.sort((a, b) => {
@@ -213,7 +209,7 @@ export default function CalendarPage() {
       );
     }
     return arr;
-  }, [events, listScope, listSortKey, listSortDir]);
+  }, [events, listSortKey, listSortDir]);
 
   if (!ready) {
     return (
@@ -320,37 +316,11 @@ export default function CalendarPage() {
           )}
 
           <section className="mt-6">
-            <div className="mb-3 flex items-center justify-between gap-3">
-              <h2 className="text-lg font-semibold">
-                {listScope === "upcoming"
-                  ? (t("js.dashboard.upcomingEvents") !== "js.dashboard.upcomingEvents"
-                    ? t("js.dashboard.upcomingEvents")
-                    : "Upcoming entries")
-                  : (t("js.calendar.entriesList") !== "js.calendar.entriesList"
-                    ? t("js.calendar.entriesList")
-                    : "All entries")}
-              </h2>
-              <div className="join">
-                <button
-                  type="button"
-                  className={`join-item btn btn-sm ${listScope === "upcoming" ? "btn-primary" : "btn-soft"}`}
-                  onClick={() => setListScope("upcoming")}
-                >
-                  {t("js.dashboard.upcomingEvents") !== "js.dashboard.upcomingEvents"
-                    ? t("js.dashboard.upcomingEvents")
-                    : "Upcoming"}
-                </button>
-                <button
-                  type="button"
-                  className={`join-item btn btn-sm ${listScope === "all" ? "btn-primary" : "btn-soft"}`}
-                  onClick={() => setListScope("all")}
-                >
-                  {t("js.calendar.entriesList") !== "js.calendar.entriesList"
-                    ? t("js.calendar.entriesList")
-                    : "All"}
-                </button>
-              </div>
-            </div>
+            <h2 className="mb-3 text-lg font-semibold">
+              {t("js.dashboard.upcomingEvents") !== "js.dashboard.upcomingEvents"
+                ? t("js.dashboard.upcomingEvents")
+                : "Upcoming entries"}
+            </h2>
             <div className="overflow-hidden rounded-xl border border-base-300 bg-base-100">
               <ResponsiveTable<CalendarEvent, "title" | "start" | "type">
                 rows={sortedEvents}
