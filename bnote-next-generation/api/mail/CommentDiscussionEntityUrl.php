@@ -8,7 +8,7 @@ require_once __DIR__ . '/MailEnv.php';
 
 final class CommentDiscussionEntityUrl {
     /**
-     * Absolute URL to open the entity with comments in focus, or '' if NEXTGEN_PUBLIC_URL is not set.
+     * Absolute URL to open the entity with comments in focus, or '' if BNOTE_NEXT_GENERATION_PUBLIC_URL is not set.
      */
     public static function openDiscussionUrl(string $otype, int $oid): string {
         $base = MailEnv::nextgenPublicBaseUrl();

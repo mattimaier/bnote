@@ -2,8 +2,8 @@ name: Weekly Reminder Digest
 
 on:
   schedule:
-    # Recommended: run frequently, app settings decide due time.
-    - cron: "0 * * * *"
+    # Once per week on Monday at 06:00 UTC; app settings still decide due time.
+    - cron: "0 6 * * 1"
   workflow_dispatch:
     inputs:
       dryRun:

@@ -255,7 +255,8 @@ final class ReminderInboxSource {
      *   events_pending_response:list<array<string,mixed>>,
      *   votes:list<array<string,mixed>>,
      *   tasks:list<array<string,mixed>>,
-     *   open_count:int
+     *   open_count:int,
+     *   future_event_count:int
      * }
      */
     public function buildDigestSummaryForUser(int $userId, array $cfg): array {
@@ -265,6 +266,7 @@ final class ReminderInboxSource {
         $votes = [];
         $tasks = [];
         $openCount = 0;
+        $futureEventCount = 0;
         $nowTs = time();
         $upcomingDays = 7;
         $pendingWindowDays = max(1, (int) ($cfg['event_window_days'] ?? 90));
@@ -285,6 +287,9 @@ final class ReminderInboxSource {
                 }
                 if ($eventTs !== false && $eventTs < $nowTs) {
                     continue;
+                }
+                if ($eventTs !== false) {
+                    $futureEventCount++;
                 }
                 $item['needs_response'] = ((int) ($item['participation'] ?? -1) < 0);
                 if (!empty($item['needs_response'])) {
@@ -343,6 +348,7 @@ final class ReminderInboxSource {
             'votes' => $votes,
             'tasks' => $tasks,
             'open_count' => $openCount,
+            'future_event_count' => $futureEventCount,
         ];
     }
 

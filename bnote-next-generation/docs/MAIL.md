@@ -2,7 +2,7 @@
 
 Next Gen sends mail from **`bnote-next-generation/api/mail/`** with **PHPMailer** over **SMTP** (see `MailEnv`). Legacy **`BNote/src/logic/mailing.php`** uses PHP’s `mail()` and is **not** used for Next Gen features; classic BNote UI/API paths still use it.
 
-If SMTP is not configured, or BNote runs in **demo mode**, those emails are skipped. Password-reset links in mail need **`NEXTGEN_PUBLIC_URL`** set to your real site address, or the message will explain that the link cannot be generated.
+If SMTP is not configured, or BNote runs in **demo mode**, those emails are skipped. Password-reset links in mail need **`BNOTE_NEXT_GENERATION_PUBLIC_URL`** set to your real site address, or the message will explain that the link cannot be generated.
 
 ---
 
@@ -37,7 +37,7 @@ If SMTP is not configured, or BNote runs in **demo mode**, those emails are skip
 - **Participation invites:** `EventParticipantNotifier` + magic-link URLs from `MailEnv` (`nextgenParticipationRespondAbsoluteUrl`, etc.).
 - **Event-info group mail:** in-module composer with draft/preview/send actions via `EventInfoMailService`.
 - **Generic composer (module 7):** rights-gated mail module with group/contact/manual recipient selection, fixed subject prefix (`Band - BNote`), and shared EditorJS-to-mail rendering.
-- **Bulk fan-out:** `NextGenMailer::sendBulk` with optional **`NEXTGEN_MAIL_BULK_DELAY_MS`** between messages.
+- **Bulk fan-out:** `NextGenMailer::sendBulk` with optional **`BNOTE_NEXT_GENERATION_MAIL_BULK_DELAY_MS`** between messages.
 
 ---
 
@@ -82,7 +82,7 @@ Official Strato help (verify if wording changes): [`.htaccess` anpassen](https:/
 Replace every `…` with your real values. **Do not commit** this file with real passwords to a public repository.
 
 ```apache
-# BNote Next Gen mail + public URL for links in email (no trailing slash on NEXTGEN_PUBLIC_URL)
+# BNote Next Gen mail + public URL for links in email (no trailing slash on BNOTE_NEXT_GENERATION_PUBLIC_URL)
 SetEnv MAIL_HOST smtp.strato.de
 SetEnv MAIL_PORT 465
 SetEnv MAIL_ENCRYPTION ssl
@@ -90,7 +90,7 @@ SetEnv MAIL_USERNAME mail@your-domain.de
 SetEnv MAIL_PASSWORD 'your-mailbox-password'
 SetEnv MAIL_FROM_ADDRESS mail@your-domain.de
 SetEnv MAIL_FROM_NAME "Your band name"
-SetEnv NEXTGEN_PUBLIC_URL https://www.your-domain.de/bnote-next-generation
+SetEnv BNOTE_NEXT_GENERATION_PUBLIC_URL https://www.your-domain.de/bnote-next-generation
 ```
 
 If the mailbox password contains spaces or special characters, wrap the value in **single quotes** as shown, or escape per [Apache SetEnv](https://httpd.apache.org/docs/current/mod/mod_env.html#setenv) rules.
@@ -108,12 +108,12 @@ After saving, reload the site and trigger a test (e.g. password reset). If **`ge
 | `MAIL_PASSWORD` | SMTP auth password | (your mailbox password) |
 | `MAIL_FROM_ADDRESS` | From header | Usually same as mailbox |
 | `MAIL_FROM_NAME` | From display name | e.g. band name |
-| `NEXTGEN_PUBLIC_URL` | Base URL for links in mail | `https://domain/path` — **no** trailing `/` |
-| `NEXTGEN_MAIL_BULK_DELAY_MS` | Pause between each message when notifying many recipients (comment thread, new-user admins). Milliseconds; **`0`** = send back-to-back. If unset, defaults to **100** to reduce SMTP rate limits (e.g. ~50 recipients). | `150` or `0` |
-| `NEXTGEN_REMINDER_SECRET` | Shared secret for signed calls to `api/reminders_run.php` | random 32+ bytes |
-| `NEXTGEN_REMINDER_ALLOWED_SKEW_SECONDS` | Allowed timestamp skew for signed reminder endpoint requests | `300` |
+| `BNOTE_NEXT_GENERATION_PUBLIC_URL` | Base URL for links in mail | `https://domain/path` — **no** trailing `/` |
+| `BNOTE_NEXT_GENERATION_MAIL_BULK_DELAY_MS` | Pause between each message when notifying many recipients (comment thread, new-user admins). Milliseconds; **`0`** = send back-to-back. If unset, defaults to **100** to reduce SMTP rate limits (e.g. ~50 recipients). | `150` or `0` |
+| `BNOTE_NEXT_GENERATION_REMINDER_SECRET` | Shared secret for signed calls to `api/reminders_run.php` | random 32+ bytes |
+| `BNOTE_NEXT_GENERATION_REMINDER_ALLOWED_SKEW_SECONDS` | Allowed timestamp skew for signed reminder endpoint requests | `300` |
 
-Optional fallback instead of `NEXTGEN_PUBLIC_URL`: set **`NEXTGEN_PUBLIC_ORIGIN`** (e.g. `https://www.example.de`) and **`NEXT_PUBLIC_BASE_PATH`** (e.g. `/bnote-next-generation`); PHP combines them.
+Optional fallback instead of `BNOTE_NEXT_GENERATION_PUBLIC_URL`: set **`BNOTE_NEXT_GENERATION_PUBLIC_ORIGIN`** (e.g. `https://www.example.de`) and **`NEXT_PUBLIC_BASE_PATH`** (e.g. `/bnote-next-generation`); PHP combines them.
 
 ---
 
@@ -162,14 +162,14 @@ METHOD|PATH|TIMESTAMP|NONCE|BODY
 Signature:
 
 ```text
-hex(hmac_sha256(NEXTGEN_REMINDER_SECRET, canonical))
+hex(hmac_sha256(BNOTE_NEXT_GENERATION_REMINDER_SECRET, canonical))
 ```
 
 ### GitHub Actions example (weekly UTC)
 
 Store these in GitHub repository/environment secrets:
 - `REMINDER_ENDPOINT` (full HTTPS URL to `api/reminders_run.php`)
-- `REMINDER_SECRET` (same value as server `NEXTGEN_REMINDER_SECRET`)
+- `REMINDER_SECRET` (same value as server `BNOTE_NEXT_GENERATION_REMINDER_SECRET`)
 
 ```yaml
 name: Weekly Reminder Digest
@@ -236,7 +236,7 @@ In **`BNote/config/config.xml`**, set **`<DemoMode>False</DemoMode>`** so Next G
 
 - Run **`./build.sh`** from `bnote-next-generation/`. The script runs **`composer install`** in **`api/`** so **`vendor/`** (PHPMailer) is included in the upload bundle.
 - The production **`./build.sh`** bundle **does not** include the **`api/debug/`** folder (loopback mail previews, `mail_config_check.php`, `mail_test_send.php`, etc.). Those files remain in the git repo; set **`NEXT_PUBLIC_ENABLE_DEVELOPER_TOOLS=1`** when running **`./build.sh`** to ship them for staging.
-- If `.deploy.env` contains `NEXTGEN_REMINDER_SECRET` and `NEXTGEN_REMINDER_ALLOWED_SKEW_SECONDS`, `build.sh` writes them into **`api/config/mail.local.php`** in the deploy bundle (same as other `MAIL_*` runtime values).
+- If `.deploy.env` contains `BNOTE_NEXT_GENERATION_REMINDER_SECRET` and `BNOTE_NEXT_GENERATION_REMINDER_ALLOWED_SKEW_SECONDS`, `build.sh` writes them into **`api/config/mail.local.php`** in the deploy bundle (same as other `MAIL_*` runtime values).
 
 ---
 
@@ -261,7 +261,7 @@ These scripts live under **`api/debug/`**, work only from **127.0.0.1** or **::1
 ## Troubleshooting
 
 - **No mail arrives:** spam folder; confirm PHP sees variables (not only your SSH shell); provider blocking outbound SMTP; wrong port/encryption pair.
-- **Reset email without a button / “administrator must set NEXTGEN_PUBLIC_URL”:** set **`NEXTGEN_PUBLIC_URL`** to the **live** HTTPS URL users open in the browser (no trailing slash).
+- **Reset email without a button / “administrator must set BNOTE_NEXT_GENERATION_PUBLIC_URL”:** set **`BNOTE_NEXT_GENERATION_PUBLIC_URL`** to the **live** HTTPS URL users open in the browser (no trailing slash).
 - **“PHPMailer not installed” on server:** deploy a full **`./build.sh`** output that includes **`api/vendor/`**, or run **`composer install --no-dev`** on the server inside **`api/`** (if you have SSH).
 
 ---
@@ -344,7 +344,7 @@ For the generic email module (`api/modules/email.php`):
 When a user posts a comment via the **Next Gen** `comments` module (`api/index.php?module=comments&action=add`), **`CommentDiscussionNotifier`** sends one transactional mail per eligible recipient (personalized greeting, optional **entity header card** aligned with the app detail view—icon, title, type pill, date/time, location—then chat-style bubbles and **Open discussion**).
 
 - **Entity context** is loaded in **`CommentDiscussionEntitySummary`** from `ProbenData` / `KonzerteData` / `StartData` (no extra API).
-- **Deep links** use **`NEXTGEN_PUBLIC_URL`** + `/entity?type=rehearsal|concert|vote&id=…&focus=comments` (same routing as the SPA entity page). Vote detail uses `type=vote`, not `/votes?id=`.
+- **Deep links** use **`BNOTE_NEXT_GENERATION_PUBLIC_URL`** + `/entity?type=rehearsal|concert|vote&id=…&focus=comments` (same routing as the SPA entity page). Vote detail uses `type=vote`, not `/votes?id=`.
 - **Legacy `BNote/`** is unchanged: classic UI and the old API still use their own paths. A comment created **only** through the Next Gen API does **not** call `StartController::notifyContactsOnComment` or `BNoteApiImpl::addComment`; there is **no** `BNoteApiImpl` reference under `bnote-next-generation/api/`.
 - Strings: `mail.commentDiscussion.*` and `mail.shell.headlineCommentDiscussion` in **`lang/*.json`**.
 

@@ -45,11 +45,15 @@ final class MailEnv {
      * Public base URL of the Next Gen SPA (no trailing slash), e.g. https://example.com/bnote-next-generation
      */
     public static function nextgenPublicBaseUrl(): string {
-        $full = self::getenvTrim('NEXTGEN_PUBLIC_URL');
+        $full = trim(self::getenvFirst([
+            'BNOTE_NEXT_GENERATION_PUBLIC_URL',
+        ]));
         if ($full !== '') {
             return rtrim($full, '/');
         }
-        $origin = self::getenvTrim('NEXTGEN_PUBLIC_ORIGIN');
+        $origin = trim(self::getenvFirst([
+            'BNOTE_NEXT_GENERATION_PUBLIC_ORIGIN',
+        ]));
         $path = self::getenvTrim('NEXT_PUBLIC_BASE_PATH');
         if ($origin !== '' && $path !== '') {
             return rtrim($origin, '/') . '/' . trim($path, '/');
@@ -131,14 +135,16 @@ final class MailEnv {
 
     /**
      * Delay between consecutive sends when using {@see NextGenMailer::sendBulk()} (comment / admin fan-out).
-     * Env `NEXTGEN_MAIL_BULK_DELAY_MS`: milliseconds, 0 = no pause. Unset defaults to 100 ms to reduce SMTP rate limits.
+     * Env `BNOTE_NEXT_GENERATION_MAIL_BULK_DELAY_MS`: milliseconds, 0 = no pause. Unset defaults to 100 ms to reduce SMTP rate limits.
      */
     public static function bulkSendDelayMicroseconds(): int {
-        $raw = self::getenvRaw('NEXTGEN_MAIL_BULK_DELAY_MS');
+        $raw = trim(self::getenvFirst([
+            'BNOTE_NEXT_GENERATION_MAIL_BULK_DELAY_MS',
+        ]));
         if ($raw === '') {
             return 100_000;
         }
-        $s = trim($raw);
+        $s = $raw;
         if ($s === '') {
             return 100_000;
         }
@@ -155,12 +161,16 @@ final class MailEnv {
 
     /** Shared HMAC secret for external reminder scheduler endpoint. */
     public static function reminderSharedSecret(): string {
-        return self::getenvRaw('NEXTGEN_REMINDER_SECRET');
+        return self::getenvFirst([
+            'BNOTE_NEXT_GENERATION_REMINDER_SECRET',
+        ]);
     }
 
     /** Allowed absolute timestamp skew in seconds for signed reminder endpoint requests. */
     public static function reminderAllowedSkewSeconds(): int {
-        $raw = trim(self::getenvRaw('NEXTGEN_REMINDER_ALLOWED_SKEW_SECONDS'));
+        $raw = trim(self::getenvFirst([
+            'BNOTE_NEXT_GENERATION_REMINDER_ALLOWED_SKEW_SECONDS',
+        ]));
         if ($raw === '') {
             return 300;
         }
@@ -176,6 +186,21 @@ final class MailEnv {
 
     private static function getenvTrim(string $key): string {
         return trim(self::getenvRaw($key));
+    }
+
+    /**
+     * Return first non-empty value for key candidates.
+     *
+     * @param list<string> $keys
+     */
+    private static function getenvFirst(array $keys): string {
+        foreach ($keys as $k) {
+            $v = self::getenvRaw($k);
+            if ($v !== '') {
+                return $v;
+            }
+        }
+        return '';
     }
 
     /**
@@ -332,12 +357,12 @@ final class MailEnv {
             'MAIL_PASSWORD',
             'MAIL_FROM_ADDRESS',
             'MAIL_FROM_NAME',
-            'NEXTGEN_PUBLIC_URL',
-            'NEXTGEN_PUBLIC_ORIGIN',
+            'BNOTE_NEXT_GENERATION_PUBLIC_URL',
+            'BNOTE_NEXT_GENERATION_PUBLIC_ORIGIN',
+            'BNOTE_NEXT_GENERATION_MAIL_BULK_DELAY_MS',
+            'BNOTE_NEXT_GENERATION_REMINDER_SECRET',
+            'BNOTE_NEXT_GENERATION_REMINDER_ALLOWED_SKEW_SECONDS',
             'NEXT_PUBLIC_BASE_PATH',
-            'NEXTGEN_MAIL_BULK_DELAY_MS',
-            'NEXTGEN_REMINDER_SECRET',
-            'NEXTGEN_REMINDER_ALLOWED_SKEW_SECONDS',
         ];
         $allowedSet = array_flip($allowed);
 

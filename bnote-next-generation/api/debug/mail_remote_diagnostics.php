@@ -115,7 +115,7 @@ foreach ([
     'MAIL_PASSWORD',
     'MAIL_FROM_ADDRESS',
     'MAIL_FROM_NAME',
-    'NEXTGEN_PUBLIC_URL',
+    'BNOTE_NEXT_GENERATION_PUBLIC_URL',
 ] as $k) {
     $rawEnvPresence[$k] = [
         'getenv' => is_string(getenv($k)) && (string) getenv($k) !== '',
@@ -154,8 +154,8 @@ echo json_encode(
             'MAIL_PASSWORD_set' => MailEnv::password() !== '',
             'MAIL_FROM_ADDRESS' => $from,
             'MAIL_FROM_NAME' => MailEnv::fromName(),
-            'NEXTGEN_PUBLIC_URL' => $nextgenUrl,
-            'NEXTGEN_MAIL_BULK_DELAY_MS_effective' => (int) (MailEnv::bulkSendDelayMicroseconds() / 1000),
+            'BNOTE_NEXT_GENERATION_PUBLIC_URL' => $nextgenUrl,
+            'BNOTE_NEXT_GENERATION_MAIL_BULK_DELAY_MS_effective' => (int) (MailEnv::bulkSendDelayMicroseconds() / 1000),
         ],
         'checks' => [
             'host_set' => $host !== '',

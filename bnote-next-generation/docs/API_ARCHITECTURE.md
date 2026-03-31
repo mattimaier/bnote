@@ -251,7 +251,7 @@ Response: {
 }
 ```
 
-**Outbound mail:** Password reset, registration admin notification, transactional notifications (event invites, tasks, comment threads), and related HTML templates live under **`bnote-next-generation/api/mail/`**. PHPMailer sends via SMTP using environment variables (`MAIL_*`, `NEXTGEN_PUBLIC_URL`, etc.). This is separate from the legacy `BNote/src/logic/mailing.php` stack. Setup and behavior are documented in **[MAIL.md](MAIL.md)**.
+**Outbound mail:** Password reset, registration admin notification, transactional notifications (event invites, tasks, comment threads), and related HTML templates live under **`bnote-next-generation/api/mail/`**. PHPMailer sends via SMTP using environment variables (`MAIL_*`, `BNOTE_NEXT_GENERATION_PUBLIC_URL`, etc.). This is separate from the legacy `BNote/src/logic/mailing.php` stack. Setup and behavior are documented in **[MAIL.md](MAIL.md)**.
 
 ### 3.3 Authorization (Permissions)
 

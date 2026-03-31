@@ -32,7 +32,7 @@ function ResetPasswordInner() {
       .catch(() => setDemoMode(false));
   }, [ready]);
 
-  /** API may return a root-relative URL when NEXTGEN_PUBLIC_URL is unset; show absolute for copy/open. */
+  /** API may return a root-relative URL when BNOTE_NEXT_GENERATION_PUBLIC_URL is unset; show absolute for copy/open. */
   const devUrlAbsolute = useMemo(() => {
     if (!devUrl) return null;
     if (typeof window === "undefined") return devUrl;

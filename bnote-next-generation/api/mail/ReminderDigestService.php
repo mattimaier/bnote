@@ -88,6 +88,7 @@ final class ReminderDigestService {
             'ignore_limits' => $ignoreLimits,
             'skipped' => [
                 'no_items' => 0,
+                'no_future_events' => 0,
                 'already_sent' => 0,
                 'invalid_email' => 0,
                 'send_failed' => 0,
@@ -107,6 +108,11 @@ final class ReminderDigestService {
 
             $summary = $source->buildDigestSummaryForUser($uid, $cfg);
             $hasOpenItems = ((int) ($summary['open_count'] ?? 0) > 0);
+            $hasFutureEvents = ((int) ($summary['future_event_count'] ?? 0) > 0);
+            if (!$ignoreLimits && !$hasFutureEvents) {
+                $result['skipped']['no_future_events']++;
+                continue;
+            }
             if (!$ignoreLimits && ($cfg['recipient_scope'] ?? 'actionable_only') === 'actionable_only' && !$hasOpenItems) {
                 $result['skipped']['no_items']++;
                 continue;
@@ -164,7 +170,8 @@ final class ReminderDigestService {
      *  votes:list<array<string,mixed>>,
      *  tasks:list<array<string,mixed>>,
      *  items:list<array<string,mixed>>,
-     *  open_count:int
+     *  open_count:int,
+     *  future_event_count:int
      * } $summary
      * @return array<string,mixed>
      */
@@ -190,6 +197,7 @@ final class ReminderDigestService {
                 'email' => (string) ($recipient['email'] ?? ''),
             ],
             'open_count' => (int) ($summary['open_count'] ?? 0),
+            'future_event_count' => (int) ($summary['future_event_count'] ?? 0),
             'counts' => [
                 'events_upcoming' => count($summary['events_upcoming'] ?? []),
                 'events_pending_response' => count($summary['events_pending_response'] ?? []),
@@ -255,7 +263,8 @@ final class ReminderDigestService {
      *  votes:list<array<string,mixed>>,
      *  tasks:list<array<string,mixed>>,
      *  items:list<array<string,mixed>>,
-     *  open_count:int
+     *  open_count:int,
+     *  future_event_count:int
      * } $summary
      * @return array{
      *  events_upcoming:list<array<string,mixed>>,
@@ -263,7 +272,8 @@ final class ReminderDigestService {
      *  votes:list<array<string,mixed>>,
      *  tasks:list<array<string,mixed>>,
      *  items:list<array<string,mixed>>,
-     *  open_count:int
+     *  open_count:int,
+     *  future_event_count:int
      * }
      */
     private static function attachParticipationActionUrls($system_data, object $db, array $summary, int $contactId): array {

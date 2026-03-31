@@ -33,7 +33,7 @@ echo json_encode(
             'MAIL_PASSWORD_set' => MailEnv::password() !== '',
             'MAIL_FROM_ADDRESS' => $from,
             'MAIL_FROM_NAME' => MailEnv::fromName(),
-            'NEXTGEN_MAIL_BULK_DELAY_MS_effective' => (int) (MailEnv::bulkSendDelayMicroseconds() / 1000),
+            'BNOTE_NEXT_GENERATION_MAIL_BULK_DELAY_MS_effective' => (int) (MailEnv::bulkSendDelayMicroseconds() / 1000),
         ],
         'nextgenPublicBaseUrl' => MailEnv::nextgenPublicBaseUrl(),
         'checks' => [

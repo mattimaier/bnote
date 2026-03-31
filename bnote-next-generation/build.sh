@@ -194,12 +194,16 @@ if [[ -f "$DEPLOY_CONFIG_FILE" ]]; then
   BUILD_SYNC_MAIL_CONFIG="${DEPLOY_SYNC_MAIL_CONFIG:-true}"
 
   if [[ "$BUILD_SYNC_HTACCESS" == "true" || "$BUILD_SYNC_MAIL_CONFIG" == "true" ]]; then
-    for v in MAIL_HOST MAIL_PORT MAIL_ENCRYPTION MAIL_USERNAME MAIL_PASSWORD MAIL_FROM_ADDRESS MAIL_FROM_NAME NEXTGEN_PUBLIC_URL; do
+    for v in MAIL_HOST MAIL_PORT MAIL_ENCRYPTION MAIL_USERNAME MAIL_PASSWORD MAIL_FROM_ADDRESS MAIL_FROM_NAME; do
       if [[ -z "${!v:-}" ]]; then
         echo "ERROR: Missing $v in .deploy.env (required for build-time runtime config generation)."
         exit 1
       fi
     done
+    if [[ -z "${BNOTE_NEXT_GENERATION_PUBLIC_URL:-}" ]]; then
+      echo "ERROR: Missing BNOTE_NEXT_GENERATION_PUBLIC_URL in .deploy.env."
+      exit 1
+    fi
   fi
 
   export DEPLOY_MAIL_HOST="${MAIL_HOST:-}"
@@ -209,15 +213,17 @@ if [[ -f "$DEPLOY_CONFIG_FILE" ]]; then
   export DEPLOY_MAIL_PASSWORD="${MAIL_PASSWORD:-}"
   export DEPLOY_MAIL_FROM_ADDRESS="${MAIL_FROM_ADDRESS:-}"
   export DEPLOY_MAIL_FROM_NAME="${MAIL_FROM_NAME:-}"
-  export DEPLOY_NEXTGEN_PUBLIC_URL="${NEXTGEN_PUBLIC_URL:-}"
-  export DEPLOY_NEXTGEN_MAIL_BULK_DELAY_MS="${NEXTGEN_MAIL_BULK_DELAY_MS:-}"
+  export DEPLOY_BNOTE_NEXT_GENERATION_PUBLIC_URL="${BNOTE_NEXT_GENERATION_PUBLIC_URL:-}"
+  export DEPLOY_BNOTE_NEXT_GENERATION_MAIL_BULK_DELAY_MS="${BNOTE_NEXT_GENERATION_MAIL_BULK_DELAY_MS:-}"
+  export DEPLOY_BNOTE_NEXT_GENERATION_REMINDER_SECRET="${BNOTE_NEXT_GENERATION_REMINDER_SECRET:-}"
+  export DEPLOY_BNOTE_NEXT_GENERATION_REMINDER_ALLOWED_SKEW_SECONDS="${BNOTE_NEXT_GENERATION_REMINDER_ALLOWED_SKEW_SECONDS:-}"
 
   if [[ "$BUILD_SYNC_HTACCESS" == "true" ]]; then
     export DEPLOY_HTACCESS_ROOT_PATH="$DEPLOY_DIR/.htaccess"
     export DEPLOY_HTACCESS_API_PATH="$DEPLOY_DIR/api/.htaccess"
     if ! python3 - <<'PY'
 import os, re, pathlib
-keys = ["MAIL_HOST","MAIL_PORT","MAIL_ENCRYPTION","MAIL_USERNAME","MAIL_PASSWORD","MAIL_FROM_ADDRESS","MAIL_FROM_NAME","NEXTGEN_PUBLIC_URL"]
+keys = ["MAIL_HOST","MAIL_PORT","MAIL_ENCRYPTION","MAIL_USERNAME","MAIL_PASSWORD","MAIL_FROM_ADDRESS","MAIL_FROM_NAME","BNOTE_NEXT_GENERATION_PUBLIC_URL"]
 values = {
     "MAIL_HOST": os.environ.get("DEPLOY_MAIL_HOST",""),
     "MAIL_PORT": os.environ.get("DEPLOY_MAIL_PORT",""),
@@ -226,7 +232,7 @@ values = {
     "MAIL_PASSWORD": os.environ.get("DEPLOY_MAIL_PASSWORD",""),
     "MAIL_FROM_ADDRESS": os.environ.get("DEPLOY_MAIL_FROM_ADDRESS",""),
     "MAIL_FROM_NAME": os.environ.get("DEPLOY_MAIL_FROM_NAME",""),
-    "NEXTGEN_PUBLIC_URL": os.environ.get("DEPLOY_NEXTGEN_PUBLIC_URL",""),
+    "BNOTE_NEXT_GENERATION_PUBLIC_URL": os.environ.get("DEPLOY_BNOTE_NEXT_GENERATION_PUBLIC_URL",""),
 }
 def q(v: str) -> str:
     if v == "" or re.search(r"\s|['\"#]", v):
@@ -257,16 +263,22 @@ values = {
     "MAIL_PASSWORD": os.environ.get("DEPLOY_MAIL_PASSWORD",""),
     "MAIL_FROM_ADDRESS": os.environ.get("DEPLOY_MAIL_FROM_ADDRESS",""),
     "MAIL_FROM_NAME": os.environ.get("DEPLOY_MAIL_FROM_NAME",""),
-    "NEXTGEN_PUBLIC_URL": os.environ.get("DEPLOY_NEXTGEN_PUBLIC_URL",""),
+    "BNOTE_NEXT_GENERATION_PUBLIC_URL": os.environ.get("DEPLOY_BNOTE_NEXT_GENERATION_PUBLIC_URL",""),
 }
-bulk = os.environ.get("DEPLOY_NEXTGEN_MAIL_BULK_DELAY_MS","").strip()
+bulk = os.environ.get("DEPLOY_BNOTE_NEXT_GENERATION_MAIL_BULK_DELAY_MS","").strip()
+reminder_secret = os.environ.get("DEPLOY_BNOTE_NEXT_GENERATION_REMINDER_SECRET","").strip()
+reminder_skew = os.environ.get("DEPLOY_BNOTE_NEXT_GENERATION_REMINDER_ALLOWED_SKEW_SECONDS","").strip()
 def sq(v: str) -> str:
     return "'" + v.replace("\\", "\\\\").replace("'", "\\'") + "'"
 lines = ["<?php", "return ["]
-for key in ["MAIL_HOST","MAIL_PORT","MAIL_ENCRYPTION","MAIL_USERNAME","MAIL_PASSWORD","MAIL_FROM_ADDRESS","MAIL_FROM_NAME","NEXTGEN_PUBLIC_URL"]:
+for key in ["MAIL_HOST","MAIL_PORT","MAIL_ENCRYPTION","MAIL_USERNAME","MAIL_PASSWORD","MAIL_FROM_ADDRESS","MAIL_FROM_NAME","BNOTE_NEXT_GENERATION_PUBLIC_URL"]:
     lines.append(f"    {sq(key)} => {sq(values[key])},")
 if bulk:
-    lines.append(f"    {sq('NEXTGEN_MAIL_BULK_DELAY_MS')} => {sq(bulk)},")
+    lines.append(f"    {sq('BNOTE_NEXT_GENERATION_MAIL_BULK_DELAY_MS')} => {sq(bulk)},")
+if reminder_secret:
+    lines.append(f"    {sq('BNOTE_NEXT_GENERATION_REMINDER_SECRET')} => {sq(reminder_secret)},")
+if reminder_skew:
+    lines.append(f"    {sq('BNOTE_NEXT_GENERATION_REMINDER_ALLOWED_SKEW_SECONDS')} => {sq(reminder_skew)},")
 lines.append("];")
 lines.append("")
 path.write_text("\n".join(lines), encoding="utf-8")

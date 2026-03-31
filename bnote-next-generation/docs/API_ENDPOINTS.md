@@ -155,7 +155,7 @@ Public. Request a password-reset email (neutral response; does not reveal whethe
 
 **Response (200):** `{ "success": true, "data": { "ok": true } }`. In **demo mode**, if mail was not sent, **`data`** may include **`dev_reset_url`** for local testing.
 
-**Mail:** When SMTP is configured and demo mode is off, sends HTML mail via **`PasswordResetMailBuilder`** / **`NextGenMailer`**. Requires **`NEXTGEN_PUBLIC_URL`** (or origin + base path) for an absolute reset link in the email. **429** when the per-IP rate limit for reset requests is exceeded.
+**Mail:** When SMTP is configured and demo mode is off, sends HTML mail via **`PasswordResetMailBuilder`** / **`NextGenMailer`**. Requires **`BNOTE_NEXT_GENERATION_PUBLIC_URL`** (or origin + base path) for an absolute reset link in the email. **429** when the per-IP rate limit for reset requests is exceeded.
 
 ---
 

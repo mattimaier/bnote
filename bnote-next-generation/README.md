@@ -88,7 +88,7 @@ Build-time config behavior:
 
 ### Email (password reset, notifications)
 
-Outbound mail is sent by **PHP** on your server (SMTP), not by the Next.js app. You set **`MAIL_*`** and **`NEXTGEN_PUBLIC_URL`** in the **web server / PHP environment** (e.g. Strato **`.htaccess`** with `SetEnv`). Never put the SMTP password in git or in any **`NEXT_PUBLIC_*`** variable.
+Outbound mail is sent by **PHP** on your server (SMTP), not by the Next.js app. You set **`MAIL_*`** and **`BNOTE_NEXT_GENERATION_PUBLIC_URL`** in the **web server / PHP environment** (e.g. Strato **`.htaccess`** with `SetEnv`). Never put the SMTP password in git or in any **`NEXT_PUBLIC_*`** variable.
 
 Step-by-step setup—including a **Strato shared hosting** tutorial, security notes, and other hosts—is in **[docs/MAIL.md](docs/MAIL.md)**. The `./build.sh` script runs **Composer** in `api/` so **PHPMailer** is included in the folder you upload.
 
@@ -102,6 +102,42 @@ Next Gen now supports a **weekly summary reminder** (open participation + option
 - Security: the public endpoint requires `X-Reminder-Timestamp`, `X-Reminder-Nonce`, `X-Reminder-Signature`, rejects replays, and uses per-user weekly idempotency.
 
 Setup details, required env vars, and a GitHub Actions example are documented in **[docs/MAIL.md](docs/MAIL.md)**.
+
+#### Quick tutorial: GitHub Actions on static hosting
+
+Use this when your host cannot run cron.
+
+1. **Set server-side env vars (on hosting/PHP):**
+   - `BNOTE_NEXT_GENERATION_REMINDER_SECRET` (strong random secret, 32+ bytes)
+   - `BNOTE_NEXT_GENERATION_REMINDER_ALLOWED_SKEW_SECONDS` (e.g. `300`)
+
+2. **Configure reminder behavior in app settings (admin):**
+   - `enabled = true`
+   - `weekday_utc` and `time_utc`
+   - recipient scope, event window (e.g. 90 days), max counts
+
+3. **Add workflow file in this repo:**
+   - `bnote-next-generation/.github/workflows/weekly-reminder-digest.yml`
+
+4. **Add GitHub secrets (repository or environment):**
+   - GitHub UI path: **Settings → Secrets and variables → Actions**
+   - `REMINDER_ENDPOINT` = full HTTPS URL to `.../api/reminders_run.php`
+   - `REMINDER_SECRET` = exactly the same value as server `BNOTE_NEXT_GENERATION_REMINDER_SECRET`
+
+5. **Run a safe manual test first (workflow_dispatch):**
+   - Trigger with `dryRun=true`, `force=true`
+   - Check workflow logs and API JSON response
+   - Then run with `dryRun=false` for real delivery
+
+6. **Recommended schedule frequency:**
+   - call endpoint **hourly** (as in template)
+   - app settings still control actual weekly send timing
+   - weekly idempotency prevents duplicate weekly sends
+
+Security notes:
+- Keep all secrets only in hosting env vars and GitHub Secrets (never in repo).
+- Do not expose reminder secrets in `NEXT_PUBLIC_*` vars.
+- Endpoint is public by URL but protected by HMAC signature + nonce + timestamp checks.
 
 ### Deploy (remote SFTP, one-time credentials setup)
 
@@ -118,7 +154,7 @@ cp .deploy.env.example .deploy.env
 
 2. Fill `.deploy.env`:
    - `SFTP_URL`, `OP_USERNAME_REF`, `OP_PASSWORD_REF`
-   - `MAIL_*`, `NEXTGEN_PUBLIC_URL` (single source of truth for mail credentials)
+   - `MAIL_*`, `BNOTE_NEXT_GENERATION_PUBLIC_URL` (single source of truth for mail credentials)
    - optional: `DEPLOY_WITH_BUILD`, `BUILD_DIR`
    - keep `DEPLOY_SYNC_HTACCESS=true` and `DEPLOY_SYNC_MAIL_CONFIG=true` (recommended)
 
