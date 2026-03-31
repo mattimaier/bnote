@@ -1,6 +1,6 @@
 # BNote Next Generation REST API Architecture
-**Version:** 2.1  
-**Date:** 2026-03-30  
+**Version:** 2.2  
+**Date:** 2026-03-31  
 **Purpose:** REST API architecture for BNote Next Generation backend
 
 ---
@@ -80,7 +80,11 @@ bnote-next-generation/api/
 ├── logger.php                 # API logger
 ├── nextgen_registration.php   # Public registration (used by auth module)
 ├── nextgen_password_reset.php # Password reset tokens
+├── nextgen_calendar_subscription_token.php # Issue/revoke personal calendar token
+├── calendar.ics.php           # Token-based ICS feed endpoint
+├── reminders_run.php          # Signed scheduler endpoint (digest/escalations)
 ├── password_reset_schema.php / password_reset_rate_limit.php
+├── calendar_subscription_token_schema.php
 ├── register_rate_limit.php
 ├── mail/                      # Next Gen outbound mail (PHPMailer, builders, notifiers)
 ├── debug/   # loopback-only mail previews & diagnostics (see MAIL.md); omitted from default build.sh
@@ -151,6 +155,8 @@ Each module implements a `{Module}Module` class with a `handle()` method that pr
 | `calendar` | Calendar views |
 | `appointments` | Appointments |
 | `reservations` | Reservations |
+| `email` | Generic module mail composer (Kommunikation, module 7) |
+| `reminders` | Reminder and escalation admin controls/triggers |
 | `tasks` | Tasks |
 | `comments` | Entity discussion threads |
 | `votes` | Votes / polls |
@@ -251,7 +257,7 @@ Response: {
 }
 ```
 
-**Outbound mail:** Password reset, registration admin notification, transactional notifications (event invites, tasks, comment threads), and related HTML templates live under **`bnote-next-generation/api/mail/`**. PHPMailer sends via SMTP using environment variables (`MAIL_*`, `BNOTE_NEXT_GENERATION_PUBLIC_URL`, etc.). This is separate from the legacy `BNote/src/logic/mailing.php` stack. Setup and behavior are documented in **[MAIL.md](MAIL.md)**.
+**Outbound mail:** Password reset, registration admin notification, transactional notifications (event invites, event-info mail, generic module composer, tasks, comment threads), plus scheduler-driven reminders/escalations live under **`bnote-next-generation/api/mail/`**. PHPMailer sends via SMTP using environment variables (`MAIL_*`, `BNOTE_NEXT_GENERATION_PUBLIC_URL`, etc.). This is separate from the legacy `BNote/src/logic/mailing.php` stack. Setup and behavior are documented in **[MAIL.md](MAIL.md)**.
 
 ### 3.3 Authorization (Permissions)
 
@@ -1025,5 +1031,5 @@ if (!$system_data->userHasPermission($moduleId)) {
 ---
 
 **Document Status:** Updated  
-**Last Updated:** 2026-01-27  
+**Last Updated:** 2026-03-31  
 **See Also:** [README.md](../README.md) for overview; [FEATURES_AND_BEHAVIORS.md](FEATURES_AND_BEHAVIORS.md) for UI behavior.

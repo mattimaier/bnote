@@ -17,10 +17,12 @@ If SMTP is not configured, or BNote runs in **demo mode**, those emails are skip
 | Rehearsal/concert participant added | `api/modules/rehearsals.php`, `api/modules/concerts.php` | `EventParticipantNotifier` / `EventParticipantInviteMailBuilder` | Yes (`NextGenMailPolicy`) | `NextGenMailer::sendBulk` |
 | Rehearsal/concert event-info group mail | `api/modules/rehearsals.php`, `api/modules/concerts.php` (`emailInfoDraft/Preview/Send`) | `EventInfoMailService` / `EventInfoMailBuilder` | Yes (`NextGenMailPolicy`) | `NextGenMailer::send` |
 | Generic email composer (module 7 / Kommunikation) | `api/modules/email.php` (`meta/draft/preview/send`) | `GenericEmailComposerService` / `GenericEmailComposerMailBuilder` | Yes (`NextGenMailPolicy`) | `NextGenMailer::send` |
+| Weekly reminder digest | `api/modules/reminders.php`, `api/reminders_run.php` | `ReminderDigestService` / `ReminderDigestMailBuilder` | No (admin-configured scheduler flow) | `NextGenMailer::send` |
+| Escalation alerts | `api/modules/reminders.php`, `api/reminders_run.php` | `EscalationAlertService` / `EscalationAlertMailBuilder` | No (admin-configured scheduler flow) | `NextGenMailer::send` |
 | Task assignee create/update | `api/modules/tasks.php` | `TaskNotificationMailBuilder` | Yes | `NextGenMailer::send` |
 | Entity comment added | `api/modules/comments.php` | `CommentDiscussionNotifier` / `CommentDiscussionMailBuilder` | Yes | `NextGenMailer::sendBulk` |
 
-**Preview template IDs** (for `api/debug/mail_preview.php?template=…`): canonical list is **`MailPreviewRegistry::templates()`** in [`api/mail/MailPreviewRegistry.php`](../api/mail/MailPreviewRegistry.php) — `password_reset`, `new_user_admin`, `long_demo`, `comment_discussion_*`, `event_invite_*`, `task_assigned`, `task_updated`.
+**Preview template IDs** (for `api/debug/mail_preview.php?template=…`): canonical list is **`MailPreviewRegistry::templates()`** in [`api/mail/MailPreviewRegistry.php`](../api/mail/MailPreviewRegistry.php) — `password_reset`, `new_user_admin`, `long_demo`, `comment_discussion_*`, `event_invite_*`, `event_info_concert`, `reminder_digest_*`, `escalation_*`, `task_assigned`, `task_updated`.
 
 **Local JSON helper:** [`api/debug/mail_comment_recipients.php`](../api/debug/mail_comment_recipients.php) exposes who would receive discussion mail (same rules as `CommentDiscussionNotifier`).
 

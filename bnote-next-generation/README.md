@@ -92,14 +92,14 @@ Outbound mail is sent by **PHP** on your server (SMTP), not by the Next.js app. 
 
 Step-by-step setup—including a **Strato shared hosting** tutorial, security notes, and other hosts—is in **[docs/MAIL.md](docs/MAIL.md)**. The `./build.sh` script runs **Composer** in `api/` so **PHPMailer** is included in the folder you upload.
 
-### Weekly reminder emails (static hosting, no cron)
+### Scheduled reminder and escalation emails (static hosting, no cron)
 
-Next Gen supports a **weekly summary reminder** (upcoming events + optional open responses/votes/tasks) without server cron:
+Next Gen supports **weekly summary reminders** and **escalation alerts** without server cron:
 
-- Configure behavior in the app under **Settings → Reminder Emails** (admin only): recipients, weekday/time (UTC), event window, max counts.
+- Configure behavior in the app under **Settings → Reminder Emails** (admin only): recipients, weekday/time (UTC), event window, max counts, escalation thresholds.
 - External scheduler (recommended): GitHub Actions calls `api/reminders_run.php` with HMAC-signed headers.
 - Manual admin trigger: available in **Developer tools** and in the Settings reminder section (dry-run or real send).
-- Security: the public endpoint requires `X-Reminder-Timestamp`, `X-Reminder-Nonce`, `X-Reminder-Signature`, rejects replays, and uses per-user weekly idempotency.
+- Security: the public endpoint requires `X-Reminder-Timestamp`, `X-Reminder-Nonce`, `X-Reminder-Signature`, rejects replays, and uses idempotency guards.
 - Sending is based on future events; participation state does not block the digest.
 
 Setup details, required env vars, and a GitHub Actions example are documented in **[docs/MAIL.md](docs/MAIL.md)**.
@@ -202,7 +202,7 @@ Routing uses the Next.js App Router (static export). Module pages under **`front
 
 **Core:** `/` (dashboard or login), `/login`, `/register` (when enabled in config), `/dashboard`, `/users`, `/contacts`, `/contacts/integration`, `/search`, `/settings`, `/profile`, `/profile/edit`.
 
-**Auth / mail flows:** `/reset-password`, `/reset-password/confirm`, `/participation/respond` (magic-link participation from invite mail).
+**Auth / mail flows:** `/reset-password`, `/reset-password/confirm`, `/participation/respond` (magic-link participation from invite mail), calendar subscription token flow (`api/nextgen_calendar_subscription_token.php`) and ICS feed (`api/calendar.ics.php?token=...`).
 
 **Legal:** `/legal/terms`, `/legal/privacy`, `/legal/imprint` (and mirrored `_modules/*` where used).
 
@@ -224,7 +224,7 @@ Each file is one **`?module=`** handler (see **[docs/API_ARCHITECTURE.md](docs/A
 
 - **Core:** `auth`, `dashboard`, `users`, `contacts`, `translations`, `search`, `participation`, `kontaktdaten`
 - **Events & scheduling:** `rehearsals`, `concerts`, `calendar`, `appointments`, `reservations`
-- **Tasks & collaboration:** `tasks`, `comments`, `votes`, `news`
+- **Tasks & collaboration:** `tasks`, `comments`, `votes`, `news`, `email`, `reminders`
 - **Resources:** `locations`, `equipment`, `outfits`, `repertoire`, `share`
 
 Outbound mail, registration, and password-reset helpers live beside the router under **`api/`** (e.g. **`api/mail/`**, `nextgen_registration.php`, `nextgen_password_reset.php`); see **[docs/MAIL.md](docs/MAIL.md)**.
@@ -239,7 +239,6 @@ Legacy-only or not exposed as first-class Next Gen features may still exist in B
 
 ## Documentation
 
-- **[user-guide/README.md](user-guide/README.md)** – Non-technical multilingual user guide (DE/EN/ES/FR) with migration and weekly "What's New" updates.
 - **[docs/MAIL.md](docs/MAIL.md)** – SMTP, subsystem map, transactional mail, password reset.
 - **[docs/FEATURES_AND_BEHAVIORS.md](docs/FEATURES_AND_BEHAVIORS.md)** – Feature and behavior reference for regression checks.
 - **[docs/UI_PATTERNS.md](docs/UI_PATTERNS.md)** – Lists, entity edit URLs, delete patterns.

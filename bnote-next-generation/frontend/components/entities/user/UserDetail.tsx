@@ -29,7 +29,7 @@ function normalizeName(value: string) {
 }
 
 function resolveContactId(
-  user: UserDetail | null,
+  user: UserDetail | null | undefined,
   contacts: ContactOption[]
 ): { id: number; label: string } {
   if (!user) return { id: 0, label: "" };
