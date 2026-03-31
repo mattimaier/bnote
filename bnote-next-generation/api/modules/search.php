@@ -30,6 +30,7 @@ require_once __DIR__ . '/../auth.php';
 
 class SearchModule {
     private $data;
+    private $categoryPermissions = [];
 
     private function filterValidItems($items) {
         if (!is_array($items)) {
@@ -55,11 +56,47 @@ class SearchModule {
         
         try {
             $this->data = new SearchData();
+            $this->categoryPermissions = $this->buildCategoryPermissions();
         } catch (Exception $e) {
             error_log('Failed to create SearchData: ' . $e->getMessage());
             error_log('Stack trace: ' . $e->getTraceAsString());
             Response::error('Failed to initialize search: ' . $e->getMessage(), 500);
         }
+    }
+
+    private function hasAnyModulePermission($moduleNames) {
+        global $system_data;
+        if (!is_array($moduleNames)) {
+            $moduleNames = [$moduleNames];
+        }
+        foreach ($moduleNames as $moduleName) {
+            $moduleId = $system_data->getModuleId($moduleName);
+            if ($moduleId && $system_data->userHasPermission($moduleId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private function buildCategoryPermissions() {
+        return [
+            'rehearsal' => $this->hasAnyModulePermission(['Proben']),
+            'concert' => $this->hasAnyModulePermission(['Konzerte']),
+            'performance' => $this->hasAnyModulePermission(['Konzerte']),
+            'user' => $this->hasAnyModulePermission(['User']),
+            'contact' => $this->hasAnyModulePermission(['Kontakte', 'Mitspieler']),
+            'task' => $this->hasAnyModulePermission(['Aufgaben']),
+            'repertoire' => $this->hasAnyModulePermission(['Repertoire']),
+            'location' => $this->hasAnyModulePermission(['Locations']),
+            'equipment' => $this->hasAnyModulePermission(['Equipment']),
+            'outfit' => $this->hasAnyModulePermission(['Outfits']),
+            'song' => $this->hasAnyModulePermission(['Repertoire']),
+            'vote' => $this->hasAnyModulePermission(['Abstimmung']),
+        ];
+    }
+
+    private function canSearchCategory($category) {
+        return !empty($this->categoryPermissions[$category]);
     }
     
     public function handle() {
@@ -73,6 +110,9 @@ class SearchModule {
         $action = $_GET['action'] ?? null;
         if ($action === 'years') {
             // Return available years from events
+            if (!$this->canSearchCategory('rehearsal') && !$this->canSearchCategory('concert')) {
+                Response::error('Access denied to search years', 403);
+            }
             try {
                 $years = $this->data->getAvailableYears();
                 Response::success($years);
@@ -137,6 +177,9 @@ class SearchModule {
         try {
             // Filter by module type if specified
             $moduleType = isset($filters['module_type']) ? $filters['module_type'] : null;
+            if ($moduleType && !$this->canSearchCategory($moduleType)) {
+                Response::error('Access denied to this search category', 403);
+            }
             
             // Store totals for each category
             $totals = array(
@@ -153,7 +196,7 @@ class SearchModule {
                 'votes' => 0
             );
             
-            if (!$moduleType || $moduleType === 'rehearsal') {
+            if ((!$moduleType || $moduleType === 'rehearsal') && $this->canSearchCategory('rehearsal')) {
                 $rehearsalResult = $this->data->searchRehearsals($query, $filters, $limit);
                 // Handle both old format (array) and new format (array with 'items' and 'total')
                 if (isset($rehearsalResult['items'])) {
@@ -164,7 +207,7 @@ class SearchModule {
                     $totals['rehearsals'] = count($results['rehearsals']);
                 }
             }
-            if (!$moduleType || $moduleType === 'concert' || $moduleType === 'performance') {
+            if ((!$moduleType || $moduleType === 'concert' || $moduleType === 'performance') && $this->canSearchCategory('concert')) {
                 $concertResult = $this->data->searchConcerts($query, $filters, $limit);
                 if (isset($concertResult['items'])) {
                     $results['concerts'] = $this->filterValidItems($concertResult['items']);
@@ -174,7 +217,7 @@ class SearchModule {
                     $totals['concerts'] = count($results['concerts']);
                 }
             }
-            if (!$moduleType || $moduleType === 'user') {
+            if ((!$moduleType || $moduleType === 'user') && $this->canSearchCategory('user')) {
                 $userResult = $this->data->searchUsers($query, $filters, $limit);
                 if (isset($userResult['items'])) {
                     $results['users'] = $this->filterValidItems($userResult['items']);
@@ -184,7 +227,7 @@ class SearchModule {
                     $totals['users'] = count($results['users']);
                 }
             }
-            if (!$moduleType || $moduleType === 'contact') {
+            if ((!$moduleType || $moduleType === 'contact') && $this->canSearchCategory('contact')) {
                 $contactResult = $this->data->searchContacts($query, $filters, $limit);
                 if (isset($contactResult['items'])) {
                     $results['contacts'] = $this->filterValidItems($contactResult['items']);
@@ -194,7 +237,7 @@ class SearchModule {
                     $totals['contacts'] = count($results['contacts']);
                 }
             }
-            if (!$moduleType || $moduleType === 'task') {
+            if ((!$moduleType || $moduleType === 'task') && $this->canSearchCategory('task')) {
                 $taskResult = $this->data->searchTasks($query, $filters, $limit);
                 if (isset($taskResult['items'])) {
                     $results['tasks'] = $this->filterValidItems($taskResult['items']);
@@ -204,7 +247,7 @@ class SearchModule {
                     $totals['tasks'] = count($results['tasks']);
                 }
             }
-            if (!$moduleType || $moduleType === 'repertoire') {
+            if ((!$moduleType || $moduleType === 'repertoire') && $this->canSearchCategory('repertoire')) {
                 $repertoireResult = $this->data->searchRepertoire($query, $filters, $limit);
                 if (isset($repertoireResult['items'])) {
                     $results['repertoire'] = $this->filterValidItems($repertoireResult['items']);
@@ -214,7 +257,7 @@ class SearchModule {
                     $totals['repertoire'] = count($results['repertoire']);
                 }
             }
-            if (!$moduleType || $moduleType === 'location') {
+            if ((!$moduleType || $moduleType === 'location') && $this->canSearchCategory('location')) {
                 $locationResult = $this->data->searchLocations($query, $filters, $limit);
                 if (isset($locationResult['items'])) {
                     $results['locations'] = $this->filterValidItems($locationResult['items']);
@@ -224,7 +267,7 @@ class SearchModule {
                     $totals['locations'] = count($results['locations']);
                 }
             }
-            if (!$moduleType || $moduleType === 'equipment') {
+            if ((!$moduleType || $moduleType === 'equipment') && $this->canSearchCategory('equipment')) {
                 $equipmentResult = $this->data->searchEquipment($query, $filters, $limit);
                 if (isset($equipmentResult['items'])) {
                     $results['equipment'] = $this->filterValidItems($equipmentResult['items']);
@@ -234,7 +277,7 @@ class SearchModule {
                     $totals['equipment'] = count($results['equipment']);
                 }
             }
-            if (!$moduleType || $moduleType === 'outfit') {
+            if ((!$moduleType || $moduleType === 'outfit') && $this->canSearchCategory('outfit')) {
                 $outfitsResult = $this->data->searchOutfits($query, $filters, $limit);
                 if (isset($outfitsResult['items'])) {
                     $results['outfits'] = $this->filterValidItems($outfitsResult['items']);
@@ -244,7 +287,7 @@ class SearchModule {
                     $totals['outfits'] = count($results['outfits']);
                 }
             }
-            if (!$moduleType || $moduleType === 'song') {
+            if ((!$moduleType || $moduleType === 'song') && $this->canSearchCategory('song')) {
                 $songsResult = $this->data->searchSongs($query, $filters, $limit);
                 if (isset($songsResult['items'])) {
                     $results['songs'] = $this->filterValidItems($songsResult['items']);
@@ -254,7 +297,7 @@ class SearchModule {
                     $totals['songs'] = count($results['songs']);
                 }
             }
-            if (!$moduleType || $moduleType === 'vote') {
+            if ((!$moduleType || $moduleType === 'vote') && $this->canSearchCategory('vote')) {
                 $votesResult = $this->data->searchVotes($query, $filters, $limit);
                 if (isset($votesResult['items'])) {
                     $results['votes'] = $this->filterValidItems($votesResult['items']);
