@@ -268,7 +268,7 @@ final class ReminderInboxSource {
         $openCount = 0;
         $futureEventCount = 0;
         $nowTs = time();
-        $upcomingDays = 7;
+        $upcomingDays = 8;
         $pendingWindowDays = max(1, (int) ($cfg['event_window_days'] ?? 90));
         $upcomingHorizonTs = $nowTs + ($upcomingDays * 86400);
         $pendingHorizonTs = $nowTs + ($pendingWindowDays * 86400);

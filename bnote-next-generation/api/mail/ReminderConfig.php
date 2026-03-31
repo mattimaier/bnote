@@ -10,16 +10,16 @@ final class ReminderConfig {
     /** @return array<string,mixed> */
     public static function defaults(): array {
         return [
-            'enabled' => false,
-            'weekday_utc' => 1,
-            'time_utc' => '08:00',
+            'enabled' => true,
+            'weekday_utc' => 7,
+            'time_utc' => '19:00',
             'recipient_scope' => 'actionable_only',
             'event_window_days' => 90,
-            'max_events' => 8,
+            'max_events' => 99,
             'include_votes' => true,
-            'max_votes' => 5,
+            'max_votes' => 99,
             'include_tasks' => true,
-            'max_tasks' => 5,
+            'max_tasks' => 99,
         ];
     }
 
@@ -106,11 +106,11 @@ final class ReminderConfig {
             'time_utc' => $time,
             'recipient_scope' => $scope,
             'event_window_days' => max(1, min(180, (int) ($x['event_window_days'] ?? $d['event_window_days']))),
-            'max_events' => max(1, min(50, (int) ($x['max_events'] ?? $d['max_events']))),
+            'max_events' => max(1, min(99, (int) ($x['max_events'] ?? $d['max_events']))),
             'include_votes' => self::toBool($x['include_votes']),
-            'max_votes' => max(1, min(50, (int) ($x['max_votes'] ?? $d['max_votes']))),
+            'max_votes' => max(1, min(99, (int) ($x['max_votes'] ?? $d['max_votes']))),
             'include_tasks' => self::toBool($x['include_tasks']),
-            'max_tasks' => max(1, min(50, (int) ($x['max_tasks'] ?? $d['max_tasks']))),
+            'max_tasks' => max(1, min(99, (int) ($x['max_tasks'] ?? $d['max_tasks']))),
         ];
     }
 

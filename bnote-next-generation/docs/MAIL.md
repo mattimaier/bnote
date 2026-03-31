@@ -125,7 +125,7 @@ If your host cannot run cron, use an **external scheduler**.
 - Recipients are active users with `email_notification = 1` and a valid contact email.
 - A digest is sent only when the user has at least one **future** rehearsal/concert (`future_event_count > 0`).
 - Participation state does **not** block sending: fully responded users still receive the digest.
-- **Upcoming events** section includes only events in the next **7 days**, sorted with pending-response events first, then by `replyUntil`, and limited by `max_events`.
+- **Upcoming events** section includes only events in the next **8 days** (Sunday to Sunday), sorted with pending-response events first, then by `replyUntil`, and limited by `max_events`.
 - **Open responses** section includes only rehearsals/concerts with unset participation (`participation < 0`) within `event_window_days`, also limited by `max_events`.
 - Votes/tasks are included only when enabled by config (`include_votes`, `include_tasks`) and are limited by `max_votes` / `max_tasks`.
 - Empty sections are omitted from HTML and plain-text output.
@@ -169,7 +169,7 @@ name: Weekly Reminder Digest
 
 on:
   schedule:
-    - cron: "0 8 * * 1" # Monday 08:00 UTC
+    - cron: "0 19 * * 0" # Sunday 19:00 UTC
   workflow_dispatch:
 
 jobs:

@@ -233,6 +233,9 @@ export default function SettingsPage() {
                   void saveReminderConfig({ time_utc: e.target.value });
                 }}
               />
+              <span className="label-text-alt mt-1 text-xs text-base-content/60">
+                {label("js.settings.reminder.timeUtcHint", "Must match your external scheduler trigger time (UTC).")}
+              </span>
             </label>
             <label className="form-control">
               <span className="label-text text-xs font-medium text-base-content/70">
@@ -276,7 +279,7 @@ export default function SettingsPage() {
               <input
                 type="number"
                 min={1}
-                max={50}
+                max={99}
                 className="input input-bordered input-sm"
                 value={reminderConfig.max_events}
                 disabled={savingReminderConfig}
@@ -292,7 +295,7 @@ export default function SettingsPage() {
               <input
                 type="number"
                 min={1}
-                max={50}
+                max={99}
                 className="input input-bordered input-sm"
                 value={reminderConfig.max_votes}
                 disabled={savingReminderConfig || !reminderConfig.include_votes}
@@ -308,7 +311,7 @@ export default function SettingsPage() {
               <input
                 type="number"
                 min={1}
-                max={50}
+                max={99}
                 className="input input-bordered input-sm"
                 value={reminderConfig.max_tasks}
                 disabled={savingReminderConfig || !reminderConfig.include_tasks}
