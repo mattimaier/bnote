@@ -774,6 +774,7 @@ class DashboardModule {
      * POST: { otype: 'T', oid: number, complete: boolean }
      */
     private function completeTask() {
+        global $system_data;
         $userId = Auth::getUserId();
         if (!$userId) {
             Response::error('Not authenticated', 401);
@@ -789,9 +790,23 @@ class DashboardModule {
             Response::error('Missing or invalid otype/oid for task completion', 400);
         }
 
+        $taskId = (int) $oid;
+        if ($taskId <= 0) {
+            Response::error('Missing or invalid otype/oid for task completion', 400);
+        }
+
+        $canToggle = (int) ($system_data->dbcon->colValue(
+            'SELECT COUNT(*) as cnt FROM task t JOIN user u ON u.contact = t.assigned_to WHERE t.id = ? AND u.id = ?',
+            'cnt',
+            [['i', $taskId], ['i', (int) $userId]]
+        ) ?? 0) > 0;
+        if (!$canToggle) {
+            Response::error('Access denied to this task', 403);
+        }
+
         require_once BNOTE_ROOT . '/src/data/modules/aufgabendata.php';
         $taskData = new AufgabenData();
-        $taskData->markTask((int) $oid, $complete ? 1 : 0);
+        $taskData->markTask($taskId, $complete ? 1 : 0);
 
         return ['success' => true, 'is_complete' => $complete];
     }
