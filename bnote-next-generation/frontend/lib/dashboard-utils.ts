@@ -6,6 +6,7 @@
 
 import { useMemo } from "react";
 import edjsHTML from "editorjs-html";
+import { sanitizeUntrustedHtml } from "@/lib/html-sanitizer";
 
 /**
  * Normalize company/band name from API response.
@@ -37,13 +38,13 @@ export function useNewsHtml(news: string | undefined): string {
         if (Array.isArray(parsed?.blocks)) {
           const parser = edjsHTML();
           const html = parser.parse(parsed as import("@editorjs/editorjs").OutputData);
-          return typeof html === "string" ? html : "";
+          return typeof html === "string" ? sanitizeUntrustedHtml(html) : "";
         }
       } catch {
         // fall through to legacy
       }
     }
-    return trimmed.replace(/\n/g, "<br />\n");
+    return sanitizeUntrustedHtml(trimmed.replace(/\n/g, "<br />\n"));
   }, [news]);
 }
 

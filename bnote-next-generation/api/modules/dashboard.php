@@ -654,10 +654,8 @@ class DashboardModule {
      * POST data: { otype: 'R'|'C', oid: int, attending: bool, reason: string }
      */
     private function respondToEvent() {
-        global $system_data;
-        
         // Get user ID
-        $userId = Auth::getUserId();
+        $userId = (int) Auth::getUserId();
         if (!$userId) {
             Response::error('Not authenticated', 401);
         }
@@ -670,12 +668,13 @@ class DashboardModule {
             $data = $_POST;
         }
         
-        $otype = $data['otype'] ?? null;
+        $otype = isset($data['otype']) ? strtoupper(trim((string) $data['otype'])) : null;
         $oid = $data['oid'] ?? null;
-        $attending = $data['attending'] ?? null;
+        $attendingProvided = array_key_exists('attending', $data);
+        $attending = $attendingProvided ? $data['attending'] : null;
         $reason = $data['reason'] ?? '';
         
-        if (!$otype || !$oid || $attending === null) {
+        if (!$otype || !$oid || !$attendingProvided) {
             Response::error('Missing required fields: otype, oid, attending', 400);
         }
         
@@ -683,18 +682,91 @@ class DashboardModule {
         if ($otype !== 'R' && $otype !== 'C') {
             Response::error('Invalid otype. Must be R (rehearsal) or C (concert)', 400);
         }
+
+        if (!is_numeric($oid)) {
+            Response::error('Invalid oid', 400);
+        }
+        $eventId = intval($oid);
+        if ($eventId <= 0) {
+            Response::error('Invalid oid', 400);
+        }
+
+        if (!$this->userHasAccessToEvent($otype, $eventId, $userId)) {
+            Response::error('Access denied to this event', 403);
+        }
+
+        $this->assertParticipationWindowOpen($otype, $eventId);
         
         // Convert attending boolean to participation integer
-        // 1 = yes, 0 = no, 2 = maybe (if supported)
-        $participate = $attending ? 1 : 0;
+        $attendingBool = $this->normalizeAttendingBoolean($attending);
+        $participate = $attendingBool ? 1 : 0;
         
         // Save participation using StartData
-        $this->data->saveParticipation($otype === 'R' ? 'rehearsal' : 'concert', $userId, $oid, $participate, $reason);
+        // Note: StartData::saveParticipation expects 'R' or 'C'
+        $this->data->saveParticipation($otype, $userId, $eventId, $participate, $reason);
         
         return [
             'success' => true,
             'message' => 'Response saved successfully'
         ];
+    }
+
+    private function normalizeAttendingBoolean($attending): bool {
+        if (is_bool($attending)) {
+            return $attending;
+        }
+        if (is_int($attending) || is_float($attending)) {
+            if ((int) $attending === 1) return true;
+            if ((int) $attending === 0) return false;
+        }
+        if (is_string($attending)) {
+            $normalized = strtolower(trim($attending));
+            if ($normalized === 'true' || $normalized === '1' || $normalized === 'yes') return true;
+            if ($normalized === 'false' || $normalized === '0' || $normalized === 'no') return false;
+        }
+        Response::error('Invalid attending value', 400);
+        return false;
+    }
+
+    private function userHasAccessToEvent($eventType, $eventId, $userId): bool {
+        if ($eventType === 'R') {
+            $allowedIds = array_map('intval', $this->getUserRehearsalIds($userId));
+            return in_array((int) $eventId, $allowedIds, true);
+        }
+        if ($eventType === 'C') {
+            $allowedIds = array_map('intval', $this->getConcertIdsForUser($userId));
+            return in_array((int) $eventId, $allowedIds, true);
+        }
+        return false;
+    }
+
+    private function assertParticipationWindowOpen($eventType, $eventId): void {
+        if ($eventType === 'R') {
+            $event = $this->data->getRehearsal($eventId);
+        } else {
+            $event = $this->data->getConcert($eventId);
+        }
+
+        if (!is_array($event) || count($event) === 0) {
+            Response::error('Event not found', 404);
+        }
+
+        $deadline = $event['approve_until'] ?? null;
+        $eventBegin = $event['begin'] ?? null;
+
+        if ($deadline && $deadline !== '-' && strlen(trim($deadline)) >= 10) {
+            $deadlineTime = strtotime($deadline);
+            if ($deadlineTime !== false && $deadlineTime < time()) {
+                Response::error('Participation deadline has passed', 403);
+            }
+        }
+
+        if ($eventBegin && $eventBegin !== '-' && strlen(trim($eventBegin)) >= 10) {
+            $eventBeginTime = strtotime($eventBegin);
+            if ($eventBeginTime !== false && $eventBeginTime < time()) {
+                Response::error('Event is in the past and cannot be changed', 403);
+            }
+        }
     }
 
     /**

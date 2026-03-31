@@ -7,6 +7,7 @@
 
 import type { OutputData } from "@editorjs/editorjs";
 import edjsHTML from "editorjs-html";
+import { sanitizeUntrustedHtml } from "@/lib/html-sanitizer";
 
 /** Check if a string looks like EditorJS JSON (has blocks array). */
 export function isEditorJson(value: string): boolean {
@@ -110,7 +111,7 @@ export function notesEditorJsonToHtml(value: string): string {
     const parsed = JSON.parse(value.trim()) as OutputData;
     const parser = edjsHTML();
     const html = parser.parse(parsed);
-    return typeof html === "string" ? html : "";
+    return typeof html === "string" ? sanitizeUntrustedHtml(html) : "";
   } catch {
     return "";
   }
