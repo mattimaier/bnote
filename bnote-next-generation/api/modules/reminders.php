@@ -80,12 +80,13 @@ class RemindersModule {
         $payload = $this->readPayload();
         $dryRun = !empty($payload['dryRun']);
         $force = !empty($payload['force']);
+        $ignoreLimits = !empty($payload['ignoreLimits']);
         $onlyUserId = isset($payload['onlyUserId']) ? (int) $payload['onlyUserId'] : 0;
         return ReminderDigestService::runScheduled($system_data, [
             'dryRun' => $dryRun,
             'force' => $force,
             'mode' => 'admin',
-            'ignoreLimits' => true,
+            'ignoreLimits' => $ignoreLimits,
             'onlyUserId' => $onlyUserId > 0 ? $onlyUserId : null,
         ]);
     }

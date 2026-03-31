@@ -22,6 +22,7 @@ export interface ReminderRunResult {
   status: string;
   dryRun: boolean;
   runKey: string;
+  ignore_limits?: boolean;
   only_user_id?: number | null;
   users_scanned?: number;
   users_eligible?: number;
@@ -40,10 +41,11 @@ export const remindersApi = {
   getRecipients: () => api.get<{ recipients: ReminderRecipient[] }>("reminders", "getRecipients"),
   updateConfig: (config: Partial<ReminderConfig>) =>
     api.post<{ success: boolean; config: ReminderConfig }>("reminders", "updateConfig", config as Record<string, unknown>),
-  runNow: (dryRun: boolean, force = true, onlyUserId?: number) =>
+  runNow: (dryRun: boolean, force = true, onlyUserId?: number, ignoreLimits = false) =>
     api.post<ReminderRunResult>("reminders", "runNow", {
       dryRun,
       force,
+      ignoreLimits,
       ...(typeof onlyUserId === "number" && onlyUserId > 0 ? { onlyUserId } : {}),
     }),
 };

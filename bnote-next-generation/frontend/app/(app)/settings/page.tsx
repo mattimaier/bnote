@@ -100,7 +100,7 @@ export default function SettingsPage() {
     setRunningReminder(true);
     setRunOutput(null);
     try {
-      const out = await remindersApi.runNow(dryRun, true);
+      const out = await remindersApi.runNow(dryRun, true, undefined, false);
       setRunOutput(JSON.stringify(out, null, 2));
       showToast(
         dryRun

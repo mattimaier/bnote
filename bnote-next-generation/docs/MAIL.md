@@ -135,6 +135,16 @@ If your host cannot run cron, use an **external scheduler**.
    - nonce replay protection
 4. Service sends digest mails and stores per-user weekly run idempotency.
 
+### Scheduling responsibility (important)
+
+- The external scheduler controls **request cadence** (when `POST`s are sent).
+- App settings (`enabled`, `weekday_utc`, `time_utc`) control **due-time gating** (whether a given request should send now).
+- Recommended operation:
+  - run the external trigger more frequently (e.g. hourly),
+  - keep weekly timing in app settings,
+  - rely on app due-check + weekly idempotency to avoid duplicates.
+- `force=true` bypasses due-time gating intentionally (operator/debug path).
+
 ### Signed request headers
 
 - `X-Reminder-Timestamp` (unix timestamp, seconds)

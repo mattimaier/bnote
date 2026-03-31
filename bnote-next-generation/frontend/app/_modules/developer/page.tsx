@@ -146,6 +146,7 @@ function DeveloperModulePageContent() {
   const [commentOutput, setCommentOutput] = useState<string | null>(null);
   const [reminderRunLoading, setReminderRunLoading] = useState(false);
   const [reminderRunDry, setReminderRunDry] = useState(true);
+  const [reminderRunIgnoreLimits, setReminderRunIgnoreLimits] = useState(false);
   const [reminderRunOutput, setReminderRunOutput] = useState<string | null>(null);
   const [reminderRecipients, setReminderRecipients] = useState<ReminderRecipient[]>([]);
   const [reminderSelectedUserId, setReminderSelectedUserId] = useState<number>(0);
@@ -221,14 +222,19 @@ function DeveloperModulePageContent() {
     setReminderRunLoading(true);
     setReminderRunOutput(null);
     try {
-      const out = await remindersApi.runNow(reminderRunDry, true, reminderSelectedUserId > 0 ? reminderSelectedUserId : undefined);
+      const out = await remindersApi.runNow(
+        reminderRunDry,
+        true,
+        reminderSelectedUserId > 0 ? reminderSelectedUserId : undefined,
+        reminderRunIgnoreLimits
+      );
       setReminderRunOutput(JSON.stringify(out, null, 2));
     } catch (e) {
       setReminderRunOutput(e instanceof Error ? e.message : String(e));
     } finally {
       setReminderRunLoading(false);
     }
-  }, [reminderRunDry, reminderSelectedUserId]);
+  }, [reminderRunDry, reminderSelectedUserId, reminderRunIgnoreLimits]);
 
   const loadReminderRecipients = useCallback(async () => {
     try {
@@ -537,6 +543,15 @@ function DeveloperModulePageContent() {
                 onChange={(e) => setReminderRunDry(e.target.checked)}
               />
               <span className="text-base-content/80">Dry-run only (no emails)</span>
+            </label>
+            <label className="flex cursor-pointer items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                className="checkbox checkbox-warning checkbox-sm"
+                checked={reminderRunIgnoreLimits}
+                onChange={(e) => setReminderRunIgnoreLimits(e.target.checked)}
+              />
+              <span className="text-base-content/80">Ignore limits (debug)</span>
             </label>
             <button type="button" className="btn btn-soft btn-sm btn-primary" disabled={reminderRunLoading} onClick={() => void runReminderTrigger()}>
               {reminderRunLoading ? "Running…" : "Run reminder trigger"}
