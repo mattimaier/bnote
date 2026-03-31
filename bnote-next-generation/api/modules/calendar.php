@@ -315,8 +315,10 @@ class CalendarModule {
 
         $adp = $this->calendarData->adp();
         $phases = $adp->getUsersPhases($uid);
+        $rehearsalsModuleId = $system_data->getModuleId('Proben');
+        $hasRehearsalsModule = $rehearsalsModuleId ? $system_data->userHasPermission($rehearsalsModuleId) : false;
 
-        if ($system_data->isUserSuperUser($uid)) {
+        if ($system_data->isUserSuperUser($uid) || $hasRehearsalsModule) {
             $rows = $db->getSelection(
                 "SELECT r.id, r.begin, r.end, r.approve_until, r.notes, l.name as location_name " .
                 "FROM rehearsal r JOIN location l ON r.location = l.id " .
@@ -386,7 +388,9 @@ class CalendarModule {
         if (!$uid) return [];
 
         $adp = $this->calendarData->adp();
-        if ($system_data->isUserSuperUser($uid)) {
+        $concertsModuleId = $system_data->getModuleId('Konzerte');
+        $hasConcertsModule = $concertsModuleId ? $system_data->userHasPermission($concertsModuleId) : false;
+        if ($system_data->isUserSuperUser($uid) || $hasConcertsModule) {
             $rows = $db->getSelection(
                 "SELECT c.id, c.title, c.begin, c.end, c.approve_until, c.notes, l.name as location_name, c.outfit " .
                 "FROM concert c LEFT JOIN location l ON c.location = l.id " .

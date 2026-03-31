@@ -250,6 +250,12 @@ class ParticipationModule {
         $eventId = intval($eventId);
         
         if ($eventType === 'R') {
+            $moduleId = $system_data->getModuleId('Proben');
+            $hasRehearsalsModule = $moduleId ? $system_data->userHasPermission($moduleId) : false;
+            if ($hasRehearsalsModule) {
+                $rehearsal = $this->data->getRehearsal($eventId);
+                return $rehearsal !== null && count($rehearsal) > 0;
+            }
             // Check if user has access to this rehearsal
             // Use the same logic as dashboard to get ALL accessible rehearsals
             // Super users see all
@@ -280,6 +286,12 @@ class ParticipationModule {
                 return false;
             }
         } else {
+            $moduleId = $system_data->getModuleId('Konzerte');
+            $hasConcertsModule = $moduleId ? $system_data->userHasPermission($moduleId) : false;
+            if ($hasConcertsModule) {
+                $concert = $this->data->getConcert($eventId);
+                return $concert !== null && count($concert) > 0;
+            }
             // Check if user has access to this concert
             // Get all future concerts (same as dashboard)
             try {

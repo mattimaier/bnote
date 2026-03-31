@@ -148,7 +148,9 @@ class ConcertsModule {
     private function getAccessibleConcerts($userId) {
         global $system_data;
         $uid = intval($userId);
-        if ($system_data->isUserSuperUser($uid)) {
+        $moduleId = $system_data->getModuleId('Konzerte');
+        $hasConcertsModule = $moduleId ? $system_data->userHasPermission($moduleId) : false;
+        if ($system_data->isUserSuperUser($uid) || $hasConcertsModule) {
             $query = "SELECT c.id, c.title, c.begin, c.end, c.approve_until, c.notes, c.status, l.name as location_name
                       FROM concert c
                       LEFT JOIN location l ON c.location = l.id

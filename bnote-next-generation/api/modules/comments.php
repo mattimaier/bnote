@@ -119,6 +119,12 @@ class CommentsModule {
         global $system_data;
 
         if ($otype === 'R') {
+            $moduleId = $system_data->getModuleId('Proben');
+            $hasRehearsalsModule = $moduleId ? $system_data->userHasPermission($moduleId) : false;
+            if ($hasRehearsalsModule) {
+                $reh = $this->probenData->findByIdNoRef($oid);
+                return $reh !== null && count($reh) > 0;
+            }
             if ($system_data->isUserSuperUser($uid)) {
                 $reh = $this->probenData->findByIdNoRef($oid);
                 return $reh !== null && count($reh) > 0;
@@ -134,6 +140,12 @@ class CommentsModule {
         }
 
         if ($otype === 'C') {
+            $moduleId = $system_data->getModuleId('Konzerte');
+            $hasConcertsModule = $moduleId ? $system_data->userHasPermission($moduleId) : false;
+            if ($hasConcertsModule) {
+                $con = $this->konzerteData->findByIdNoRef($oid);
+                return $con !== null && count($con) > 0;
+            }
             if ($system_data->isUserSuperUser($uid)) {
                 $con = $this->konzerteData->findByIdNoRef($oid);
                 return $con !== null && count($con) > 0;

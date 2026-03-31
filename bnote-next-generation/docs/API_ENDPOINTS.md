@@ -235,6 +235,7 @@ Get inbox items (rehearsals, concerts, tasks, votes, appointments).
 ### GET /api/v1/rehearsals
 
 List all rehearsals.
+Access rule: users with module permission `Proben` can access the full rehearsal set (visibility override), while participant/group assignment is used only when that module permission is missing.
 
 **Query Parameters:**
 - `page` - Page number (default: 1)
@@ -505,6 +506,7 @@ Add song to rehearsal.
 ### GET /api/v1/concerts
 
 List all concerts.
+Access rule: users with module permission `Konzerte` can access the full concert set (visibility override), while participant/phase assignment is used only when that module permission is missing.
 
 **Query Parameters:** (Same as rehearsals)
 
@@ -723,6 +725,7 @@ Remove contact from group.
 ### GET /api/v1/calendar/events
 
 Get calendar events (rehearsals, concerts, appointments).
+For rehearsal/concert calendar entries, event visibility follows the same precedence: module permission (`Proben` / `Konzerte`) grants full visibility, and participant-based filtering applies only without that module permission.
 
 **Query Parameters:**
 - `from` - Start date (YYYY-MM-DD, required)
@@ -1125,6 +1128,7 @@ Create song.
 ### GET /api/v1/locations
 
 List locations.
+When loading location-linked rehearsal/concert events, visibility follows the same precedence: module permission (`Proben` / `Konzerte`) overrides participant assignment.
 
 ---
 
@@ -1267,6 +1271,7 @@ Comments (chat) for rehearsals, concerts, and votes. Requires `discussion_on` co
 ```
 
 Order: oldest first. Returns 403 if discussion is disabled or user has no access.
+For rehearsal/concert discussion access, the same precedence applies: module permission (`Proben` for `R`, `Konzerte` for `C`) overrides participant assignment.
 
 ---
 

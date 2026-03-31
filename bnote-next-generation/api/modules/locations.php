@@ -273,8 +273,10 @@ class LocationsModule {
         global $system_data;
         $userId = Auth::getUserId();
         $uid = intval($userId);
+        $rehearsalsModuleId = $system_data->getModuleId('Proben');
+        $hasRehearsalsModule = $rehearsalsModuleId ? $system_data->userHasPermission($rehearsalsModuleId) : false;
 
-        if ($system_data->isUserSuperUser($uid)) {
+        if ($system_data->isUserSuperUser($uid) || $hasRehearsalsModule) {
             $query = "SELECT r.id, r.begin, r.end, r.notes, r.status
                       FROM rehearsal r
                       WHERE r.location = ?
@@ -323,8 +325,10 @@ class LocationsModule {
         global $system_data;
         $userId = Auth::getUserId();
         $uid = intval($userId);
+        $concertsModuleId = $system_data->getModuleId('Konzerte');
+        $hasConcertsModule = $concertsModuleId ? $system_data->userHasPermission($concertsModuleId) : false;
 
-        if ($system_data->isUserSuperUser($uid)) {
+        if ($system_data->isUserSuperUser($uid) || $hasConcertsModule) {
             $query = "SELECT c.id, c.title, c.begin, c.end, c.notes, c.status
                       FROM concert c
                       WHERE c.location = ?

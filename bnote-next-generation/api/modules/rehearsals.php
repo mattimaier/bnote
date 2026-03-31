@@ -175,7 +175,9 @@ class RehearsalsModule {
     private function getAccessibleRehearsals($userId) {
         global $system_data;
         $uid = intval($userId);
-        if ($system_data->isUserSuperUser($uid)) {
+        $moduleId = $system_data->getModuleId('Proben');
+        $hasRehearsalsModule = $moduleId ? $system_data->userHasPermission($moduleId) : false;
+        if ($system_data->isUserSuperUser($uid) || $hasRehearsalsModule) {
             $query = "SELECT r.id, r.begin, r.end, r.approve_until, r.conductor, r.notes, r.status, l.name as location_name
                       FROM rehearsal r
                       JOIN location l ON r.location = l.id

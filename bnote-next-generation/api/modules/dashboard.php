@@ -323,6 +323,7 @@ class DashboardModule {
     private function getAllInboxItems() {
         $items = [];
         $userId = Auth::getUserId();
+        global $system_data;
         
         // Get all rehearsals (bypassing getUsersRehearsals which applies limits)
         $allRehearsals = $this->data->adp()->getFutureRehearsals(true);
@@ -362,7 +363,11 @@ class DashboardModule {
         }
         
         // Get all concerts (bypassing getUsersConcerts which applies limits)
-        $allConcerts = $this->data->adp()->getFutureConcerts($userId);
+        $concertsModuleId = $system_data->getModuleId('Konzerte');
+        $hasConcertsModule = $concertsModuleId ? $system_data->userHasPermission($concertsModuleId) : false;
+        $allConcerts = $hasConcertsModule
+            ? $this->data->adp()->getFutureConcerts()
+            : $this->data->adp()->getFutureConcerts($userId);
         
         for ($i = 1; $i < count($allConcerts); $i++) {
             $c = $allConcerts[$i];
@@ -426,7 +431,6 @@ class DashboardModule {
         }
 
         // Reservations: future reservations (Calendar module; show only if user has permission)
-        global $system_data;
         $calendarModuleId = $system_data->getModuleId('Calendar');
         if ($calendarModuleId && $system_data->userHasPermission($calendarModuleId)) {
             $reservations = $this->data->getReservations();
@@ -495,9 +499,11 @@ class DashboardModule {
      */
     private function getUserRehearsalIds($userId) {
         global $system_data;
+        $moduleId = $system_data->getModuleId('Proben');
+        $hasRehearsalsModule = $moduleId ? $system_data->userHasPermission($moduleId) : false;
         
         // Super users see all
-        if ($system_data->isUserSuperUser($userId)) {
+        if ($system_data->isUserSuperUser($userId) || $hasRehearsalsModule) {
             $allRehearsals = $this->data->adp()->getFutureRehearsals(true);
             $ids = [];
             for ($i = 1; $i < count($allRehearsals); $i++) {
@@ -834,7 +840,12 @@ class DashboardModule {
     }
 
     private function getConcertIdsForUser($uid) {
-        $concerts = $this->data->adp()->getFutureConcerts($uid);
+        global $system_data;
+        $moduleId = $system_data->getModuleId('Konzerte');
+        $hasConcertsModule = $moduleId ? $system_data->userHasPermission($moduleId) : false;
+        $concerts = $hasConcertsModule
+            ? $this->data->adp()->getFutureConcerts()
+            : $this->data->adp()->getFutureConcerts($uid);
         $ids = [];
         if (is_array($concerts)) {
             for ($i = 1; $i < count($concerts); $i++) {
