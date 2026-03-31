@@ -40,6 +40,7 @@ require_once __DIR__ . '/../nextgen_password_reset.php';
 require_once __DIR__ . '/../participation_magic_rate_limit.php';
 require_once __DIR__ . '/../nextgen_participation_token.php';
 require_once __DIR__ . '/../participation_magic_apply.php';
+require_once __DIR__ . '/../nextgen_calendar_subscription_token.php';
 require_once __DIR__ . '/../auth.php';
 
 class AuthModule {
@@ -77,6 +78,10 @@ class AuthModule {
                 return $this->getParticipationTokenInfo();
             case 'getModules':
                 return $this->getModules();
+            case 'getCalendarSubscriptionLink':
+                return $this->getCalendarSubscriptionLink();
+            case 'regenerateCalendarSubscriptionLink':
+                return $this->regenerateCalendarSubscriptionLink();
             default:
                 Response::error('Unknown action: ' . $action, 400);
         }
@@ -735,6 +740,104 @@ class AuthModule {
             'ok' => true,
             'expiresAt' => isset($row['expiresAt']) && is_string($row['expiresAt']) ? $row['expiresAt'] : '',
             'reusable' => true,
+        ];
+    }
+
+    /**
+     * Authenticated: read (or lazily create) stable calendar subscription token for current user.
+     */
+    private function getCalendarSubscriptionLink(): array {
+        if (!Auth::check()) {
+            Response::error('Authentication required', 403);
+        }
+        global $system_data;
+        $db = $system_data->dbcon;
+        $uid = Auth::getUserId();
+        if (!$uid) {
+            Response::error('Authentication required', 403);
+        }
+        $tokenInfo = NextGenCalendarSubscriptionToken::getOrCreateForUser((int) $uid, $db);
+        $urls = $this->buildCalendarSubscriptionUrls((string) $tokenInfo['plainToken']);
+        return [
+            'ok' => true,
+            'token' => (string) $tokenInfo['plainToken'],
+            'subscriptionUrlHttp' => $urls['subscriptionUrlHttp'],
+            'subscriptionUrlWebcal' => $urls['subscriptionUrlWebcal'],
+            'downloadUrl' => $urls['downloadUrl'],
+            'reusable' => true,
+        ];
+    }
+
+    /**
+     * Authenticated: rotate calendar subscription token for current user (invalidates old URL).
+     */
+    private function regenerateCalendarSubscriptionLink(): array {
+        if (!Auth::check()) {
+            Response::error('Authentication required', 403);
+        }
+        global $system_data;
+        $db = $system_data->dbcon;
+        $uid = Auth::getUserId();
+        if (!$uid) {
+            Response::error('Authentication required', 403);
+        }
+        $tokenInfo = NextGenCalendarSubscriptionToken::regenerateForUser((int) $uid, $db);
+        $urls = $this->buildCalendarSubscriptionUrls((string) $tokenInfo['plainToken']);
+        return [
+            'ok' => true,
+            'token' => (string) $tokenInfo['plainToken'],
+            'subscriptionUrlHttp' => $urls['subscriptionUrlHttp'],
+            'subscriptionUrlWebcal' => $urls['subscriptionUrlWebcal'],
+            'downloadUrl' => $urls['downloadUrl'],
+            'reusable' => true,
+        ];
+    }
+
+    /**
+     * @return array{subscriptionUrlHttp:string,subscriptionUrlWebcal:string,downloadUrl:string}
+     */
+    private function buildCalendarSubscriptionUrls(string $plainToken): array {
+        require_once __DIR__ . '/../mail/MailEnv.php';
+
+        $query = http_build_query(['token' => $plainToken]);
+        $queryDl = http_build_query(['token' => $plainToken, 'download' => '1']);
+
+        $base = trim(MailEnv::nextgenPublicBaseUrl());
+        if ($base !== '') {
+            $base = rtrim($base, '/');
+            $http = $base . '/api/calendar.ics.php?' . $query;
+            $download = $base . '/api/calendar.ics.php?' . $queryDl;
+        } else {
+            $scheme = 'https';
+            if (
+                (isset($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off' && $_SERVER['HTTPS'] !== '')
+                || (isset($_SERVER['REQUEST_SCHEME']) && strtolower((string) $_SERVER['REQUEST_SCHEME']) === 'https')
+            ) {
+                $scheme = 'https';
+            } elseif (isset($_SERVER['REQUEST_SCHEME']) && strtolower((string) $_SERVER['REQUEST_SCHEME']) === 'http') {
+                $scheme = 'http';
+            }
+            $host = trim((string) ($_SERVER['HTTP_HOST'] ?? 'localhost'));
+            $scriptName = trim((string) ($_SERVER['SCRIPT_NAME'] ?? '/api/index.php'));
+            $apiDir = rtrim(str_replace('\\', '/', dirname($scriptName)), '/');
+            if ($apiDir === '' || $apiDir === '.') {
+                $apiDir = '/api';
+            }
+            $http = $scheme . '://' . $host . $apiDir . '/calendar.ics.php?' . $query;
+            $download = $scheme . '://' . $host . $apiDir . '/calendar.ics.php?' . $queryDl;
+        }
+
+        $webcal = $http;
+        if (stripos($webcal, 'https://') === 0) {
+            $webcal = 'webcal://' . substr($webcal, 8);
+        } elseif (stripos($webcal, 'http://') === 0) {
+            $webcal = 'webcal://' . substr($webcal, 7);
+        }
+
+        return [
+            'subscriptionUrlHttp' => $http,
+            'subscriptionUrlWebcal' => $webcal,
+            'downloadUrl' => $download,
         ];
     }
 }

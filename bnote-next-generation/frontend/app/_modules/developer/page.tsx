@@ -19,6 +19,7 @@ import { getEntityConfig } from "@/lib/entity-config";
 import mailDesignTokens from "@/mail-design-tokens.json";
 import { MAIL_TEST_LOCALES, MAIL_TEST_TEMPLATES } from "@/lib/mail-test-templates";
 import { remindersApi, type ReminderRecipient } from "@/lib/reminders-api";
+import { calendarApi, type CalendarSubscriptionLink } from "@/lib/calendar-api";
 
 const COMMENT_ENTITY_KINDS = [
   { otype: "R" as const, label: "Rehearsal" },
@@ -150,6 +151,9 @@ function DeveloperModulePageContent() {
   const [reminderRunOutput, setReminderRunOutput] = useState<string | null>(null);
   const [reminderRecipients, setReminderRecipients] = useState<ReminderRecipient[]>([]);
   const [reminderSelectedUserId, setReminderSelectedUserId] = useState<number>(0);
+  const [calendarSubLoading, setCalendarSubLoading] = useState(false);
+  const [calendarSubData, setCalendarSubData] = useState<CalendarSubscriptionLink | null>(null);
+  const [calendarSubOutput, setCalendarSubOutput] = useState<string | null>(null);
 
   const runSmtpTest = useCallback(async () => {
     const to = smtpTo.trim();
@@ -249,6 +253,47 @@ function DeveloperModulePageContent() {
     }
   }, [reminderSelectedUserId]);
 
+  const loadCalendarSubscription = useCallback(async () => {
+    setCalendarSubLoading(true);
+    setCalendarSubOutput(null);
+    try {
+      const data = await calendarApi.getSubscriptionLink();
+      setCalendarSubData(data);
+      setCalendarSubOutput("Loaded stable tokenized calendar links for current user.");
+    } catch (e) {
+      setCalendarSubOutput(e instanceof Error ? e.message : String(e));
+    } finally {
+      setCalendarSubLoading(false);
+    }
+  }, []);
+
+  const regenerateCalendarSubscription = useCallback(async () => {
+    setCalendarSubLoading(true);
+    setCalendarSubOutput(null);
+    try {
+      const data = await calendarApi.regenerateSubscriptionLink();
+      setCalendarSubData(data);
+      setCalendarSubOutput("Regenerated token. Previous subscription URL should now be invalid.");
+    } catch (e) {
+      setCalendarSubOutput(e instanceof Error ? e.message : String(e));
+    } finally {
+      setCalendarSubLoading(false);
+    }
+  }, []);
+
+  const copyText = useCallback(async (value: string) => {
+    if (!value) {
+      setCalendarSubOutput("Nothing to copy.");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(value);
+      setCalendarSubOutput("Copied to clipboard.");
+    } catch {
+      setCalendarSubOutput("Clipboard copy failed.");
+    }
+  }, []);
+
   const nextItems = [
     { key: "debugMain", href: "/debug/", icon: "file-code", title: "API & debug home", desc: "API tester, entity shortcuts, and icon grid." },
     { key: "debugEntity", href: "/debug/entity/", icon: "layout-list", title: "Entity debug views", desc: "Mock view and edit flows for all entity types." },
@@ -313,6 +358,58 @@ function DeveloperModulePageContent() {
               accentColor={accent}
             />
           ))}
+        </div>
+      </section>
+
+      <section className="space-y-4">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-base-content/60">Calendar feed test</h2>
+        <div className="grid gap-3 sm:grid-cols-1 md:grid-cols-2">
+          <DevPanel
+            title="ICS subscription sanity check"
+            description="Quickly validate token lifecycle, download URL, and webcal URL for the current logged-in user."
+            iconName="calendar-event"
+            accentColor={accent}
+          >
+            <div className="flex flex-wrap gap-2">
+              <button type="button" className="btn btn-soft btn-sm btn-primary" disabled={calendarSubLoading} onClick={() => void loadCalendarSubscription()}>
+                {calendarSubLoading ? "Loading…" : "Load links"}
+              </button>
+              <button type="button" className="btn btn-soft btn-sm btn-warning" disabled={calendarSubLoading} onClick={() => void regenerateCalendarSubscription()}>
+                {calendarSubLoading ? "Regenerating…" : "Regenerate token"}
+              </button>
+            </div>
+            {calendarSubData && (
+              <div className="space-y-2">
+                <div className="rounded-box bg-base-300/40 p-3 text-xs">
+                  <p className="font-semibold mb-1">Subscription (webcal)</p>
+                  <p className="break-all font-mono">{calendarSubData.subscriptionUrl}</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <button type="button" className="btn btn-xs btn-soft" onClick={() => void copyText(calendarSubData.subscriptionUrl)}>
+                      Copy
+                    </button>
+                    <a href={calendarSubData.subscriptionUrl} className="btn btn-xs btn-soft" target="_blank" rel="noopener noreferrer">
+                      Open
+                    </a>
+                  </div>
+                </div>
+                <div className="rounded-box bg-base-300/40 p-3 text-xs">
+                  <p className="font-semibold mb-1">Download URL</p>
+                  <p className="break-all font-mono">{calendarSubData.downloadUrl}</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <button type="button" className="btn btn-xs btn-soft" onClick={() => void copyText(calendarSubData.downloadUrl)}>
+                      Copy
+                    </button>
+                    <a href={calendarSubData.downloadUrl} className="btn btn-xs btn-soft" target="_blank" rel="noopener noreferrer">
+                      Download
+                    </a>
+                  </div>
+                </div>
+              </div>
+            )}
+            {calendarSubOutput !== null && (
+              <pre className="max-h-48 overflow-auto rounded-box bg-base-300/40 p-3 text-xs leading-relaxed whitespace-pre-wrap">{calendarSubOutput}</pre>
+            )}
+          </DevPanel>
         </div>
       </section>
 

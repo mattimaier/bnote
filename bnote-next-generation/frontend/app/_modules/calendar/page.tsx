@@ -10,7 +10,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useI18n } from "@/contexts/I18nContext";
 import { useEditingBar } from "@/contexts/EditingBarContext";
-import { calendarApi, type CalendarEvent } from "@/lib/calendar-api";
+import { calendarApi, type CalendarEvent, type CalendarSubscriptionLink } from "@/lib/calendar-api";
 import { CalendarView } from "@/components/Calendar/CalendarView";
 import { CalendarEventModal } from "@/components/Calendar/CalendarEventModal";
 import { PageContent } from "@/components/PageContent";
@@ -105,6 +105,7 @@ export default function CalendarPage() {
   const [selectRange, setSelectRange] = useState<{ start: string; end: string; allDay: boolean } | null>(null);
   const [listSortKey, setListSortKey] = useState<"title" | "start" | "type">("start");
   const [listSortDir, setListSortDir] = useState<SortDirection>("asc");
+  const [subscription, setSubscription] = useState<CalendarSubscriptionLink | null>(null);
 
   const from = useMemo(() => {
     const d = new Date();
@@ -121,12 +122,14 @@ export default function CalendarPage() {
   const loadEvents = useCallback(async () => {
     setLoading(true);
     try {
-      const [list, caps] = await Promise.all([
+      const [list, caps, sub] = await Promise.all([
         calendarApi.getEvents(from, to),
         calendarApi.getCapabilities(),
+        calendarApi.getSubscriptionLink(),
       ]);
       setEvents(list ?? []);
       setCanEditCalendar(Boolean(caps?.canEdit));
+      setSubscription(sub);
       setError("");
     } catch (err) {
       setError(getErrorMessage(err, t, "js.common.failedToLoad"));
@@ -194,6 +197,9 @@ export default function CalendarPage() {
   }, [canEditCalendar, selectRange, router]);
 
   const noEditTooltip = "Keine Bearbeitungsrechte";
+  const subscriptionMissing = t("js.calendar.subscriptionMissing") !== "js.calendar.subscriptionMissing"
+    ? t("js.calendar.subscriptionMissing")
+    : "Calendar subscription link unavailable.";
 
   const handleListSort = useCallback((key: string) => {
     const k = key as "title" | "start" | "type";
@@ -283,6 +289,40 @@ export default function CalendarPage() {
           {error}
         </div>
       )}
+
+      <section className="rounded-xl border border-base-300 bg-base-100 p-4">
+        <h2 className="text-sm font-semibold">
+          {t("js.calendar.subscriptionTitle") !== "js.calendar.subscriptionTitle"
+            ? t("js.calendar.subscriptionTitle")
+            : "Calendar Subscription"}
+        </h2>
+        <p className="mt-1 text-xs text-base-content/70">
+          {t("js.calendar.subscriptionDescription") !== "js.calendar.subscriptionDescription"
+            ? t("js.calendar.subscriptionDescription")
+            : "Use this personal link to subscribe in your calendar app. Regenerating invalidates the old link."}
+        </p>
+        {subscription?.subscriptionUrl ? (
+          <div className="mt-3 grid gap-2 md:grid-cols-2">
+            <div className="rounded-lg border border-base-300 bg-base-200/40 p-2 text-xs font-mono break-all">
+              {subscription.subscriptionUrl}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <a className="btn btn-soft btn-sm" href={subscription.subscriptionHttpUrl} target="_blank" rel="noopener noreferrer">
+                {t("js.calendar.downloadIcs") !== "js.calendar.downloadIcs"
+                  ? t("js.calendar.downloadIcs")
+                  : "Download ICS"}
+              </a>
+              <a className="btn btn-primary btn-sm" href={subscription.subscriptionUrl}>
+                {t("js.calendar.subscribeWebcal") !== "js.calendar.subscribeWebcal"
+                  ? t("js.calendar.subscribeWebcal")
+                  : "Subscribe"}
+              </a>
+            </div>
+          </div>
+        ) : (
+          <p className="mt-2 text-sm text-warning">{subscriptionMissing}</p>
+        )}
+      </section>
 
       {loading ? (
         <div className="flex justify-center py-12">

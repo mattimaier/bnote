@@ -116,6 +116,7 @@ This document describes each feature and expected behavior of the Next.js app. U
 - **Auth:** Session cookie; requests are same-origin or credentials included so cookie is sent.
 - **Main endpoints used by UI:**  
   - Auth: login, session/me, logout, getPublicConfig, getRegistrationOptions, register, requestPasswordReset, completePasswordReset, participation token helpers as needed.  
+  - Calendar subscription: `auth.getCalendarSubscriptionLink` (stable token), `auth.regenerateCalendarSubscriptionLink` (token rotation).  
   - Dashboard: company, events, events needing response, admin/action summaries.  
   - Users: list, get, create, update, delete, activate, getPrivileges, updatePrivileges, getContacts.  
   - Contacts: list, get, create, update, delete, getGroups, getIntegrationBundle, integrate.  
@@ -125,6 +126,7 @@ This document describes each feature and expected behavior of the Next.js app. U
   - Participation: get participation, set participation.  
   - Translations: list of keys or full locale JSON.
 - **Module routes:** API returns sidebar modules with `route` (e.g. `/dashboard`, `/users`, `/contacts`). Frontend uses these as Next.js paths (e.g. `dashboard/index.html`, `users/index.html` in static export).
+- **ICS feed behavior:** Public endpoint `api/calendar.ics.php?token=...` is token-authenticated per user (session-independent), contains past+future events, keeps `LOCATION` as one normalized address line for calendar geocoding, and uses multiline `DESCRIPTION` sections for readable details. Concerts may be split into two entries (`meeting time` and actual `concert`) when a valid meeting time exists.
 - **Transactional email (PHP):** When contacts are added to rehearsals/concerts (participation invites), when tasks are assigned/updated, and when entity discussion notifications fire, mail uses **`NextGenMailPolicy`**: contacts **without** a BNote user still receive mail when appropriate; contacts linked only to an **inactive** user do **not**; active users follow the **`email_notification`** preference. Invites include participation magic-link URLs when configured. Details: **[MAIL.md](MAIL.md)** (subsystem map and “Transactional mail: who receives it”).
 
 ---

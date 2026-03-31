@@ -761,6 +761,58 @@ For rehearsal/concert calendar entries, event visibility follows the same preced
 
 ---
 
+### POST `api/index.php?module=auth&action=getCalendarSubscriptionLink`
+
+Authenticated. Returns the current user's stable calendar subscription token and URLs.  
+If no token exists yet, it is created on first call.
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "ok": true,
+    "token": "<stable-user-token>",
+    "subscriptionUrlHttp": "https://example.org/bnote-next-generation/api/calendar.ics.php?token=...",
+    "subscriptionUrlWebcal": "webcal://example.org/bnote-next-generation/api/calendar.ics.php?token=...",
+    "downloadUrl": "https://example.org/bnote-next-generation/api/calendar.ics.php?token=...&download=1",
+    "reusable": true
+  }
+}
+```
+
+Notes:
+- `subscriptionUrlWebcal` is the URL used by the **Subscribe** button.
+- The token is user-specific and stays stable until explicitly regenerated.
+
+---
+
+### POST `api/index.php?module=auth&action=regenerateCalendarSubscriptionLink`
+
+Authenticated. Rotates the current user's calendar token and invalidates old URLs.
+
+**Response (200):** same shape as `getCalendarSubscriptionLink`, but with a new token and URLs.
+
+---
+
+### GET `api/calendar.ics.php?token=<token>[&download=1]`
+
+Public ICS feed endpoint (token-authenticated, no session required).
+
+Behavior:
+- Validates the token and requires the linked user to be active.
+- Returns `text/calendar` content (`.ics`), optionally as attachment when `download=1`.
+- Includes **past + future** events for the user.
+- Event scope: rehearsals, concerts, reservations, appointments, tours, tasks, birthdays.
+- Concerts are emitted as two events when `meetingtime` is valid:
+  - `Meeting time ...` from meeting time to concert start
+  - `Concert ...` from concert start to concert end
+- `LOCATION` contains a single-line normalized address for map detection.
+- `DESCRIPTION` contains multiline structured sections (e.g. location block, notes, program).
+- Attendees include `PARTSTAT` and instrument in `CN`.
+
+---
+
 ## Tasks
 
 ### GET /api/v1/tasks
