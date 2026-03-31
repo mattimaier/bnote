@@ -239,6 +239,7 @@ Legacy-only or not exposed as first-class Next Gen features may still exist in B
 
 ## Documentation
 
+- **[user-guide/README.md](user-guide/README.md)** – Non-technical multilingual user guide (DE/EN/ES/FR) with migration and weekly "What's New" updates.
 - **[docs/MAIL.md](docs/MAIL.md)** – SMTP, subsystem map, transactional mail, password reset.
 - **[docs/FEATURES_AND_BEHAVIORS.md](docs/FEATURES_AND_BEHAVIORS.md)** – Feature and behavior reference for regression checks.
 - **[docs/UI_PATTERNS.md](docs/UI_PATTERNS.md)** – Lists, entity edit URLs, delete patterns.
