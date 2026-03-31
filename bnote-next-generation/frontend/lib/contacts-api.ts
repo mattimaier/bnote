@@ -43,6 +43,10 @@ export interface ContactGroup {
   is_active?: boolean;
 }
 
+export interface ContactGroupListItem extends ContactGroup {
+  memberCount?: number;
+}
+
 export interface IntegrationMemberRow {
   id: number;
   name: string;
@@ -97,6 +101,13 @@ export const contactsApi = {
     api.post<{ success: boolean; message: string }>("contacts", "update", { id, ...data } as Record<string, unknown>),
   delete: (id: number) => api.post<{ success: boolean; message: string }>("contacts", "delete", { id }),
   getGroups: () => api.get<ContactGroup[]>("contacts", "getGroups"),
+  listGroups: () => api.get<ContactGroupListItem[]>("contacts", "listGroups"),
+  createGroup: (name: string, isActive = true) =>
+    api.post<{ success: boolean; id: number; message: string }>("contacts", "createGroup", { name, is_active: isActive }),
+  updateGroup: (id: number, data: { name?: string; is_active?: boolean }) =>
+    api.post<{ success: boolean; message: string }>("contacts", "updateGroup", { id, ...data }),
+  deleteGroup: (id: number) => api.post<{ success: boolean; message: string }>("contacts", "deleteGroup", { id }),
+  getGroupMembers: (id: number) => api.get<Array<{ name: string; instrument?: string; notes?: string }>>("contacts", "getGroupMembers", { id: String(id) }),
   getIntegrationBundle: (groupId?: string | null) =>
     api.get<IntegrationBundle>(
       "contacts",

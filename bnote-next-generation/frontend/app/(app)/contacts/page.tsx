@@ -16,9 +16,7 @@ import { compareString, type SortDirection } from "@/lib/table-sort";
 import { ResponsiveTable } from "@/components/ResponsiveTable";
 import { EntityListRow } from "@/components/EntityListRow";
 import { Avatar } from "@/components/Avatar";
-import { getIcon } from "@/components/icons";
-import { getColor, getPillStyle, getDotStyle } from "@/lib/entity-config";
-import { Plus, ArrowUp, ArrowDown, ArrowUpDown } from "@/components/icons";
+import { Plus, Users, ArrowUp, ArrowDown, ArrowUpDown } from "@/components/icons";
 import { ActionButton } from "@/components/ActionButton";
 import { AppPageHeader } from "@/components/AppPageHeader";
 import { Spinner } from "@/components/Spinner";
@@ -149,6 +147,13 @@ export default function ContactsPage() {
         subtitle={t("js.contacts.subtitle") !== "js.contacts.subtitle" ? t("js.contacts.subtitle") : "Manage contacts and groups"}
         actions={(
           <>
+            <ActionButton
+              variant="outline"
+              onClick={() => router.push("/contacts/groups/")}
+            >
+              <Users className="h-4 w-4" />
+              {t("js.contacts.manageGroups") !== "js.contacts.manageGroups" ? t("js.contacts.manageGroups") : "Manage Groups"}
+            </ActionButton>
             <ActionButton
               variant="outline"
               onClick={() =>

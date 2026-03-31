@@ -1,0 +1,15 @@
+---
+description: Avoid back buttons in app pages
+alwaysApply: true
+---
+
+# No Back Buttons
+
+- Do not introduce explicit "Back", "Back to List", or similar navigation buttons in page headers or content areas.
+- Prefer existing global navigation patterns (sidebar, breadcrumbs, browser/app navigation).
+- When updating existing UI, remove newly added back buttons unless the user explicitly asks for one.
+
+## Example
+
+- Avoid: an `ActionButton` with back arrow that routes to a previous list page.
+- Prefer: no extra button; keep header actions focused on page-specific operations.
