@@ -205,7 +205,9 @@ function normalizeChecklistItems(items: unknown[]): unknown[] {
   });
 }
 
-function createListToolWithoutChecklist(BaseListTool: new (...args: unknown[]) => { renderSettings?: () => unknown[]; api?: { i18n?: { t?: (k: string) => string } } }) {
+type ListToolConstructor = new (...args: any[]) => any;
+
+function createListToolWithoutChecklist(BaseListTool: ListToolConstructor): ListToolConstructor {
   class ListWithoutChecklist extends BaseListTool {
     static get toolbox(): unknown {
       const toolbox = (BaseListTool as unknown as { toolbox?: unknown }).toolbox;
@@ -217,12 +219,17 @@ function createListToolWithoutChecklist(BaseListTool: new (...args: unknown[]) =
       if ((this as { listStyle?: string }).listStyle === "checklist") {
         (this as { listStyle?: string }).listStyle = "unordered";
       }
-      const settings = typeof super.renderSettings === "function" ? super.renderSettings() : [];
-      const checklistLabel = this.api?.i18n?.t?.("Checklist") ?? "Checklist";
+      const parentPrototype = Object.getPrototypeOf(ListWithoutChecklist.prototype) as {
+        renderSettings?: (this: unknown) => unknown[];
+      };
+      const settings = typeof parentPrototype.renderSettings === "function"
+        ? parentPrototype.renderSettings.call(this)
+        : [];
+      const checklistLabel = (this as { api?: { i18n?: { t?: (k: string) => string } } }).api?.i18n?.t?.("Checklist") ?? "Checklist";
       return removeChecklistTuneItems(settings, checklistLabel);
     }
   }
-  return ListWithoutChecklist;
+  return ListWithoutChecklist as ListToolConstructor;
 }
 
 function removeChecklistTuneItems(items: unknown[], checklistLabel: string): unknown[] {
