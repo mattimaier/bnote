@@ -74,6 +74,14 @@ This creates `build/` with everything. Copy the **contents** of `build/` to your
 
 For local debugging use `npm run dev` (see Local development above); the dev server proxies API requests to your PHP backend.
 
+If `.deploy.env` exists, `build.sh` also generates runtime mail config files in the build bundle (`.htaccess` and `api/config/mail.local.php`) from the same `MAIL_*` values. This ensures **manual upload deployments** work without running `deploy.sh`.
+
+Build-time config behavior:
+
+- `.deploy.env` present + mail keys set: build includes generated mail runtime config
+- `.deploy.env` missing: build succeeds, but prints a warning and skips mail runtime config generation
+- `.deploy.env` present but required mail keys missing: build fails with a clear error
+
 **Options:**
 
 - `./build.sh --out myfolder` – output folder name (default: `build/`)
@@ -88,32 +96,40 @@ Step-by-step setup—including a **Strato shared hosting** tutorial, security no
 
 Use the deploy script to upload the built bundle via SFTP (credentials from 1Password).
 
-Mail credentials are configured once in `.deploy.mail.php`.  
-`deploy.sh` can auto-generate `.deploy.htaccess` from that file and sync both files into the deploy bundle.
+Mail and deploy credentials are configured once in `.deploy.env`.  
+`build.sh` generates `.htaccess` and `api/config/mail.local.php` in the bundle from those values.
 
 1. One-time setup (local files, gitignored):
 
 ```bash
 cp .deploy.env.example .deploy.env
-cp .deploy.mail.php.example .deploy.mail.php
 ```
 
-2. Fill `.deploy.mail.php` (single source of truth for mail credentials):
-   - `MAIL_*`
-   - `NEXTGEN_PUBLIC_URL`
-
-3. Fill `.deploy.env`:
+2. Fill `.deploy.env`:
    - `SFTP_URL`, `OP_USERNAME_REF`, `OP_PASSWORD_REF`
+   - `MAIL_*`, `NEXTGEN_PUBLIC_URL` (single source of truth for mail credentials)
    - optional: `DEPLOY_WITH_BUILD`, `BUILD_DIR`
-   - keep `DEPLOY_SYNC_HTACCESS_FROM_MAIL=true` (recommended)
+   - keep `DEPLOY_SYNC_HTACCESS=true` and `DEPLOY_SYNC_MAIL_CONFIG=true` (recommended)
 
-4. Run deploy:
+3. Build and deploy:
 
 ```bash
 ./deploy.sh --with-build                 # build + remote deploy
 ./deploy.sh --no-build                   # deploy existing build only
 ./deploy.sh --test-only                  # validate target connection/config only
 ```
+
+Manual deployment (without `deploy.sh`):
+
+```bash
+./build.sh
+# then upload build/bnote-next-generation/ manually
+```
+
+This works for mail too, because `build.sh` already generated:
+- `build/bnote-next-generation/.htaccess`
+- `build/bnote-next-generation/api/.htaccess`
+- `build/bnote-next-generation/api/config/mail.local.php`
 
 Requirements:
 - `op` (1Password CLI, signed in)
@@ -122,7 +138,7 @@ Requirements:
 Security notes:
 - `.deploy.env` is gitignored, so real URL and secret references stay local.
 - No password is stored in the repository; credentials are fetched from 1Password on each deploy run.
-- `.deploy.mail.php` is gitignored and used as one source of truth for mail secrets.
+- `.deploy.env` is also the one source of truth for mail secrets used during deploy generation.
 
 Local development remains unchanged:
 

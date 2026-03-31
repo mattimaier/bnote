@@ -22,6 +22,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OUT_DIR="build"
 VERIFY_ONLY="false"
 DEVELOPER_TOOLS_OVERRIDE=""
+DEPLOY_CONFIG_FILE="$SCRIPT_DIR/.deploy.env"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -182,6 +183,103 @@ done
 for item in "$SCRIPT_DIR/frontend/out"/.*; do
   [[ -e "$item" && "$item" != */. && "$item" != */.. ]] && cp -R "$item" "$DEPLOY_DIR/"
 done 2>/dev/null || true
+
+# 3. Optional runtime mail config injection for manual deployment bundles.
+# If .deploy.env exists, generate .htaccess + api/config/mail.local.php from MAIL_* values.
+if [[ -f "$DEPLOY_CONFIG_FILE" ]]; then
+  # shellcheck source=/dev/null
+  source "$DEPLOY_CONFIG_FILE"
+
+  BUILD_SYNC_HTACCESS="${DEPLOY_SYNC_HTACCESS:-true}"
+  BUILD_SYNC_MAIL_CONFIG="${DEPLOY_SYNC_MAIL_CONFIG:-true}"
+
+  if [[ "$BUILD_SYNC_HTACCESS" == "true" || "$BUILD_SYNC_MAIL_CONFIG" == "true" ]]; then
+    for v in MAIL_HOST MAIL_PORT MAIL_ENCRYPTION MAIL_USERNAME MAIL_PASSWORD MAIL_FROM_ADDRESS MAIL_FROM_NAME NEXTGEN_PUBLIC_URL; do
+      if [[ -z "${!v:-}" ]]; then
+        echo "ERROR: Missing $v in .deploy.env (required for build-time runtime config generation)."
+        exit 1
+      fi
+    done
+  fi
+
+  export DEPLOY_MAIL_HOST="${MAIL_HOST:-}"
+  export DEPLOY_MAIL_PORT="${MAIL_PORT:-}"
+  export DEPLOY_MAIL_ENCRYPTION="${MAIL_ENCRYPTION:-}"
+  export DEPLOY_MAIL_USERNAME="${MAIL_USERNAME:-}"
+  export DEPLOY_MAIL_PASSWORD="${MAIL_PASSWORD:-}"
+  export DEPLOY_MAIL_FROM_ADDRESS="${MAIL_FROM_ADDRESS:-}"
+  export DEPLOY_MAIL_FROM_NAME="${MAIL_FROM_NAME:-}"
+  export DEPLOY_NEXTGEN_PUBLIC_URL="${NEXTGEN_PUBLIC_URL:-}"
+  export DEPLOY_NEXTGEN_MAIL_BULK_DELAY_MS="${NEXTGEN_MAIL_BULK_DELAY_MS:-}"
+
+  if [[ "$BUILD_SYNC_HTACCESS" == "true" ]]; then
+    export DEPLOY_HTACCESS_ROOT_PATH="$DEPLOY_DIR/.htaccess"
+    export DEPLOY_HTACCESS_API_PATH="$DEPLOY_DIR/api/.htaccess"
+    if ! python3 - <<'PY'
+import os, re, pathlib
+keys = ["MAIL_HOST","MAIL_PORT","MAIL_ENCRYPTION","MAIL_USERNAME","MAIL_PASSWORD","MAIL_FROM_ADDRESS","MAIL_FROM_NAME","NEXTGEN_PUBLIC_URL"]
+values = {
+    "MAIL_HOST": os.environ.get("DEPLOY_MAIL_HOST",""),
+    "MAIL_PORT": os.environ.get("DEPLOY_MAIL_PORT",""),
+    "MAIL_ENCRYPTION": os.environ.get("DEPLOY_MAIL_ENCRYPTION",""),
+    "MAIL_USERNAME": os.environ.get("DEPLOY_MAIL_USERNAME",""),
+    "MAIL_PASSWORD": os.environ.get("DEPLOY_MAIL_PASSWORD",""),
+    "MAIL_FROM_ADDRESS": os.environ.get("DEPLOY_MAIL_FROM_ADDRESS",""),
+    "MAIL_FROM_NAME": os.environ.get("DEPLOY_MAIL_FROM_NAME",""),
+    "NEXTGEN_PUBLIC_URL": os.environ.get("DEPLOY_NEXTGEN_PUBLIC_URL",""),
+}
+def q(v: str) -> str:
+    if v == "" or re.search(r"\s|['\"#]", v):
+        return '"' + v.replace("\\", "\\\\").replace('"', '\\"') + '"'
+    return v
+lines = [f"SetEnv {k} {q(values[k])}" for k in keys]
+pathlib.Path(os.environ["DEPLOY_HTACCESS_ROOT_PATH"]).write_text("\n".join(lines) + "\n", encoding="utf-8")
+pathlib.Path(os.environ["DEPLOY_HTACCESS_API_PATH"]).write_text("\n".join(lines) + "\n", encoding="utf-8")
+PY
+    then
+      echo "ERROR: Failed to generate .htaccess files from .deploy.env"
+      exit 1
+    fi
+    echo "Generated .htaccess files in build bundle from .deploy.env"
+  fi
+
+  if [[ "$BUILD_SYNC_MAIL_CONFIG" == "true" ]]; then
+    mkdir -p "$DEPLOY_DIR/api/config"
+    export DEPLOY_MAIL_LOCAL_CONFIG_PATH="$DEPLOY_DIR/api/config/mail.local.php"
+    if ! python3 - <<'PY'
+import os, pathlib
+path = pathlib.Path(os.environ["DEPLOY_MAIL_LOCAL_CONFIG_PATH"])
+values = {
+    "MAIL_HOST": os.environ.get("DEPLOY_MAIL_HOST",""),
+    "MAIL_PORT": os.environ.get("DEPLOY_MAIL_PORT",""),
+    "MAIL_ENCRYPTION": os.environ.get("DEPLOY_MAIL_ENCRYPTION",""),
+    "MAIL_USERNAME": os.environ.get("DEPLOY_MAIL_USERNAME",""),
+    "MAIL_PASSWORD": os.environ.get("DEPLOY_MAIL_PASSWORD",""),
+    "MAIL_FROM_ADDRESS": os.environ.get("DEPLOY_MAIL_FROM_ADDRESS",""),
+    "MAIL_FROM_NAME": os.environ.get("DEPLOY_MAIL_FROM_NAME",""),
+    "NEXTGEN_PUBLIC_URL": os.environ.get("DEPLOY_NEXTGEN_PUBLIC_URL",""),
+}
+bulk = os.environ.get("DEPLOY_NEXTGEN_MAIL_BULK_DELAY_MS","").strip()
+def sq(v: str) -> str:
+    return "'" + v.replace("\\", "\\\\").replace("'", "\\'") + "'"
+lines = ["<?php", "return ["]
+for key in ["MAIL_HOST","MAIL_PORT","MAIL_ENCRYPTION","MAIL_USERNAME","MAIL_PASSWORD","MAIL_FROM_ADDRESS","MAIL_FROM_NAME","NEXTGEN_PUBLIC_URL"]:
+    lines.append(f"    {sq(key)} => {sq(values[key])},")
+if bulk:
+    lines.append(f"    {sq('NEXTGEN_MAIL_BULK_DELAY_MS')} => {sq(bulk)},")
+lines.append("];")
+lines.append("")
+path.write_text("\n".join(lines), encoding="utf-8")
+PY
+    then
+      echo "ERROR: Failed to generate api/config/mail.local.php from .deploy.env"
+      exit 1
+    fi
+    echo "Generated api/config/mail.local.php in build bundle from .deploy.env"
+  fi
+else
+  echo "WARN: .deploy.env not found; skipping build-time runtime mail config generation."
+fi
 
 # Drop a short README in the build folder
 cat > "$SCRIPT_DIR/$OUT_DIR/BUILD_README.txt" << EOF
