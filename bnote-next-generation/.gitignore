@@ -3,3 +3,5 @@ build/
 
 # Local deploy configuration (contains server details)
 .deploy.env
+.deploy.htaccess
+.deploy.mail.php

@@ -6,12 +6,13 @@
 # For local debug use: cd frontend && npm run dev (see README).
 #
 # Usage:
-#   ./build.sh [--out DIR] [--verify-only]
+#   ./build.sh [--out DIR] [--verify-only] [--with-developer-tools|--without-developer-tools]
 #     --verify-only: only check existing build output, do not build
+#     --with-developer-tools / --without-developer-tools: override NEXT_PUBLIC_ENABLE_DEVELOPER_TOOLS
 #
-# Production bundle (default): do not set NEXT_PUBLIC_ENABLE_DEVELOPER_TOOLS — frontend prunes
+# Production bundle (default): do not set NEXT_PUBLIC_ENABLE_DEVELOPER_TOOLS and do not pass --with-developer-tools — frontend prunes
 #   /debug and /developer from out/, and this script removes api/debug/ from the deploy copy.
-# Developer/staging bundle: export NEXT_PUBLIC_ENABLE_DEVELOPER_TOOLS=1 before running ./build.sh
+# Developer/staging bundle: pass --with-developer-tools (or set NEXT_PUBLIC_ENABLE_DEVELOPER_TOOLS=1)
 #   so Next keeps debug routes and api/debug/ is included.
 #
 
@@ -20,6 +21,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OUT_DIR="build"
 VERIFY_ONLY="false"
+DEVELOPER_TOOLS_OVERRIDE=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -31,17 +33,35 @@ while [[ $# -gt 0 ]]; do
       VERIFY_ONLY="true"
       shift
       ;;
+    --with-developer-tools)
+      DEVELOPER_TOOLS_OVERRIDE="1"
+      shift
+      ;;
+    --without-developer-tools)
+      DEVELOPER_TOOLS_OVERRIDE="0"
+      shift
+      ;;
     *)
       echo "Unknown option: $1"
-      echo "Usage: $0 [--out DIR] [--verify-only]"
+      echo "Usage: $0 [--out DIR] [--verify-only] [--with-developer-tools|--without-developer-tools]"
       exit 1
       ;;
   esac
 done
 
+if [[ -n "$DEVELOPER_TOOLS_OVERRIDE" ]]; then
+  export NEXT_PUBLIC_ENABLE_DEVELOPER_TOOLS="$DEVELOPER_TOOLS_OVERRIDE"
+fi
+
+DEVELOPER_TOOLS_ENABLED="false"
+if [[ "${NEXT_PUBLIC_ENABLE_DEVELOPER_TOOLS:-}" == "1" ]]; then
+  DEVELOPER_TOOLS_ENABLED="true"
+fi
+
 echo "=== BNote Next Generation build ==="
 echo "Output folder: $OUT_DIR"
 echo "Verify only: $VERIFY_ONLY"
+echo "Developer tools: $DEVELOPER_TOOLS_ENABLED"
 echo ""
 
 DEPLOY_DIR="$SCRIPT_DIR/$OUT_DIR/bnote-next-generation"
@@ -56,15 +76,26 @@ if [[ "$VERIFY_ONLY" == "true" ]]; then
     echo "ERROR: api/vendor/phpmailer missing in build. Run a full ./build.sh (Composer install must succeed)."
     exit 1
   fi
-  if [[ -d "$DEPLOY_DIR/api/debug" ]]; then
-    echo "ERROR: api/debug must not be present in production build output."
-    exit 1
+  if [[ "$DEVELOPER_TOOLS_ENABLED" == "true" ]]; then
+    if [[ ! -d "$DEPLOY_DIR/api/debug" ]]; then
+      echo "ERROR: expected api/debug in developer-tools build output."
+      exit 1
+    fi
+  else
+    if [[ -d "$DEPLOY_DIR/api/debug" ]]; then
+      echo "ERROR: api/debug must not be present in production build output."
+      exit 1
+    fi
+    if [[ -f "$DEPLOY_DIR/api/mail_test_send.php" ]] || [[ -f "$DEPLOY_DIR/api/mail_config_check.php" ]] || [[ -f "$DEPLOY_DIR/api/mail_debug.php" ]]; then
+      echo "ERROR: Legacy dev mail scripts at api/ root must not be present (use api/debug/ only in dev bundles)."
+      exit 1
+    fi
   fi
-  if [[ -f "$DEPLOY_DIR/api/mail_test_send.php" ]] || [[ -f "$DEPLOY_DIR/api/mail_config_check.php" ]] || [[ -f "$DEPLOY_DIR/api/mail_debug.php" ]]; then
-    echo "ERROR: Legacy dev mail scripts at api/ root must not be present (use api/debug/ only in dev bundles)."
-    exit 1
+  if [[ "$DEVELOPER_TOOLS_ENABLED" == "true" ]]; then
+    echo "Build output OK: $DEPLOY_DIR (vendor + api/debug present)"
+  else
+    echo "Build output OK: $DEPLOY_DIR (vendor + no api/debug)"
   fi
-  echo "Build output OK: $DEPLOY_DIR (vendor + no api/debug)"
   exit 0
 fi
 
@@ -139,7 +170,7 @@ cp -R "$SCRIPT_DIR/lang"      "$DEPLOY_DIR/"
 cp    "$SCRIPT_DIR/iso3166-alpha3-to-alpha2.json" "$DEPLOY_DIR/" 2>/dev/null || true
 
 # Loopback mail previews / SMTP test — omit from production deploy (see header comment for dev bundle)
-if [[ "${NEXT_PUBLIC_ENABLE_DEVELOPER_TOOLS:-}" != "1" ]]; then
+if [[ "$DEVELOPER_TOOLS_ENABLED" != "true" ]]; then
   rm -rf "$DEPLOY_DIR/api/debug"
 fi
 
@@ -169,8 +200,8 @@ Outbound mail (password reset, notifications): configure SMTP on the server — 
 
 Local debug: use npm run dev in frontend/ (see repo README).
 
-Developer tools in static deploy: set NEXT_PUBLIC_ENABLE_DEVELOPER_TOOLS=1 when running ./build.sh
-  so api/debug/ and debug Next routes are included.
+Developer tools in static deploy: run ./build.sh --with-developer-tools
+  (equivalent to NEXT_PUBLIC_ENABLE_DEVELOPER_TOOLS=1), so api/debug/ and debug Next routes are included.
 EOF
 
 echo "Build folder ready: $SCRIPT_DIR/$OUT_DIR/bnote-next-generation/"

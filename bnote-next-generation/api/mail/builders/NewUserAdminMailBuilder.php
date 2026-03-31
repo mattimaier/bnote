@@ -83,7 +83,7 @@ final class NewUserAdminMailBuilder {
             . '<p class="em-lead" style="margin:16px 0 0;">' . htmlspecialchars($activationNote, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</p>' . $links;
 
         $senderLine = MailBranding::bnoteBandLine($locale, $company);
-        $footer = MailI18n::interpolate(MailI18n::t('mail.footer.generic', $locale), [
+        $footer = MailI18n::interpolate(MailI18n::t('mail.footer.admin', $locale), [
             'sender' => $senderLine,
         ]);
 

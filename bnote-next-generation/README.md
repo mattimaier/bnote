@@ -84,36 +84,51 @@ Outbound mail is sent by **PHP** on your server (SMTP), not by the Next.js app. 
 
 Step-by-step setup—including a **Strato shared hosting** tutorial, security notes, and other hosts—is in **[docs/MAIL.md](docs/MAIL.md)**. The `./build.sh` script runs **Composer** in `api/` so **PHPMailer** is included in the folder you upload.
 
-### Deploy via SFTP (with 1Password credentials)
+### Deploy (remote SFTP, one-time credentials setup)
 
-Use the deploy script to upload the built bundle directly over SFTP. Credentials are read at runtime from 1Password, and deploy config stays local.
+Use the deploy script to upload the built bundle via SFTP (credentials from 1Password).
 
-1. Copy and fill local config:
+Mail credentials are configured once in `.deploy.mail.php`.  
+`deploy.sh` can auto-generate `.deploy.htaccess` from that file and sync both files into the deploy bundle.
+
+1. One-time setup (local files, gitignored):
 
 ```bash
 cp .deploy.env.example .deploy.env
+cp .deploy.mail.php.example .deploy.mail.php
 ```
 
-2. Set your local values in `.deploy.env`:
-   - `SFTP_URL` (your SFTP target)
-   - `OP_USERNAME_REF` and `OP_PASSWORD_REF` (1Password secret references)
-   - `DEPLOY_WITH_BUILD` and `BUILD_DIR` as needed
+2. Fill `.deploy.mail.php` (single source of truth for mail credentials):
+   - `MAIL_*`
+   - `NEXTGEN_PUBLIC_URL`
 
-3. Run deploy:
+3. Fill `.deploy.env`:
+   - `SFTP_URL`, `OP_USERNAME_REF`, `OP_PASSWORD_REF`
+   - optional: `DEPLOY_WITH_BUILD`, `BUILD_DIR`
+   - keep `DEPLOY_SYNC_HTACCESS_FROM_MAIL=true` (recommended)
+
+4. Run deploy:
 
 ```bash
-./deploy.sh --with-build   # build + deploy
-./deploy.sh --no-build     # deploy existing build only
-./deploy.sh                # uses DEPLOY_WITH_BUILD from .deploy.env
+./deploy.sh --with-build                 # build + remote deploy
+./deploy.sh --no-build                   # deploy existing build only
+./deploy.sh --test-only                  # validate target connection/config only
 ```
 
 Requirements:
 - `op` (1Password CLI, signed in)
-- `lftp` (for recursive SFTP upload)
+- `lftp`
 
 Security notes:
 - `.deploy.env` is gitignored, so real URL and secret references stay local.
 - No password is stored in the repository; credentials are fetched from 1Password on each deploy run.
+- `.deploy.mail.php` is gitignored and used as one source of truth for mail secrets.
+
+Local development remains unchanged:
+
+```bash
+cd frontend && npm run dev
+```
 
 **Share module not appearing / "Module not found: share":** The Share module requires `api/modules/share.php` on the server. Use `./build.sh` to create a full build that includes the API. If you deploy only `frontend/out/`, the API folder (and share.php) will be missing. The Share module must exist in BNote and the user must have permission (as in the old app).
 

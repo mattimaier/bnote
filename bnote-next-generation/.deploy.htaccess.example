@@ -1,0 +1,11 @@
+# Optional manual template.
+# In normal workflow, deploy.sh auto-generates .deploy.htaccess from .deploy.mail.php.
+# BNote Next Gen mail + public URL for links in email (no trailing slash on NEXTGEN_PUBLIC_URL)
+SetEnv MAIL_HOST smtp.strato.de
+SetEnv MAIL_PORT 465
+SetEnv MAIL_ENCRYPTION ssl
+SetEnv MAIL_USERNAME mail@your-domain.de
+SetEnv MAIL_PASSWORD 'your-mailbox-password'
+SetEnv MAIL_FROM_ADDRESS mail@your-domain.de
+SetEnv MAIL_FROM_NAME "Your band name"
+SetEnv NEXTGEN_PUBLIC_URL https://www.your-domain.de/bnote-next-generation

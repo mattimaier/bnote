@@ -1,0 +1,19 @@
+<?php
+/**
+ * Local deploy mail config (keep out of git).
+ *
+ * deploy.sh copies this file to:
+ *   api/config/mail.local.php
+ */
+return [
+    'MAIL_HOST' => 'smtp.strato.de',
+    'MAIL_PORT' => '465',
+    'MAIL_ENCRYPTION' => 'ssl',
+    'MAIL_USERNAME' => 'mail@your-domain.de',
+    'MAIL_PASSWORD' => 'your-mailbox-password',
+    'MAIL_FROM_ADDRESS' => 'mail@your-domain.de',
+    'MAIL_FROM_NAME' => 'Your band name',
+    'NEXTGEN_PUBLIC_URL' => 'https://your-domain.de/bnote-next-generation',
+    // Optional:
+    // 'NEXTGEN_MAIL_BULK_DELAY_MS' => '100',
+];
