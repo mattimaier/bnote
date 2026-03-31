@@ -38,6 +38,35 @@ function formatEventDateRange(ev: CalendarEvent, lang: string): string {
   return formatDateTimeShort(start.slice(0, 19).replace("T", " "), lang) ?? "";
 }
 
+function getEventComparableDayTs(ev: CalendarEvent): number | null {
+  const startRaw = (ev.start ?? "").trim();
+  if (!startRaw) return null;
+  const btype = ev.extendedProps?.bnoteType ?? "";
+  const startDatePart = startRaw.slice(0, 10);
+
+  if (btype === "contact") {
+    const parts = startDatePart.split("-");
+    if (parts.length === 3) {
+      const month = Number(parts[1]);
+      const day = Number(parts[2]);
+      if (!Number.isNaN(month) && !Number.isNaN(day) && month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+        const now = new Date();
+        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        let nextOccurrence = new Date(todayStart.getFullYear(), month - 1, day);
+        if (nextOccurrence.getTime() < todayStart.getTime()) {
+          nextOccurrence = new Date(todayStart.getFullYear() + 1, month - 1, day);
+        }
+        return nextOccurrence.getTime();
+      }
+    }
+  }
+
+  const parsed = new Date(startRaw.replace(" ", "T").slice(0, 19));
+  if (Number.isNaN(parsed.getTime())) return null;
+  parsed.setHours(0, 0, 0, 0);
+  return parsed.getTime();
+}
+
 function getCalendarTypeLabel(ev: CalendarEvent, t: (key: string) => string): string {
   const btype = ev.extendedProps?.bnoteType ?? "";
   const labelKeys: Record<string, string> = {
@@ -85,7 +114,7 @@ export default function CalendarPage() {
   }, []);
   const to = useMemo(() => {
     const d = new Date();
-    d.setMonth(d.getMonth() + 2);
+    d.setMonth(d.getMonth() + 12);
     return d.toISOString().slice(0, 10);
   }, []);
 
@@ -186,16 +215,14 @@ export default function CalendarPage() {
         const start = (ev.start ?? "").trim();
         if (start.length < 10 || start.startsWith("0000-00-00")) return false;
       }
-      const startTs = ev.start ? new Date(ev.start.replace(" ", "T").slice(0, 19)).getTime() : 0;
-      const evDateStart = new Date(startTs);
-      evDateStart.setHours(0, 0, 0, 0);
-      return evDateStart.getTime() >= todayStart;
+      const comparableTs = getEventComparableDayTs(ev);
+      return comparableTs !== null && comparableTs >= todayStart;
     });
     if (listSortKey === "start") {
       arr.sort((a, b) => {
-        const sa = a.start ?? "";
-        const sb = b.start ?? "";
-        return listSortDir === "asc" ? sa.localeCompare(sb) : sb.localeCompare(sa);
+        const sa = getEventComparableDayTs(a) ?? Number.MAX_SAFE_INTEGER;
+        const sb = getEventComparableDayTs(b) ?? Number.MAX_SAFE_INTEGER;
+        return listSortDir === "asc" ? sa - sb : sb - sa;
       });
     } else if (listSortKey === "title") {
       arr.sort((a, b) => compareString(notesToPlainText(a.title ?? ""), notesToPlainText(b.title ?? ""), listSortDir));
