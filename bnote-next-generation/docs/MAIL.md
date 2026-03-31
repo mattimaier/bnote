@@ -1,14 +1,14 @@
 # Outbound mail for BNote Next Generation (PHP)
 
-Next Gen sends mail from **`bnote-next-generation/api/mail/`** with **PHPMailer** over **SMTP** (see `MailEnv`). Legacy **`BNote/src/logic/mailing.php`** uses PHP’s `mail()` and is **not** used for Next Gen features; classic BNote UI/API paths still use it.
+Next Gen sends mail from **`bnote-next-generation/api/mail/`** with **PHPMailer** over **SMTP** (see `MailEnv`).
 
 If SMTP is not configured, or BNote runs in **demo mode**, those emails are skipped. Password-reset links in mail need **`BNOTE_NEXT_GENERATION_PUBLIC_URL`** set to your real site address, or the message will explain that the link cannot be generated.
 
 ---
 
-## Subsystem map (handover)
+## Subsystem map
 
-**Two stacks:** Next Gen uses **`NextGenMailer`** + **`MailEnv`** (SMTP). Legacy uses **`Mailing`** in **`BNote/src/logic/mailing.php`** (PHP `mail()` transport). **`MailRecipientPolicy`** ([`api/mail/MailRecipientPolicy.php`](../api/mail/MailRecipientPolicy.php)) applies **only to Next Gen** outbound mail: delivery is skipped for `example.com` and `*.example.com` (reserved / placeholder domains). Legacy `Mailing` does not use this policy.
+**Recipient policy:** **`MailRecipientPolicy`** ([`api/mail/MailRecipientPolicy.php`](../api/mail/MailRecipientPolicy.php)) applies to outbound Next Gen mail: delivery is skipped for `example.com` and `*.example.com` (reserved / placeholder domains).
 
 | Flow | Entry point | Builder / notifier | Transactional policy? | Send API |
 |------|-------------|--------------------|------------------------|----------|
@@ -23,23 +23,6 @@ If SMTP is not configured, or BNote runs in **demo mode**, those emails are skip
 **Preview template IDs** (for `api/debug/mail_preview.php?template=…`): canonical list is **`MailPreviewRegistry::templates()`** in [`api/mail/MailPreviewRegistry.php`](../api/mail/MailPreviewRegistry.php) — `password_reset`, `new_user_admin`, `long_demo`, `comment_discussion_*`, `event_invite_*`, `task_assigned`, `task_updated`.
 
 **Local JSON helper:** [`api/debug/mail_comment_recipients.php`](../api/debug/mail_comment_recipients.php) exposes who would receive discussion mail (same rules as `CommentDiscussionNotifier`).
-
----
-
-## Recent evolution (branch themes)
-
-- **SMTP + `MailEnv`:** Next Gen outbound mail uses PHPMailer SMTP and env vars; not the legacy `mail()` transport.
-- **Password reset:** `password_reset_token` table (`PasswordResetSchema`), rate limiting, `PasswordResetMailBuilder`, links via `MailEnv::nextgenPublicBaseUrl` / path helpers.
-- **Registration:** `RegistrationAdminNotifier` emails administrators after public signup (first admin in To, rest BCC).
-- **HTML shell:** Shared layout, branding, CID logo, dark-mode-oriented tokens in `frontend/mail-design-tokens.json`; previews via `api/debug/mail_debug.php` / `api/debug/mail_preview.php` (loopback only).
-- **`NextGenMailPolicy`:** Transactional fan-out respects guest contacts, inactive users, and `email_notification` for active users (do not use `contactEmailNotificationOn` for these paths).
-- **Comments:** `CommentDiscussionNotifier` — entity cards, thread bubbles, deep links to `/entity?…&focus=comments`.
-- **Participation invites:** `EventParticipantNotifier` + magic-link URLs from `MailEnv` (`nextgenParticipationRespondAbsoluteUrl`, etc.).
-- **Event-info group mail:** in-module composer with draft/preview/send actions via `EventInfoMailService`.
-- **Generic composer (module 7):** rights-gated mail module with group/contact/manual recipient selection, fixed subject prefix (`Band - BNote`), and shared EditorJS-to-mail rendering.
-- **Bulk fan-out:** `NextGenMailer::sendBulk` with optional **`BNOTE_NEXT_GENERATION_MAIL_BULK_DELAY_MS`** between messages.
-
----
 
 ## Where settings go (important)
 
@@ -137,6 +120,16 @@ If your host cannot run cron, use an **external scheduler**.
    - nonce replay protection
 4. Service sends digest mails and stores per-user weekly run idempotency.
 
+### Digest behavior (exact rules)
+
+- Recipients are active users with `email_notification = 1` and a valid contact email.
+- A digest is sent only when the user has at least one **future** rehearsal/concert (`future_event_count > 0`).
+- Participation state does **not** block sending: fully responded users still receive the digest.
+- **Upcoming events** section includes only events in the next **7 days**, sorted with pending-response events first, then by `replyUntil`, and limited by `max_events`.
+- **Open responses** section includes only rehearsals/concerts with unset participation (`participation < 0`) within `event_window_days`, also limited by `max_events`.
+- Votes/tasks are included only when enabled by config (`include_votes`, `include_tasks`) and are limited by `max_votes` / `max_tasks`.
+- Empty sections are omitted from HTML and plain-text output.
+
 ### Scheduling responsibility (important)
 
 - The external scheduler controls **request cadence** (when `POST`s are sent).
@@ -168,8 +161,8 @@ hex(hmac_sha256(BNOTE_NEXT_GENERATION_REMINDER_SECRET, canonical))
 ### GitHub Actions example (weekly UTC)
 
 Store these in GitHub repository/environment secrets:
-- `REMINDER_ENDPOINT` (full HTTPS URL to `api/reminders_run.php`)
-- `REMINDER_SECRET` (same value as server `BNOTE_NEXT_GENERATION_REMINDER_SECRET`)
+- `BNOTE_NEXT_GENERATION_REMINDER_ENDPOINT` (full HTTPS URL to `api/reminders_run.php`)
+- `BNOTE_NEXT_GENERATION_REMINDER_SECRET` (same value as server `BNOTE_NEXT_GENERATION_REMINDER_SECRET`)
 
 ```yaml
 name: Weekly Reminder Digest
@@ -185,8 +178,8 @@ jobs:
     steps:
       - name: Call signed reminder endpoint
         env:
-          ENDPOINT: ${{ secrets.REMINDER_ENDPOINT }}
-          SECRET: ${{ secrets.REMINDER_SECRET }}
+          ENDPOINT: ${{ secrets.BNOTE_NEXT_GENERATION_REMINDER_ENDPOINT }}
+          SECRET: ${{ secrets.BNOTE_NEXT_GENERATION_REMINDER_SECRET }}
         run: |
           set -euo pipefail
           TS="$(date +%s)"
@@ -311,7 +304,7 @@ Some Next Gen mail goes to **contacts** attached to events or tasks. Recipient r
 
 For the rehearsal/concert "Event-Info senden" flow (`emailInfo*` actions):
 
-- **Navigation/UI:** composer is module-internal and query-driven (`?emailInfo=1`), not legacy modal-only navigation.
+- **Navigation/UI:** composer is module-internal and query-driven (`?emailInfo=1`).
 - **Recipients:** selected participants + additional contacts + manual emails are deduped and sent as one group mail.
 - **Delivery addressing (hard requirement):**
   - `From` = system sender address from `MAIL_FROM_ADDRESS` (`MailEnv::fromAddress()`).
@@ -333,7 +326,7 @@ For the generic email module (`api/modules/email.php`):
 - **Footer copy:** keeps the existing sender/system line and appends sender display name (without email address).
 - **Editor behavior for mail compose:** checklist mode is disabled in mail editors; empty EditorJS payloads (`{"blocks":[]...}`) are normalized to empty text instead of being shown/saved literally.
 
-**Legacy caveat:** `Systemdata::contactEmailNotificationOn()` returns **false** when the contact has **no** user. That matches “only notify logged-in members” in older code paths but **wrong** for Next Gen transactional fan-out, where **guest contacts** on an event should still get invites and discussion mail. New code should call **`contactAllowsTransactionalNotification()`** (or **`contactTransactionalMailDenyReason()`** when you need a machine-readable skip reason, e.g. for `mail_comment_recipients.php` / `CommentDiscussionNotifier::describeRecipients`).
+**Important:** `Systemdata::contactEmailNotificationOn()` returns **false** when the contact has **no** user. For transactional fan-out in Next Gen, use **`NextGenMailPolicy::contactAllowsTransactionalNotification()`** (or **`contactTransactionalMailDenyReason()`** for machine-readable skip reasons, e.g. `mail_comment_recipients.php` / `CommentDiscussionNotifier::describeRecipients`).
 
 **Not gated by this policy:** password reset, self-registration / activation links, admin notices for new registrations, user activation email from admin — those are **system mail** and ignore the contact/user rules above.
 
@@ -345,7 +338,7 @@ When a user posts a comment via the **Next Gen** `comments` module (`api/index.p
 
 - **Entity context** is loaded in **`CommentDiscussionEntitySummary`** from `ProbenData` / `KonzerteData` / `StartData` (no extra API).
 - **Deep links** use **`BNOTE_NEXT_GENERATION_PUBLIC_URL`** + `/entity?type=rehearsal|concert|vote&id=…&focus=comments` (same routing as the SPA entity page). Vote detail uses `type=vote`, not `/votes?id=`.
-- **Legacy `BNote/`** is unchanged: classic UI and the old API still use their own paths. A comment created **only** through the Next Gen API does **not** call `StartController::notifyContactsOnComment` or `BNoteApiImpl::addComment`; there is **no** `BNoteApiImpl` reference under `bnote-next-generation/api/`.
+- Comment notification mail is handled entirely inside Next Gen by `CommentDiscussionNotifier`.
 - Strings: `mail.commentDiscussion.*` and `mail.shell.headlineCommentDiscussion` in **`lang/*.json`**.
 
 In the app, `?focus=comments` scrolls the discussion block into view on entity pages that use **`EntityChatLayout`**.

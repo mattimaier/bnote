@@ -94,12 +94,13 @@ Step-by-step setup—including a **Strato shared hosting** tutorial, security no
 
 ### Weekly reminder emails (static hosting, no cron)
 
-Next Gen now supports a **weekly summary reminder** (open participation + optional votes/tasks) without server cron:
+Next Gen supports a **weekly summary reminder** (upcoming events + optional open responses/votes/tasks) without server cron:
 
 - Configure behavior in the app under **Settings → Reminder Emails** (admin only): recipients, weekday/time (UTC), event window, max counts.
 - External scheduler (recommended): GitHub Actions calls `api/reminders_run.php` with HMAC-signed headers.
 - Manual admin trigger: available in **Developer tools** and in the Settings reminder section (dry-run or real send).
 - Security: the public endpoint requires `X-Reminder-Timestamp`, `X-Reminder-Nonce`, `X-Reminder-Signature`, rejects replays, and uses per-user weekly idempotency.
+- Sending is based on future events; participation state does not block the digest.
 
 Setup details, required env vars, and a GitHub Actions example are documented in **[docs/MAIL.md](docs/MAIL.md)**.
 
@@ -121,8 +122,8 @@ Use this when your host cannot run cron.
 
 4. **Add GitHub secrets (repository or environment):**
    - GitHub UI path: **Settings → Secrets and variables → Actions**
-   - `REMINDER_ENDPOINT` = full HTTPS URL to `.../api/reminders_run.php`
-   - `REMINDER_SECRET` = exactly the same value as server `BNOTE_NEXT_GENERATION_REMINDER_SECRET`
+   - `BNOTE_NEXT_GENERATION_REMINDER_ENDPOINT` = full HTTPS URL to `.../api/reminders_run.php`
+   - `BNOTE_NEXT_GENERATION_REMINDER_SECRET` = exactly the same value as server `BNOTE_NEXT_GENERATION_REMINDER_SECRET`
 
 5. **Run a safe manual test first (workflow_dispatch):**
    - Trigger with `dryRun=true`, `force=true`

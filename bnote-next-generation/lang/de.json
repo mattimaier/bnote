@@ -775,7 +775,7 @@
   "js.settings.reminder.weekday": "Wochentag (UTC)",
   "js.settings.reminder.timeUtc": "Uhrzeit (UTC)",
   "js.settings.reminder.recipientScope": "Empfänger",
-  "js.settings.reminder.recipient.actionable": "Nur Nutzer mit offenen Punkten",
+  "js.settings.reminder.recipient.actionable": "Nutzer mit kommenden Events (offene Antworten optional)",
   "js.settings.reminder.recipient.all": "Alle aktiven Nutzer mit E-Mail-Opt-in",
   "js.settings.reminder.windowDays": "Event-Fenster (Tage)",
   "js.settings.reminder.maxEvents": "Max. Events",

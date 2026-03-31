@@ -246,7 +246,7 @@ export default function SettingsPage() {
                   void saveReminderConfig({ recipient_scope: e.target.value as ReminderConfig["recipient_scope"] });
                 }}
               >
-                <option value="actionable_only">{label("js.settings.reminder.recipient.actionable", "Only users with open items")}</option>
+                <option value="actionable_only">{label("js.settings.reminder.recipient.actionable", "Users with upcoming events (open responses optional)")}</option>
                 <option value="all_opted_in">{label("js.settings.reminder.recipient.all", "All opted-in active users")}</option>
               </select>
             </label>

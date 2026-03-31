@@ -775,7 +775,7 @@
   "js.settings.reminder.weekday": "Día de la semana (UTC)",
   "js.settings.reminder.timeUtc": "Hora (UTC)",
   "js.settings.reminder.recipientScope": "Destinatarios",
-  "js.settings.reminder.recipient.actionable": "Solo usuarios con elementos abiertos",
+  "js.settings.reminder.recipient.actionable": "Usuarios con eventos próximos (respuestas abiertas opcionales)",
   "js.settings.reminder.recipient.all": "Todos los usuarios activos suscritos",
   "js.settings.reminder.windowDays": "Ventana de eventos (días)",
   "js.settings.reminder.maxEvents": "Máx. eventos",

@@ -107,14 +107,9 @@ final class ReminderDigestService {
             }
 
             $summary = $source->buildDigestSummaryForUser($uid, $cfg);
-            $hasOpenItems = ((int) ($summary['open_count'] ?? 0) > 0);
             $hasFutureEvents = ((int) ($summary['future_event_count'] ?? 0) > 0);
             if (!$ignoreLimits && !$hasFutureEvents) {
                 $result['skipped']['no_future_events']++;
-                continue;
-            }
-            if (!$ignoreLimits && ($cfg['recipient_scope'] ?? 'actionable_only') === 'actionable_only' && !$hasOpenItems) {
-                $result['skipped']['no_items']++;
                 continue;
             }
             $result['users_eligible']++;
@@ -282,7 +277,9 @@ final class ReminderDigestService {
         }
         $allowMaybe = (int) $system_data->getDynamicConfigParameter('allow_participation_maybe') === 1;
         $backupTtl = NextGenParticipationToken::maxTtlSecondsFromConfig($system_data);
-        $enrich = static function (array $events) use ($allowMaybe, $backupTtl, $db, $contactId): array {
+        /** @var array<string,string> $tokenCache */
+        $tokenCache = [];
+        $enrich = static function (array $events) use ($allowMaybe, $backupTtl, $db, $contactId, &$tokenCache): array {
             $out = [];
             foreach ($events as $event) {
                 $otype = strtoupper((string) ($event['otype'] ?? ''));
@@ -295,8 +292,14 @@ final class ReminderDigestService {
                 $deadline = isset($event['replyUntil']) ? (string) $event['replyUntil'] : null;
                 $begin = isset($event['eventBegin']) ? (string) $event['eventBegin'] : null;
                 $ttl = NextGenParticipationToken::ttlSecondsForEvent($deadline, $begin, $backupTtl);
+                $cacheKey = $otype . ':' . $oid;
                 try {
-                    $plainToken = NextGenParticipationToken::newTokenRow($db, $otype, $oid, $contactId, $ttl)['plainToken'];
+                    if (isset($tokenCache[$cacheKey]) && $tokenCache[$cacheKey] !== '') {
+                        $plainToken = $tokenCache[$cacheKey];
+                    } else {
+                        $plainToken = NextGenParticipationToken::newTokenRow($db, $otype, $oid, $contactId, $ttl)['plainToken'];
+                        $tokenCache[$cacheKey] = $plainToken;
+                    }
                 } catch (Throwable $e) {
                     $out[] = $event;
                     continue;
