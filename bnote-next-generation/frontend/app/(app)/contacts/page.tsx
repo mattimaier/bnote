@@ -10,7 +10,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useI18n } from "@/contexts/I18nContext";
 import { useToast } from "@/contexts/ToastContext";
-import { contactsApi, type Contact, type ContactGroup } from "@/lib/contacts-api";
+import { contactsApi, type Contact, type ContactGroup, type ContactsAccessProfile } from "@/lib/contacts-api";
 import { getEntityPath } from "@/lib/entities/paths";
 import { compareString, type SortDirection } from "@/lib/table-sort";
 import { ResponsiveTable } from "@/components/ResponsiveTable";
@@ -32,6 +32,7 @@ export default function ContactsPage() {
   const openedIdFromUrl = useRef(false);
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [groups, setGroups] = useState<ContactGroup[]>([]);
+  const [accessProfile, setAccessProfile] = useState<ContactsAccessProfile | null>(null);
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -63,6 +64,22 @@ export default function ContactsPage() {
       setLoading(false);
     }
   }, [selectedGroup, showToast, t]);
+
+  const canManageContacts = accessProfile?.canManageContacts ?? true;
+  const membersOnlyAccess = accessProfile?.membersOnlyAccess ?? false;
+
+  useEffect(() => {
+    if (!ready) return;
+    contactsApi
+      .getAccessProfile()
+      .then((profile) => {
+        setAccessProfile(profile);
+        if (profile.membersOnlyAccess) {
+          setSelectedGroup(String(profile.membersGroupId));
+        }
+      })
+      .catch(() => setAccessProfile(null));
+  }, [ready]);
 
   useEffect(() => {
     if (!ready) return;
@@ -147,29 +164,33 @@ export default function ContactsPage() {
         subtitle={t("js.contacts.subtitle") !== "js.contacts.subtitle" ? t("js.contacts.subtitle") : "Manage contacts and groups"}
         actions={(
           <>
-            <ActionButton
-              variant="outline"
-              onClick={() => router.push("/contacts/groups/")}
-            >
-              <Users className="h-4 w-4" />
-              {t("js.contacts.manageGroups") !== "js.contacts.manageGroups" ? t("js.contacts.manageGroups") : "Manage Groups"}
-            </ActionButton>
-            <ActionButton
-              variant="outline"
-              onClick={() =>
-                router.push(
-                  selectedGroup != null
-                    ? `/contacts/integration/?group=${encodeURIComponent(selectedGroup)}`
-                    : "/contacts/integration/"
-                )
-              }
-            >
-              {t("js.contacts.integration")}
-            </ActionButton>
-            <ActionButton onClick={() => router.push(getEntityPath("contact", "new", "edit"))}>
-              <Plus className="h-4 w-4" />
-              {t("js.contacts.addContact") !== "js.contacts.addContact" ? t("js.contacts.addContact") : "Add Contact"}
-            </ActionButton>
+            {canManageContacts ? (
+              <>
+                <ActionButton
+                  variant="outline"
+                  onClick={() => router.push("/contacts/groups/")}
+                >
+                  <Users className="h-4 w-4" />
+                  {t("js.contacts.manageGroups") !== "js.contacts.manageGroups" ? t("js.contacts.manageGroups") : "Manage Groups"}
+                </ActionButton>
+                <ActionButton
+                  variant="outline"
+                  onClick={() =>
+                    router.push(
+                      selectedGroup != null
+                        ? `/contacts/integration/?group=${encodeURIComponent(selectedGroup)}`
+                        : "/contacts/integration/"
+                    )
+                  }
+                >
+                  {t("js.contacts.integration")}
+                </ActionButton>
+                <ActionButton onClick={() => router.push(getEntityPath("contact", "new", "edit"))}>
+                  <Plus className="h-4 w-4" />
+                  {t("js.contacts.addContact") !== "js.contacts.addContact" ? t("js.contacts.addContact") : "Add Contact"}
+                </ActionButton>
+              </>
+            ) : null}
           </>
         )}
       />
@@ -181,25 +202,27 @@ export default function ContactsPage() {
       )}
 
       {/* Group tabs */}
-      <div className="flex flex-wrap gap-2 pb-2">
-        <button
-          type="button"
-          onClick={() => setSelectedGroup(null)}
-          className={`filter-bubble filter-bubble-rehearsal ${selectedGroup === null ? "selected" : ""}`}
-        >
-          {t("js.contacts.all") !== "js.contacts.all" ? t("js.contacts.all") : "All"}
-        </button>
-        {groups.map((g) => (
+      {!membersOnlyAccess ? (
+        <div className="flex flex-wrap gap-2 pb-2">
           <button
-            key={g.id}
             type="button"
-            onClick={() => setSelectedGroup(String(g.id))}
-            className={`filter-bubble filter-bubble-rehearsal ${selectedGroup === String(g.id) ? "selected" : ""}`}
+            onClick={() => setSelectedGroup(null)}
+            className={`filter-bubble filter-bubble-rehearsal ${selectedGroup === null ? "selected" : ""}`}
           >
-            {g.name}
+            {t("js.contacts.all") !== "js.contacts.all" ? t("js.contacts.all") : "All"}
           </button>
-        ))}
-      </div>
+          {groups.map((g) => (
+            <button
+              key={g.id}
+              type="button"
+              onClick={() => setSelectedGroup(String(g.id))}
+              className={`filter-bubble filter-bubble-rehearsal ${selectedGroup === String(g.id) ? "selected" : ""}`}
+            >
+              {g.name}
+            </button>
+          ))}
+        </div>
+      ) : null}
 
       <div className="flex items-center gap-2">
         <div className="flex w-full items-center gap-3 rounded-lg bg-base-200 px-3 py-2">

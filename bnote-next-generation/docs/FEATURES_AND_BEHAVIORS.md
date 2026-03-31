@@ -3,6 +3,7 @@
 This document describes each feature and expected behavior of the Next.js app. Use it for regression checks and bug fixing.
 
 **Shared UI patterns** (lists, detail/edit, delete, URL for edit mode) are documented in **[UI_PATTERNS.md](UI_PATTERNS.md)**. All modules and entity pages must follow those patterns.
+Architecture-level permission decisions are documented in **[ARCHITECTURE_DECISIONS.md](ARCHITECTURE_DECISIONS.md)**.
 
 ---
 
@@ -62,6 +63,10 @@ This document describes each feature and expected behavior of the Next.js app. U
 ## 6. Contacts
 
 - **Route:** `/contacts`. Page: `app/(app)/contacts/page.tsx`.
+- **Permission profiles (merged `Mitspieler` model):**
+  - `Kontakte` permission: full contacts mode (all groups, filter tabs, manage/edit actions).
+  - `Mitspieler`-only permission: readonly members-only mode on the same route (`/contacts`), showing only the members/default group and hiding edit/manage actions and group selector.
+  - Neither permission: backend returns 403 for contacts endpoints.
 - **Phase in (integration):** Route **`/contacts/integration`**. Same **Contacts** module permission as the list. A **`SelectPicker`** (same shared control as profile / entity edits) at the top drives the member list; it defaults to the **members group** (same id as legacy `KontakteData::$GROUP_MEMBER`, usually **2** / “Mitglieder” in default installs). A valid **`?group=`** in the URL overrides the default; invalid or missing `group` is replaced with the default. Users search/filter per list, then multi-select members, rehearsals, concerts, and votes. **Save** → `POST contacts` **`integrate`**. Data: **`getIntegrationBundle`**. Header **Phase in** opens the page; optional **`?group=`** from the contacts list filter.
 - **Title/subtitle:** i18n `js.contacts.title`, `js.contacts.subtitle`.
 - **Actions:** **Phase in** (outline) and **Add Contact** (primary); other secondary actions as implemented.

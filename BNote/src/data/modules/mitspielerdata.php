@@ -66,7 +66,9 @@ class MitspielerData extends AbstractLocationData {
 				"IF(share_birthday = 1, birthday, '') as birthday"
 		);
 		$fieldsStr = join(",", $fields);
-		$order = "ORDER BY fullname, i.rank";
+		// MySQL strict mode with DISTINCT requires ORDER BY expressions to be in SELECT.
+		// Keep stable readable ordering without relying on non-selected i.rank.
+		$order = "ORDER BY fullname, instrumentname";
 		
 		// Super User or Admin
 		if($this->getSysdata()->isUserSuperUser($uid) || $this->getSysdata()->isUserMemberGroup(1, $uid)) {
@@ -86,7 +88,8 @@ class MitspielerData extends AbstractLocationData {
 		$query = "SELECT DISTINCT $fieldsStr
 					FROM (
 					  SELECT `group` as id FROM contact_group WHERE contact = ?
-					) as groups JOIN contact_group ON groups.id = contact_group.group
+					) as member_groups
+					JOIN contact_group ON member_groups.id = contact_group.`group`
 					JOIN contact c ON contact_group.contact = c.id
 					JOIN instrument i ON c.instrument = i.id
 					LEFT OUTER JOIN address a ON c.address = a.id

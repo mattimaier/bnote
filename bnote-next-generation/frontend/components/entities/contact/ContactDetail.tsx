@@ -10,7 +10,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useEntityParams } from "@/lib/entities/use-entity-params";
 import { useI18n } from "@/contexts/I18nContext";
-import { contactsApi, type ContactDetail, type ContactGroup } from "@/lib/contacts-api";
+import { contactsApi, type ContactDetail, type ContactGroup, type ContactsAccessProfile } from "@/lib/contacts-api";
 import { PAGE_CONTENT_CLASS } from "@/lib/layout";
 import { getEntityPath } from "@/lib/entities/paths";
 import { DetailEditButton } from "@/components/DetailPageHeader";
@@ -31,6 +31,7 @@ export function ContactDetail() {
 
   const [contact, setContact] = useState<ContactDetail | null | undefined>(undefined);
   const [groups, setGroups] = useState<ContactGroup[]>([]);
+  const [accessProfile, setAccessProfile] = useState<ContactsAccessProfile | null>(null);
   const [error, setError] = useState("");
   const parsedId = useMemo(() => {
     if (!id || id === "new") return null;
@@ -43,10 +44,12 @@ export function ContactDetail() {
     Promise.all([
       contactsApi.get(parsedId),
       contactsApi.getGroups().catch(() => [] as ContactGroup[]),
+      contactsApi.getAccessProfile().catch(() => null as ContactsAccessProfile | null),
     ])
-      .then(([detail, groupList]) => {
+      .then(([detail, groupList, profile]) => {
         setContact(detail ?? null);
         setGroups(groupList ?? []);
+        setAccessProfile(profile);
         setError("");
       })
       .catch((err) => setError(getErrorMessage(err, t, "js.common.failedToLoad")));
@@ -120,28 +123,31 @@ export function ContactDetail() {
     t("js.contacts.removeFromFutureEvents") !== "js.contacts.removeFromFutureEvents"
       ? t("js.contacts.removeFromFutureEvents")
       : "Remove From Future Events";
+  const canManageContacts = accessProfile?.canManageContacts ?? true;
 
   return (
     <EntityDetailViewLayout
       title={titleWithAvatar}
       subtitle={label("js.contacts.subtitle", "Manage contacts and groups")}
       right={
-        <div className="flex items-center gap-2">
-          <ActionButton
-            variant="outline"
-            onClick={() =>
-              router.push(
-                `/contacts/integration/?mode=remove&contact=${encodeURIComponent(String(contact.id))}`
-              )
-            }
-          >
-            <Trash2 className="h-4 w-4" />
-            {removeFromFutureLabel}
-          </ActionButton>
-          <DetailEditButton
-            onClick={() => router.push(getEntityPath("contact", contact.id, "edit"))}
-          />
-        </div>
+        canManageContacts ? (
+          <div className="flex items-center gap-2">
+            <ActionButton
+              variant="outline"
+              onClick={() =>
+                router.push(
+                  `/contacts/integration/?mode=remove&contact=${encodeURIComponent(String(contact.id))}`
+                )
+              }
+            >
+              <Trash2 className="h-4 w-4" />
+              {removeFromFutureLabel}
+            </ActionButton>
+            <DetailEditButton
+              onClick={() => router.push(getEntityPath("contact", contact.id, "edit"))}
+            />
+          </div>
+        ) : null
       }
     >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

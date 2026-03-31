@@ -242,16 +242,41 @@ class AuthModule {
             Response::error('Authentication required', 403);
         }
         
-        // Get modules from both 'main' and 'admin' categories (User is in admin)
-        $mainModules = $system_data->getModuleArray('main');
-        $adminModules = $system_data->getModuleArray('admin');
-        // Use + operator to preserve numeric keys (module IDs)
-        $allModules = $mainModules + $adminModules;
+        // Read all modules across categories. Some installations place
+        // modules like "Mitspieler" or "Share" outside main/admin.
+        $allDbModules = $system_data->getModuleArray();
+        // Normalize into a stable id-keyed map.
+        // We resolve IDs from row.id, key, or module name lookup.
+        $allModules = [];
+        $moduleSets = [is_array($allDbModules) ? $allDbModules : []];
+        foreach ($moduleSets as $moduleSet) {
+            foreach ($moduleSet as $modIdRaw => $modRowRaw) {
+                if (!is_array($modRowRaw)) {
+                    continue;
+                }
+                $resolvedId = intval($modRowRaw['id'] ?? 0);
+                if ($resolvedId <= 0) {
+                    $resolvedId = intval($modIdRaw);
+                }
+                if ($resolvedId <= 0) {
+                    $nameLookup = trim(html_entity_decode((string)($modRowRaw['name'] ?? ''), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+                    if ($nameLookup !== '') {
+                        $resolvedId = intval($system_data->getModuleId($nameLookup));
+                    }
+                }
+                if ($resolvedId <= 0) {
+                    continue;
+                }
+                $row = $modRowRaw;
+                $row['id'] = $resolvedId;
+                $allModules[$resolvedId] = $row;
+            }
+        }
         $modules = [];
+        $contactsVisible = false;
         
         // Debug: Log module counts
-        error_log('getModules: mainModules count: ' . count($mainModules));
-        error_log('getModules: adminModules count: ' . count($adminModules));
+        error_log('getModules: dbModules count: ' . count($allDbModules));
         error_log('getModules: allModules count: ' . count($allModules));
         
         // Technical modules to exclude
@@ -284,6 +309,11 @@ class AuthModule {
                 'i18n' => 'js.sidebar.users'
             ],
             'Kontakte' => [
+                'route' => '/contacts',
+                'icon' => 'users',
+                'i18n' => 'js.sidebar.contacts'
+            ],
+            'Mitspieler' => [
                 'route' => '/contacts',
                 'icon' => 'users',
                 'i18n' => 'js.sidebar.contacts'
@@ -352,8 +382,9 @@ class AuthModule {
         $calendarAlreadyAdded = false;
         
         foreach ($allModules as $modId => $modRow) {
-            $modName = $modRow['name'] ?? '';
-            $modIdInt = intval($modId);
+            $modNameRaw = $modRow['name'] ?? '';
+            $modName = trim(html_entity_decode((string)$modNameRaw, ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+            $modIdInt = intval($modRow['id'] ?? $modId);
             
             error_log("getModules: Checking module ID=$modIdInt, name='$modName'");
             
@@ -388,6 +419,16 @@ class AuthModule {
             }
             
             $mapping = $moduleMappings[$modName];
+            $alreadyAddedByRoute = false;
+            foreach ($modules as $existing) {
+                if (($existing['route'] ?? '') === $mapping['route']) {
+                    $alreadyAddedByRoute = true;
+                    break;
+                }
+            }
+            if ($alreadyAddedByRoute) {
+                continue;
+            }
             $modules[] = [
                 'id' => $modIdInt,
                 'name' => $modName,
@@ -395,10 +436,41 @@ class AuthModule {
                 'icon' => $mapping['icon'],
                 'i18n' => $mapping['i18n']
             ];
+            if ($mapping['route'] === '/contacts') {
+                $contactsVisible = true;
+            }
             if ($isCalendarModule) {
                 $calendarAlreadyAdded = true;
             }
             error_log("getModules: Added module $modName");
+        }
+
+        // Some setups expose Mitspieler permission without returning a mapped
+        // Mitspieler module row in getModuleArray(). Ensure contacts is visible
+        // for members-only users by synthesizing one /contacts module entry.
+        $mitspielerModuleId = $system_data->getModuleId('Mitspieler');
+        $hasMitspielerPermission = $mitspielerModuleId && $system_data->userHasPermission($mitspielerModuleId);
+        if (!$hasMitspielerPermission) {
+            foreach ($allModules as $modId => $modRow) {
+                $name = trim(html_entity_decode((string)($modRow['name'] ?? ''), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+                $nameLower = mb_strtolower($name);
+                if (($nameLower === 'mitspieler' || $nameLower === 'members') && $system_data->userHasPermission(intval($modId))) {
+                    $hasMitspielerPermission = true;
+                    if (!$mitspielerModuleId) {
+                        $mitspielerModuleId = intval($modId);
+                    }
+                    break;
+                }
+            }
+        }
+        if (!$contactsVisible && $hasMitspielerPermission) {
+            $modules[] = [
+                'id' => intval($mitspielerModuleId ?: 0),
+                'name' => 'Mitspieler',
+                'route' => '/contacts',
+                'icon' => 'users',
+                'i18n' => 'js.sidebar.contacts'
+            ];
         }
         
         // Sort: use config order if available, otherwise by module ID
@@ -450,11 +522,9 @@ class AuthModule {
             return [
                 'modules' => $modules,
                 'debug' => [
-                    'mainModulesCount' => count($mainModules),
-                    'adminModulesCount' => count($adminModules),
+                    'dbModulesCount' => count($allDbModules),
                     'allModulesCount' => count($allModules),
-                    'mainModuleNames' => array_map(function($m) { return $m['name'] ?? 'unknown'; }, $mainModules),
-                    'adminModuleNames' => array_map(function($m) { return $m['name'] ?? 'unknown'; }, $adminModules),
+                    'dbModuleNames' => array_map(function($m) { return $m['name'] ?? 'unknown'; }, is_array($allDbModules) ? $allDbModules : []),
                     'allModuleNames' => array_map(function($m) { return $m['name'] ?? 'unknown'; }, $allModules),
                     'userId' => $system_data->getUserId(),
                     'userPermissions' => $system_data->user_module_permission ?? 'not set'

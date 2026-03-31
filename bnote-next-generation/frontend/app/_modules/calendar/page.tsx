@@ -122,16 +122,43 @@ export default function CalendarPage() {
   const loadEvents = useCallback(async () => {
     setLoading(true);
     try {
-      const [list, caps, sub] = await Promise.all([
+      const [eventsRes, capsRes, subRes] = await Promise.allSettled([
         calendarApi.getEvents(from, to),
         calendarApi.getCapabilities(),
         calendarApi.getSubscriptionLink(),
       ]);
-      setEvents(list ?? []);
-      setCanEditCalendar(Boolean(caps?.canEdit));
-      setSubscription(sub);
-      setError("");
+
+      if (eventsRes.status === "fulfilled") {
+        setEvents(eventsRes.value ?? []);
+      } else {
+        setEvents([]);
+      }
+
+      if (capsRes.status === "fulfilled") {
+        setCanEditCalendar(Boolean(capsRes.value?.canEdit));
+      } else {
+        setCanEditCalendar(false);
+      }
+
+      if (subRes.status === "fulfilled") {
+        setSubscription(subRes.value);
+      } else {
+        setSubscription(null);
+      }
+
+      const primaryError =
+        eventsRes.status === "rejected"
+          ? eventsRes.reason
+          : capsRes.status === "rejected"
+            ? capsRes.reason
+            : null;
+      if (primaryError) {
+        setError(getErrorMessage(primaryError, t, "js.common.failedToLoad"));
+      } else {
+        setError("");
+      }
     } catch (err) {
+      // Defensive fallback: all errors should normally be handled by allSettled.
       setError(getErrorMessage(err, t, "js.common.failedToLoad"));
     } finally {
       setLoading(false);

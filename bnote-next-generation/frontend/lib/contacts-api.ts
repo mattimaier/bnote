@@ -47,6 +47,12 @@ export interface ContactGroupListItem extends ContactGroup {
   memberCount?: number;
 }
 
+export interface ContactsAccessProfile {
+  canManageContacts: boolean;
+  membersOnlyAccess: boolean;
+  membersGroupId: number;
+}
+
 export interface IntegrationMemberRow {
   id: number;
   name: string;
@@ -108,6 +114,7 @@ export const contactsApi = {
     api.post<{ success: boolean; message: string }>("contacts", "updateGroup", { id, ...data }),
   deleteGroup: (id: number) => api.post<{ success: boolean; message: string }>("contacts", "deleteGroup", { id }),
   getGroupMembers: (id: number) => api.get<Array<{ name: string; instrument?: string; notes?: string }>>("contacts", "getGroupMembers", { id: String(id) }),
+  getAccessProfile: () => api.get<ContactsAccessProfile>("contacts", "getAccessProfile"),
   getIntegrationBundle: (groupId?: string | null) =>
     api.get<IntegrationBundle>(
       "contacts",

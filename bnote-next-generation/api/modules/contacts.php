@@ -39,11 +39,19 @@ class ContactsModule {
     private $data;
     private $groupData;
     private $crud;
+    private $canManageContacts = false;
+    private $membersOnlyAccess = false;
 
     public function __construct() {
         global $system_data;
-        $moduleId = $system_data->getModuleId('Kontakte');
-        if (!$moduleId || !$system_data->userHasPermission($moduleId)) {
+        $contactsModuleId = $system_data->getModuleId('Kontakte');
+        $membersModuleId = $system_data->getModuleId('Mitspieler');
+        $hasContactsPermission = $contactsModuleId && $system_data->userHasPermission($contactsModuleId);
+        $hasMembersPermission = $membersModuleId && $system_data->userHasPermission($membersModuleId);
+        $this->canManageContacts = boolval($hasContactsPermission);
+        $this->membersOnlyAccess = !$this->canManageContacts && boolval($hasMembersPermission);
+
+        if (!$this->canManageContacts && !$this->membersOnlyAccess) {
             Response::error('Access denied to Contact Management', 403);
         }
 
@@ -55,11 +63,22 @@ class ContactsModule {
     public function handle() {
         $action = $_GET['action'] ?? $_POST['action'] ?? 'list';
 
+        if ($this->membersOnlyAccess && $this->isWriteAction($action)) {
+            Response::error('Access denied to Contact Management', 403);
+        }
+
         switch ($action) {
             case 'list':
+                if ($this->membersOnlyAccess) {
+                    $_GET['group'] = strval(KontakteData::$GROUP_MEMBER);
+                }
                 return $this->normalizeResponse($this->crud->listContacts(), $action);
             case 'get':
-                return $this->normalizeResponse($this->crud->getContact(), $action);
+                $detail = $this->crud->getContact();
+                if ($this->membersOnlyAccess && !$this->contactInMembersGroup($detail)) {
+                    Response::error('Access denied to Contact Management', 403);
+                }
+                return $this->normalizeResponse($detail, $action);
             case 'create':
                 return $this->normalizeResponse($this->crud->createContact(), $action);
             case 'update':
@@ -68,6 +87,8 @@ class ContactsModule {
                 return $this->normalizeResponse($this->crud->deleteContact(), $action);
             case 'getGroups':
                 return $this->normalizeResponse($this->getGroups(), $action);
+            case 'getAccessProfile':
+                return $this->normalizeResponse($this->getAccessProfile(), $action);
             case 'getGroupContacts':
                 return $this->normalizeResponse($this->getGroupContacts(), $action);
             // Integration
@@ -134,10 +155,43 @@ class ContactsModule {
         return $normalized;
     }
 
+    private function isWriteAction($action) {
+        $writeActions = [
+            'create', 'update', 'delete',
+            'integrate', 'bulkRemove',
+            'listGroups', 'getGroup', 'createGroup', 'updateGroup', 'deleteGroup', 'getGroupMembers',
+            'getPrintData', 'importVCard', 'getGdprStatus', 'generateGdprCodes', 'sendGdprMail', 'deleteGdprNok',
+        ];
+        return in_array($action, $writeActions, true);
+    }
+
+    private function contactInMembersGroup($detail) {
+        if (!is_array($detail) || !isset($detail['groups']) || !is_array($detail['groups'])) {
+            return false;
+        }
+        return in_array(intval(KontakteData::$GROUP_MEMBER), array_map('intval', $detail['groups']), true);
+    }
+
+    private function getAccessProfile() {
+        return [
+            'canManageContacts' => $this->canManageContacts,
+            'membersOnlyAccess' => $this->membersOnlyAccess,
+            'membersGroupId' => intval(KontakteData::$GROUP_MEMBER),
+        ];
+    }
+
     /**
      * Get all groups
      */
     private function getGroups() {
+        if ($this->membersOnlyAccess) {
+            $membersName = $this->data->getGroupName(KontakteData::$GROUP_MEMBER);
+            return [[
+                'id' => intval(KontakteData::$GROUP_MEMBER),
+                'name' => $membersName ?: 'Members',
+                'is_active' => true,
+            ]];
+        }
         $groups = $this->data->getGroups();
         
         $result = [];

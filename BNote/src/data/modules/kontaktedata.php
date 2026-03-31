@@ -96,8 +96,8 @@ class KontakteData extends AbstractLocationData {
 		$query .= " (SELECT c.*, a.street, a.city, a.zip ";
 		$query .= "  FROM (SELECT contact.* ";
 		$query .= "        FROM contact, contact_group grp ";
-		$query .= "        JOIN `group` ON grp.group = `group`.id ";
-		$query .= "        WHERE contact.id = grp.contact AND grp.group = ? AND `group`.is_active = 1";
+		$query .= "        JOIN `group` ON grp.`group` = `group`.id ";
+		$query .= "        WHERE contact.id = grp.contact AND grp.`group` = ? AND `group`.is_active = 1";
 		$query .= "        ) as c ";
 		$query .= "  LEFT JOIN address a ";
 		$query .= "  ON c.address = a.id) as c2 ";

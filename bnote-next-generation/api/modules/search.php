@@ -31,6 +31,13 @@ require_once __DIR__ . '/../auth.php';
 class SearchModule {
     private $data;
     private $categoryPermissions = [];
+    private $hasRehearsalsModule = false;
+    private $hasConcertsModule = false;
+    private $hasContactsModule = false;
+    private $hasMembersModule = false;
+    private $visibleRehearsalIds = [];
+    private $visibleConcertIds = [];
+    private $visibleContactIds = [];
 
     private function filterValidItems($items) {
         if (!is_array($items)) {
@@ -56,6 +63,7 @@ class SearchModule {
         
         try {
             $this->data = new SearchData();
+            $this->initVisibilityContext((int) Auth::getUserId());
             $this->categoryPermissions = $this->buildCategoryPermissions();
         } catch (Exception $e) {
             error_log('Failed to create SearchData: ' . $e->getMessage());
@@ -79,12 +87,13 @@ class SearchModule {
     }
 
     private function buildCategoryPermissions() {
+        $contactVisible = $this->hasContactsModule || $this->hasMembersModule || count($this->visibleContactIds) > 0;
         return [
-            'rehearsal' => $this->hasAnyModulePermission(['Proben']),
-            'concert' => $this->hasAnyModulePermission(['Konzerte']),
-            'performance' => $this->hasAnyModulePermission(['Konzerte']),
+            'rehearsal' => $this->hasRehearsalsModule || count($this->visibleRehearsalIds) > 0,
+            'concert' => $this->hasConcertsModule || count($this->visibleConcertIds) > 0,
+            'performance' => $this->hasConcertsModule || count($this->visibleConcertIds) > 0,
             'user' => $this->hasAnyModulePermission(['User']),
-            'contact' => $this->hasAnyModulePermission(['Kontakte', 'Mitspieler']),
+            'contact' => $contactVisible,
             'task' => $this->hasAnyModulePermission(['Aufgaben']),
             'repertoire' => $this->hasAnyModulePermission(['Repertoire']),
             'location' => $this->hasAnyModulePermission(['Locations']),
@@ -97,6 +106,140 @@ class SearchModule {
 
     private function canSearchCategory($category) {
         return !empty($this->categoryPermissions[$category]);
+    }
+
+    private function initVisibilityContext($userId) {
+        global $system_data;
+        $rehearsalsModuleId = $system_data->getModuleId('Proben');
+        $concertsModuleId = $system_data->getModuleId('Konzerte');
+        $contactsModuleId = $system_data->getModuleId('Kontakte');
+        $membersModuleId = $system_data->getModuleId('Mitspieler');
+
+        $this->hasRehearsalsModule = $rehearsalsModuleId ? $system_data->userHasPermission($rehearsalsModuleId) : false;
+        $this->hasConcertsModule = $concertsModuleId ? $system_data->userHasPermission($concertsModuleId) : false;
+        $this->hasContactsModule = $contactsModuleId ? $system_data->userHasPermission($contactsModuleId) : false;
+        $this->hasMembersModule = $membersModuleId ? $system_data->userHasPermission($membersModuleId) : false;
+
+        $this->visibleRehearsalIds = $this->getUserRehearsalIds($userId);
+        $this->visibleConcertIds = $this->getConcertIdsForUser($userId);
+        $this->visibleContactIds = $this->getSameGroupContactIds($userId);
+    }
+
+    private function filterByAllowedIds($items, $allowedIds) {
+        if (!is_array($items)) {
+            return [];
+        }
+        if (count($allowedIds) === 0) {
+            return [];
+        }
+        $allowed = array_fill_keys(array_map('intval', $allowedIds), true);
+        $filtered = [];
+        foreach ($items as $item) {
+            $id = isset($item['id']) ? (int) $item['id'] : 0;
+            if ($id > 0 && isset($allowed[$id])) {
+                $filtered[] = $item;
+            }
+        }
+        return $filtered;
+    }
+
+    private function applyVisibilityFilter($category, $items) {
+        if ($category === 'rehearsal' && !$this->hasRehearsalsModule) {
+            return $this->filterByAllowedIds($items, $this->visibleRehearsalIds);
+        }
+        if ($category === 'concert' && !$this->hasConcertsModule) {
+            return $this->filterByAllowedIds($items, $this->visibleConcertIds);
+        }
+        if ($category === 'contact' && !$this->hasContactsModule) {
+            return $this->filterByAllowedIds($items, $this->visibleContactIds);
+        }
+        return $items;
+    }
+
+    private function getUserRehearsalIds($userId) {
+        global $system_data;
+        if ($system_data->isUserSuperUser($userId) || $this->hasRehearsalsModule) {
+            $allRehearsals = $this->data->adp()->getFutureRehearsals(true);
+            $ids = [];
+            for ($i = 1; $i < count($allRehearsals); $i++) {
+                $ids[] = (int) ($allRehearsals[$i]['id'] ?? 0);
+            }
+            return array_values(array_unique(array_filter($ids)));
+        }
+
+        $usersPhases = $this->data->adp()->getUsersPhases($userId);
+        $rehearsals = array_merge(
+            $this->getRehearsalsForUser($userId),
+            $this->getRehearsalsForPhases($usersPhases)
+        );
+        return array_values(array_unique(array_map('intval', array_filter($rehearsals))));
+    }
+
+    private function getRehearsalsForUser($userId) {
+        global $system_data;
+        $query = "SELECT rehearsal FROM rehearsal_contact rc JOIN contact c ON rc.contact = c.id JOIN user u ON u.contact = c.id WHERE u.id = ?";
+        $sel = $system_data->dbcon->getSelection($query, [['i', (int) $userId]]);
+        $ids = [];
+        if (is_array($sel)) {
+            for ($i = 1; $i < count($sel); $i++) {
+                $ids[] = (int) ($sel[$i]['rehearsal'] ?? 0);
+            }
+        }
+        return array_values(array_unique(array_filter($ids)));
+    }
+
+    private function getRehearsalsForPhases($phases) {
+        if (!is_array($phases) || count($phases) === 0) return [];
+
+        global $system_data;
+        $params = [];
+        $whereQ = [];
+        foreach ($phases as $p) {
+            $whereQ[] = 'rehearsalphase = ?';
+            $params[] = ['i', (int) $p];
+        }
+        $query = 'SELECT rehearsal as id FROM rehearsalphase_rehearsal WHERE ' . join(' OR ', $whereQ);
+        $sel = $system_data->dbcon->getSelection($query, $params);
+        $ids = [];
+        if (is_array($sel)) {
+            for ($i = 1; $i < count($sel); $i++) {
+                $ids[] = (int) ($sel[$i]['id'] ?? 0);
+            }
+        }
+        return array_values(array_unique(array_filter($ids)));
+    }
+
+    private function getConcertIdsForUser($uid) {
+        global $system_data;
+        $concerts = ($system_data->isUserSuperUser($uid) || $this->hasConcertsModule)
+            ? $this->data->adp()->getFutureConcerts()
+            : $this->data->adp()->getFutureConcerts($uid);
+        $ids = [];
+        if (is_array($concerts)) {
+            for ($i = 1; $i < count($concerts); $i++) {
+                $ids[] = (int) ($concerts[$i]['id'] ?? 0);
+            }
+        }
+        return array_values(array_unique(array_filter($ids)));
+    }
+
+    private function getSameGroupContactIds($userId) {
+        global $system_data;
+        $rows = $system_data->dbcon->getSelection(
+            'SELECT DISTINCT cg2.contact as id
+             FROM user u
+             JOIN contact_group cg1 ON cg1.contact = u.contact
+             JOIN contact_group cg2 ON cg2.`group` = cg1.`group`
+             WHERE u.id = ?',
+            [['i', (int) $userId]]
+        );
+        $ids = [];
+        if (is_array($rows)) {
+            for ($i = 1; $i < count($rows); $i++) {
+                $ids[] = (int) ($rows[$i]['id'] ?? 0);
+            }
+        }
+        return array_values(array_unique(array_filter($ids)));
     }
     
     public function handle() {
@@ -200,20 +343,20 @@ class SearchModule {
                 $rehearsalResult = $this->data->searchRehearsals($query, $filters, $limit);
                 // Handle both old format (array) and new format (array with 'items' and 'total')
                 if (isset($rehearsalResult['items'])) {
-                    $results['rehearsals'] = $this->filterValidItems($rehearsalResult['items']);
+                    $results['rehearsals'] = $this->applyVisibilityFilter('rehearsal', $this->filterValidItems($rehearsalResult['items']));
                     $totals['rehearsals'] = count($results['rehearsals']);
                 } else {
-                    $results['rehearsals'] = $this->filterValidItems($rehearsalResult);
+                    $results['rehearsals'] = $this->applyVisibilityFilter('rehearsal', $this->filterValidItems($rehearsalResult));
                     $totals['rehearsals'] = count($results['rehearsals']);
                 }
             }
             if ((!$moduleType || $moduleType === 'concert' || $moduleType === 'performance') && $this->canSearchCategory('concert')) {
                 $concertResult = $this->data->searchConcerts($query, $filters, $limit);
                 if (isset($concertResult['items'])) {
-                    $results['concerts'] = $this->filterValidItems($concertResult['items']);
+                    $results['concerts'] = $this->applyVisibilityFilter('concert', $this->filterValidItems($concertResult['items']));
                     $totals['concerts'] = count($results['concerts']);
                 } else {
-                    $results['concerts'] = $this->filterValidItems($concertResult);
+                    $results['concerts'] = $this->applyVisibilityFilter('concert', $this->filterValidItems($concertResult));
                     $totals['concerts'] = count($results['concerts']);
                 }
             }
@@ -230,10 +373,10 @@ class SearchModule {
             if ((!$moduleType || $moduleType === 'contact') && $this->canSearchCategory('contact')) {
                 $contactResult = $this->data->searchContacts($query, $filters, $limit);
                 if (isset($contactResult['items'])) {
-                    $results['contacts'] = $this->filterValidItems($contactResult['items']);
+                    $results['contacts'] = $this->applyVisibilityFilter('contact', $this->filterValidItems($contactResult['items']));
                     $totals['contacts'] = count($results['contacts']);
                 } else {
-                    $results['contacts'] = $this->filterValidItems($contactResult);
+                    $results['contacts'] = $this->applyVisibilityFilter('contact', $this->filterValidItems($contactResult));
                     $totals['contacts'] = count($results['contacts']);
                 }
             }
