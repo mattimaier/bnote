@@ -7,7 +7,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import { useI18n } from "@/contexts/I18nContext";
@@ -62,6 +62,8 @@ import { DatePicker } from "@/components/DatePicker";
 import { EntityLink } from "@/components/EntityLink";
 import { useEventDetailData } from "@/lib/entities/event/useEventDetailData";
 import { EventParticipationShareModal } from "@/components/entities/event/EventParticipationShareModal";
+import { EventInfoEmailComposerModal } from "@/components/entities/event/EventInfoEmailComposerModal";
+import { EventEntityHeader } from "@/components/entities/event/EventEntityHeader";
 import { DetailDeleteSection } from "@/components/DetailDeleteSection";
 import { normalizeCompany } from "@/lib/dashboard-utils";
 import {
@@ -91,6 +93,7 @@ export function EventDetail({
   renderAfterContent,
 }: EventDetailProps = {}) {
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const router = useRouter();
   const modules = useModules();
   const { t, ready, lang } = useI18n();
@@ -156,6 +159,7 @@ export function EventDetail({
   const rehearsalMeta = type === "rehearsal" ? (meta as RehearsalMeta | null) : null;
   const concertMeta = type === "concert" ? (meta as ConcertMeta | null) : null;
   const shouldEdit = modeProp === "edit" || searchParams.get("edit") === "1";
+  const emailComposerOpen = searchParams.get("emailInfo") === "1";
 
   useEffect(() => {
     if (!ready || loading || error || !data) return;
@@ -347,8 +351,9 @@ export function EventDetail({
 
   const displayType: EventDisplayType = type === "concert" ? "performance" : (type as EventDisplayType);
   const eventTypeConfig = getEventTypeConfig(displayType, t);
-  const EventIcon = getIcon(eventTypeConfig.icon);
+  const HeaderIcon = getIcon(eventTypeConfig.icon);
   const ShareIcon = getIcon("share");
+  const MailIcon = getIcon("mail");
 
   const statusLabel =
     status === "confirmed"
@@ -598,6 +603,47 @@ export function EventDetail({
     setForm({ ...form, songs: next });
   };
 
+  const setEmailComposerQuery = (open: boolean, method: "push" | "replace" = "push") => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (open) {
+      params.set("emailInfo", "1");
+    } else {
+      params.delete("emailInfo");
+    }
+    const query = params.toString();
+    const nextUrl = query ? `${pathname}?${query}` : pathname;
+    if (method === "replace") {
+      router.replace(nextUrl);
+      return;
+    }
+    router.push(nextUrl);
+  };
+
+  const closeEmailComposer = () => {
+    setEmailComposerQuery(false, "push");
+  };
+
+  if (emailComposerOpen && !isEditing && canEdit && !isNew && (type === "rehearsal" || type === "concert") && numId > 0) {
+    return (
+      <div className="w-full max-w-none px-0 py-0 space-y-3 md:max-w-7xl md:mx-auto md:space-y-6 md:px-4 md:py-3">
+        <EventInfoEmailComposerModal
+          embedded
+          onClose={closeEmailComposer}
+          module={module as "rehearsals" | "concerts"}
+          eventId={numId}
+          locale={lang}
+          title={title}
+          eventIconName={eventTypeConfig.icon}
+          eventBadgeLabel={eventTypeConfig.label}
+          eventBadgeClassName={eventTypeConfig.badgeClass}
+          eventMetaLine={`${dateStr} · ${timeStr}${endTimeStr ? ` - ${endTimeStr}` : ""}`}
+          eventLocation={currentLocationName || undefined}
+          t={t}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="w-full max-w-none px-0 py-0 space-y-3 md:max-w-7xl md:mx-auto md:space-y-6 md:px-4 md:py-3">
       {/* Header + participation widget */}
@@ -606,39 +652,36 @@ export function EventDetail({
       >
         <div className="flex flex-col gap-3 md:gap-4">
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <div
-                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white ${type === "rehearsal" ? "bg-primary" : "bg-accent"}`}
-              >
-                <EventIcon className="h-5 w-5" />
-              </div>
-              <div className="flex flex-wrap items-center gap-2 min-w-0">
-                {isEditing && form && type === "concert" ? (
+            {isEditing && form && type === "concert" ? (
+              <div className="flex items-center gap-2">
+                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white ${type === "rehearsal" ? "bg-primary" : "bg-accent"}`}>
+                  <HeaderIcon className="h-5 w-5" />
+                </div>
+                <div className="flex flex-wrap items-center gap-2 min-w-0">
                   <input
                     type="text"
                     value={form.title}
                     onChange={(event) => setForm({ ...form, title: event.target.value })}
                     className="text-2xl font-bold rounded-md border border-base-300 bg-base-100 text-base-content px-2 py-1 min-w-0 flex-1"
                   />
-                ) : (
-                  <h1 className="text-2xl font-bold text-base-content break-words whitespace-normal leading-tight">
-                    {title}
-                  </h1>
-                )}
-                <span className={`event-badge ${eventTypeConfig.badgeClass}`}>{eventTypeConfig.label}</span>
+                  <span className={`event-badge ${eventTypeConfig.badgeClass}`}>{eventTypeConfig.label}</span>
+                </div>
               </div>
-            </div>
-            <div className="mt-2 space-y-1">
-              <p className="text-sm text-base-content/60">
-                {dateStr} · {timeStr}
-                {endTimeStr ? ` - ${endTimeStr}` : ""}
-              </p>
-              {currentLocationName && (
-                <p className="text-sm text-base-content/60">
-                  <EntityLink entityType="location" id={currentLocationId} name={currentLocationName} modules={modules} />
-                </p>
-              )}
-            </div>
+            ) : (
+              <EventEntityHeader
+                title={title}
+                iconName={eventTypeConfig.icon}
+                iconBgClassName={type === "rehearsal" ? "bg-primary" : "bg-accent"}
+                badgeLabel={eventTypeConfig.label}
+                badgeClassName={eventTypeConfig.badgeClass}
+                dateTimeLine={`${dateStr} · ${timeStr}${endTimeStr ? ` - ${endTimeStr}` : ""}`}
+                locationLine={
+                  currentLocationName ? (
+                    <EntityLink entityType="location" id={currentLocationId} name={currentLocationName} modules={modules} />
+                  ) : undefined
+                }
+              />
+            )}
             {isPastEvent && (
               <p className="mt-2 text-xs font-medium text-error">
                 {t("js.event.detail.pastEvent")}
@@ -653,6 +696,20 @@ export function EventDetail({
           </div>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center md:justify-end">
             {canEdit && !isEditing && <DetailEditButton onClick={startEdit} />}
+            {canEdit && !isEditing && !isNew && (type === "rehearsal" || type === "concert") && (
+              <button
+                type="button"
+                className="btn btn-soft btn-primary"
+                onClick={() => setEmailComposerQuery(true)}
+              >
+                <MailIcon className="h-4 w-4" />
+                <span>
+                  {t("js.event.emailInfo.button") !== "js.event.emailInfo.button"
+                    ? t("js.event.emailInfo.button")
+                    : "Send event info"}
+                </span>
+              </button>
+            )}
             {!isEditing && participationStats && (participationStats.total ?? 0) > 0 && (
               <button
                 type="button"
@@ -1484,7 +1541,7 @@ export function EventDetail({
           onDelete={deleteCurrentEvent}
         />
       )}
-      {renderAfterContent}
+      {!emailComposerOpen && renderAfterContent}
       {participationStats && participantsByInstrument && participantsByInstrument.length > 0 && (
         <EventParticipationShareModal
           open={shareModalOpen}

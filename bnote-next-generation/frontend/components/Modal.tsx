@@ -17,9 +17,10 @@ interface ModalProps {
   title: string;
   children: React.ReactNode;
   bodyClassName?: string;
+  dialogClassName?: string;
 }
 
-export function Modal({ open, onClose, title, children, bodyClassName = "" }: ModalProps) {
+export function Modal({ open, onClose, title, children, bodyClassName = "", dialogClassName = "" }: ModalProps) {
   const { t } = useI18n();
   const closeLabel = t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close";
 
@@ -54,7 +55,7 @@ export function Modal({ open, onClose, title, children, bodyClassName = "" }: Mo
         aria-hidden="true"
         onClick={handleBackdropClick}
       />
-      <div className="modal-dialog modal-dialog-sm modal-middle relative z-10 w-full max-w-md">
+      <div className={`modal-dialog modal-dialog-sm modal-middle relative z-10 w-full max-w-md ${dialogClassName}`.trim()}>
         <div className="modal-content rounded-box border border-base-300 bg-base-100 shadow-xl">
           <div className="modal-header flex items-center justify-between p-4">
             <h3 id="modal-title" className="modal-title text-lg font-semibold text-base-content">

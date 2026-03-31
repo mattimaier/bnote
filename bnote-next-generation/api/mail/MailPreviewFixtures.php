@@ -245,6 +245,51 @@ final class MailPreviewFixtures {
     }
 
     /**
+     * @return array{
+     *   subject:string,
+     *   eventTitle:string,
+     *   eventTypeLabel:string,
+     *   eventDateLine:string,
+     *   eventLocationName:string,
+     *   eventAddressLine:string,
+     *   eventLink:string,
+     *   detailLines:list<array{label:string,value:string}>,
+     *   entityCard:array<string,mixed>,
+     *   customBody:string,
+     *   senderName:string
+     * }
+     */
+    public static function eventInfoConcert(string $locale = 'en'): array {
+        $entityCtx = self::commentDiscussionConcert($locale);
+        return [
+            'subject' => MailI18n::interpolate(MailI18n::t('mail.eventInfo.subjectConcert', $locale), [
+                'orgPrefix' => '[Demo Band] ',
+                'date' => MailLocaleDateTime::formatDateShort(new DateTimeImmutable('2026-03-16 12:00:00'), $locale),
+            ]),
+            'eventTitle' => 'Forum 2 Concert',
+            'eventTypeLabel' => MailI18n::t('js.event.performance', $locale),
+            'eventDateLine' => MailLocaleDateTime::formatEventMetaLine('2026-03-16 20:00:00', '2026-03-16 22:30:00', $locale),
+            'eventLocationName' => 'Forum 2',
+            'eventAddressLine' => 'Nadistrasse 3, 80809 Muenchen',
+            'eventLink' => 'https://www.kultur-forum2.de/veranstaltungen/bigband-tuesday-bigband-forum2-in-concert/',
+            'detailLines' => [
+                [
+                    'label' => MailI18n::t('mail.eventInfo.detailLocation', $locale),
+                    'value' => 'Forum 2 - Nadistrasse 3, 80809 Muenchen',
+                    'href' => 'https://www.google.com/maps/search/?api=1&query=' . rawurlencode('Nadistrasse 3, 80809 Muenchen'),
+                ],
+                ['label' => MailI18n::t('mail.eventInfo.detailMeeting', $locale), 'value' => '18:45'],
+                ['label' => MailI18n::t('mail.eventInfo.detailSoundcheck', $locale), 'value' => '19:00'],
+                ['label' => MailI18n::t('mail.eventInfo.detailStart', $locale), 'value' => '20:00'],
+                ['label' => MailI18n::t('mail.eventInfo.detailDresscode', $locale), 'value' => MailI18n::t('mail.eventInfo.defaultDresscode', $locale)],
+            ],
+            'entityCard' => $entityCtx['entityCard'],
+            'customBody' => "Hallo Band,\n\nhier sind die Infos fuer unser Konzert morgen.",
+            'senderName' => 'Stefan',
+        ];
+    }
+
+    /**
      * @return array{mode:string,title:string,description:string,taskId:int}
      */
     public static function taskNotifyCreate(): array {

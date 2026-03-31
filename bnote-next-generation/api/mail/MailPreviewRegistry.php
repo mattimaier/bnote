@@ -7,6 +7,7 @@ require_once __DIR__ . '/builders/NewUserAdminMailBuilder.php';
 require_once __DIR__ . '/builders/LongDemoMailBuilder.php';
 require_once __DIR__ . '/builders/CommentDiscussionMailBuilder.php';
 require_once __DIR__ . '/builders/EventParticipantInviteMailBuilder.php';
+require_once __DIR__ . '/builders/EventInfoMailBuilder.php';
 require_once __DIR__ . '/builders/TaskNotificationMailBuilder.php';
 require_once __DIR__ . '/NextGenMailMessage.php';
 
@@ -25,6 +26,7 @@ final class MailPreviewRegistry {
             ['id' => 'event_invite_rehearsal', 'label' => 'Event invite (rehearsal, maybe on)'],
             ['id' => 'event_invite_rehearsal_no_maybe', 'label' => 'Event invite (rehearsal, maybe off)'],
             ['id' => 'event_invite_concert', 'label' => 'Event invite (concert)'],
+            ['id' => 'event_info_concert', 'label' => 'Event info (concert)'],
             ['id' => 'task_assigned', 'label' => 'Task assigned (create)'],
             ['id' => 'task_updated', 'label' => 'Task updated'],
         ];
@@ -141,6 +143,14 @@ final class MailPreviewRegistry {
                     $sd,
                     $locale,
                     $ctxCon,
+                    [MailPreviewFixtures::previewToEmail()],
+                    []
+                );
+            case 'event_info_concert':
+                return EventInfoMailBuilder::buildForPreview(
+                    $sd,
+                    $locale,
+                    MailPreviewFixtures::eventInfoConcert($locale),
                     [MailPreviewFixtures::previewToEmail()],
                     []
                 );

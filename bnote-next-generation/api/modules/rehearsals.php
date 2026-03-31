@@ -34,6 +34,7 @@ require_once BNOTE_ROOT . '/src/data/database.php';
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
 require_once __DIR__ . '/../mail/EventParticipantNotifier.php';
+require_once __DIR__ . '/../mail/EventInfoMailService.php';
 require_once __DIR__ . '/../text_normalizer.php';
 
 class RehearsalsModule {
@@ -87,6 +88,21 @@ class RehearsalsModule {
         if ($action === 'create_series') {
             $this->requireRehearsalsModulePermission();
             return $this->normalizeResponse($this->createSeries(), $action);
+        }
+
+        if ($action === 'emailInfoDraft') {
+            $this->requireRehearsalsModulePermission();
+            return $this->normalizeResponse($this->emailInfoDraft(), $action);
+        }
+
+        if ($action === 'emailInfoPreview') {
+            $this->requireRehearsalsModulePermission();
+            return $this->emailInfoPreview();
+        }
+
+        if ($action === 'emailInfoSend') {
+            $this->requireRehearsalsModulePermission();
+            return $this->normalizeResponse($this->emailInfoSend(), $action);
         }
 
         if ($action === 'list_series') {
@@ -1517,6 +1533,102 @@ class RehearsalsModule {
             $data = $_POST;
         }
         return $data;
+    }
+
+    private function emailInfoDraft() {
+        global $system_data;
+        $payload = $this->getRequestData();
+        $id = intval($payload['id'] ?? 0);
+        if ($id <= 0) {
+            Response::error('Invalid rehearsal ID', 400);
+        }
+        $userId = Auth::getUserId();
+        if (!$this->userHasAccessToRehearsal($id, $userId)) {
+            Response::error('Access denied to this rehearsal', 403);
+        }
+        $locale = trim((string) ($payload['locale'] ?? (method_exists($system_data, 'getLang') ? $system_data->getLang() : 'en')));
+        $user = Auth::getUserInfo();
+        $senderName = trim((string) (($user['name'] ?? '') . ' ' . ($user['surname'] ?? '')));
+        return EventInfoMailService::draft($system_data, 'R', $id, $locale !== '' ? $locale : 'en', $senderName);
+    }
+
+    private function emailInfoPreview() {
+        global $system_data;
+        $payload = $this->getRequestData();
+        $id = intval($payload['id'] ?? 0);
+        if ($id <= 0) {
+            Response::error('Invalid rehearsal ID', 400);
+        }
+        $userId = Auth::getUserId();
+        if (!$this->userHasAccessToRehearsal($id, $userId)) {
+            Response::error('Access denied to this rehearsal', 403);
+        }
+        $locale = trim((string) ($payload['locale'] ?? (method_exists($system_data, 'getLang') ? $system_data->getLang() : 'en')));
+        $user = Auth::getUserInfo();
+        $senderName = trim((string) (($user['name'] ?? '') . ' ' . ($user['surname'] ?? '')));
+        $recipientIds = array_values(array_filter(array_map('intval', $payload['recipientIds'] ?? []), fn($value) => $value > 0));
+        $manualEmails = array_values(array_filter(array_map('strval', $payload['manualEmails'] ?? []), fn($value) => trim($value) !== ''));
+        $subject = trim((string) ($payload['subject'] ?? ''));
+        $body = (string) ($payload['body'] ?? '');
+        try {
+            $html = EventInfoMailService::previewHtml(
+                $system_data,
+                'R',
+                $id,
+                $locale !== '' ? $locale : 'en',
+                $recipientIds,
+                $manualEmails,
+                $subject,
+                $body,
+                $senderName
+            );
+        } catch (Throwable $e) {
+            Response::error($e->getMessage(), 400);
+        }
+        return ['html' => $html];
+    }
+
+    private function emailInfoSend() {
+        global $system_data;
+        $payload = $this->getRequestData();
+        $id = intval($payload['id'] ?? 0);
+        if ($id <= 0) {
+            Response::error('Invalid rehearsal ID', 400);
+        }
+        $userId = Auth::getUserId();
+        if (!$this->userHasAccessToRehearsal($id, $userId)) {
+            Response::error('Access denied to this rehearsal', 403);
+        }
+        $locale = trim((string) ($payload['locale'] ?? (method_exists($system_data, 'getLang') ? $system_data->getLang() : 'en')));
+        $user = Auth::getUserInfo();
+        $senderName = trim((string) (($user['name'] ?? '') . ' ' . ($user['surname'] ?? '')));
+        $recipientIds = array_values(array_filter(array_map('intval', $payload['recipientIds'] ?? []), fn($value) => $value > 0));
+        $manualEmails = array_values(array_filter(array_map('strval', $payload['manualEmails'] ?? []), fn($value) => trim($value) !== ''));
+        $subject = trim((string) ($payload['subject'] ?? ''));
+        $body = (string) ($payload['body'] ?? '');
+        if ($subject === '') {
+            Response::error('mail_subject_required', 400);
+        }
+        if (trim($body) === '') {
+            Response::error('mail_body_required', 400);
+        }
+        try {
+            return EventInfoMailService::send(
+                $system_data,
+                'R',
+                $id,
+                $locale !== '' ? $locale : 'en',
+                $recipientIds,
+                $manualEmails,
+                $subject,
+                $body,
+                $senderName
+            );
+        } catch (InvalidArgumentException $e) {
+            Response::error($e->getMessage(), 400);
+        } catch (Throwable $e) {
+            Response::error($e->getMessage(), 500);
+        }
     }
     
     /**

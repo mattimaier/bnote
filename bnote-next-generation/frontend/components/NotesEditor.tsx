@@ -20,6 +20,7 @@ export interface NotesEditorProps {
   disabled?: boolean;
   minHeight?: string;
   id?: string;
+  enableImage?: boolean;
 }
 
 const DEFAULT_PLACEHOLDER = "Type or paste content…";
@@ -32,6 +33,7 @@ export function NotesEditor({
   disabled = false,
   minHeight = "120px",
   id = "notes-editor-holder",
+  enableImage = true,
 }: NotesEditorProps) {
   const holderRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<EditorJSInstance | null>(null);
@@ -66,21 +68,25 @@ export function NotesEditor({
 
       if (cancelled || !holderRef.current) return;
 
+      const tools: Record<string, unknown> = {
+        header: { class: Header, config: { placeholder: "Heading" }, inlineToolbar: true },
+        list: { class: List, inlineToolbar: true },
+        quote: {
+          class: Quote,
+          config: { quotePlaceholder: "Quote", captionPlaceholder: "Caption" },
+          inlineToolbar: true,
+        },
+        paragraph: { class: Paragraph, inlineToolbar: true },
+      };
+      if (enableImage) {
+        tools.image = { class: SimpleImage, inlineToolbar: true };
+      }
+
       const editorConfig = {
         holder: holderRef.current,
         placeholder,
         data: initialData as OutputData | undefined,
-        tools: {
-          header: { class: Header, config: { placeholder: "Heading" }, inlineToolbar: true },
-          list: { class: List, inlineToolbar: true },
-          quote: {
-            class: Quote,
-            config: { quotePlaceholder: "Quote", captionPlaceholder: "Caption" },
-            inlineToolbar: true,
-          },
-          paragraph: { class: Paragraph, inlineToolbar: true },
-          image: { class: SimpleImage, inlineToolbar: true },
-        },
+        tools,
         onChange: () => {
           if (debounceRef.current) clearTimeout(debounceRef.current);
           debounceRef.current = setTimeout(async () => {
@@ -118,7 +124,7 @@ export function NotesEditor({
       }
       setReady(false);
     };
-  }, [disabled, placeholder, notifyChange]);
+  }, [disabled, placeholder, notifyChange, enableImage]);
 
   const handleBlur = useCallback(async () => {
     if (debounceRef.current) clearTimeout(debounceRef.current);

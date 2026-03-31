@@ -15,6 +15,7 @@ If SMTP is not configured, or BNote runs in **demo mode**, those emails are skip
 | Password reset | `api/modules/auth.php` → `requestPasswordReset` | `PasswordResetMailBuilder` | No (system mail) | `NextGenMailer::send` |
 | New registration → administrators | `api/nextgen_registration.php` | `RegistrationAdminNotifier` / `NewUserAdminMailBuilder` | No (system mail) | `NextGenMailer::sendBulk` |
 | Rehearsal/concert participant added | `api/modules/rehearsals.php`, `api/modules/concerts.php` | `EventParticipantNotifier` / `EventParticipantInviteMailBuilder` | Yes (`NextGenMailPolicy`) | `NextGenMailer::sendBulk` |
+| Rehearsal/concert event-info group mail | `api/modules/rehearsals.php`, `api/modules/concerts.php` (`emailInfoDraft/Preview/Send`) | `EventInfoMailService` / `EventInfoMailBuilder` | Yes (`NextGenMailPolicy`) | `NextGenMailer::send` |
 | Task assignee create/update | `api/modules/tasks.php` | `TaskNotificationMailBuilder` | Yes | `NextGenMailer::send` |
 | Entity comment added | `api/modules/comments.php` | `CommentDiscussionNotifier` / `CommentDiscussionMailBuilder` | Yes | `NextGenMailer::sendBulk` |
 
@@ -33,6 +34,7 @@ If SMTP is not configured, or BNote runs in **demo mode**, those emails are skip
 - **`NextGenMailPolicy`:** Transactional fan-out respects guest contacts, inactive users, and `email_notification` for active users (do not use `contactEmailNotificationOn` for these paths).
 - **Comments:** `CommentDiscussionNotifier` — entity cards, thread bubbles, deep links to `/entity?…&focus=comments`.
 - **Participation invites:** `EventParticipantNotifier` + magic-link URLs from `MailEnv` (`nextgenParticipationRespondAbsoluteUrl`, etc.).
+- **Event-info group mail:** in-module composer with draft/preview/send actions via `EventInfoMailService`.
 - **Bulk fan-out:** `NextGenMailer::sendBulk` with optional **`NEXTGEN_MAIL_BULK_DELAY_MS`** between messages.
 
 ---
@@ -197,6 +199,20 @@ Some Next Gen mail goes to **contacts** attached to events or tasks. Recipient r
 | Present | **1** (active) | **Only if** the user has email notifications enabled (`email_notification` / `userEmailNotificationOn()`). |
 
 **Features that use this policy today:** rehearsal/concert participation invites (`EventParticipantNotifier`), task assignee create/update mail (`api/modules/tasks.php`), and comment/discussion notifications (`CommentDiscussionNotifier`).
+
+---
+
+## Event-info group mail (hard behavior)
+
+For the rehearsal/concert "Event-Info senden" flow (`emailInfo*` actions):
+
+- **Navigation/UI:** composer is module-internal and query-driven (`?emailInfo=1`), not legacy modal-only navigation.
+- **Recipients:** selected participants + additional contacts + manual emails are deduped and sent as one group mail.
+- **Delivery addressing (hard requirement):**
+  - `From` = system sender address from `MAIL_FROM_ADDRESS` (`MailEnv::fromAddress()`).
+  - `To` = same system sender address (sender is recipient for the group mail envelope).
+  - all selected recipients are in `BCC`.
+- **Preview:** compose preview intentionally mimics a mail client header (`From/To/BCC/Subject`) and must reflect the same addressing semantics as send.
 
 **Legacy caveat:** `Systemdata::contactEmailNotificationOn()` returns **false** when the contact has **no** user. That matches “only notify logged-in members” in older code paths but **wrong** for Next Gen transactional fan-out, where **guest contacts** on an event should still get invites and discussion mail. New code should call **`contactAllowsTransactionalNotification()`** (or **`contactTransactionalMailDenyReason()`** when you need a machine-readable skip reason, e.g. for `mail_comment_recipients.php` / `CommentDiscussionNotifier::describeRecipients`).
 

@@ -27,28 +27,32 @@ final class CommentDiscussionEntitySummary {
      *   location_line:string
      * }|null
      */
-    public static function load(string $otype, int $oid, $system_data): ?array {
+    public static function load(string $otype, int $oid, $system_data, ?string $locale = null): ?array {
         $otype = strtoupper($otype);
+        $resolvedLocale = self::localeFrom($system_data, $locale);
         if ($otype === 'R') {
-            return self::loadRehearsal($oid, $system_data);
+            return self::loadRehearsal($oid, $system_data, $resolvedLocale);
         }
         if ($otype === 'C') {
-            return self::loadConcert($oid, $system_data);
+            return self::loadConcert($oid, $system_data, $resolvedLocale);
         }
         if ($otype === 'V') {
-            return self::loadVote($oid, $system_data);
+            return self::loadVote($oid, $system_data, $resolvedLocale);
         }
 
         return null;
     }
 
-    private static function localeFrom($system_data): string {
+    private static function localeFrom($system_data, ?string $override = null): string {
+        $loc = trim((string) ($override ?? ''));
+        if ($loc !== '') {
+            return strtolower(explode('-', $loc)[0] ?? 'en');
+        }
         return method_exists($system_data, 'getLang') ? (string) ($system_data->getLang() ?: 'en') : 'en';
     }
 
     /** @return array|null */
-    private static function loadRehearsal(int $oid, $system_data) {
-        $locale = self::localeFrom($system_data);
+    private static function loadRehearsal(int $oid, $system_data, string $locale) {
         $pd = new ProbenData();
         $r = $pd->getRehearsal($oid);
         if (!is_array($r) || empty($r['id'])) {
@@ -74,6 +78,7 @@ final class CommentDiscussionEntitySummary {
 
         return [
             'icon_bg' => $acc['icon_bg'],
+            'icon_inner_html' => MailEntityIcons::inlineSvgForEntityKey('rehearsal'),
             'icon_char' => "\u{266B}",
             'title' => $title,
             'badge_label' => MailI18n::t('js.event.rehearsal', $locale),
@@ -86,8 +91,7 @@ final class CommentDiscussionEntitySummary {
     }
 
     /** @return array|null */
-    private static function loadConcert(int $oid, $system_data) {
-        $locale = self::localeFrom($system_data);
+    private static function loadConcert(int $oid, $system_data, string $locale) {
         $kd = new KonzerteData();
         $c = $kd->getConcert($oid);
         if (!is_array($c) || empty($c['id'])) {
@@ -127,8 +131,7 @@ final class CommentDiscussionEntitySummary {
     }
 
     /** @return array|null */
-    private static function loadVote(int $oid, $system_data) {
-        $locale = self::localeFrom($system_data);
+    private static function loadVote(int $oid, $system_data, string $locale) {
         $sd = new StartData();
         $v = $sd->getVote($oid);
         if (!is_array($v) || empty($v['id'])) {

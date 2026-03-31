@@ -53,6 +53,7 @@ export function EntityChatLayout({
 }: EntityChatLayoutProps) {
   const { t } = useI18n();
   const searchParams = useSearchParams();
+  const emailInfoMode = searchParams?.get("emailInfo") === "1";
   const commentsAnchorRef = useRef<HTMLDivElement | null>(null);
   const [discussionOn, setDiscussionOn] = useState<boolean | null>(null);
   const isSidebar = useMinWidth(SIDEBAR_BREAKPOINT_PX);
@@ -92,6 +93,9 @@ export function EntityChatLayout({
   const commentsTitle = t("js.chat.commentsHeading");
 
   if (!hasChat) {
+    return <>{children}</>;
+  }
+  if (emailInfoMode) {
     return <>{children}</>;
   }
 
