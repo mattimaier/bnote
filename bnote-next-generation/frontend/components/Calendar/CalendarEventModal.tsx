@@ -16,12 +16,12 @@ import { getIcon } from "@/components/icons";
 import type { CalendarEvent } from "@/lib/calendar-api";
 import { reservationsApi } from "@/lib/reservations-api";
 import { appointmentsApi } from "@/lib/appointments-api";
-import { useModules } from "@/lib/use-modules";
 import { notesToPlainText } from "@/lib/editorjs-notes";
 
 interface CalendarEventModalProps {
   event: CalendarEvent | null;
   open: boolean;
+  canEditCalendarEntries: boolean;
   onClose: () => void;
   onDeleted?: () => void;
   onEditReservation?: (id: number) => void;
@@ -31,24 +31,25 @@ interface CalendarEventModalProps {
 export function CalendarEventModal({
   event,
   open,
+  canEditCalendarEntries,
   onClose,
   onDeleted,
   onEditReservation,
   onEditAppointment,
 }: CalendarEventModalProps) {
   const { t } = useI18n();
-  const modules = useModules();
   const [confirmDeleteOpen, setConfirmDeleteOpen] = React.useState(false);
   const [deleting, setDeleting] = React.useState(false);
 
-  const hasCalendarPermission = modules?.some((m) => m.name === "Calendar" || m.name === "Kalender") ?? false;
   const bnoteType = event?.extendedProps?.bnoteType ?? "";
   const isReservation = bnoteType === "reservation";
   const isAppointment = bnoteType === "appointment";
   const isBirthday = bnoteType === "contact";
-  const canEditDelete = hasCalendarPermission && (isReservation || isAppointment);
+  const isCalendarNative = isReservation || isAppointment;
+  const canEditDelete = canEditCalendarEntries && isCalendarNative;
   const rawId = event?.id?.toString().includes("-") ? event.id.split("-")[1] : event?.id;
   const numId = parseInt(String(rawId ?? "0"), 10);
+  const noEditTooltip = "Keine Bearbeitungsrechte";
 
   const handleDelete = async () => {
     if (!numId) return;
@@ -117,16 +118,19 @@ export function CalendarEventModal({
                 ? t("js.common.details")
                 : "Details"}
             </Link>
-            {canEditDelete && (
+            {isCalendarNative && (
               <>
                 <button
                   type="button"
                   className="btn btn-soft btn-sm"
                   onClick={() => {
+                    if (!canEditDelete) return;
                     onClose();
                     if (isReservation) onEditReservation?.(numId);
                     else if (isAppointment) onEditAppointment?.(numId);
                   }}
+                  disabled={!canEditDelete}
+                  title={!canEditDelete ? noEditTooltip : undefined}
                 >
                   {t("js.common.edit") !== "js.common.edit" ? t("js.common.edit") : "Edit"}
                 </button>
@@ -134,7 +138,8 @@ export function CalendarEventModal({
                   type="button"
                   className="btn btn-soft btn-error btn-sm"
                   onClick={() => setConfirmDeleteOpen(true)}
-                  disabled={deleting}
+                  disabled={deleting || !canEditDelete}
+                  title={!canEditDelete ? noEditTooltip : undefined}
                 >
                   {t("js.common.delete") !== "js.common.delete" ? t("js.common.delete") : "Delete"}
                 </button>

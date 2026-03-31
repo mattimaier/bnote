@@ -35,13 +35,18 @@ require_once __DIR__ . '/../auth.php';
 class CalendarModule {
     private $calendarData;
     private $colorMap;
+    private $canEditCalendar;
 
     public function __construct() {
         global $system_data;
-        $moduleId = $system_data->getModuleId('Calendar');
-        if (!$moduleId || !$system_data->userHasPermission($moduleId)) {
+        if (!Auth::check()) {
             Response::error('Access denied to Calendar', 403);
         }
+        $uid = Auth::getUserId();
+        $moduleId = $system_data->getModuleId('Calendar');
+        $hasCalendarModule = $moduleId ? $system_data->userHasPermission($moduleId) : false;
+        $isAdmin = $uid && ($system_data->isUserSuperUser($uid) || $system_data->isUserMemberGroup(1, $uid));
+        $this->canEditCalendar = $isAdmin || $hasCalendarModule;
 
         $appointmentData = new AppointmentData();
         $this->calendarData = new CalendarData();
@@ -65,9 +70,18 @@ class CalendarModule {
         switch ($action) {
             case 'getEvents':
                 return $this->getEvents();
+            case 'getCapabilities':
+                return $this->getCapabilities();
             default:
                 Response::error('Unknown action: ' . $action, 400);
         }
+    }
+
+    private function getCapabilities() {
+        return [
+            'canView' => true,
+            'canEdit' => $this->canEditCalendar,
+        ];
     }
 
     private function getEvents() {

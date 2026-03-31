@@ -344,6 +344,7 @@ class AuthModule {
                 'i18n' => 'js.sidebar.calendar'
             ]
         ];
+        $calendarAlreadyAdded = false;
         
         foreach ($allModules as $modId => $modRow) {
             $modName = $modRow['name'] ?? '';
@@ -372,8 +373,12 @@ class AuthModule {
             // Check if user has permission for this module
             $hasPermission = $system_data->userHasPermission($modIdInt);
             error_log("getModules: Module $modName (ID=$modIdInt) hasPermission=" . ($hasPermission ? 'true' : 'false'));
-            
-            if (!$hasPermission) {
+            $isCalendarModule = ($modName === 'Calendar' || $modName === 'Kalender');
+            if (!$hasPermission && !$isCalendarModule) {
+                continue;
+            }
+            // Calendar is visible to all authenticated users; keep only one calendar entry.
+            if ($isCalendarModule && $calendarAlreadyAdded) {
                 continue;
             }
             
@@ -385,6 +390,9 @@ class AuthModule {
                 'icon' => $mapping['icon'],
                 'i18n' => $mapping['i18n']
             ];
+            if ($isCalendarModule) {
+                $calendarAlreadyAdded = true;
+            }
             error_log("getModules: Added module $modName");
         }
         

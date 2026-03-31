@@ -6,10 +6,11 @@
 
 "use client";
 
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
+import listPlugin from "@fullcalendar/list";
 import interactionPlugin from "@fullcalendar/interaction";
 import allLocales from "@fullcalendar/core/locales-all";
 import { useI18n } from "@/contexts/I18nContext";
@@ -24,51 +25,72 @@ const FullCalendar = dynamic(
   { ssr: false }
 );
 
-const PLUGINS = [dayGridPlugin, timeGridPlugin, interactionPlugin];
+const PLUGINS = [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin];
 
 interface CalendarViewProps {
   events: CalendarEvent[];
   onEventClick: (event: CalendarEvent) => void;
   onSelectRange: (start: string, end: string, allDay: boolean) => void;
+  canEdit: boolean;
 }
 
 export function CalendarView({
   events,
   onEventClick,
   onSelectRange,
+  canEdit,
 }: CalendarViewProps) {
   const { t, lang } = useI18n();
+  const [isMobile, setIsMobile] = useState(false);
   const fcLocale = (lang ?? "en").split("-")[0]?.toLowerCase() || "en";
 
-  const fcEvents = events.map((ev) => {
-    const bnoteType = ev.extendedProps?.bnoteType ?? "";
-    const color = getColorForBnoteType(bnoteType) ?? ev.extendedProps?.color ?? null;
-    const pillStyle = getPillStyle(color);
-    return {
-      id: ev.id,
-      title: notesToPlainText(ev.title ?? ""),
-      start: ev.start,
-      end: ev.end,
-      allDay: ev.allDay ?? false,
-      backgroundColor: pillStyle.backgroundColor,
-      borderColor: pillStyle.borderColor,
-      textColor: pillStyle.color,
-      extendedProps: {
-        ...(ev.extendedProps ?? {}),
-        _bg: pillStyle.backgroundColor,
-        _border: pillStyle.borderColor,
-        _text: pillStyle.color,
-      },
-    };
-  });
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 767px)");
+    const update = () => setIsMobile(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+
+  const eventMap = useMemo(() => {
+    const map = new Map<string, CalendarEvent>();
+    for (const ev of events) map.set(ev.id, ev);
+    return map;
+  }, [events]);
+
+  const fcEvents = useMemo(
+    () =>
+      events.map((ev) => {
+        const bnoteType = ev.extendedProps?.bnoteType ?? "";
+        const color = getColorForBnoteType(bnoteType) ?? ev.extendedProps?.color ?? null;
+        const pillStyle = getPillStyle(color);
+        return {
+          id: ev.id,
+          title: notesToPlainText(ev.title ?? ""),
+          start: ev.start,
+          end: ev.end,
+          allDay: ev.allDay ?? false,
+          backgroundColor: pillStyle.backgroundColor,
+          borderColor: pillStyle.borderColor,
+          textColor: pillStyle.color,
+          extendedProps: {
+            ...(ev.extendedProps ?? {}),
+            _bg: pillStyle.backgroundColor,
+            _border: pillStyle.borderColor,
+            _text: pillStyle.color,
+          },
+        };
+      }),
+    [events]
+  );
 
   const handleEventClick = useCallback(
     (info: { event: { id: string; extendedProps: unknown }; jsEvent: { preventDefault: () => void } }) => {
       info.jsEvent.preventDefault();
-      const ev = events.find((e) => e.id === info.event.id);
+      const ev = eventMap.get(info.event.id);
       if (ev) onEventClick(ev);
     },
-    [events, onEventClick]
+    [eventMap, onEventClick]
   );
 
   const handleSelect = useCallback(
@@ -109,7 +131,7 @@ export function CalendarView({
         color: text,
       };
 
-      if (isBirthday) {
+      if (isBirthday && !isMobile) {
         const CakeIcon = getIcon("cake");
         return (
           <div
@@ -132,45 +154,51 @@ export function CalendarView({
       const EventIcon = getIcon(ext.icon ?? "calendar");
       return (
         <div
-          className="fc-event-main-frame flex items-start gap-1.5 overflow-visible rounded px-1 py-0.5 border"
+          className={`fc-event-main-frame flex rounded border ${isMobile ? "items-center gap-1 px-1 py-0.5" : "items-start gap-1.5 px-1 py-0.5"} overflow-visible`}
           style={eventStyle}
         >
-          <EventIcon className="h-4 w-4 shrink-0 opacity-80 mt-0.5" aria-hidden />
-          <span className="text-xs break-words leading-tight flex-1 min-w-0">{arg.event.title}</span>
+          <EventIcon className={`shrink-0 opacity-80 ${isMobile ? "h-3 w-3 mt-0" : "h-4 w-4 mt-0.5"}`} aria-hidden />
+          <span className={`text-xs leading-tight flex-1 min-w-0 ${isMobile ? "truncate whitespace-nowrap" : "break-words"}`}>
+            {arg.event.title}
+          </span>
         </div>
       );
     },
-    []
+    [isMobile]
   );
 
+  const initialView = isMobile ? "listWeek" : "dayGridMonth";
+  const headerToolbar = isMobile
+    ? { left: "prev,next", center: "title", right: "today" }
+    : { left: "prev,next today title", right: "dayGridMonth,timeGridWeek,timeGridDay" };
+
   return (
-    <div className="rounded-box border border-base-300 bg-base-100 p-4">
+    <div className="calendar-shell rounded-box border border-base-300 bg-base-100 p-2 md:p-4">
       <FullCalendar
+        key={isMobile ? "mobile" : "desktop"}
         plugins={PLUGINS}
         locale={fcLocale}
         locales={allLocales}
-        initialView="dayGridMonth"
-        headerToolbar={{
-          left: "prev,next today title",
-          right: "dayGridMonth,timeGridWeek,timeGridDay",
-        }}
+        initialView={initialView}
+        headerToolbar={headerToolbar}
         buttonText={{
           month: t("js.calendar.month") !== "js.calendar.month" ? t("js.calendar.month") : "Month",
           week: t("js.calendar.week") !== "js.calendar.week" ? t("js.calendar.week") : "Week",
           day: t("js.calendar.day") !== "js.calendar.day" ? t("js.calendar.day") : "Day",
+          list: t("js.calendar.week") !== "js.calendar.week" ? t("js.calendar.week") : "Week",
           today: t("js.calendar.today") !== "js.calendar.today" ? t("js.calendar.today") : "Today",
         }}
         events={fcEvents}
         editable={false}
-        selectable
-        selectMirror
+        selectable={canEdit}
+        selectMirror={canEdit}
         eventClick={handleEventClick}
-        select={handleSelect}
+        select={canEdit ? handleSelect : undefined}
         eventContent={eventContent}
-        dayMaxEvents={3}
+        dayMaxEvents={isMobile ? 1 : 3}
         slotMinTime="06:00:00"
         slotMaxTime="24:00:00"
-        height={900}
+        height={isMobile ? "auto" : 900}
         eventTimeFormat={{
           hour: "2-digit",
           minute: "2-digit",

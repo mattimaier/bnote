@@ -22,7 +22,8 @@ import { Plus } from "@/components/icons";
 import { ResponsiveTable } from "@/components/ResponsiveTable";
 import { ResizableTable, ResizableTh } from "@/components/ResizableTable";
 import { EntityListRow } from "@/components/EntityListRow";
-import { getColor, getBadgeClassForBnoteType } from "@/lib/entity-config";
+import { Clock } from "@/components/icons";
+import { getBadgeClassForBnoteType, getColorForBnoteType, getDotStyle } from "@/lib/entity-config";
 import { getIcon } from "@/components/icons";
 import { getEntityPath } from "@/lib/entities/paths";
 import { formatDateTimeShort } from "@/lib/date-time";
@@ -37,6 +38,25 @@ function formatEventDateRange(ev: CalendarEvent, lang: string): string {
   return formatDateTimeShort(start.slice(0, 19).replace("T", " "), lang) ?? "";
 }
 
+function getCalendarTypeLabel(ev: CalendarEvent, t: (key: string) => string): string {
+  const btype = ev.extendedProps?.bnoteType ?? "";
+  const labelKeys: Record<string, string> = {
+    rehearsal: "js.event.rehearsal",
+    concert: "js.event.performance",
+    vote: "js.sidebar.votes",
+    task: "js.sidebar.tasks",
+    contact: "js.calendar.birthday",
+    phase: "js.sidebar.rehearsals",
+  };
+  const labelKey = labelKeys[btype] ?? null;
+  if (labelKey) {
+    return t(labelKey) !== labelKey ? t(labelKey) : btype;
+  }
+  if (btype === "reservation") return "Reservation";
+  if (btype === "appointment") return "Appointment";
+  return btype;
+}
+
 export default function CalendarPage() {
   const { t, ready, lang } = useI18n();
   const router = useRouter();
@@ -47,6 +67,7 @@ export default function CalendarPage() {
     setEditingBar(null);
   }, [setEditingBar]);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [canEditCalendar, setCanEditCalendar] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [modalEvent, setModalEvent] = useState<CalendarEvent | null>(null);
@@ -71,8 +92,12 @@ export default function CalendarPage() {
   const loadEvents = useCallback(async () => {
     setLoading(true);
     try {
-      const list = await calendarApi.getEvents(from, to);
+      const [list, caps] = await Promise.all([
+        calendarApi.getEvents(from, to),
+        calendarApi.getCapabilities(),
+      ]);
       setEvents(list ?? []);
+      setCanEditCalendar(Boolean(caps?.canEdit));
       setError("");
     } catch (err) {
       setError(getErrorMessage(err, t, "js.common.failedToLoad"));
@@ -116,25 +141,30 @@ export default function CalendarPage() {
   );
 
   const handleSelectRange = useCallback((startStr: string, endStr: string, allDay: boolean) => {
+    if (!canEditCalendar) return;
     setSelectRange({ start: startStr, end: endStr, allDay });
     setSelectMenuOpen(true);
-  }, []);
+  }, [canEditCalendar]);
 
   const handleAddAppointment = useCallback(() => {
+    if (!canEditCalendar) return;
     setSelectMenuOpen(false);
     const params = new URLSearchParams({ type: "appointment", id: "new", edit: "1" });
     if (selectRange?.start) params.set("begin", selectRange.start);
     if (selectRange?.end) params.set("end", selectRange.end);
     router.push(`/entity?${params.toString()}`);
-  }, [selectRange, router]);
+  }, [canEditCalendar, selectRange, router]);
 
   const handleAddReservation = useCallback(() => {
+    if (!canEditCalendar) return;
     setSelectMenuOpen(false);
     const params = new URLSearchParams({ type: "reservation", id: "new", edit: "1" });
     if (selectRange?.start) params.set("begin", selectRange.start);
     if (selectRange?.end) params.set("end", selectRange.end);
     router.push(`/entity?${params.toString()}`);
-  }, [selectRange, router]);
+  }, [canEditCalendar, selectRange, router]);
+
+  const noEditTooltip = "Keine Bearbeitungsrechte";
 
   const handleListSort = useCallback((key: string) => {
     const k = key as "title" | "start" | "type";
@@ -149,17 +179,12 @@ export default function CalendarPage() {
   }, []);
 
   const sortedEvents = useMemo(() => {
-    const now = new Date();
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
     const arr = events.filter((ev) => {
       if (ev.extendedProps?.bnoteType === "contact") {
         const start = (ev.start ?? "").trim();
         if (start.length < 10 || start.startsWith("0000-00-00")) return false;
       }
-      const startTs = ev.start ? new Date(ev.start.replace(" ", "T").slice(0, 19)).getTime() : 0;
-      const evDateStart = new Date(startTs);
-      evDateStart.setHours(0, 0, 0, 0);
-      return evDateStart.getTime() >= todayStart;
+      return true;
     });
     if (listSortKey === "start") {
       arr.sort((a, b) => {
@@ -197,13 +222,21 @@ export default function CalendarPage() {
         title={t("js.sidebar.calendar") !== "js.sidebar.calendar" ? t("js.sidebar.calendar") : "Kalender"}
         actions={(
           <>
-            <ActionButton onClick={() => router.push(getEntityPath("reservation", "new", "edit"))}>
+            <ActionButton
+              onClick={() => router.push(getEntityPath("reservation", "new", "edit"))}
+              disabled={!canEditCalendar}
+              title={!canEditCalendar ? noEditTooltip : undefined}
+            >
               <Plus className="h-4 w-4" />
               {t("js.calendar.addReservation") !== "js.calendar.addReservation"
                 ? t("js.calendar.addReservation")
                 : "Add Reservation"}
             </ActionButton>
-            <ActionButton onClick={() => router.push(getEntityPath("appointment", "new", "edit"))}>
+            <ActionButton
+              onClick={() => router.push(getEntityPath("appointment", "new", "edit"))}
+              disabled={!canEditCalendar}
+              title={!canEditCalendar ? noEditTooltip : undefined}
+            >
               <Plus className="h-4 w-4" />
               {t("js.calendar.addAppointment") !== "js.calendar.addAppointment"
                 ? t("js.calendar.addAppointment")
@@ -229,6 +262,7 @@ export default function CalendarPage() {
             events={events}
             onEventClick={handleEventClick}
             onSelectRange={handleSelectRange}
+            canEdit={canEditCalendar}
           />
 
           {selectMenuOpen && selectRange && (
@@ -286,8 +320,36 @@ export default function CalendarPage() {
               <ResponsiveTable<CalendarEvent, "title" | "start" | "type">
                 rows={sortedEvents}
                 getRowKey={(ev) => ev.id}
-                getMobileTitle={(ev) => notesToPlainText(ev.title ?? "")}
-                getMobileSubtitle={(ev) => formatEventDateRange(ev, lang)}
+                renderMobileRow={(ev) => {
+                  const btype = ev.extendedProps?.bnoteType ?? "";
+                  const iconName = ev.extendedProps?.icon ?? "calendar";
+                  const Icon = getIcon(iconName);
+                  const dotColor = getColorForBnoteType(btype);
+                  const dotStyle = getDotStyle(dotColor);
+                  const typeLabel = getCalendarTypeLabel(ev, t);
+                  const dateText = formatEventDateRange(ev, lang);
+                  return (
+                    <EntityListRow
+                      icon={
+                        <span
+                          className="rounded-full flex items-center justify-center w-6 h-6 text-white"
+                          style={dotStyle}
+                        >
+                          <Icon className="h-3.5 w-3.5" />
+                        </span>
+                      }
+                      primary={notesToPlainText(ev.title ?? "")}
+                      badge={<span className={getBadgeClassForBnoteType(btype)}>{typeLabel}</span>}
+                      secondary={
+                        <span className="flex items-center gap-1">
+                          <Clock className="h-3 w-3 opacity-70" />
+                          {dateText}
+                        </span>
+                      }
+                      onClick={() => handleEventClick(ev)}
+                    />
+                  );
+                }}
                 onRowClick={(ev) => handleEventClick(ev)}
                 emptyMessage={
                   t("js.common.empty") !== "js.common.empty" ? t("js.common.empty") : "No entries"
@@ -335,22 +397,7 @@ export default function CalendarPage() {
                         const iconName = ev.extendedProps?.icon ?? "calendar";
                         const Icon = getIcon(iconName);
                         const badgeClass = getBadgeClassForBnoteType(btype);
-                        const labelKeys: Record<string, string> = {
-                          rehearsal: "js.event.rehearsal",
-                          concert: "js.event.performance",
-                          vote: "js.sidebar.votes",
-                          task: "js.sidebar.tasks",
-                          contact: "js.calendar.birthday",
-                          phase: "js.sidebar.rehearsals",
-                        };
-                        const labelKey = labelKeys[btype] ?? null;
-                        const typeLabel = labelKey
-                          ? (t(labelKey) !== labelKey ? t(labelKey) : btype)
-                          : btype === "reservation"
-                            ? "Reservation"
-                            : btype === "appointment"
-                              ? "Appointment"
-                              : btype;
+                        const typeLabel = getCalendarTypeLabel(ev, t);
                         return (
                           <tr
                             key={ev.id}
@@ -382,6 +429,7 @@ export default function CalendarPage() {
       <CalendarEventModal
         event={modalEvent}
         open={modalOpen}
+        canEditCalendarEntries={canEditCalendar}
         onClose={() => {
           setModalOpen(false);
           setModalEvent(null);

@@ -24,7 +24,13 @@ export interface CalendarEvent {
   extendedProps?: CalendarEventExtendedProps;
 }
 
+export interface CalendarCapabilities {
+  canView: boolean;
+  canEdit: boolean;
+}
+
 export const calendarApi = {
   getEvents: (from: string, to: string) =>
     api.get<CalendarEvent[]>("calendar", "getEvents", { from, to }),
+  getCapabilities: () => api.get<CalendarCapabilities>("calendar", "getCapabilities"),
 };
