@@ -7,6 +7,58 @@ declare(strict_types=1);
 
 header('Content-Type: application/json; charset=UTF-8');
 
+$phase = 'bootstrap';
+$responseSent = false;
+
+/**
+ * Emit a JSON error response exactly once.
+ *
+ * @param array<string,mixed> $extra
+ */
+function reminder_fail_json(int $statusCode, string $error, array $extra = []): void
+{
+    global $responseSent, $phase;
+    if ($responseSent) {
+        return;
+    }
+
+    while (ob_get_level() > 0) {
+        ob_end_clean();
+    }
+    http_response_code($statusCode);
+    $payload = [
+        'ok' => false,
+        'error' => $error,
+        'phase' => $phase,
+    ];
+    foreach ($extra as $k => $v) {
+        $payload[$k] = $v;
+    }
+    echo json_encode($payload, JSON_UNESCAPED_SLASHES);
+    $responseSent = true;
+}
+
+set_exception_handler(function (Throwable $e): void {
+    reminder_fail_json(500, 'uncaught_exception', [
+        'message' => $e->getMessage(),
+    ]);
+});
+
+register_shutdown_function(function (): void {
+    $last = error_get_last();
+    if (!is_array($last)) {
+        return;
+    }
+    $fatalTypes = [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR];
+    $type = (int) ($last['type'] ?? 0);
+    if (!in_array($type, $fatalTypes, true)) {
+        return;
+    }
+    reminder_fail_json(500, 'fatal_error', [
+        'message' => (string) ($last['message'] ?? 'unknown fatal error'),
+    ]);
+});
+
 if (!ob_get_level()) {
     ob_start();
 }
@@ -32,15 +84,19 @@ foreach ($requiredConfigFiles as $configFile) {
     }
 }
 if (!empty($missingConfigFiles)) {
-    http_response_code(500);
-    echo json_encode(['ok' => false, 'error' => 'missing_config', 'files' => $missingConfigFiles], JSON_UNESCAPED_SLASHES);
+    reminder_fail_json(500, 'missing_config', ['files' => $missingConfigFiles]);
     exit;
 }
 
+$phase = 'init';
 require_once $projectRoot . '/src/logic/init.php';
 error_reporting($oldErrorReporting);
 ini_set('display_errors', (string) $oldDisplayErrors);
 
+$phase = 'api_bootstrap';
+require_once __DIR__ . '/bootstrap.php';
+
+$phase = 'load_dependencies';
 require_once __DIR__ . '/mail/ReminderSchema.php';
 require_once __DIR__ . '/mail/ReminderConfig.php';
 require_once __DIR__ . '/mail/ReminderEndpointAuth.php';
@@ -51,8 +107,7 @@ $db = $system_data->dbcon;
 
 $method = strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'));
 if ($method !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['ok' => false, 'error' => 'method_not_allowed'], JSON_UNESCAPED_SLASHES);
+    reminder_fail_json(405, 'method_not_allowed');
     exit;
 }
 
@@ -66,16 +121,21 @@ if ($requestPath === '') {
 }
 
 try {
+    $phase = 'auth_verify';
     ReminderEndpointAuth::verify($db, $method, $requestPath, $rawBody);
 } catch (Throwable $e) {
-    http_response_code(401);
-    echo json_encode(
-        [
-            'ok' => false,
-            'error' => $e->getMessage(),
-        ],
-        JSON_UNESCAPED_SLASHES
-    );
+    $sigHeader = strtolower(trim((string) ($_SERVER['HTTP_X_REMINDER_SIGNATURE'] ?? '')));
+    $tsHeader = trim((string) ($_SERVER['HTTP_X_REMINDER_TIMESTAMP'] ?? ''));
+    $nonceHeader = trim((string) ($_SERVER['HTTP_X_REMINDER_NONCE'] ?? ''));
+    reminder_fail_json(401, (string) $e->getMessage(), [
+        'request_uri' => (string) ($_SERVER['REQUEST_URI'] ?? ''),
+        'request_path' => $requestPath,
+        'timestamp_header' => $tsHeader,
+        'nonce_header' => $nonceHeader,
+        'signature_header_length' => strlen($sigHeader),
+        'signature_header_prefix' => substr($sigHeader, 0, 12),
+        'body_sha256' => hash('sha256', $rawBody),
+    ]);
     exit;
 }
 
@@ -86,22 +146,37 @@ if (!is_array($json)) {
 
 $dryRun = !empty($json['dryRun']);
 $force = !empty($json['force']);
+$onlyUserId = 0;
+if (isset($json['onlyUserId'])) {
+    $rawOnlyUserId = trim((string) $json['onlyUserId']);
+    if ($rawOnlyUserId !== '') {
+        if (!preg_match('/^\d+$/', $rawOnlyUserId)) {
+            reminder_fail_json(400, 'invalid_only_user_id');
+            exit;
+        }
+        $onlyUserId = (int) $rawOnlyUserId;
+        if ($onlyUserId < 1) {
+            reminder_fail_json(400, 'invalid_only_user_id');
+            exit;
+        }
+    }
+}
 
 try {
+    $phase = 'run_scheduled';
     $result = ReminderDigestService::runScheduled($system_data, [
         'dryRun' => $dryRun,
         'force' => $force,
         'mode' => 'scheduled',
+        'onlyUserId' => $onlyUserId,
     ]);
+    while (ob_get_level() > 0) {
+        ob_end_clean();
+    }
     echo json_encode(['ok' => true, 'result' => $result], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+    $responseSent = true;
 } catch (Throwable $e) {
-    http_response_code(500);
-    echo json_encode(
-        [
-            'ok' => false,
-            'error' => 'run_failed',
-            'message' => $e->getMessage(),
-        ],
-        JSON_UNESCAPED_SLASHES
-    );
+    reminder_fail_json(500, 'run_failed', [
+        'message' => $e->getMessage(),
+    ]);
 }

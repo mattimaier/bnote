@@ -1,5 +1,9 @@
 # Build script output
 build/
+build-local-check/
 
 # Local deploy configuration (contains server details)
 .deploy.env
+
+# Locally generated runtime mail config (contains secrets)
+api/config/mail.local.php

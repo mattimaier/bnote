@@ -186,6 +186,24 @@ done 2>/dev/null || true
 
 # 3. Optional runtime mail config injection for manual deployment bundles.
 # If .deploy.env exists, generate .htaccess + api/config/mail.local.php from MAIL_* values.
+resolve_optional_op_ref() {
+  local raw_value="$1"
+  if [[ "$raw_value" == op://* ]]; then
+    if ! command -v op >/dev/null 2>&1; then
+      echo "ERROR: .deploy.env contains 1Password reference but 'op' CLI is not available."
+      exit 1
+    fi
+    local resolved
+    if ! resolved="$(op read "$raw_value")"; then
+      echo "ERROR: Failed to resolve 1Password reference: $raw_value"
+      exit 1
+    fi
+    printf '%s' "$resolved"
+    return 0
+  fi
+  printf '%s' "$raw_value"
+}
+
 if [[ -f "$DEPLOY_CONFIG_FILE" ]]; then
   # shellcheck source=/dev/null
   source "$DEPLOY_CONFIG_FILE"
@@ -215,7 +233,7 @@ if [[ -f "$DEPLOY_CONFIG_FILE" ]]; then
   export DEPLOY_MAIL_FROM_NAME="${MAIL_FROM_NAME:-}"
   export DEPLOY_BNOTE_NEXT_GENERATION_PUBLIC_URL="${BNOTE_NEXT_GENERATION_PUBLIC_URL:-}"
   export DEPLOY_BNOTE_NEXT_GENERATION_MAIL_BULK_DELAY_MS="${BNOTE_NEXT_GENERATION_MAIL_BULK_DELAY_MS:-}"
-  export DEPLOY_BNOTE_NEXT_GENERATION_REMINDER_SECRET="${BNOTE_NEXT_GENERATION_REMINDER_SECRET:-}"
+  export DEPLOY_BNOTE_NEXT_GENERATION_REMINDER_SECRET="$(resolve_optional_op_ref "${BNOTE_NEXT_GENERATION_REMINDER_SECRET:-}")"
   export DEPLOY_BNOTE_NEXT_GENERATION_REMINDER_ALLOWED_SKEW_SECONDS="${BNOTE_NEXT_GENERATION_REMINDER_ALLOWED_SKEW_SECONDS:-}"
 
   if [[ "$BUILD_SYNC_HTACCESS" == "true" ]]; then

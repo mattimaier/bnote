@@ -101,6 +101,9 @@ $enc = MailEnv::encryption();
 $username = MailEnv::username();
 $from = MailEnv::fromAddress();
 $nextgenUrl = MailEnv::nextgenPublicBaseUrl();
+$reminderSecret = MailEnv::reminderSharedSecret();
+$reminderSecretFingerprint16 = $reminderSecret !== '' ? substr(hash('sha256', $reminderSecret), 0, 16) : '';
+$reminderAllowedSkew = MailEnv::reminderAllowedSkewSeconds();
 
 $mailLocalConfigPath = dirname(__DIR__) . '/config/mail.local.php';
 $mailLocalConfigExists = is_file($mailLocalConfigPath);
@@ -116,6 +119,8 @@ foreach ([
     'MAIL_FROM_ADDRESS',
     'MAIL_FROM_NAME',
     'BNOTE_NEXT_GENERATION_PUBLIC_URL',
+    'BNOTE_NEXT_GENERATION_REMINDER_SECRET',
+    'BNOTE_NEXT_GENERATION_REMINDER_ALLOWED_SKEW_SECONDS',
 ] as $k) {
     $rawEnvPresence[$k] = [
         'getenv' => is_string(getenv($k)) && (string) getenv($k) !== '',
@@ -156,6 +161,9 @@ echo json_encode(
             'MAIL_FROM_NAME' => MailEnv::fromName(),
             'BNOTE_NEXT_GENERATION_PUBLIC_URL' => $nextgenUrl,
             'BNOTE_NEXT_GENERATION_MAIL_BULK_DELAY_MS_effective' => (int) (MailEnv::bulkSendDelayMicroseconds() / 1000),
+            'BNOTE_NEXT_GENERATION_REMINDER_SECRET_set' => $reminderSecret !== '',
+            'BNOTE_NEXT_GENERATION_REMINDER_SECRET_SHA256_16' => $reminderSecretFingerprint16,
+            'BNOTE_NEXT_GENERATION_REMINDER_ALLOWED_SKEW_SECONDS_effective' => $reminderAllowedSkew,
         ],
         'checks' => [
             'host_set' => $host !== '',
@@ -165,6 +173,7 @@ echo json_encode(
             'strato_ssl_pair' => $port === 465 && $enc === 'ssl',
             'strato_tls_pair' => $port === 587 && $enc === 'tls',
             'nextgen_public_url_set' => $nextgenUrl !== '',
+            'reminder_secret_set' => $reminderSecret !== '',
             'php_openssl_loaded' => extension_loaded('openssl'),
             'phpmailer_installed' => $phpMailerInstalled,
             'smtp_host_dns_resolved' => $dnsLooksResolved,
