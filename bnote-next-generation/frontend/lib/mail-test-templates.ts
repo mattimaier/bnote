@@ -20,6 +20,8 @@ export const MAIL_TEST_TEMPLATES: readonly { id: string; label: string }[] = [
   { id: "event_invite_rehearsal_no_maybe", label: "Event invite (rehearsal, maybe off)" },
   { id: "event_invite_concert", label: "Event invite (concert)" },
   { id: "event_info_concert", label: "Event info (concert)" },
+  { id: "reminder_digest_weekly", label: "Reminder digest (weekly summary)" },
+  { id: "reminder_digest_empty", label: "Reminder digest (empty sections)" },
   { id: "task_assigned", label: "Task assigned (create)" },
   { id: "task_updated", label: "Task updated" },
 ];

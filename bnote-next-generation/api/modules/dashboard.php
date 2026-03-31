@@ -36,10 +36,12 @@ require_once BNOTE_ROOT . '/src/data/modules/aufgabendata.php';
 require_once BNOTE_ROOT . '/src/data/database.php';
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
+require_once __DIR__ . '/../mail/ReminderInboxSource.php';
 
 class DashboardModule {
     private $data;
     private $voteData;
+    private ReminderInboxSource $inboxSource;
 
     public function __construct() {
         // Check module permission (Start module is usually public, but check anyway)
@@ -51,6 +53,7 @@ class DashboardModule {
         
         $this->data = new StartData();
         $this->voteData = new AbstimmungData();
+        $this->inboxSource = new ReminderInboxSource($this->data, $this->voteData, $system_data);
     }
     
     public function handle() {
@@ -145,9 +148,10 @@ class DashboardModule {
         $newsData = new NachrichtenData($GLOBALS['dir_prefix'] ?? '');
         $news = $newsData->fetchContent();
         
-        // Get ALL inbox items (not limited)
-        $allInboxItems = $this->getAllInboxItems();
-        $formattedInbox = $this->formatInboxItems($allInboxItems);
+        // Get ALL inbox items (not limited) via reusable source
+        $uid = (int) Auth::getUserId();
+        $allInboxItems = $this->inboxSource->getAllInboxItemsForUser($uid);
+        $formattedInbox = $this->inboxSource->formatInboxItems($allInboxItems);
         
         // Count events by type
         $counts = $this->countEventsByType($formattedInbox);
@@ -223,7 +227,7 @@ class DashboardModule {
                     $rehearsal = $this->data->getRehearsal($oid);
                     if ($rehearsal && isset($rehearsal['name'])) {
                         $status = $rehearsal['status'] ?? null;
-                        if ($status === 'hidden') {
+                        if ($this->isSuppressedEventStatus($status)) {
                             continue;
                         }
                         $locationName = $rehearsal['name'];
@@ -251,7 +255,7 @@ class DashboardModule {
                     $concert = $this->data->getConcert($oid);
                     if ($concert) {
                         $status = $concert['status'] ?? null;
-                        if ($status === 'hidden') {
+                        if ($this->isSuppressedEventStatus($status)) {
                             continue;
                         }
                         if (!$locationName && isset($concert['location_name'])) {
@@ -303,6 +307,14 @@ class DashboardModule {
         }
         
         return $formatted;
+    }
+
+    private function isSuppressedEventStatus($status): bool {
+        if (!is_string($status)) {
+            return false;
+        }
+        $normalized = strtolower(trim($status));
+        return in_array($normalized, ['hidden', 'cancelled', 'canceled'], true);
     }
     
     /**
@@ -542,8 +554,9 @@ class DashboardModule {
     private function getEventsNeedingResponse() {
         global $system_data;
         
-        // Get ALL inbox items (not limited)
-        $allInboxItems = $this->getAllInboxItems();
+        // Get ALL inbox items (not limited) via reusable source
+        $uid = (int) Auth::getUserId();
+        $allInboxItems = $this->inboxSource->getAllInboxItemsForUser($uid);
         
         // Filter items where participation is -1 (not responded yet) or open tasks
         $eventsNeedingResponse = [];
@@ -568,7 +581,7 @@ class DashboardModule {
         }
         
         // Format the items with location information
-        $formatted = $this->formatInboxItems($eventsNeedingResponse);
+        $formatted = $this->inboxSource->formatInboxItems($eventsNeedingResponse);
         
         // Count events by type
         $counts = $this->countEventsByType($formatted);

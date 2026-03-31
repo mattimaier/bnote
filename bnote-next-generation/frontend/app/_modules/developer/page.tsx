@@ -8,15 +8,17 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { AppPageHeader } from "@/components/AppPageHeader";
 import { PageContent } from "@/components/PageContent";
 import { ChevronRight, TablerIconByName } from "@/components/icons";
 import { DeveloperSurfacesGuard } from "@/components/debug/DeveloperSurfacesGuard";
+import { SelectPicker } from "@/components/SelectPicker";
 import { getApiDebugScriptUrl } from "@/lib/api";
 import { getEntityConfig } from "@/lib/entity-config";
 import mailDesignTokens from "@/mail-design-tokens.json";
 import { MAIL_TEST_LOCALES, MAIL_TEST_TEMPLATES } from "@/lib/mail-test-templates";
+import { remindersApi, type ReminderRecipient } from "@/lib/reminders-api";
 
 const COMMENT_ENTITY_KINDS = [
   { otype: "R" as const, label: "Rehearsal" },
@@ -142,6 +144,11 @@ function DeveloperModulePageContent() {
   const [commentAuthorUid, setCommentAuthorUid] = useState("");
   const [commentLoading, setCommentLoading] = useState(false);
   const [commentOutput, setCommentOutput] = useState<string | null>(null);
+  const [reminderRunLoading, setReminderRunLoading] = useState(false);
+  const [reminderRunDry, setReminderRunDry] = useState(true);
+  const [reminderRunOutput, setReminderRunOutput] = useState<string | null>(null);
+  const [reminderRecipients, setReminderRecipients] = useState<ReminderRecipient[]>([]);
+  const [reminderSelectedUserId, setReminderSelectedUserId] = useState<number>(0);
 
   const runSmtpTest = useCallback(async () => {
     const to = smtpTo.trim();
@@ -210,6 +217,32 @@ function DeveloperModulePageContent() {
     }
   }, [commentOtype, commentId, commentAuthorUid]);
 
+  const runReminderTrigger = useCallback(async () => {
+    setReminderRunLoading(true);
+    setReminderRunOutput(null);
+    try {
+      const out = await remindersApi.runNow(reminderRunDry, true, reminderSelectedUserId > 0 ? reminderSelectedUserId : undefined);
+      setReminderRunOutput(JSON.stringify(out, null, 2));
+    } catch (e) {
+      setReminderRunOutput(e instanceof Error ? e.message : String(e));
+    } finally {
+      setReminderRunLoading(false);
+    }
+  }, [reminderRunDry, reminderSelectedUserId]);
+
+  const loadReminderRecipients = useCallback(async () => {
+    try {
+      const res = await remindersApi.getRecipients();
+      const list = Array.isArray(res.recipients) ? res.recipients : [];
+      setReminderRecipients(list);
+      if (list.length > 0 && reminderSelectedUserId === 0) {
+        setReminderSelectedUserId(list[0].id);
+      }
+    } catch {
+      // Keep panel usable with manual all-users trigger.
+    }
+  }, [reminderSelectedUserId]);
+
   const nextItems = [
     { key: "debugMain", href: "/debug/", icon: "file-code", title: "API & debug home", desc: "API tester, entity shortcuts, and icon grid." },
     { key: "debugEntity", href: "/debug/entity/", icon: "layout-list", title: "Entity debug views", desc: "Mock view and edit flows for all entity types." },
@@ -239,6 +272,20 @@ function DeveloperModulePageContent() {
   ] as const;
 
   const tokensJson = JSON.stringify(mailDesignTokens, null, 2);
+  const reminderRecipientOptions = [
+    { id: 0, name: "All eligible users" },
+    ...reminderRecipients.map((u) => ({
+      id: u.id,
+      name: (u.name ?? "").trim() || `User #${u.id}`,
+      email: u.email ?? null,
+      subtitle: `User #${u.id}`,
+      instrument: `${(u.email ?? "").trim()}${(u.email ?? "").trim() ? " · " : ""}User #${u.id}`,
+    })),
+  ];
+
+  useEffect(() => {
+    void loadReminderRecipients();
+  }, [loadReminderRecipients]);
 
   return (
     <PageContent className="px-1 md:px-4 space-y-8">
@@ -461,6 +508,41 @@ function DeveloperModulePageContent() {
             </div>
             {remoteSmtpOutput !== null && (
               <pre className="max-h-48 overflow-auto rounded-box bg-base-300/40 p-3 text-xs leading-relaxed">{remoteSmtpOutput}</pre>
+            )}
+          </DevPanel>
+          <DevPanel
+            title="Reminder scheduler trigger (admin)"
+            description="Trigger the same reminder service path used by the external signed scheduler endpoint. Use dry-run for safe checks."
+            iconName="clock-play"
+            accentColor={accent}
+          >
+            <div className="space-y-1">
+              <span className="text-sm text-base-content/80">Recipient scope for this run</span>
+              <SelectPicker
+                options={reminderRecipientOptions}
+                value={reminderSelectedUserId}
+                onChange={setReminderSelectedUserId}
+                placeholder="Search user…"
+                emptyLabel="All eligible users"
+                labelSelect="Select user"
+                labelNoMatches="No matches"
+                labelClose="Close"
+              />
+            </div>
+            <label className="flex cursor-pointer items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                className="checkbox checkbox-primary checkbox-sm"
+                checked={reminderRunDry}
+                onChange={(e) => setReminderRunDry(e.target.checked)}
+              />
+              <span className="text-base-content/80">Dry-run only (no emails)</span>
+            </label>
+            <button type="button" className="btn btn-soft btn-sm btn-primary" disabled={reminderRunLoading} onClick={() => void runReminderTrigger()}>
+              {reminderRunLoading ? "Running…" : "Run reminder trigger"}
+            </button>
+            {reminderRunOutput !== null && (
+              <pre className="max-h-56 overflow-auto rounded-box bg-base-300/40 p-3 text-xs leading-relaxed whitespace-pre-wrap">{reminderRunOutput}</pre>
             )}
           </DevPanel>
         </div>

@@ -9,6 +9,7 @@ require_once __DIR__ . '/builders/CommentDiscussionMailBuilder.php';
 require_once __DIR__ . '/builders/EventParticipantInviteMailBuilder.php';
 require_once __DIR__ . '/builders/EventInfoMailBuilder.php';
 require_once __DIR__ . '/builders/TaskNotificationMailBuilder.php';
+require_once __DIR__ . '/builders/ReminderDigestMailBuilder.php';
 require_once __DIR__ . '/NextGenMailMessage.php';
 
 final class MailPreviewRegistry {
@@ -27,6 +28,8 @@ final class MailPreviewRegistry {
             ['id' => 'event_invite_rehearsal_no_maybe', 'label' => 'Event invite (rehearsal, maybe off)'],
             ['id' => 'event_invite_concert', 'label' => 'Event invite (concert)'],
             ['id' => 'event_info_concert', 'label' => 'Event info (concert)'],
+            ['id' => 'reminder_digest_weekly', 'label' => 'Reminder digest (weekly summary)'],
+            ['id' => 'reminder_digest_empty', 'label' => 'Reminder digest (empty sections)'],
             ['id' => 'task_assigned', 'label' => 'Task assigned (create)'],
             ['id' => 'task_updated', 'label' => 'Task updated'],
         ];
@@ -151,6 +154,32 @@ final class MailPreviewRegistry {
                     $sd,
                     $locale,
                     MailPreviewFixtures::eventInfoConcert($locale),
+                    [MailPreviewFixtures::previewToEmail()],
+                    []
+                );
+            case 'reminder_digest_weekly':
+                $digest = MailPreviewFixtures::reminderDigestMixed($locale);
+                return ReminderDigestMailBuilder::build(
+                    $sd,
+                    $locale,
+                    MailPreviewFixtures::recipientPreviewFirstName(),
+                    $digest['events_upcoming'],
+                    $digest['events_pending_response'],
+                    $digest['votes'],
+                    $digest['tasks'],
+                    [MailPreviewFixtures::previewToEmail()],
+                    []
+                );
+            case 'reminder_digest_empty':
+                $empty = MailPreviewFixtures::reminderDigestEmpty();
+                return ReminderDigestMailBuilder::build(
+                    $sd,
+                    $locale,
+                    MailPreviewFixtures::recipientPreviewFirstName(),
+                    $empty['events_upcoming'],
+                    $empty['events_pending_response'],
+                    $empty['votes'],
+                    $empty['tasks'],
                     [MailPreviewFixtures::previewToEmail()],
                     []
                 );

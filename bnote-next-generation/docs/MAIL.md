@@ -108,8 +108,100 @@ After saving, reload the site and trigger a test (e.g. password reset). If **`ge
 | `MAIL_FROM_NAME` | From display name | e.g. band name |
 | `NEXTGEN_PUBLIC_URL` | Base URL for links in mail | `https://domain/path` — **no** trailing `/` |
 | `NEXTGEN_MAIL_BULK_DELAY_MS` | Pause between each message when notifying many recipients (comment thread, new-user admins). Milliseconds; **`0`** = send back-to-back. If unset, defaults to **100** to reduce SMTP rate limits (e.g. ~50 recipients). | `150` or `0` |
+| `NEXTGEN_REMINDER_SECRET` | Shared secret for signed calls to `api/reminders_run.php` | random 32+ bytes |
+| `NEXTGEN_REMINDER_ALLOWED_SKEW_SECONDS` | Allowed timestamp skew for signed reminder endpoint requests | `300` |
 
 Optional fallback instead of `NEXTGEN_PUBLIC_URL`: set **`NEXTGEN_PUBLIC_ORIGIN`** (e.g. `https://www.example.de`) and **`NEXT_PUBLIC_BASE_PATH`** (e.g. `/bnote-next-generation`); PHP combines them.
+
+---
+
+## Weekly summary reminders (static hosting)
+
+If your host cannot run cron, use an **external scheduler**.
+
+### How it works
+
+1. Configure reminder behavior in the app (**Settings → Reminder Emails**, admin-only):
+   - enabled on/off
+   - weekday/time in UTC
+   - recipient scope
+   - event window days + max events
+   - include votes/tasks + max counts
+2. External scheduler sends a signed `POST` to:
+   - `https://your-domain/.../bnote-next-generation/api/reminders_run.php`
+3. Endpoint verifies:
+   - HMAC signature
+   - timestamp window
+   - nonce replay protection
+4. Service sends digest mails and stores per-user weekly run idempotency.
+
+### Signed request headers
+
+- `X-Reminder-Timestamp` (unix timestamp, seconds)
+- `X-Reminder-Nonce` (random unique value per request)
+- `X-Reminder-Signature` (`sha256` HMAC hex)
+
+Canonical string:
+
+```text
+METHOD|PATH|TIMESTAMP|NONCE|BODY
+```
+
+Signature:
+
+```text
+hex(hmac_sha256(NEXTGEN_REMINDER_SECRET, canonical))
+```
+
+### GitHub Actions example (weekly UTC)
+
+Store these in GitHub repository/environment secrets:
+- `REMINDER_ENDPOINT` (full HTTPS URL to `api/reminders_run.php`)
+- `REMINDER_SECRET` (same value as server `NEXTGEN_REMINDER_SECRET`)
+
+```yaml
+name: Weekly Reminder Digest
+
+on:
+  schedule:
+    - cron: "0 8 * * 1" # Monday 08:00 UTC
+  workflow_dispatch:
+
+jobs:
+  run-reminder:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call signed reminder endpoint
+        env:
+          ENDPOINT: ${{ secrets.REMINDER_ENDPOINT }}
+          SECRET: ${{ secrets.REMINDER_SECRET }}
+        run: |
+          set -euo pipefail
+          TS="$(date +%s)"
+          NONCE="$(openssl rand -hex 16)"
+          BODY='{"dryRun":false}'
+          PATH_ONLY="$(python3 - <<'PY'
+import os, urllib.parse
+u = urllib.parse.urlparse(os.environ["ENDPOINT"])
+print(u.path or "/")
+PY
+)"
+          CANONICAL="POST|${PATH_ONLY}|${TS}|${NONCE}|${BODY}"
+          SIG="$(printf '%s' "${CANONICAL}" | openssl dgst -sha256 -hmac "${SECRET}" -hex | sed 's/^.* //')"
+          curl --fail --show-error --silent \
+            -X POST "${ENDPOINT}" \
+            -H "Content-Type: application/json" \
+            -H "X-Reminder-Timestamp: ${TS}" \
+            -H "X-Reminder-Nonce: ${NONCE}" \
+            -H "X-Reminder-Signature: ${SIG}" \
+            --data "${BODY}"
+```
+
+### Testing without scheduler wait
+
+- **Settings → Reminder Emails** (admin): run dry-run or real run.
+- **Developer tools**: reminder scheduler trigger panel (admin).
+- **Mail template index / preview**: includes reminder digest templates for visual QA.
 
 ---
 

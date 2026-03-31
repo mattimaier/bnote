@@ -168,7 +168,7 @@ export function EventCard({
             </div>
             {!isVote && (
               <div className="flex items-center gap-1.5 text-xs text-base-content/80">
-                <Clock className="h-3 w-3 text-primary/60" />
+                <Clock className="h-3 w-3 text-base-content/80" />
                 <span>{timeStr}</span>
               </div>
             )}
@@ -210,12 +210,12 @@ export function EventCard({
           <div className="flex items-center text-xs pt-2 border-t border-base-300/50 text-base-content/70">
             {isVote ? (
               <span className="flex items-center gap-1.5">
-                <Clock className="h-3 w-3 text-primary/50" />
+                <Clock className="h-3 w-3 text-base-content/70" />
                 {t("js.votes.endDate") !== "js.votes.endDate" ? t("js.votes.endDate") : "Ends"}: {dateStr}
               </span>
             ) : (
               <span className="flex items-center gap-1.5">
-                <MapPin className="h-3 w-3 text-primary/50" />
+                <MapPin className="h-3 w-3 text-base-content/70" />
                 <AddressLink value={location!} t={t} renderRawIfNoAddress />
               </span>
             )}
@@ -253,12 +253,12 @@ export function EventCard({
           {!isVote && (
             <div className="space-y-0.5 text-sm text-base-content/80">
               <div className="flex items-center gap-1.5">
-                <Clock className="h-3.5 w-3.5 text-primary/60" />
+                <Clock className="h-3.5 w-3.5 text-base-content/80" />
                 <span>{timeStr}</span>
               </div>
               {location !== null && (
                 <div className="flex items-center gap-1.5 text-base-content/70">
-                  <MapPin className="h-3.5 w-3.5 text-primary/50" />
+                  <MapPin className="h-3.5 w-3.5 text-base-content/70" />
                   <span className="min-w-0 break-words whitespace-normal leading-snug">
                     <AddressLink value={location} t={t} renderRawIfNoAddress interactive={false} />
                   </span>
@@ -303,7 +303,7 @@ export function EventCard({
       {isVote && !hasVoteWidget && (
         <div className="flex items-center text-sm text-base-content/70 pt-1">
           <span className="flex items-center gap-1">
-            <Clock className="h-3.5 w-3.5 text-primary/50" />
+            <Clock className="h-3.5 w-3.5 text-base-content/70" />
             {t("js.votes.endDate") !== "js.votes.endDate" ? t("js.votes.endDate") : "Ends"}: {dateStr}
           </span>
         </div>

@@ -72,10 +72,10 @@ final class MailPreviewFixtures {
             'entityCard' => array_merge($acc, [
                 'icon_inner_html' => MailEntityIcons::inlineSvgForEntityKey('rehearsal'),
                 'icon_char' => "\u{266B}",
-                'title' => 'Haus der Vereine',
+                'title' => 'The Brass Bunker',
                 'badge_label' => MailI18n::t('js.event.rehearsal', $locale),
                 'meta_line' => MailLocaleDateTime::formatEventMetaLine('2026-04-02 03:30:00', '2026-04-02 05:09:00', $locale),
-                'location_line' => 'Haus der Vereine',
+                'location_line' => 'The Brass Bunker',
             ]),
             'thread' => [
                 ['author' => 'Alex M.', 'message' => 'Can we move the warm-up to 18:30?', 'created_at' => '2026-03-28 10:00:00', 'is_new' => false],
@@ -110,10 +110,10 @@ final class MailPreviewFixtures {
             'entityCard' => array_merge($acc, [
                 'icon_inner_html' => MailEntityIcons::inlineSvgForEntityKey('rehearsal'),
                 'icon_char' => "\u{266B}",
-                'title' => 'Studio A',
+                'title' => 'The Metronome Lab',
                 'badge_label' => MailI18n::t('js.event.rehearsal', $locale),
                 'meta_line' => MailLocaleDateTime::formatEventMetaLine('2026-04-15 19:00:00', '2026-04-15 21:30:00', $locale),
-                'location_line' => 'Studio A',
+                'location_line' => 'The Metronome Lab',
             ]),
             'thread' => $thread,
         ];
@@ -135,10 +135,10 @@ final class MailPreviewFixtures {
             'entityCard' => array_merge($acc, [
                 'icon_inner_html' => MailEntityIcons::inlineSvgForEntityKey('concert'),
                 'icon_char' => "\u{266A}",
-                'title' => 'Summer Open Air',
+                'title' => 'Funk in the Sun Festival',
                 'badge_label' => MailI18n::t('js.event.performance', $locale),
                 'meta_line' => MailLocaleDateTime::formatEventMetaLine('2026-05-20 18:00:00', '2026-05-20 22:30:00', $locale),
-                'location_line' => 'Parkbühne, Musterstadt',
+                'location_line' => 'Rhythm Rooftop, Example City',
             ]),
             'thread' => [
                 ['author' => 'Alex M.', 'message' => 'Load-in is 14:00 — who can help with the risers?', 'created_at' => '2026-03-28 09:00:00', 'is_new' => false],
@@ -189,10 +189,10 @@ final class MailPreviewFixtures {
             'entityCard' => array_merge($acc, [
                 'icon_inner_html' => MailEntityIcons::inlineSvgForEntityKey('concert'),
                 'icon_char' => "\u{266A}",
-                'title' => 'Spring Gala',
+                'title' => 'Battle of the Basses',
                 'badge_label' => MailI18n::t('js.event.performance', $locale),
                 'meta_line' => MailLocaleDateTime::formatEventMetaLine('2026-04-12 19:00:00', '2026-04-12 22:00:00', $locale),
-                'location_line' => 'City Hall',
+                'location_line' => 'Treble Town Hall',
             ]),
             'thread' => [
                 ['author' => 'Taylor N.', 'message' => 'Doors open at 19:00 — please arrive by 18:15 for sound check.', 'created_at' => '2026-03-30 14:00:00', 'is_new' => true],
@@ -266,17 +266,17 @@ final class MailPreviewFixtures {
                 'orgPrefix' => '[Demo Band] ',
                 'date' => MailLocaleDateTime::formatDateShort(new DateTimeImmutable('2026-03-16 12:00:00'), $locale),
             ]),
-            'eventTitle' => 'Forum 2 Concert',
+            'eventTitle' => 'Sax and the City Night',
             'eventTypeLabel' => MailI18n::t('js.event.performance', $locale),
             'eventDateLine' => MailLocaleDateTime::formatEventMetaLine('2026-03-16 20:00:00', '2026-03-16 22:30:00', $locale),
-            'eventLocationName' => 'Forum 2',
-            'eventAddressLine' => 'Nadistrasse 3, 80809 Muenchen',
-            'eventLink' => 'https://www.kultur-forum2.de/veranstaltungen/bigband-tuesday-bigband-forum2-in-concert/',
+            'eventLocationName' => 'Groove Garage',
+            'eventAddressLine' => '42 Syncopation Street, Bebop Bay',
+            'eventLink' => 'https://example.org/events/sax-and-the-city-night',
             'detailLines' => [
                 [
                     'label' => MailI18n::t('mail.eventInfo.detailLocation', $locale),
-                    'value' => 'Forum 2 - Nadistrasse 3, 80809 Muenchen',
-                    'href' => 'https://www.google.com/maps/search/?api=1&query=' . rawurlencode('Nadistrasse 3, 80809 Muenchen'),
+                    'value' => 'Groove Garage - 42 Syncopation Street, Bebop Bay',
+                    'href' => 'https://example.org/maps/groove-garage',
                 ],
                 ['label' => MailI18n::t('mail.eventInfo.detailMeeting', $locale), 'value' => '18:45'],
                 ['label' => MailI18n::t('mail.eventInfo.detailSoundcheck', $locale), 'value' => '19:00'],
@@ -284,8 +284,8 @@ final class MailPreviewFixtures {
                 ['label' => MailI18n::t('mail.eventInfo.detailDresscode', $locale), 'value' => MailI18n::t('mail.eventInfo.defaultDresscode', $locale)],
             ],
             'entityCard' => $entityCtx['entityCard'],
-            'customBody' => "Hallo Band,\n\nhier sind die Infos fuer unser Konzert morgen.",
-            'senderName' => 'Stefan',
+            'customBody' => "Hallo Band,\n\npoliert die Posaunen und stimmt die Saiten - hier sind die Infos fuer unser Konzert.",
+            'senderName' => 'Avery',
         ];
     }
 
@@ -295,7 +295,7 @@ final class MailPreviewFixtures {
     public static function taskNotifyCreate(): array {
         return [
             'mode' => 'create',
-            'title' => 'Print posters for April concert',
+            'title' => 'Print posters for Funk Friday',
             'description' => "Use the template in the shared drive.\nDeadline: Friday EOD.",
             'taskId' => 501,
         ];
@@ -307,9 +307,122 @@ final class MailPreviewFixtures {
     public static function taskNotifyUpdate(): array {
         return [
             'mode' => 'update',
-            'title' => 'Print posters for April concert',
+            'title' => 'Print posters for Funk Friday',
             'description' => 'Venue confirmed — use the updated address on the PDF.',
             'taskId' => 501,
+        ];
+    }
+
+    /**
+     * @return array{
+     *   events_upcoming:list<array<string,mixed>>,
+     *   events_pending_response:list<array<string,mixed>>,
+     *   votes:list<array<string,mixed>>,
+     *   tasks:list<array<string,mixed>>
+     * }
+     */
+    public static function reminderDigestMixed(string $locale = 'en'): array {
+        $event1 = [
+            'otype' => 'R',
+            'oid' => 9001,
+            'title' => '02.04.2026',
+            'status' => 'planned',
+            'replyUntil' => '2026-04-01 23:59:00',
+            'location' => 'The Brass Bunker',
+            'participation' => -1,
+            'allow_maybe' => true,
+            'traffic_urls' => [
+                'yes' => 'https://example.org/bnote-next-generation/participation/respond/?token=previewdigest1&choice=yes',
+                'maybe' => 'https://example.org/bnote-next-generation/participation/respond/?token=previewdigest1&choice=maybe',
+                'no' => 'https://example.org/bnote-next-generation/participation/respond/?token=previewdigest1&choice=no',
+            ],
+        ];
+        $event2 = [
+            'otype' => 'R',
+            'oid' => 9002,
+            'title' => '09.04.2026',
+            'status' => 'planned',
+            'replyUntil' => '2026-04-08 23:59:00',
+            'location' => 'The Brass Bunker',
+            'participation' => 1,
+            'allow_maybe' => true,
+            'traffic_urls' => [
+                'yes' => 'https://example.org/bnote-next-generation/participation/respond/?token=previewdigest2&choice=yes',
+                'maybe' => 'https://example.org/bnote-next-generation/participation/respond/?token=previewdigest2&choice=maybe',
+                'no' => 'https://example.org/bnote-next-generation/participation/respond/?token=previewdigest2&choice=no',
+            ],
+        ];
+        $event3 = [
+            'otype' => 'C',
+            'oid' => 9003,
+            'title' => 'Boogie Storm Showcase',
+            'status' => 'confirmed',
+            'replyUntil' => '2026-04-10 18:00:00',
+            'location' => 'Groove Garage',
+            'participation' => 2,
+            'allow_maybe' => true,
+            'traffic_urls' => [
+                'yes' => 'https://example.org/bnote-next-generation/participation/respond/?token=previewdigest3&choice=yes',
+                'maybe' => 'https://example.org/bnote-next-generation/participation/respond/?token=previewdigest3&choice=maybe',
+                'no' => 'https://example.org/bnote-next-generation/participation/respond/?token=previewdigest3&choice=no',
+            ],
+        ];
+        $event4 = [
+            'otype' => 'C',
+            'oid' => 9004,
+            'title' => 'Moonlight Jam Session',
+            'status' => 'planned',
+            'replyUntil' => '2026-04-15 12:00:00',
+            'location' => 'Crescendo Corner',
+            'participation' => 0,
+            'allow_maybe' => true,
+            'traffic_urls' => [
+                'yes' => 'https://example.org/bnote-next-generation/participation/respond/?token=previewdigest4&choice=yes',
+                'maybe' => 'https://example.org/bnote-next-generation/participation/respond/?token=previewdigest4&choice=maybe',
+                'no' => 'https://example.org/bnote-next-generation/participation/respond/?token=previewdigest4&choice=no',
+            ],
+        ];
+
+        return [
+            'events_upcoming' => [$event1, $event2, $event3],
+            'events_pending_response' => [$event1],
+            'votes' => [
+                [
+                    'otype' => 'V',
+                    'oid' => 77,
+                    'title' => 'Vote: Encore order showdown',
+                    'eventBegin' => '2026-04-04 23:59:00',
+                    'location' => '',
+                    'participation' => -1,
+                ],
+            ],
+            'tasks' => [
+                [
+                    'otype' => 'T',
+                    'oid' => 510,
+                    'title' => 'Bring emergency kazoo crate',
+                    'replyUntil' => '2026-04-02 17:00:00',
+                    'location' => 'Backstage Groove Vault',
+                    'is_complete' => 0,
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @return array{
+     *   events_upcoming:list<array<string,mixed>>,
+     *   events_pending_response:list<array<string,mixed>>,
+     *   votes:list<array<string,mixed>>,
+     *   tasks:list<array<string,mixed>>
+     * }
+     */
+    public static function reminderDigestEmpty(): array {
+        return [
+            'events_upcoming' => [],
+            'events_pending_response' => [],
+            'votes' => [],
+            'tasks' => [],
         ];
     }
 }

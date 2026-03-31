@@ -92,6 +92,17 @@ Outbound mail is sent by **PHP** on your server (SMTP), not by the Next.js app. 
 
 Step-by-step setup—including a **Strato shared hosting** tutorial, security notes, and other hosts—is in **[docs/MAIL.md](docs/MAIL.md)**. The `./build.sh` script runs **Composer** in `api/` so **PHPMailer** is included in the folder you upload.
 
+### Weekly reminder emails (static hosting, no cron)
+
+Next Gen now supports a **weekly summary reminder** (open participation + optional votes/tasks) without server cron:
+
+- Configure behavior in the app under **Settings → Reminder Emails** (admin only): recipients, weekday/time (UTC), event window, max counts.
+- External scheduler (recommended): GitHub Actions calls `api/reminders_run.php` with HMAC-signed headers.
+- Manual admin trigger: available in **Developer tools** and in the Settings reminder section (dry-run or real send).
+- Security: the public endpoint requires `X-Reminder-Timestamp`, `X-Reminder-Nonce`, `X-Reminder-Signature`, rejects replays, and uses per-user weekly idempotency.
+
+Setup details, required env vars, and a GitHub Actions example are documented in **[docs/MAIL.md](docs/MAIL.md)**.
+
 ### Deploy (remote SFTP, one-time credentials setup)
 
 Use the deploy script to upload the built bundle via SFTP (credentials from 1Password).

@@ -153,6 +153,27 @@ final class MailEnv {
         return $ms * 1000;
     }
 
+    /** Shared HMAC secret for external reminder scheduler endpoint. */
+    public static function reminderSharedSecret(): string {
+        return self::getenvRaw('NEXTGEN_REMINDER_SECRET');
+    }
+
+    /** Allowed absolute timestamp skew in seconds for signed reminder endpoint requests. */
+    public static function reminderAllowedSkewSeconds(): int {
+        $raw = trim(self::getenvRaw('NEXTGEN_REMINDER_ALLOWED_SKEW_SECONDS'));
+        if ($raw === '') {
+            return 300;
+        }
+        $n = (int) $raw;
+        if ($n < 60) {
+            return 60;
+        }
+        if ($n > 3600) {
+            return 3600;
+        }
+        return $n;
+    }
+
     private static function getenvTrim(string $key): string {
         return trim(self::getenvRaw($key));
     }
@@ -315,6 +336,8 @@ final class MailEnv {
             'NEXTGEN_PUBLIC_ORIGIN',
             'NEXT_PUBLIC_BASE_PATH',
             'NEXTGEN_MAIL_BULK_DELAY_MS',
+            'NEXTGEN_REMINDER_SECRET',
+            'NEXTGEN_REMINDER_ALLOWED_SKEW_SECONDS',
         ];
         $allowedSet = array_flip($allowed);
 
