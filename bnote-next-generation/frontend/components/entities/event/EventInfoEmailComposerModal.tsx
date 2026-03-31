@@ -449,7 +449,7 @@ export function EventInfoEmailComposerModal({
                         {email}
                         <button
                           type="button"
-                          className="btn btn-ghost btn-xs"
+                          className="inline-flex h-6 w-6 items-center justify-center rounded-md text-base-content/60 transition-colors hover:bg-base-200 hover:text-base-content"
                           onClick={() => setManualEmails((prev) => prev.filter((value) => value !== email))}
                           aria-label={labelRemove}
                         >
