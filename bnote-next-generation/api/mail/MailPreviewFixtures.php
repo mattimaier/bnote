@@ -533,7 +533,7 @@ final class MailPreviewFixtures {
             'urgency' => 'critical',
             'reasons' => [
                 MailI18n::interpolate(MailI18n::t('mail.escalation.reasonDropoutDetected', $locale), [
-                    'source' => MailI18n::t('mail.escalation.sourceContactRemoved', $locale),
+                    'source' => MailI18n::t('mail.escalation.sourceParticipationNo', $locale),
                     'contact' => 'Anna Mueller',
                 ]),
                 MailI18n::interpolate(MailI18n::t('mail.escalation.reasonPendingThreshold', $locale), [

@@ -200,7 +200,7 @@ class RemindersModule {
             $otype,
             $oid,
             $contactId,
-            'developer_simulation',
+            'participation_no',
             $dryRun,
             $overrideRecipients
         );
