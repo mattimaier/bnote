@@ -13,9 +13,10 @@ import { useI18n } from "@/contexts/I18nContext";
 import { contactsApi, type ContactDetail, type ContactGroup } from "@/lib/contacts-api";
 import { PAGE_CONTENT_CLASS } from "@/lib/layout";
 import { getEntityPath } from "@/lib/entities/paths";
-import { DETAIL_CARD_SUBSECTION_CLASS } from "@/components/DetailCard";
 import { DetailEditButton } from "@/components/DetailPageHeader";
 import { EntityDetailViewLayout } from "@/components/EntityDetailViewLayout";
+import { ActionButton } from "@/components/ActionButton";
+import { Trash2 } from "@/components/icons";
 import { Avatar } from "@/components/Avatar";
 import { NotesContent } from "@/components/NotesContent";
 import { formatDateShortDisplay } from "@/lib/date-time";
@@ -28,21 +29,19 @@ export function ContactDetail() {
   const { t, ready, lang } = useI18n();
   const emptyText = t("js.common.empty") !== "js.common.empty" ? t("js.common.empty") : "";
 
-  const [contact, setContact] = useState<ContactDetail | null>(null);
+  const [contact, setContact] = useState<ContactDetail | null | undefined>(undefined);
   const [groups, setGroups] = useState<ContactGroup[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const parsedId = useMemo(() => {
+    if (!id || id === "new") return null;
+    const numId = parseInt(id, 10);
+    return Number.isNaN(numId) ? null : numId;
+  }, [id]);
 
   useEffect(() => {
-    if (!id || id === "new" || !ready) return;
-    const numId = parseInt(id, 10);
-    if (Number.isNaN(numId)) {
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
+    if (!ready || parsedId == null) return;
     Promise.all([
-      contactsApi.get(numId),
+      contactsApi.get(parsedId),
       contactsApi.getGroups().catch(() => [] as ContactGroup[]),
     ])
       .then(([detail, groupList]) => {
@@ -50,9 +49,8 @@ export function ContactDetail() {
         setGroups(groupList ?? []);
         setError("");
       })
-      .catch((err) => setError(getErrorMessage(err, t, "js.common.failedToLoad")))
-      .finally(() => setLoading(false));
-  }, [id, ready]);
+      .catch((err) => setError(getErrorMessage(err, t, "js.common.failedToLoad")));
+  }, [parsedId, ready, t]);
 
   const groupLabels = useMemo(() => {
     if (!contact?.groups || contact.groups.length === 0) return emptyText;
@@ -61,7 +59,7 @@ export function ContactDetail() {
       .map((gid) => groupMap.get(gid) ?? "")
       .filter(Boolean);
     return labels.length > 0 ? labels.join(", ") : emptyText;
-  }, [contact?.groups, groups]);
+  }, [contact?.groups, groups, emptyText]);
 
   if (!ready) {
     return (
@@ -76,7 +74,7 @@ export function ContactDetail() {
     return null;
   }
 
-  if (loading) {
+  if (contact === undefined && !error) {
     return (
       <div className="flex items-center justify-center py-12">
         <Spinner />
@@ -118,15 +116,32 @@ export function ContactDetail() {
     t("js.common.no") !== "js.common.no" ? t("js.common.no") : "No";
   const getBadgeClass = (value?: boolean) =>
     value ? "badge badge-success badge-sm" : "badge badge-error badge-sm";
+  const removeFromFutureLabel =
+    t("js.contacts.removeFromFutureEvents") !== "js.contacts.removeFromFutureEvents"
+      ? t("js.contacts.removeFromFutureEvents")
+      : "Remove From Future Events";
 
   return (
     <EntityDetailViewLayout
       title={titleWithAvatar}
       subtitle={label("js.contacts.subtitle", "Manage contacts and groups")}
       right={
-        <DetailEditButton
-          onClick={() => router.push(getEntityPath("contact", contact.id, "edit"))}
-        />
+        <div className="flex items-center gap-2">
+          <ActionButton
+            variant="outline"
+            onClick={() =>
+              router.push(
+                `/contacts/integration/?mode=remove&contact=${encodeURIComponent(String(contact.id))}`
+              )
+            }
+          >
+            <Trash2 className="h-4 w-4" />
+            {removeFromFutureLabel}
+          </ActionButton>
+          <DetailEditButton
+            onClick={() => router.push(getEntityPath("contact", contact.id, "edit"))}
+          />
+        </div>
       }
     >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

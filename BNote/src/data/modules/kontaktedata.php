@@ -353,6 +353,18 @@ class KontakteData extends AbstractLocationData {
 		}
 		return 0;
 	}
+
+	function removeContactRelation($otype, $oid, $cid) {
+		$tab = $otype . "_contact"; // Security note: $otype is set as a static value in the controller call
+		$query = "DELETE FROM $tab WHERE $otype = ? AND contact = ?";
+		return $this->database->execute($query, array(array("i", $oid), array("i", $cid)));
+	}
+
+	function cleanupParticipationForContact($otype, $oid, $cid) {
+		$userTab = $otype . "_user"; // rehearsal_user | concert_user
+		$query = "DELETE uev FROM $userTab uev JOIN user u ON uev.user = u.id WHERE uev.$otype = ? AND u.contact = ?";
+		return $this->database->execute($query, array(array("i", $oid), array("i", $cid)));
+	}
 	
 	function addContactToVote($vid, $cid) {
 		$uid = $this->database->colValue("SELECT id FROM user WHERE contact = ?", "id", array(array("i", $cid)));
@@ -366,6 +378,25 @@ class KontakteData extends AbstractLocationData {
 			return 0;
 		}
 		return -1;
+	}
+
+	function removeContactFromVote($vid, $cid) {
+		$uid = $this->getUserIdByContact($cid);
+		if($uid != null && $uid > 0) {
+			$query = "DELETE FROM vote_group WHERE vote = ? AND user = ?";
+			return $this->database->execute($query, array(array("i", $vid), array("i", $uid)));
+		}
+		return 0;
+	}
+
+	function getUserIdByContact($cid) {
+		return $this->database->colValue("SELECT id FROM user WHERE contact = ?", "id", array(array("i", $cid)));
+	}
+
+	function getVoteIdsForUser($uid) {
+		$query = "SELECT vote FROM vote_group WHERE user = ?";
+		$rows = $this->database->getSelection($query, array(array("i", $uid)));
+		return $this->database->flattenSelection($rows, "vote");
 	}
 	
 	function saveVCards($cards, $selectedGroups) {

@@ -77,6 +77,13 @@ export interface IntegrateResult {
   success: boolean;
   message?: string;
   created?: number;
+  removed?: number;
+  affected?: {
+    rehearsals?: number;
+    rehearsalphases?: number;
+    concerts?: number;
+    votes?: number;
+  };
   errors?: string[];
 }
 
@@ -96,6 +103,8 @@ export const contactsApi = {
       "getIntegrationBundle",
       groupId != null && groupId !== "" ? { group: String(groupId) } : {}
     ),
+  getRemovalBundle: (contactId: number) =>
+    api.get<IntegrationBundle>("contacts", "getRemovalBundle", { contact: String(contactId) }),
   integrate: (body: {
     group?: string | null;
     members: number[];
@@ -105,4 +114,11 @@ export const contactsApi = {
     concerts: number[];
     votes: number[];
   }) => api.post<IntegrateResult>("contacts", "integrate", { ...body }),
+  bulkRemove: (body: {
+    members: number[];
+    rehearsals: number[];
+    rehearsalphases: number[];
+    concerts: number[];
+    votes: number[];
+  }) => api.post<IntegrateResult>("contacts", "bulkRemove", { ...body }),
 };

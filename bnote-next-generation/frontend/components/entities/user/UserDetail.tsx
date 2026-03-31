@@ -18,6 +18,8 @@ import { formatDateTimeShort } from "@/lib/date-time";
 import { getStatusPillStyle } from "@/lib/entity-config";
 import { DetailCard } from "@/components/DetailCard";
 import { DetailEditButton, DetailPageHeader } from "@/components/DetailPageHeader";
+import { ActionButton } from "@/components/ActionButton";
+import { Trash2 } from "@/components/icons";
 import { Avatar } from "@/components/Avatar";
 import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/error-utils";
@@ -58,24 +60,22 @@ export function UserDetail() {
   const { t, ready, lang } = useI18n();
   const emptyText = t("js.common.empty") !== "js.common.empty" ? t("js.common.empty") : "";
 
-  const [user, setUser] = useState<UserDetail | null>(null);
+  const [user, setUser] = useState<UserDetail | null | undefined>(undefined);
   const [contacts, setContacts] = useState<ContactOption[]>([]);
   const [privileges, setPrivileges] = useState<PrivilegesResponse | null>(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const parsedId = useMemo(() => {
+    if (!id || id === "new") return null;
+    const numId = parseInt(id, 10);
+    return Number.isNaN(numId) ? null : numId;
+  }, [id]);
 
   useEffect(() => {
-    if (!id || id === "new" || !ready) return;
-    const numId = parseInt(id, 10);
-    if (Number.isNaN(numId)) {
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
+    if (!ready || parsedId == null) return;
     Promise.all([
-      usersApi.get(numId),
+      usersApi.get(parsedId),
       usersApi.getContacts().catch(() => [] as ContactOption[]),
-      usersApi.getPrivileges(numId).catch(() => null as PrivilegesResponse | null),
+      usersApi.getPrivileges(parsedId).catch(() => null as PrivilegesResponse | null),
     ])
       .then(([detail, contactList, privilegesData]) => {
         setUser(detail ?? null);
@@ -83,9 +83,8 @@ export function UserDetail() {
         setPrivileges(privilegesData);
         setError("");
       })
-      .catch((err) => setError(getErrorMessage(err, t, "js.common.failedToLoad")))
-      .finally(() => setLoading(false));
-  }, [id, ready]);
+      .catch((err) => setError(getErrorMessage(err, t, "js.common.failedToLoad")));
+  }, [parsedId, ready, t]);
 
   const contactInfo = useMemo(() => {
     const resolved = resolveContactId(user, contacts);
@@ -108,7 +107,7 @@ export function UserDetail() {
     return null;
   }
 
-  if (loading) {
+  if (user === undefined && !error) {
     return (
       <div className="flex items-center justify-center py-12">
         <Spinner />
@@ -150,13 +149,34 @@ export function UserDetail() {
   const formattedLastLogin = user.lastlogin
     ? formatDateTimeShort(user.lastlogin, lang) ?? emptyText
     : emptyText;
+  const removeFromFutureLabel =
+    t("js.contacts.removeFromFutureEvents") !== "js.contacts.removeFromFutureEvents"
+      ? t("js.contacts.removeFromFutureEvents")
+      : "Remove From Future Events";
 
   return (
     <div className={PAGE_CONTENT_CLASS}>
       <DetailPageHeader
         title={titleWithAvatar}
         subtitle={t("js.users.subtitle") !== "js.users.subtitle" ? t("js.users.subtitle") : "Manage users and permissions"}
-        right={<DetailEditButton onClick={() => router.push(getEntityPath("user", user.id, "edit"))} />}
+        right={(
+          <div className="flex items-center gap-2">
+            {contactInfo.id > 0 ? (
+              <ActionButton
+                variant="outline"
+                onClick={() =>
+                  router.push(
+                    `/contacts/integration/?mode=remove&contact=${encodeURIComponent(String(contactInfo.id))}`
+                  )
+                }
+              >
+                <Trash2 className="h-4 w-4" />
+                {removeFromFutureLabel}
+              </ActionButton>
+            ) : null}
+            <DetailEditButton onClick={() => router.push(getEntityPath("user", user.id, "edit"))} />
+          </div>
+        )}
       />
 
       <DetailCard className="space-y-6">

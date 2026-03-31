@@ -82,8 +82,12 @@ class ContactsModule {
                 return $this->normalizeResponse($this->getVotes(), $action);
             case 'integrate':
                 return $this->normalizeResponse($this->integrate(), $action);
+            case 'bulkRemove':
+                return $this->normalizeResponse($this->bulkRemove(), $action);
             case 'getIntegrationBundle':
                 return $this->normalizeResponse($this->getIntegrationBundle(), $action);
+            case 'getRemovalBundle':
+                return $this->normalizeResponse($this->getRemovalBundle(), $action);
             // Groups submodule
             case 'listGroups':
                 return $this->normalizeResponse($this->listGroups(), $action);
@@ -348,6 +352,192 @@ class ContactsModule {
             'phases' => $this->getPhases(),
             'concerts' => $this->getConcerts(),
             'votes' => $this->getVotes(),
+        ];
+    }
+
+    /**
+     * Pre-filled bundle for remove mode (single contact + current assignments).
+     */
+    private function getRemovalBundle() {
+        $contactId = intval($_GET['contact'] ?? $_POST['contact'] ?? 0);
+        if ($contactId <= 0) {
+            Response::error('Contact ID required', 400);
+        }
+
+        $contact = $this->data->getContact($contactId);
+        if (!$contact || !isset($contact['id'])) {
+            Response::error('Contact not found', 404);
+        }
+
+        $futureRehearsalsById = [];
+        $futureRehearsals = $this->getRehearsals();
+        foreach ($futureRehearsals as $row) {
+            $futureRehearsalsById[intval($row['id'])] = $row;
+        }
+        $futureConcertsById = [];
+        $futureConcerts = $this->getConcerts();
+        foreach ($futureConcerts as $row) {
+            $futureConcertsById[intval($row['id'])] = $row;
+        }
+        $activeVotesById = [];
+        $activeVotes = $this->getVotes();
+        foreach ($activeVotes as $row) {
+            $activeVotesById[intval($row['id'])] = $row;
+        }
+
+        $rehearsals = [];
+        $allRehearsalInvites = $this->data->getRehearsalInvitations($contactId);
+        for ($i = 1; $i < count($allRehearsalInvites); $i++) {
+            $rid = intval($allRehearsalInvites[$i]['id'] ?? 0);
+            if ($rid > 0 && isset($futureRehearsalsById[$rid])) {
+                $rehearsals[] = $futureRehearsalsById[$rid];
+            }
+        }
+
+        $concerts = [];
+        $allConcertInvites = $this->data->getConcertInvitations($contactId);
+        for ($i = 1; $i < count($allConcertInvites); $i++) {
+            $cid = intval($allConcertInvites[$i]['id'] ?? 0);
+            if ($cid > 0 && isset($futureConcertsById[$cid])) {
+                $concerts[] = $futureConcertsById[$cid];
+            }
+        }
+
+        $phases = [];
+        $allPhases = $this->data->getRehearsalphaseInvitations($contactId);
+        $nowTs = time();
+        for ($i = 1; $i < count($allPhases); $i++) {
+            $phase = $allPhases[$i];
+            $begin = $phase['begin'] ?? '';
+            if (!empty($begin) && strtotime($begin) < $nowTs) {
+                continue;
+            }
+            $phases[] = [
+                'id' => intval($phase['id'] ?? 0),
+                'name' => $phase['name'] ?? '',
+                'label' => $phase['name'] ?? '',
+            ];
+        }
+
+        $votes = [];
+        $uid = intval($this->data->getUserIdByContact($contactId) ?? 0);
+        if ($uid > 0) {
+            $voteIds = $this->data->getVoteIdsForUser($uid);
+            foreach ($voteIds as $vidRaw) {
+                $vid = intval($vidRaw);
+                if ($vid > 0 && isset($activeVotesById[$vid])) {
+                    $votes[] = $activeVotesById[$vid];
+                }
+            }
+        }
+
+        return [
+            'members' => [[
+                'id' => intval($contact['id']),
+                'name' => $contact['name'] ?? '',
+                'surname' => $contact['surname'] ?? '',
+                'nickname' => $contact['nickname'] ?? '',
+                'email' => $contact['email'] ?? '',
+                'instrumentname' => $contact['instrumentname'] ?? '',
+                'label' => trim(($contact['name'] ?? '') . ' ' . ($contact['surname'] ?? '')),
+            ]],
+            'rehearsals' => $rehearsals,
+            'phases' => $phases,
+            'concerts' => $concerts,
+            'votes' => $votes,
+        ];
+    }
+
+    /**
+     * Process remove mode (bulk delete relations).
+     */
+    private function bulkRemove() {
+        $rawInput = file_get_contents('php://input');
+        $data = json_decode($rawInput, true);
+        if (!$data) {
+            $data = $_POST;
+        }
+
+        $memberIds = $data['members'] ?? [];
+        $rehearsalIds = $data['rehearsals'] ?? [];
+        $phaseIds = $data['rehearsalphases'] ?? [];
+        $concertIds = $data['concerts'] ?? [];
+        $voteIds = $data['votes'] ?? [];
+
+        if (!is_array($memberIds) || count($memberIds) < 1) {
+            Response::error('At least one member is required', 400);
+        }
+
+        $errors = [];
+        $removedCount = 0;
+        $affected = [
+            'rehearsals' => 0,
+            'rehearsalphases' => 0,
+            'concerts' => 0,
+            'votes' => 0,
+        ];
+
+        foreach ($memberIds as $cidRaw) {
+            $cid = intval($cidRaw);
+            if ($cid <= 0) continue;
+
+            foreach ($rehearsalIds as $ridRaw) {
+                $rid = intval($ridRaw);
+                if ($rid <= 0) continue;
+                $res = $this->data->removeContactRelation('rehearsal', $rid, $cid);
+                if ($res < 0) {
+                    $errors[] = "Failed to remove contact $cid from rehearsal $rid";
+                } else if ($res > 0) {
+                    $removedCount += $res;
+                    $affected['rehearsals'] += $res;
+                    $this->data->cleanupParticipationForContact('rehearsal', $rid, $cid);
+                }
+            }
+
+            foreach ($phaseIds as $pidRaw) {
+                $pid = intval($pidRaw);
+                if ($pid <= 0) continue;
+                $res = $this->data->removeContactRelation('rehearsalphase', $pid, $cid);
+                if ($res < 0) {
+                    $errors[] = "Failed to remove contact $cid from phase $pid";
+                } else if ($res > 0) {
+                    $removedCount += $res;
+                    $affected['rehearsalphases'] += $res;
+                }
+            }
+
+            foreach ($concertIds as $conRaw) {
+                $conid = intval($conRaw);
+                if ($conid <= 0) continue;
+                $res = $this->data->removeContactRelation('concert', $conid, $cid);
+                if ($res < 0) {
+                    $errors[] = "Failed to remove contact $cid from concert $conid";
+                } else if ($res > 0) {
+                    $removedCount += $res;
+                    $affected['concerts'] += $res;
+                    $this->data->cleanupParticipationForContact('concert', $conid, $cid);
+                }
+            }
+
+            foreach ($voteIds as $vidRaw) {
+                $vid = intval($vidRaw);
+                if ($vid <= 0) continue;
+                $res = $this->data->removeContactFromVote($vid, $cid);
+                if ($res < 0) {
+                    $errors[] = "Failed to remove contact $cid from vote $vid";
+                } else if ($res > 0) {
+                    $removedCount += $res;
+                    $affected['votes'] += $res;
+                }
+            }
+        }
+
+        return [
+            'success' => true,
+            'message' => "Removal completed. $removedCount relations removed.",
+            'removed' => $removedCount,
+            'affected' => $affected,
+            'errors' => $errors,
         ];
     }
     
