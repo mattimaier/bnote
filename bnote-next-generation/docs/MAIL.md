@@ -16,6 +16,7 @@ If SMTP is not configured, or BNote runs in **demo mode**, those emails are skip
 | New registration → administrators | `api/nextgen_registration.php` | `RegistrationAdminNotifier` / `NewUserAdminMailBuilder` | No (system mail) | `NextGenMailer::sendBulk` |
 | Rehearsal/concert participant added | `api/modules/rehearsals.php`, `api/modules/concerts.php` | `EventParticipantNotifier` / `EventParticipantInviteMailBuilder` | Yes (`NextGenMailPolicy`) | `NextGenMailer::sendBulk` |
 | Rehearsal/concert event-info group mail | `api/modules/rehearsals.php`, `api/modules/concerts.php` (`emailInfoDraft/Preview/Send`) | `EventInfoMailService` / `EventInfoMailBuilder` | Yes (`NextGenMailPolicy`) | `NextGenMailer::send` |
+| Generic email composer (module 7 / Kommunikation) | `api/modules/email.php` (`meta/draft/preview/send`) | `GenericEmailComposerService` / `GenericEmailComposerMailBuilder` | Yes (`NextGenMailPolicy`) | `NextGenMailer::send` |
 | Task assignee create/update | `api/modules/tasks.php` | `TaskNotificationMailBuilder` | Yes | `NextGenMailer::send` |
 | Entity comment added | `api/modules/comments.php` | `CommentDiscussionNotifier` / `CommentDiscussionMailBuilder` | Yes | `NextGenMailer::sendBulk` |
 
@@ -35,6 +36,7 @@ If SMTP is not configured, or BNote runs in **demo mode**, those emails are skip
 - **Comments:** `CommentDiscussionNotifier` — entity cards, thread bubbles, deep links to `/entity?…&focus=comments`.
 - **Participation invites:** `EventParticipantNotifier` + magic-link URLs from `MailEnv` (`nextgenParticipationRespondAbsoluteUrl`, etc.).
 - **Event-info group mail:** in-module composer with draft/preview/send actions via `EventInfoMailService`.
+- **Generic composer (module 7):** rights-gated mail module with group/contact/manual recipient selection, fixed subject prefix (`Band - BNote`), and shared EditorJS-to-mail rendering.
 - **Bulk fan-out:** `NextGenMailer::sendBulk` with optional **`NEXTGEN_MAIL_BULK_DELAY_MS`** between messages.
 
 ---
@@ -234,6 +236,7 @@ In **`BNote/config/config.xml`**, set **`<DemoMode>False</DemoMode>`** so Next G
 
 - Run **`./build.sh`** from `bnote-next-generation/`. The script runs **`composer install`** in **`api/`** so **`vendor/`** (PHPMailer) is included in the upload bundle.
 - The production **`./build.sh`** bundle **does not** include the **`api/debug/`** folder (loopback mail previews, `mail_config_check.php`, `mail_test_send.php`, etc.). Those files remain in the git repo; set **`NEXT_PUBLIC_ENABLE_DEVELOPER_TOOLS=1`** when running **`./build.sh`** to ship them for staging.
+- If `.deploy.env` contains `NEXTGEN_REMINDER_SECRET` and `NEXTGEN_REMINDER_ALLOWED_SKEW_SECONDS`, `build.sh` writes them into **`api/config/mail.local.php`** in the deploy bundle (same as other `MAIL_*` runtime values).
 
 ---
 
@@ -315,6 +318,20 @@ For the rehearsal/concert "Event-Info senden" flow (`emailInfo*` actions):
   - `To` = same system sender address (sender is recipient for the group mail envelope).
   - all selected recipients are in `BCC`.
 - **Preview:** compose preview intentionally mimics a mail client header (`From/To/BCC/Subject`) and must reflect the same addressing semantics as send.
+- **Footer sender line:** includes sender display name (`mail.footer.sentBy`), but no sender email in the footer copy.
+
+---
+
+## Generic composer mail (module 7 / Kommunikation)
+
+For the generic email module (`api/modules/email.php`):
+
+- **Permission model:** module id `7` (`Kommunikation`) is required (admin/superuser bypass remains).
+- **Recipients:** selected groups are expanded via `contact_group`; explicit contact picks + manual emails are merged and deduped.
+- **Subject handling:** prefix is fixed to `Band - BNote` (or `BNote` fallback). User edits only the trailing subject part.
+- **Headline in mail body:** uses the user-written subject part (fallback to generic headline key if empty).
+- **Footer copy:** keeps the existing sender/system line and appends sender display name (without email address).
+- **Editor behavior for mail compose:** checklist mode is disabled in mail editors; empty EditorJS payloads (`{"blocks":[]...}`) are normalized to empty text instead of being shown/saved literally.
 
 **Legacy caveat:** `Systemdata::contactEmailNotificationOn()` returns **false** when the contact has **no** user. That matches “only notify logged-in members” in older code paths but **wrong** for Next Gen transactional fan-out, where **guest contacts** on an event should still get invites and discussion mail. New code should call **`contactAllowsTransactionalNotification()`** (or **`contactTransactionalMailDenyReason()`** when you need a machine-readable skip reason, e.g. for `mail_comment_recipients.php` / `CommentDiscussionNotifier::describeRecipients`).
 

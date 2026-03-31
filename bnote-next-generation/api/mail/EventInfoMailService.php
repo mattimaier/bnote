@@ -10,6 +10,7 @@ require_once __DIR__ . '/NextGenMailPolicy.php';
 require_once __DIR__ . '/MailEnv.php';
 require_once __DIR__ . '/MailPreviewHtml.php';
 require_once __DIR__ . '/CommentDiscussionEntitySummary.php';
+require_once __DIR__ . '/MailRecipientDirectory.php';
 require_once __DIR__ . '/builders/EventInfoMailBuilder.php';
 require_once __DIR__ . '/CommentDiscussionEntityUrl.php';
 
@@ -159,6 +160,7 @@ final class EventInfoMailService {
             'entityCard' => $event['entityCard'],
             'customBody' => $body,
             'senderName' => $senderName,
+            'senderEmail' => self::resolveFromEmail(),
         ];
 
         $senderEmail = self::resolveFromEmail();
@@ -416,29 +418,7 @@ final class EventInfoMailService {
             $known,
             self::loadAdditionalContacts($system_data, array_map(fn($r) => (int) $r['id'], $known))
         );
-        $knownById = [];
-        foreach ($known as $row) {
-            $knownById[(int) $row['id']] = (string) $row['email'];
-        }
-
-        $emails = [];
-        foreach ($recipientIds as $id) {
-            $idInt = (int) $id;
-            if ($idInt > 0 && isset($knownById[$idInt])) {
-                $emails[] = $knownById[$idInt];
-            }
-        }
-        foreach ($manualEmails as $email) {
-            $mail = trim((string) $email);
-            if ($mail !== '' && filter_var($mail, FILTER_VALIDATE_EMAIL)) {
-                $emails[] = $mail;
-            }
-        }
-        $uniq = [];
-        foreach ($emails as $email) {
-            $uniq[strtolower($email)] = $email;
-        }
-        return array_values($uniq);
+        return MailRecipientDirectory::resolveOutgoingEmails($known, $recipientIds, $manualEmails);
     }
 
     /**
@@ -446,35 +426,22 @@ final class EventInfoMailService {
      * @return list<array{id:int,name:string,email:string}>
      */
     private static function loadAdditionalContacts($system_data, array $excludeContactIds): array {
-        $db = $system_data->dbcon;
-        $rows = $db->preparedQuery(
-            "SELECT c.id, TRIM(CONCAT(COALESCE(c.name,''), ' ', COALESCE(c.surname,''))) AS fullname, c.email
-             FROM contact c
-             WHERE c.email IS NOT NULL AND c.email <> ''
-             ORDER BY fullname ASC",
-            []
-        );
-
         $exclude = [];
         foreach ($excludeContactIds as $id) {
             $exclude[(int) $id] = true;
         }
 
         $out = [];
-        foreach ($rows as $row) {
+        foreach (MailRecipientDirectory::loadContacts($system_data) as $row) {
             $id = (int) ($row['id'] ?? 0);
             if ($id <= 0 || isset($exclude[$id])) {
                 continue;
             }
-            $email = trim((string) ($row['email'] ?? ''));
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                continue;
-            }
-            $name = trim((string) ($row['fullname'] ?? ''));
-            if ($name === '') {
-                $name = $email;
-            }
-            $out[] = ['id' => $id, 'name' => $name, 'email' => $email];
+            $out[] = [
+                'id' => $id,
+                'name' => (string) ($row['name'] ?? ''),
+                'email' => (string) ($row['email'] ?? ''),
+            ];
         }
 
         return $out;

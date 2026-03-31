@@ -246,6 +246,12 @@ body {
   margin-right: auto;
 }
 
+.notes-editor-no-checklist [data-item-name="checklist"],
+.notes-editor-no-checklist [data-tune="checklist"],
+.notes-editor-no-checklist [data-value="checklist"] {
+  display: none !important;
+}
+
 /* Rich text (EditorJS / news) – formatted display in view mode */
 .rich-text-content {
   line-height: 1.6;

@@ -323,6 +323,16 @@ class AuthModule {
                 'icon' => 'check-square',
                 'i18n' => 'js.sidebar.tasks'
             ],
+            'Kommunikation' => [
+                'route' => '/email',
+                'icon' => 'mail',
+                'i18n' => 'js.sidebar.email'
+            ],
+            'Communication' => [
+                'route' => '/email',
+                'icon' => 'mail',
+                'i18n' => 'js.sidebar.email'
+            ],
             'Calendar' => [
                 'route' => '/calendar',
                 'icon' => 'calendar-days',

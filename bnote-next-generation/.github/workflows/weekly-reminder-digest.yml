@@ -1,0 +1,79 @@
+name: Weekly Reminder Digest
+
+on:
+  schedule:
+    # Recommended: run frequently, app settings decide due time.
+    - cron: "0 * * * *"
+  workflow_dispatch:
+    inputs:
+      dryRun:
+        description: "If true, run without sending emails"
+        required: true
+        default: true
+        type: boolean
+      force:
+        description: "If true, bypass due-time gating (admin/operator use)"
+        required: true
+        default: false
+        type: boolean
+
+jobs:
+  run-reminder:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Validate required secrets
+        env:
+          ENDPOINT: ${{ secrets.REMINDER_ENDPOINT }}
+          SECRET: ${{ secrets.REMINDER_SECRET }}
+        run: |
+          set -euo pipefail
+          test -n "${ENDPOINT}" || { echo "Missing REMINDER_ENDPOINT secret"; exit 1; }
+          test -n "${SECRET}" || { echo "Missing REMINDER_SECRET secret"; exit 1; }
+
+      - name: Call signed reminder endpoint
+        env:
+          ENDPOINT: ${{ secrets.REMINDER_ENDPOINT }}
+          SECRET: ${{ secrets.REMINDER_SECRET }}
+          INPUT_DRY_RUN: ${{ github.event.inputs.dryRun }}
+          INPUT_FORCE: ${{ github.event.inputs.force }}
+        run: |
+          set -euo pipefail
+
+          # For scheduled runs, default to real send and no force.
+          DRY_RUN="${INPUT_DRY_RUN:-false}"
+          FORCE_RUN="${INPUT_FORCE:-false}"
+
+          BODY="$(python3 - <<'PY'
+import json, os
+def as_bool(v: str) -> bool:
+    return str(v).strip().lower() in ("1","true","yes","on")
+payload = {
+    "dryRun": as_bool(os.environ.get("INPUT_DRY_RUN", "false")),
+    "force": as_bool(os.environ.get("INPUT_FORCE", "false")),
+}
+print(json.dumps(payload, separators=(",", ":")))
+PY
+)"
+
+          TS="$(date +%s)"
+          NONCE="$(openssl rand -hex 16)"
+          PATH_ONLY="$(python3 - <<'PY'
+import os, urllib.parse
+u = urllib.parse.urlparse(os.environ["ENDPOINT"])
+print(u.path or "/")
+PY
+)"
+          CANONICAL="POST|${PATH_ONLY}|${TS}|${NONCE}|${BODY}"
+          SIG="$(printf '%s' "${CANONICAL}" | openssl dgst -sha256 -hmac "${SECRET}" -hex | sed 's/^.* //')"
+
+          echo "Calling reminder endpoint (dryRun=${DRY_RUN}, force=${FORCE_RUN})"
+          curl --fail --show-error --silent \
+            -X POST "${ENDPOINT}" \
+            -H "Content-Type: application/json" \
+            -H "X-Reminder-Timestamp: ${TS}" \
+            -H "X-Reminder-Nonce: ${NONCE}" \
+            -H "X-Reminder-Signature: ${SIG}" \
+            --data "${BODY}"
+

@@ -24,7 +24,8 @@ final class EventInfoMailBuilder {
      *   detailLines:list<array{label:string,value:string,href?:string}>,
      *   entityCard?:array<string,mixed>|null,
      *   customBody:string,
-     *   senderName:string
+     *   senderName:string,
+     *   senderEmail?:string
      * } $ctx
      * @param list<string> $to
      * @param list<string> $bcc
@@ -36,6 +37,13 @@ final class EventInfoMailBuilder {
         $footer = MailI18n::interpolate(MailI18n::t('mail.footer.generic', $locale), [
             'sender' => MailBranding::bnoteBandLine($locale, $company),
         ]);
+        $senderName = trim((string) ($ctx['senderName'] ?? ''));
+        if ($senderName !== '') {
+            $senderLine = MailI18n::interpolate(MailI18n::t('mail.footer.sentBy', $locale), [
+                'name' => htmlspecialchars($senderName, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+            ]);
+            $footer .= '<br>' . $senderLine;
+        }
 
         $custom = self::renderBody($ctx['customBody'] ?? '');
         $eventTitleEsc = htmlspecialchars((string) ($ctx['eventTitle'] ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
@@ -159,7 +167,7 @@ final class EventInfoMailBuilder {
     /**
      * @return array{html:string,text:string}
      */
-    private static function renderBody(string $value): array {
+    public static function renderEditorBody(string $value): array {
         $trimmed = trim($value);
         if ($trimmed === '') {
             return ['html' => '', 'text' => ''];
@@ -189,12 +197,13 @@ final class EventInfoMailBuilder {
             $type = (string) ($block['type'] ?? '');
             $data = is_array($block['data'] ?? null) ? $block['data'] : [];
             if ($type === 'header') {
-                $level = max(2, min(4, (int) ($data['level'] ?? 2)));
+                $level = max(1, min(6, (int) ($data['level'] ?? 2)));
                 $txt = self::sanitizeInline((string) ($data['text'] ?? ''));
                 if ($txt === '') {
                     continue;
                 }
-                $htmlParts[] = '<h' . $level . ' style="margin:18px 0 8px;font-size:18px;line-height:1.3;">' . $txt . '</h' . $level . '>';
+                $fontSize = self::headerFontSizeEm($level);
+                $htmlParts[] = '<h' . $level . ' style="margin:0.83em 0;font-size:' . $fontSize . 'em;line-height:1.25;font-weight:500;">' . $txt . '</h' . $level . '>';
                 $textParts[] = self::plainInline((string) ($data['text'] ?? ''));
                 continue;
             }
@@ -204,23 +213,22 @@ final class EventInfoMailBuilder {
                     continue;
                 }
                 $tag = (($data['style'] ?? 'unordered') === 'ordered') ? 'ol' : 'ul';
-                $listItemsHtml = '';
-                $listItemsText = [];
-                foreach ($items as $idx => $item) {
-                    $itemRaw = is_string($item) ? $item : '';
-                    $itemHtml = self::sanitizeInline($itemRaw);
-                    if ($itemHtml === '') {
-                        continue;
-                    }
-                    $listItemsHtml .= '<li style="margin:0 0 6px;">' . $itemHtml . '</li>';
-                    $prefix = $tag === 'ol' ? ($idx + 1) . '.' : '-';
-                    $listItemsText[] = $prefix . ' ' . self::plainInline($itemRaw);
-                }
-                if ($listItemsHtml === '') {
+                $renderedList = self::renderEditorList($items, $tag, 0);
+                if ($renderedList['html'] === '') {
                     continue;
                 }
-                $htmlParts[] = '<' . $tag . ' style="margin:0 0 12px 18px;padding:0;">' . $listItemsHtml . '</' . $tag . '>';
-                $textParts[] = implode("\n", $listItemsText);
+                $htmlParts[] = $renderedList['html'];
+                $textParts[] = implode("\n", $renderedList['textLines']);
+                continue;
+            }
+            if ($type === 'code') {
+                $codeRaw = (string) ($data['code'] ?? '');
+                $codeEsc = htmlspecialchars($codeRaw, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+                if (trim($codeEsc) === '') {
+                    continue;
+                }
+                $htmlParts[] = '<pre style="margin:0 0 1em;padding:10px 12px;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:8px;overflow:auto;"><code style="font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,monospace;font-size:13px;line-height:1.45;color:#111827;">' . $codeEsc . '</code></pre>';
+                $textParts[] = $codeRaw;
                 continue;
             }
             if ($type === 'quote') {
@@ -229,7 +237,7 @@ final class EventInfoMailBuilder {
                 if ($txt === '') {
                     continue;
                 }
-                $htmlParts[] = '<blockquote style="margin:0 0 12px;padding:8px 12px;border-left:3px solid #d1d5db;color:#374151;">' . $txt . '</blockquote>';
+                $htmlParts[] = '<blockquote style="margin:0 0 1em;padding:8px 12px;border-left:3px solid #d1d5db;color:#374151;font-style:italic;">' . $txt . '</blockquote>';
                 $textParts[] = '> ' . self::plainInline($txtRaw);
                 continue;
             }
@@ -238,7 +246,7 @@ final class EventInfoMailBuilder {
             if ($txt === '') {
                 continue;
             }
-            $htmlParts[] = '<p style="margin:0 0 12px;">' . $txt . '</p>';
+            $htmlParts[] = '<p style="margin:0 0 1em;font-size:1em;line-height:1.5;font-weight:400;">' . $txt . '</p>';
             $textParts[] = self::plainInline($txtRaw);
         }
 
@@ -249,16 +257,171 @@ final class EventInfoMailBuilder {
         return ['html' => implode('', $htmlParts), 'text' => implode("\n\n", $textParts)];
     }
 
+    /**
+     * @return array{html:string,text:string}
+     */
+    private static function renderBody(string $value): array {
+        return self::renderEditorBody($value);
+    }
+
     private static function sanitizeInline(string $text): string {
-        $stripped = trim(strip_tags($text));
-        if ($stripped === '') {
+        $normalized = str_replace(["\r\n", "\r"], "\n", (string) $text);
+        if (trim(strip_tags($normalized)) === '') {
             return '';
         }
-        return nl2br(htmlspecialchars($stripped, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'), false);
+
+        // Keep a safe subset of inline tags emitted by EditorJS.
+        $safe = preg_replace('/<(script|style)\b[^>]*>.*?<\/\1>/is', '', $normalized) ?? $normalized;
+        $safe = strip_tags($safe, '<b><strong><i><em><u><s><mark><code><a><br>');
+        $safe = self::sanitizeAnchors($safe);
+        $safe = self::stripAttributesFromInlineTags($safe);
+        $safe = self::styleInlineTags($safe);
+
+        if (trim(strip_tags($safe)) === '') {
+            return '';
+        }
+        return $safe;
     }
 
     private static function plainInline(string $text): string {
-        return trim(strip_tags($text));
+        $plain = trim(strip_tags((string) $text));
+        return html_entity_decode($plain, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    }
+
+    private static function sanitizeAnchors(string $html): string {
+        return preg_replace_callback('/<a\b[^>]*>(.*?)<\/a>/is', function (array $matches): string {
+            $rawTag = (string) ($matches[0] ?? '');
+            $inner = (string) ($matches[1] ?? '');
+
+            $href = '';
+            if (preg_match('/href\s*=\s*([\'"])(.*?)\1/i', $rawTag, $hrefMatch)) {
+                $href = trim((string) ($hrefMatch[2] ?? ''));
+            } elseif (preg_match('/href\s*=\s*([^\s>]+)/i', $rawTag, $hrefMatch)) {
+                $href = trim((string) ($hrefMatch[1] ?? ''));
+            }
+
+            $decodedHref = html_entity_decode($href, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+            $allowed = false;
+            if ($decodedHref !== '') {
+                $scheme = strtolower((string) parse_url($decodedHref, PHP_URL_SCHEME));
+                $allowed = in_array($scheme, ['http', 'https', 'mailto'], true);
+            }
+
+            $cleanInner = strip_tags($inner, '<b><strong><i><em><u><s><mark><code><br>');
+            if (!$allowed) {
+                return $cleanInner;
+            }
+
+            $hrefEsc = htmlspecialchars($decodedHref, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+            return '<a class="em-link" href="' . $hrefEsc . '" target="_blank" rel="noopener noreferrer">' . $cleanInner . '</a>';
+        }, $html) ?? $html;
+    }
+
+    private static function stripAttributesFromInlineTags(string $html): string {
+        return preg_replace_callback('/<(\/?)(b|strong|i|em|u|s|mark|code|br)\b[^>]*>/i', function (array $matches): string {
+            $closing = (string) ($matches[1] ?? '');
+            $tag = strtolower((string) ($matches[2] ?? ''));
+            if ($tag === 'br') {
+                return '<br>';
+            }
+            return '<' . $closing . $tag . '>';
+        }, $html) ?? $html;
+    }
+
+    private static function styleInlineTags(string $html): string {
+        $out = preg_replace('/<code>/i', '<code style="font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,monospace;font-size:0.92em;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:4px;padding:0 4px;">', $html) ?? $html;
+        $out = preg_replace('/<mark>/i', '<mark style="background:#fef08a;color:inherit;padding:0 2px;border-radius:2px;">', $out) ?? $out;
+        $out = preg_replace('/<strong>/i', '<strong style="font-weight:700;">', $out) ?? $out;
+        $out = preg_replace('/<b>/i', '<b style="font-weight:700;">', $out) ?? $out;
+        return $out;
+    }
+
+    private static function headerFontSizeEm(int $level): float {
+        switch ($level) {
+            case 1:
+                return 2.25;
+            case 2:
+                return 1.875;
+            case 3:
+                return 1.5;
+            case 4:
+                return 1.25;
+            case 5:
+                return 1.125;
+            default:
+                return 1.0;
+        }
+    }
+
+    /**
+     * @param list<mixed> $items
+     * @return array{html:string,textLines:list<string>}
+     */
+    private static function renderEditorList(array $items, string $tag, int $depth): array {
+        $itemsHtml = '';
+        $textLines = [];
+        $position = 0;
+
+        foreach ($items as $item) {
+            [$contentRaw, $children, $childTag] = self::normalizeEditorListItem($item, $tag);
+            $contentHtml = self::sanitizeInline($contentRaw);
+            $contentText = self::plainInline($contentRaw);
+            $childRendered = count($children) > 0 ? self::renderEditorList($children, $childTag, $depth + 1) : ['html' => '', 'textLines' => []];
+
+            if ($contentHtml === '' && $childRendered['html'] === '') {
+                continue;
+            }
+
+            $position++;
+            $liInner = '';
+            if ($contentHtml !== '') {
+                $liInner .= $contentHtml;
+            }
+            if ($childRendered['html'] !== '') {
+                $liInner .= $childRendered['html'];
+            }
+            $itemsHtml .= '<li style="margin:0 0 6px;">' . $liInner . '</li>';
+
+            if ($contentText !== '') {
+                $prefix = $tag === 'ol' ? ($position . '.') : '-';
+                $textLines[] = str_repeat('  ', $depth) . $prefix . ' ' . $contentText;
+            }
+            foreach ($childRendered['textLines'] as $line) {
+                $textLines[] = $line;
+            }
+        }
+
+        if ($itemsHtml === '') {
+            return ['html' => '', 'textLines' => []];
+        }
+
+        $listStyle = $tag === 'ol' ? 'decimal' : 'disc';
+        $marginStyle = $depth > 0 ? 'margin:0.35em 0 0 1.5em;padding:0;list-style-type:' . $listStyle . ';' : 'margin:0 0 1em 1.5em;padding:0;list-style-type:' . $listStyle . ';';
+        return [
+            'html' => '<' . $tag . ' style="' . $marginStyle . '">' . $itemsHtml . '</' . $tag . '>',
+            'textLines' => $textLines,
+        ];
+    }
+
+    /**
+     * @param mixed $item
+     * @param 'ul'|'ol' $fallbackTag
+     * @return array{0:string,1:list<mixed>,2:'ul'|'ol'}
+     */
+    private static function normalizeEditorListItem($item, string $fallbackTag): array {
+        if (is_string($item)) {
+            return [$item, [], $fallbackTag === 'ol' ? 'ol' : 'ul'];
+        }
+        if (!is_array($item)) {
+            return ['', [], $fallbackTag === 'ol' ? 'ol' : 'ul'];
+        }
+
+        $content = trim((string) ($item['content'] ?? $item['text'] ?? ''));
+        $children = is_array($item['items'] ?? null) ? $item['items'] : [];
+        $style = strtolower(trim((string) ($item['style'] ?? (($item['meta']['style'] ?? '') ?: ''))));
+        $tag = $style === 'ordered' ? 'ol' : ($style === 'unordered' ? 'ul' : ($fallbackTag === 'ol' ? 'ol' : 'ul'));
+
+        return [$content, $children, $tag];
     }
 
     /**

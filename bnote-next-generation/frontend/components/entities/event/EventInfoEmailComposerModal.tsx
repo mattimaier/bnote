@@ -516,6 +516,7 @@ export function EventInfoEmailComposerModal({
                     placeholder={customHintPlaceholder}
                     id={`event-info-email-editor-${module}-${eventId}`}
                     enableImage={false}
+                    allowChecklist={false}
                   />
                 </div>
               </section>

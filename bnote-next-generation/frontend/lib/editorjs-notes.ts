@@ -42,7 +42,10 @@ export function parseNotesInitialData(value: string): { blocks?: unknown[] } | u
   if (trimmed.startsWith("{")) {
     try {
       const parsed = JSON.parse(trimmed) as { blocks?: unknown[] };
-      if (Array.isArray(parsed?.blocks) && parsed.blocks.length > 0) return parsed;
+      if (Array.isArray(parsed?.blocks)) {
+        if (parsed.blocks.length > 0) return parsed;
+        return undefined;
+      }
     } catch {
       // fall through to plain text
     }
