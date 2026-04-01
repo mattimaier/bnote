@@ -23,6 +23,26 @@ class LoginView extends AbstractView {
 		if(isset($_GET["fwd"])) {
 			new Message(Lang::txt("LoginView_login.fwd_header"), Lang::txt("LoginView_login.fwd_message"));
 		}
+
+		$nextGenBannerFile = false;
+		$candidates = array(
+			realpath(__DIR__ . "/../../../legacy-login-nextgen-banner.php"),
+			realpath(__DIR__ . "/../../../../bnote-next-generation/legacy-login-nextgen-banner.php"),
+			realpath(__DIR__ . "/../../../../BNote-Next-Generation/legacy-login-nextgen-banner.php"),
+		);
+		foreach($candidates as $candidate) {
+			if($candidate !== false && is_file($candidate)) {
+				$nextGenBannerFile = $candidate;
+				break;
+			}
+		}
+		if($nextGenBannerFile !== false) {
+			include_once $nextGenBannerFile;
+			if(function_exists("bnote_render_legacy_login_nextgen_banner")) {
+				$lang = $this->getData()->getSysdata()->getLang();
+				bnote_render_legacy_login_nextgen_banner($lang);
+			}
+		}
 		
 		Writing::p(Lang::txt("LoginView_login.message_2"), "text-dark mt-2");
 		
