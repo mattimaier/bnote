@@ -100,6 +100,7 @@ class BugreportModule {
         $clientContext = $this->sanitizeContext($payload['clientContext'] ?? []);
         $networkEvents = $this->sanitizeEventList($payload['networkEvents'] ?? [], self::MAX_NETWORK_EVENTS);
         $logEvents = $this->sanitizeEventList($payload['logEvents'] ?? [], self::MAX_LOG_EVENTS);
+        $clientBuildCommit = $this->extractClientBuildCommit($clientContext);
 
         $diagnosticsPayload = [
             'clientContext' => $clientContext,
@@ -140,6 +141,7 @@ class BugreportModule {
             $actual,
             $reproducibility,
             $firstSeenVersion,
+            $clientBuildCommit,
             $reporter,
             $clientContext,
             $networkEvents,
@@ -157,6 +159,7 @@ class BugreportModule {
             $actual,
             $reproducibility,
             $firstSeenVersion,
+            $clientBuildCommit,
             $reporter,
             $clientContext,
             $networkEvents,
@@ -411,6 +414,16 @@ class BugreportModule {
         ];
     }
 
+    /** @param array<string,mixed> $clientContext */
+    private function extractClientBuildCommit(array $clientContext): string {
+        $build = $clientContext['build'] ?? null;
+        if (!is_array($build)) {
+            return 'unknown';
+        }
+        $commit = trim((string) ($build['commit'] ?? ''));
+        return $commit !== '' ? $this->truncate($commit, 80) : 'unknown';
+    }
+
     /**
      * @param array<string,mixed> $reporter
      * @param array<string,mixed> $clientContext
@@ -428,6 +441,7 @@ class BugreportModule {
         string $actual,
         string $reproducibility,
         string $firstSeenVersion,
+        string $clientBuildCommit,
         $reporter,
         $clientContext,
         $networkEvents,
@@ -476,6 +490,7 @@ class BugreportModule {
             . '<h2 style="margin:0 0 8px;">Beta Bug Report</h2>'
             . '<p style="margin:0 0 16px;"><strong>Report ID:</strong> ' . htmlspecialchars($reportId, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</p>'
             . '<p><strong>Severity:</strong> ' . htmlspecialchars(strtoupper($severity), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</p>'
+            . '<p><strong>Client commit:</strong> ' . htmlspecialchars($clientBuildCommit, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</p>'
             . '<p><strong>Title:</strong> ' . htmlspecialchars($title, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</p>'
             . '<p><strong>Message</strong><br>' . nl2br(htmlspecialchars($message, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')) . '</p>'
             . '<h3>Reporter</h3>'
@@ -516,6 +531,7 @@ class BugreportModule {
         string $actual,
         string $reproducibility,
         string $firstSeenVersion,
+        string $clientBuildCommit,
         $reporter,
         $clientContext,
         $networkEvents,
@@ -557,6 +573,7 @@ class BugreportModule {
         return "Beta Bug Report\n"
             . "Report ID: {$reportId}\n"
             . "Severity: " . strtoupper($severity) . "\n"
+            . "Client commit: {$clientBuildCommit}\n"
             . "Title: {$title}\n\n"
             . "Message:\n{$message}\n\n"
             . "Reporter:\n"
