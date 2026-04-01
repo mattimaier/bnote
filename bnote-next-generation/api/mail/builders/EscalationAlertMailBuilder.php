@@ -231,6 +231,7 @@ final class EscalationAlertMailBuilder {
         $text = $isCritical
             ? MailDesignTokens::get('participationDestructive')
             : MailDesignTokens::get('participationWarning');
+        $headlineKey = $isCritical ? 'mail.escalation.headlineCritical' : 'mail.escalation.headlineSoon';
 
         return '<div style="margin:0 0 12px;padding:10px 12px;border:1px solid ' . htmlspecialchars($border, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
             . ';background:' . htmlspecialchars($bg, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
@@ -240,7 +241,7 @@ final class EscalationAlertMailBuilder {
             . htmlspecialchars(MailI18n::t('mail.escalation.alertBadge', $locale), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
             . '</span>'
             . '<span style="margin-left:8px;font-size:13px;font-weight:600;color:' . htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . ';">'
-            . htmlspecialchars(MailI18n::interpolate(MailI18n::t('mail.escalation.urgencyLine', $locale), ['urgency' => $urgencyLabelEsc]), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
+            . htmlspecialchars(MailI18n::t($headlineKey, $locale), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
             . '</span>'
             . '</div>';
     }

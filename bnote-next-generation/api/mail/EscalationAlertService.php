@@ -82,7 +82,7 @@ final class EscalationAlertService {
 
             $eventUrl = self::eventAbsoluteUrl((string) $event['otype'], (int) $event['oid']);
             $eventBegin = (string) ($event['begin'] ?? '');
-            $urgency = self::urgencyForEvent($eventBegin, (array) ($esc['deadline_windows_hours'] ?? [48, 12]));
+            $urgency = self::urgencyForEvent($eventBegin, (array) ($esc['deadline_windows_hours'] ?? [168, 48]));
             $detail = [
                 'event' => $event,
                 'urgency' => $urgency,
@@ -201,6 +201,28 @@ final class EscalationAlertService {
     }
 
     /**
+     * Returns escalation warning payload for in-app UI rendering.
+     * Uses the same risk/reason/urgency logic as escalation email generation.
+     *
+     * @return null|array<string,mixed>
+     */
+    public static function getWarningForEvent($system_data, string $otype, int $oid): ?array {
+        $cfg = ReminderConfig::get($system_data->dbcon);
+        $esc = self::escalationCfg($cfg);
+        $locale = method_exists($system_data, 'getLang') ? (string) ($system_data->getLang() ?: 'en') : 'en';
+        $event = self::buildRiskForEvent($system_data, $esc, $locale, strtoupper($otype), $oid);
+        if ($event === null) {
+            return null;
+        }
+        $hoursToBegin = self::hoursUntil((string) ($event['begin'] ?? ''));
+        if ($hoursToBegin === null || $hoursToBegin < 0) {
+            return null;
+        }
+        $urgency = self::urgencyForEvent((string) ($event['begin'] ?? ''), (array) ($esc['deadline_windows_hours'] ?? [168, 48]));
+        return self::uiWarningPayload($event, $urgency);
+    }
+
+    /**
      * @param array<string,mixed> $cfg
      * @return array<string,mixed>
      */
@@ -210,7 +232,7 @@ final class EscalationAlertService {
             'enabled' => !empty($esc['enabled']),
             'deadline_windows_hours' => (isset($esc['deadline_windows_hours']) && is_array($esc['deadline_windows_hours']))
                 ? array_values(array_map('intval', $esc['deadline_windows_hours']))
-                : [48, 12],
+                : [168, 48],
             'dropout_window_hours' => max(1, (int) ($esc['dropout_window_hours'] ?? 24)),
             'pending_threshold_percent' => max(1, (int) ($esc['pending_threshold_percent'] ?? 20)),
             'escalation_target_group_id' => max(0, (int) ($esc['escalation_target_group_id'] ?? 0)),
@@ -302,7 +324,7 @@ final class EscalationAlertService {
         }
         $deadline = (string) ($base['approve_until'] ?? '');
         $hoursToDeadline = self::hoursUntil($deadline);
-        $windows = (array) ($esc['deadline_windows_hours'] ?? [48, 12]);
+        $windows = (array) ($esc['deadline_windows_hours'] ?? [168, 48]);
         $maxWindow = count($windows) > 0 ? max($windows) : 48;
         if ($hoursToDeadline !== null && $hoursToDeadline > $maxWindow) {
             return null;
@@ -679,6 +701,32 @@ final class EscalationAlertService {
         }
         $criticalThreshold = count($windows) > 0 ? min($windows) : 12;
         return $hours <= $criticalThreshold ? 'critical' : 'soon';
+    }
+
+    /**
+     * @param array<string,mixed> $event
+     * @return array<string,mixed>
+     */
+    private static function uiWarningPayload(array $event, string $urgency): array {
+        return [
+            'severity' => $urgency === 'critical' ? 'critical' : 'soon',
+            'urgency' => $urgency === 'critical' ? 'critical' : 'soon',
+            'reasons' => array_values(array_map(static fn ($reason): string => (string) $reason, (array) ($event['reasons'] ?? []))),
+            'instrument_gaps' => isset($event['instrument_gaps']) && is_array($event['instrument_gaps'])
+                ? array_values($event['instrument_gaps'])
+                : [],
+            'counts' => isset($event['counts']) && is_array($event['counts']) ? $event['counts'] : null,
+            'pending_percent' => isset($event['pending_percent']) ? (int) $event['pending_percent'] : 0,
+            'pending_threshold_percent' => isset($event['pending_threshold_percent']) ? (int) $event['pending_threshold_percent'] : 0,
+            'hours_to_deadline' => isset($event['hours_to_deadline']) ? (int) $event['hours_to_deadline'] : null,
+            'event' => [
+                'otype' => (string) ($event['otype'] ?? ''),
+                'oid' => (int) ($event['oid'] ?? 0),
+                'title' => (string) ($event['title'] ?? ''),
+                'begin' => (string) ($event['begin'] ?? ''),
+                'approve_until' => (string) ($event['approve_until'] ?? ''),
+            ],
+        ];
     }
 
     private static function dropoutSourceLabel(string $locale, string $source): string {

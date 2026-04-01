@@ -7,6 +7,7 @@
  */
 
 import entityConfigData from "@/config/entity-config.json";
+import mailDesignTokens from "@/mail-design-tokens.json";
 
 /** Canonical entity keys; module routes (e.g. "locations", "users") resolve to these via getEntityConfig. */
 export type EntityType =
@@ -272,4 +273,45 @@ export function getStatusPillStyle(status: string): EntityPillStyle {
   const key = status?.toLowerCase?.() ?? "";
   const color = statuses[key]?.color ?? null;
   return getPillStyle(color);
+}
+
+export interface EscalationWarningUiConfig {
+  severity: "critical" | "soon";
+  iconName: string;
+  iconClassName: string;
+  badgeStyle: EntityPillStyle;
+  cardStyle: EntityPillStyle;
+  textColor: string;
+}
+
+export function getEscalationWarningUiConfig(severityRaw: string): EscalationWarningUiConfig {
+  const severity = severityRaw === "critical" ? "critical" : "soon";
+  const color =
+    severity === "critical"
+      ? mailDesignTokens.participationDestructive
+      : mailDesignTokens.participationWarning;
+  const bg =
+    severity === "critical"
+      ? mailDesignTokens.participationDestructiveBgMuted
+      : mailDesignTokens.participationWarningBgMuted;
+  const border =
+    severity === "critical"
+      ? mailDesignTokens.participationDestructiveBorderMuted
+      : mailDesignTokens.participationWarningBorderMuted;
+  return {
+    severity,
+    iconName: "alert-triangle",
+    iconClassName: "text-white",
+    badgeStyle: {
+      borderColor: color,
+      backgroundColor: color,
+      color: "#ffffff",
+    },
+    cardStyle: {
+      borderColor: border,
+      backgroundColor: bg,
+      color: severity === "critical" ? "#6f4d54" : "#6b6244",
+    },
+    textColor: severity === "critical" ? "#6f4d54" : "#6b6244",
+  };
 }

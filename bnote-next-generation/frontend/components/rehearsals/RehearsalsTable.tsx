@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { compareDate, compareString, type SortDirection } from "@/lib/table-sort";
-import { getStatusPillStyle } from "@/lib/entity-config";
+import { getEscalationWarningUiConfig, getStatusPillStyle } from "@/lib/entity-config";
 import { NotesContent } from "@/components/NotesContent";
 import { ResizableTable, ResizableTh } from "@/components/ResizableTable";
 import { ResponsiveTable } from "@/components/ResponsiveTable";
@@ -135,6 +135,9 @@ export function RehearsalsTable({
               const dateStr = formatEventDate(row.begin, lang, tba);
               const timeStr = formatEventTime(row.begin, lang, tba);
               const loc = row.location_name || emptyText;
+              const warning = row.escalationWarning;
+              const warningUi = warning ? getEscalationWarningUiConfig(warning.severity) : null;
+              const WarningIcon = warningUi ? getIcon(warningUi.iconName) : null;
               return (
                 <EntityListRow
                   icon={
@@ -143,11 +146,24 @@ export function RehearsalsTable({
                     </span>
                   }
                   primary={<span className="font-bold leading-tight" style={{ color: "var(--primary)" }}>{dateStr}</span>}
-                  badge={row.status ? (
-                    <span className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium border" style={getStatusPillStyle(row.status)}>
-                      {statusLabelFor(row.status)}
-                    </span>
-                  ) : undefined}
+                  badge={
+                    <>
+                      {WarningIcon && (
+                        <span
+                          className="inline-flex items-center justify-center rounded-full border px-2 py-0.5"
+                          style={warningUi?.badgeStyle}
+                          title={warning?.reasons?.join(" • ")}
+                        >
+                          <WarningIcon className={`h-3.5 w-3.5 ${warningUi?.iconClassName ?? ""}`} />
+                        </span>
+                      )}
+                      {row.status ? (
+                        <span className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium border" style={getStatusPillStyle(row.status)}>
+                          {statusLabelFor(row.status)}
+                        </span>
+                      ) : undefined}
+                    </>
+                  }
                   secondary={
                     <span className="flex w-full flex-col gap-0.5">
                       <span className="flex items-center gap-1">
@@ -183,6 +199,7 @@ export function RehearsalsTable({
               columns={[
                 { id: "begin", width: 180, minWidth: 150 },
                 { id: "status", width: 140, minWidth: 120 },
+                { id: "warning", width: 90, minWidth: 80 },
                 { id: "location", width: 220, minWidth: 160 },
                 { id: "attendance", width: 220, minWidth: 180 },
                 { id: "notes", width: 320, minWidth: 220 },
@@ -206,6 +223,9 @@ export function RehearsalsTable({
                     sortDir={sortDir}
                     onSort={onSort}
                   />
+                  <ResizableTh columnId="warning">
+                    {t("mail.escalation.alertBadge") !== "mail.escalation.alertBadge" ? t("mail.escalation.alertBadge") : "Alert"}
+                  </ResizableTh>
                   <SortableTh
                     columnId="location"
                     label={t("js.event.location") !== "js.event.location" ? t("js.event.location") : "Location"}
@@ -230,7 +250,7 @@ export function RehearsalsTable({
               <tbody>
                 {sortedItems.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="p-8 text-center" style={{ color: "var(--muted-foreground)" }}>
+                    <td colSpan={6} className="p-8 text-center" style={{ color: "var(--muted-foreground)" }}>
                       {emptyLabel}
                     </td>
                   </tr>
@@ -249,6 +269,23 @@ export function RehearsalsTable({
                             {statusLabelFor(row.status)}
                           </span>
                         ) : (
+                          emptyText
+                        )}
+                      </td>
+                      <td className="p-3">
+                        {row.escalationWarning ? (() => {
+                          const warningUi = getEscalationWarningUiConfig(row.escalationWarning.severity);
+                          const WarningIcon = getIcon(warningUi.iconName);
+                          return (
+                            <span
+                              className="inline-flex items-center justify-center rounded-full border px-2 py-0.5"
+                              style={warningUi.badgeStyle}
+                              title={row.escalationWarning.reasons?.join(" • ")}
+                            >
+                              <WarningIcon className={`h-5 w-5 ${warningUi.iconClassName}`} />
+                            </span>
+                          );
+                        })() : (
                           emptyText
                         )}
                       </td>

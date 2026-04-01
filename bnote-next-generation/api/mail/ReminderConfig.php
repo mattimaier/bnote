@@ -20,7 +20,7 @@ final class ReminderConfig {
             'max_tasks' => 99,
             'escalation' => [
                 'enabled' => false,
-                'deadline_windows_hours' => [48, 12],
+                'deadline_windows_hours' => [168, 48],
                 'dropout_window_hours' => 24,
                 'pending_threshold_percent' => 20,
                 'escalation_target_group_id' => 0,
@@ -96,7 +96,7 @@ final class ReminderConfig {
         $escDefault = (isset($d['escalation']) && is_array($d['escalation'])) ? $d['escalation'] : [];
         $esc = array_merge($escDefault, $escInput);
         $deadlineWindows = [];
-        $rawWindows = $esc['deadline_windows_hours'] ?? $escDefault['deadline_windows_hours'] ?? [48, 12];
+        $rawWindows = $esc['deadline_windows_hours'] ?? $escDefault['deadline_windows_hours'] ?? [168, 48];
         if (is_array($rawWindows)) {
             foreach ($rawWindows as $w) {
                 $n = (int) $w;
@@ -106,7 +106,7 @@ final class ReminderConfig {
             }
         }
         if (count($deadlineWindows) < 1) {
-            $deadlineWindows = [48, 12];
+            $deadlineWindows = [168, 48];
         }
         rsort($deadlineWindows);
 

@@ -23,7 +23,7 @@ export interface ParticipantItem {
 }
 
 export interface InstrumentGroup {
-  instrument: { id: number; name: string; category?: { id: number; name: string } };
+  instrument: { id: number; name: string; minimumRequired?: number; category?: { id: number; name: string } };
   participants: ParticipantItem[];
   stats?: { yes: number; maybe: number; no: number; pending: number };
 }
@@ -52,6 +52,7 @@ function groupByCategory(groups: InstrumentGroup[]): InstrumentGroup[] {
         instrument: {
           id: 0,
           name: catName,
+          minimumRequired: Math.max(0, g.instrument.minimumRequired ?? 0),
           category: g.instrument.category ?? { id: 0, name: catName },
         },
         participants: [...g.participants],
@@ -61,6 +62,8 @@ function groupByCategory(groups: InstrumentGroup[]): InstrumentGroup[] {
       });
     } else {
       existing.participants.push(...g.participants);
+      existing.instrument.minimumRequired =
+        Math.max(0, existing.instrument.minimumRequired ?? 0) + Math.max(0, g.instrument.minimumRequired ?? 0);
       if (g.stats) {
         existing.stats = existing.stats ?? { yes: 0, maybe: 0, no: 0, pending: 0 };
         existing.stats.yes += g.stats.yes ?? 0;
@@ -209,9 +212,25 @@ export function ParticipantOverview({ participantsByInstrument, getEntityHref }:
               key={`${name}-${idx}`}
               className="overflow-hidden pb-4 text-base-content md:rounded-lg md:border-2 md:border-base-300 md:bg-base-100 md:p-4 md:shadow-sm"
             >
-              <h3 className="mb-2 px-1 pt-1 text-center text-base font-semibold text-base-content md:px-0 md:pt-0">
-                {name}
-              </h3>
+              <div className="mb-2 px-1 pt-1 md:px-0 md:pt-0 flex items-center justify-between gap-2">
+                <h3 className="text-base font-semibold text-base-content truncate" title={name}>
+                  {name}
+                </h3>
+                {(() => {
+                  const minimumRequired = Math.max(0, group.instrument.minimumRequired ?? 0);
+                  if (minimumRequired < 1) return null;
+                  const attending = (group.stats?.yes ?? 0) + (group.stats?.maybe ?? 0);
+                  const meetsMinimum = attending >= minimumRequired;
+                  return (
+                    <span
+                      className={`badge badge-sm ${meetsMinimum ? "badge-success" : "badge-warning"} font-mono font-semibold tracking-wide text-white`}
+                      title="Attending (yes+maybe) / minimum required"
+                    >
+                      {attending}/{minimumRequired}
+                    </span>
+                  );
+                })()}
+              </div>
               {(stats.total ?? 0) > 0 && (
                 <div className="mb-3 px-1 md:px-0">
                   <ParticipationDiagram stats={stats} />

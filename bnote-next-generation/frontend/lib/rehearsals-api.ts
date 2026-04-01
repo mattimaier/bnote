@@ -5,6 +5,7 @@
  */
 
 import { api } from "./api";
+import type { EscalationWarning } from "@/lib/entities/event/types";
 
 export interface ParticipationStats {
   yes?: number;
@@ -24,6 +25,7 @@ export interface RehearsalListItem {
   status?: string;
   conductor?: number | null;
   participationStats?: ParticipationStats;
+  escalationWarning?: EscalationWarning | null;
 }
 
 export interface RehearsalSeriesSummary {

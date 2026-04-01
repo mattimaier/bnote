@@ -39,6 +39,7 @@ require_once __DIR__ . '/../auth.php';
 require_once __DIR__ . '/../text_normalizer.php';
 require_once __DIR__ . '/../mail/EventParticipantNotifier.php';
 require_once __DIR__ . '/../mail/EventInfoMailService.php';
+require_once __DIR__ . '/../mail/EscalationAlertService.php';
 
 class ConcertsModule {
     private $data;
@@ -123,12 +124,14 @@ class ConcertsModule {
      */
     private function listConcerts() {
         $userId = Auth::getUserId();
+        $canManageWarnings = $this->canManageConcertParticipation($userId);
         $concerts = $this->getAccessibleConcerts($userId);
         $list = [];
         if (is_array($concerts)) {
             for ($i = 1; $i < count($concerts); $i++) {
                 $c = $concerts[$i];
                 $participationStats = $this->getParticipationStatsForConcert($c['id'] ?? null);
+                $warning = $canManageWarnings ? $this->getEscalationWarningForEvent('C', intval($c['id'] ?? 0)) : null;
                 $list[] = [
                     'id' => intval($c['id']),
                     'title' => $c['title'] ?? '',
@@ -138,7 +141,8 @@ class ConcertsModule {
                     'location_name' => $c['location_name'] ?? '',
                     'notes' => $c['notes'] ?? '',
                     'status' => $c['status'] ?? '',
-                    'participationStats' => $participationStats
+                    'participationStats' => $participationStats,
+                    'escalationWarning' => $warning,
                 ];
             }
         }
@@ -222,6 +226,30 @@ class ConcertsModule {
             'pending' => $pending,
             'total' => $total
         ];
+    }
+
+    /**
+     * @return array<string,int>
+     */
+    private function loadInstrumentMinimums() {
+        global $system_data;
+        $raw = (string) ($system_data->getDynamicConfigParameter('instrument_minimums') ?? '');
+        if ($raw === '') {
+            return [];
+        }
+        $decoded = json_decode($raw, true);
+        if (!is_array($decoded)) {
+            return [];
+        }
+        $out = [];
+        foreach ($decoded as $instrumentId => $minimum) {
+            $id = is_numeric($instrumentId) ? (int) $instrumentId : 0;
+            $min = is_numeric($minimum) ? max(0, (int) $minimum) : 0;
+            if ($id > 0 && $min > 0) {
+                $out[(string) $id] = $min;
+            }
+        }
+        return $out;
     }
     
     /**
@@ -430,6 +458,7 @@ class ConcertsModule {
         // Group participants by instrument
         $participantsByInstrument = [];
         $totalStats = ['yes' => 0, 'maybe' => 0, 'no' => 0, 'pending' => 0];
+        $instrumentMinimums = $this->loadInstrumentMinimums();
         
         foreach ($usedInstruments as $instrument) {
             $instrumentId = $instrument['id'];
@@ -491,6 +520,7 @@ class ConcertsModule {
                     'instrument' => [
                         'id' => intval($instrumentId),
                         'name' => $instrument['name'],
+                        'minimumRequired' => $instrumentMinimums[(string) intval($instrumentId)] ?? 0,
                         'category' => [
                             'id' => intval($instrument['category_id'] ?? 0),
                             'name' => $instrument['category_name'] ?? 'Uncategorized'
@@ -533,10 +563,27 @@ class ConcertsModule {
                 'no' => $totalStats['no'],
                 'pending' => $totalStats['pending'],
                 'total' => $totalStats['yes'] + $totalStats['maybe'] + $totalStats['no'] + $totalStats['pending']
-            ]
+            ],
+            'escalationWarning' => $canEdit ? $this->getEscalationWarningForEvent('C', $id) : null,
         ];
         
         return $response;
+    }
+
+    /**
+     * @return null|array<string,mixed>
+     */
+    private function getEscalationWarningForEvent(string $otype, int $oid) {
+        global $system_data;
+        if ($oid < 1) {
+            return null;
+        }
+        try {
+            return EscalationAlertService::getWarningForEvent($system_data, $otype, $oid);
+        } catch (Throwable $e) {
+            error_log('concert escalation warning failed: ' . $e->getMessage());
+            return null;
+        }
     }
 
     private function getMeta() {

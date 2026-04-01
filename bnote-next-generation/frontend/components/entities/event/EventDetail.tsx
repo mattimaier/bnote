@@ -24,7 +24,7 @@ import { NotesContent } from "@/components/NotesContent";
 import { NotesEditor } from "@/components/NotesEditor";
 import { getAddressInfo } from "@/lib/address-utils";
 import { formatDateShort, formatDateTimeShort, formatTimeShort } from "@/lib/date-time";
-import { getStatusPillStyle, isQuickActionsEnabled } from "@/lib/entity-config";
+import { getEscalationWarningUiConfig, getStatusPillStyle, isQuickActionsEnabled } from "@/lib/entity-config";
 import { getEntityPath } from "@/lib/entities/paths";
 import { canViewEntityType } from "@/lib/entities/permissions";
 import { useModules } from "@/lib/use-modules";
@@ -45,6 +45,7 @@ import type {
   RehearsalMeta,
   SimpleOption,
   SongObj,
+  EscalationWarning,
 } from "@/lib/entities/event/types";
 import { MultiSelect } from "@/components/entities/event/MultiSelect";
 import { ParticipantEditor } from "@/components/entities/event/ParticipantEditor";
@@ -333,6 +334,7 @@ export function EventDetail({
     | InstrumentGroup[]
     | undefined;
   const eventContacts = (data.eventContacts ?? []) as EventContact[];
+  const escalationWarning = (data.escalationWarning ?? null) as EscalationWarning | null;
 
   // Concert metadata
   const groups = (data.groups ?? []) as GroupObj[];
@@ -741,6 +743,75 @@ export function EventDetail({
       {saveError && (
         <div className="rounded-lg border border-error bg-error/15 text-error px-4 py-3 text-sm">
           {saveError}
+        </div>
+      )}
+
+      {escalationWarning && !isPastEvent && (
+        <div className={`${DETAIL_SECTION_CLASS} border-2`} style={getEscalationWarningUiConfig(escalationWarning.severity).cardStyle}>
+          {(() => {
+            const warningUi = getEscalationWarningUiConfig(escalationWarning.severity);
+            const WarningIcon = getIcon(warningUi.iconName);
+            const urgencyKey =
+              escalationWarning.severity === "critical"
+                ? "mail.escalation.urgencyCritical"
+                : "mail.escalation.urgencySoon";
+            const urgencyLabel = t(urgencyKey) !== urgencyKey ? t(urgencyKey) : escalationWarning.severity;
+            const urgencyTemplate =
+              t("mail.escalation.urgencyLine") !== "mail.escalation.urgencyLine"
+                ? t("mail.escalation.urgencyLine")
+                : "Urgency: {urgency}";
+            const urgencyLine = urgencyTemplate.replace("{urgency}", urgencyLabel);
+            const headlineKey =
+              escalationWarning.severity === "critical"
+                ? "mail.escalation.headlineCritical"
+                : "mail.escalation.headlineSoon";
+            const warningHeadline = t(headlineKey) !== headlineKey ? t(headlineKey) : urgencyLine;
+            const criticalInstruments = Array.isArray(escalationWarning.instrument_gaps)
+              ? escalationWarning.instrument_gaps.filter((gap) => (gap.minimum ?? 0) > (gap.current ?? 0))
+              : [];
+            return (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border" style={warningUi.badgeStyle}>
+                    <WarningIcon className={`h-6 w-6 ${warningUi.iconClassName}`} />
+                  </span>
+                  <h1 className="text-2xl font-bold break-words whitespace-normal leading-tight" style={{ color: warningUi.textColor }}>
+                    {warningHeadline}
+                  </h1>
+                </div>
+                {Array.isArray(escalationWarning.reasons) && escalationWarning.reasons.length > 0 && (
+                  <div>
+                    <p className="text-sm font-semibold mb-1" style={{ color: warningUi.textColor }}>
+                      {t("mail.escalation.reasonHeading") !== "mail.escalation.reasonHeading"
+                        ? t("mail.escalation.reasonHeading")
+                        : "Risk reasons"}
+                    </p>
+                    <ul className="list-disc list-inside text-sm space-y-1" style={{ color: warningUi.textColor }}>
+                      {escalationWarning.reasons.map((reason, idx) => (
+                        <li key={`${idx}-${reason}`}>{reason}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {criticalInstruments.length > 0 && (
+                  <div>
+                    <p className="text-sm font-semibold mb-1" style={{ color: warningUi.textColor }}>
+                      {t("mail.escalation.gapsHeading") !== "mail.escalation.gapsHeading"
+                        ? t("mail.escalation.gapsHeading")
+                        : "Critical instruments"}
+                    </p>
+                    <ul className="list-disc list-inside text-sm space-y-1" style={{ color: warningUi.textColor }}>
+                      {criticalInstruments.map((gap, idx) => (
+                        <li key={`${idx}-${gap.instrument_name ?? "instrument"}`}>
+                          {(gap.instrument_name ?? "Instrument")}: {gap.current ?? 0}/{gap.minimum ?? 0}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
         </div>
       )}
 

@@ -12,7 +12,7 @@ import { useI18n } from "@/contexts/I18nContext";
 import { concertsApi, type ConcertListItem } from "@/lib/concerts-api";
 import { getEntityPath } from "@/lib/entities/paths";
 import { compareDate, compareString, type SortDirection } from "@/lib/table-sort";
-import { getStatusPillStyle } from "@/lib/entity-config";
+import { getEscalationWarningUiConfig, getStatusPillStyle } from "@/lib/entity-config";
 import { ResizableTable, ResizableTh } from "@/components/ResizableTable";
 import { ResponsiveTable } from "@/components/ResponsiveTable";
 import { EntityListRow } from "@/components/EntityListRow";
@@ -144,6 +144,7 @@ export default function ConcertsPage() {
   return (
     <PageContent className="px-1 md:px-4">
       <AppPageHeader
+        moduleKey="concert"
         title={t("js.sidebar.concerts") !== "js.sidebar.concerts" ? t("js.sidebar.concerts") : "Concerts"}
         actions={(
           <ActionButton href={getEntityPath("concert", "new", "edit")}>
@@ -354,6 +355,9 @@ function EventsTable({
               const timeStr = formatEventTime(row.begin, lang, tba);
               const loc = row.location_name || emptyText;
               const title = notesToPlainText(row.title ?? "").trim() || typeConfig.label;
+              const warning = row.escalationWarning;
+              const warningUi = warning ? getEscalationWarningUiConfig(warning.severity) : null;
+              const WarningIcon = warningUi ? getIcon(warningUi.iconName) : null;
               return (
                 <EntityListRow
                   icon={
@@ -364,6 +368,15 @@ function EventsTable({
                   primary={<span className="font-bold leading-tight" style={{ color: "var(--primary)" }}>{dateStr}</span>}
                   badge={
                     <>
+                      {WarningIcon && (
+                        <span
+                          className="inline-flex items-center justify-center rounded-full border px-2 py-0.5"
+                          style={warningUi?.badgeStyle}
+                          title={warning?.reasons?.join(" • ")}
+                        >
+                          <WarningIcon className={`h-3.5 w-3.5 ${warningUi?.iconClassName ?? ""}`} />
+                        </span>
+                      )}
                       <span className="text-sm min-w-0 break-words whitespace-normal leading-snug">{title}</span>
                       {row.status && (
                         <span className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium border" style={getStatusPillStyle(row.status)}>
@@ -408,6 +421,7 @@ function EventsTable({
                 { id: "title", width: 240, minWidth: 200 },
                 { id: "begin", width: 180, minWidth: 150 },
                 { id: "status", width: 140, minWidth: 120 },
+                { id: "warning", width: 90, minWidth: 80 },
                 { id: "location", width: 220, minWidth: 160 },
                 { id: "attendance", width: 220, minWidth: 180 },
               ]}
@@ -441,6 +455,9 @@ function EventsTable({
                     sortDir={sortDir}
                     onSort={onSort}
                   />
+                  <ResizableTh columnId="warning">
+                    {t("mail.escalation.alertBadge") !== "mail.escalation.alertBadge" ? t("mail.escalation.alertBadge") : "Alert"}
+                  </ResizableTh>
                   <SortableTh
                     columnId="location"
                     label={t("js.event.location") !== "js.event.location" ? t("js.event.location") : "Location"}
@@ -458,7 +475,7 @@ function EventsTable({
                 {sortedItems.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={5}
+                      colSpan={6}
                       className="p-8 text-center"
                       style={{ color: "var(--muted-foreground)" }}
                     >
@@ -486,6 +503,23 @@ function EventsTable({
                             {statusLabelFor(row.status)}
                           </span>
                         ) : (
+                          emptyText
+                        )}
+                      </td>
+                      <td className="p-3">
+                        {row.escalationWarning ? (() => {
+                          const warningUi = getEscalationWarningUiConfig(row.escalationWarning.severity);
+                          const WarningIcon = getIcon(warningUi.iconName);
+                          return (
+                            <span
+                              className="inline-flex items-center justify-center rounded-full border px-2 py-0.5"
+                              style={warningUi.badgeStyle}
+                              title={row.escalationWarning.reasons?.join(" • ")}
+                            >
+                              <WarningIcon className={`h-5 w-5 ${warningUi.iconClassName}`} />
+                            </span>
+                          );
+                        })() : (
                           emptyText
                         )}
                       </td>

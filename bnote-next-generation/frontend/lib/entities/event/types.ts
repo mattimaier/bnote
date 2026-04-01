@@ -100,6 +100,30 @@ export interface EventContact {
   name?: string | null;
 }
 
+export interface EscalationWarning {
+  severity: "critical" | "soon";
+  urgency?: "critical" | "soon";
+  reasons: string[];
+  instrument_gaps?: Array<{ instrument_name?: string; current?: number; minimum?: number }>;
+  counts?: {
+    invited_users?: number;
+    pending_users?: number;
+    yes?: number;
+    maybe?: number;
+    no?: number;
+  } | null;
+  pending_percent?: number;
+  pending_threshold_percent?: number;
+  hours_to_deadline?: number | null;
+  event?: {
+    otype?: string;
+    oid?: number;
+    title?: string;
+    begin?: string;
+    approve_until?: string;
+  };
+}
+
 export interface EditableSong {
   id: number;
   title: string;

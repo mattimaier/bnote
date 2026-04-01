@@ -918,6 +918,8 @@
   "mail.escalation.ctaOpenEvent": "Abrir evento",
   "mail.escalation.alertBadge": "Alerta",
   "mail.escalation.urgencyLine": "Urgencia: {urgency}",
+  "mail.escalation.headlineSoon": "Alerta: se necesita accion pronto",
+  "mail.escalation.headlineCritical": "Alerta: se necesita accion urgente",
   "mail.escalation.pendingLabel": "Pendiente",
   "mail.escalation.urgencySoon": "Pronto",
   "mail.escalation.urgencyCritical": "Crítica",

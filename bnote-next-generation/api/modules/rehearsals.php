@@ -35,6 +35,7 @@ require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
 require_once __DIR__ . '/../mail/EventParticipantNotifier.php';
 require_once __DIR__ . '/../mail/EventInfoMailService.php';
+require_once __DIR__ . '/../mail/EscalationAlertService.php';
 require_once __DIR__ . '/../text_normalizer.php';
 
 class RehearsalsModule {
@@ -150,12 +151,14 @@ class RehearsalsModule {
      */
     private function listRehearsals() {
         $userId = Auth::getUserId();
+        $canManageWarnings = $this->canManageRehearsalParticipation($userId);
         $rehearsals = $this->getAccessibleRehearsals($userId);
         $list = [];
         if (is_array($rehearsals)) {
             for ($i = 1; $i < count($rehearsals); $i++) {
                 $r = $rehearsals[$i];
                 $participationStats = $this->getParticipationStatsForRehearsal($r['id'] ?? null);
+                $warning = $canManageWarnings ? $this->getEscalationWarningForEvent('R', intval($r['id'] ?? 0)) : null;
                 $list[] = [
                     'id' => intval($r['id']),
                     'begin' => $r['begin'] ?? '',
@@ -165,7 +168,8 @@ class RehearsalsModule {
                     'notes' => $r['notes'] ?? '',
                     'status' => $r['status'] ?? '',
                     'conductor' => isset($r['conductor']) ? intval($r['conductor']) : null,
-                    'participationStats' => $participationStats
+                    'participationStats' => $participationStats,
+                    'escalationWarning' => $warning,
                 ];
             }
         }
@@ -242,6 +246,30 @@ class RehearsalsModule {
             'pending' => $pending,
             'total' => $total
         ];
+    }
+
+    /**
+     * @return array<string,int>
+     */
+    private function loadInstrumentMinimums() {
+        global $system_data;
+        $raw = (string) ($system_data->getDynamicConfigParameter('instrument_minimums') ?? '');
+        if ($raw === '') {
+            return [];
+        }
+        $decoded = json_decode($raw, true);
+        if (!is_array($decoded)) {
+            return [];
+        }
+        $out = [];
+        foreach ($decoded as $instrumentId => $minimum) {
+            $id = is_numeric($instrumentId) ? (int) $instrumentId : 0;
+            $min = is_numeric($minimum) ? max(0, (int) $minimum) : 0;
+            if ($id > 0 && $min > 0) {
+                $out[(string) $id] = $min;
+            }
+        }
+        return $out;
     }
     
     /**
@@ -396,6 +424,7 @@ class RehearsalsModule {
         // Group participants by instrument
         $participantsByInstrument = [];
         $totalStats = ['yes' => 0, 'maybe' => 0, 'no' => 0, 'pending' => 0];
+        $instrumentMinimums = $this->loadInstrumentMinimums();
         
         foreach ($usedInstruments as $instrument) {
             $instrumentId = $instrument['id'];
@@ -457,6 +486,7 @@ class RehearsalsModule {
                     'instrument' => [
                         'id' => intval($instrumentId),
                         'name' => $instrument['name'],
+                        'minimumRequired' => $instrumentMinimums[(string) intval($instrumentId)] ?? 0,
                         'category' => [
                             'id' => intval($instrument['category_id'] ?? 0),
                             'name' => $instrument['category_name'] ?? 'Uncategorized'
@@ -491,10 +521,27 @@ class RehearsalsModule {
                 'no' => $totalStats['no'],
                 'pending' => $totalStats['pending'],
                 'total' => $totalStats['yes'] + $totalStats['maybe'] + $totalStats['no'] + $totalStats['pending']
-            ]
+            ],
+            'escalationWarning' => $canEdit ? $this->getEscalationWarningForEvent('R', $id) : null,
         ];
         
         return $response;
+    }
+
+    /**
+     * @return null|array<string,mixed>
+     */
+    private function getEscalationWarningForEvent(string $otype, int $oid) {
+        global $system_data;
+        if ($oid < 1) {
+            return null;
+        }
+        try {
+            return EscalationAlertService::getWarningForEvent($system_data, $otype, $oid);
+        } catch (Throwable $e) {
+            error_log('rehearsal escalation warning failed: ' . $e->getMessage());
+            return null;
+        }
     }
 
     private function getMeta() {

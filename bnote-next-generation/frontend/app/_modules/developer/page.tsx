@@ -440,6 +440,23 @@ function DeveloperModulePageContent() {
       desc: "Admin-protected SMTP test-send endpoint (expects query params to/template/locale).",
     },
   ] as const;
+  const escalationPreviewItems = [
+    {
+      key: "escPreviewRehearsalSoon",
+      href: getApiDebugScriptUrl("mail_preview.php?template=escalation_deadline_pending&locale=en"),
+      label: "Rehearsal example (pending threshold / soon)",
+    },
+    {
+      key: "escPreviewConcertSoon",
+      href: getApiDebugScriptUrl("mail_preview.php?template=escalation_instrument_gap&locale=en"),
+      label: "Concert example (instrument gap / soon)",
+    },
+    {
+      key: "escPreviewConcertCritical",
+      href: getApiDebugScriptUrl("mail_preview.php?template=escalation_dropout_critical&locale=en"),
+      label: "Concert example (dropout / critical)",
+    },
+  ] as const;
 
   const tokensJson = JSON.stringify(mailDesignTokens, null, 2);
   const reminderRecipientOptions = [
@@ -460,6 +477,7 @@ function DeveloperModulePageContent() {
   return (
     <PageContent className="px-1 md:px-4 space-y-8">
       <AppPageHeader
+        moduleKey="developer"
         title="Developer tools"
         subtitle="Admin only. Debug utilities, API tester, entity mocks, and local mail previews. English-only; not localized."
       />
@@ -871,6 +889,22 @@ function DeveloperModulePageContent() {
                 </table>
               </div>
             )}
+            <div className="rounded-box bg-base-300/40 p-2">
+              <p className="text-xs font-semibold text-base-content/80 mb-1">Escalation examples (mail + UI parity)</p>
+              <div className="flex flex-col gap-1">
+                {escalationPreviewItems.map((item) => (
+                  <a
+                    key={item.key}
+                    href={item.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs underline text-primary"
+                  >
+                    {item.label}
+                  </a>
+                ))}
+              </div>
+            </div>
           </DevPanel>
         </div>
 
