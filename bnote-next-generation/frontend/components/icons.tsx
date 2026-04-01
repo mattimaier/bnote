@@ -83,6 +83,7 @@ const TABLER_MAP: Record<string, string> = {
   info: "icon-[tabler--info-circle]",
   newspaper: "icon-[tabler--news]",
   cake: "icon-[tabler--cake]",
+  confetti: "icon-[tabler--confetti]",
   "calendar-check": "icon-[tabler--calendar-check]",
   "grip-vertical": "icon-[tabler--grip-vertical]",
   settings: "icon-[tabler--settings]",

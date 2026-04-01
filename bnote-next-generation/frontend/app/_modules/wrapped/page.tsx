@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { type CSSProperties, useCallback, useEffect, useMemo, useState } from "react";
 import { PAGE_CONTENT_BASE_CLASS } from "@/lib/layout";
 import { useI18n } from "@/contexts/I18nContext";
 import { wrappedApi, type WrappedYearData } from "@/lib/wrapped-api";
@@ -30,6 +30,16 @@ export default function WrappedModulePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [shareOpen, setShareOpen] = useState(false);
+  const revealStyle = (delay: number): CSSProperties => ({ "--wrapped-delay": `${delay}ms` } as CSSProperties);
+  const wrappedTitle = data?.profile.bandName ? `${data.profile.bandName} Wrapped` : t("js.wrapped.title");
+  const totalResponses = data?.personal.responses.total ?? 0;
+  const yesResponses = data?.personal.responses.yes ?? 0;
+  const maybeResponses = data?.personal.responses.maybe ?? 0;
+  const noResponses = data?.personal.responses.no ?? 0;
+  const yesPct = totalResponses > 0 ? Math.round((yesResponses / totalResponses) * 100) : 0;
+  const maybePct = totalResponses > 0 ? Math.round((maybeResponses / totalResponses) * 100) : 0;
+  const noPct = totalResponses > 0 ? Math.max(0, 100 - yesPct - maybePct) : 0;
+  const responseSplitText = t("js.wrapped.card.responseSplit", [String(yesPct), String(maybePct), String(noPct)]);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -51,20 +61,29 @@ export default function WrappedModulePage() {
   return (
     <main className={PAGE_CONTENT_BASE_CLASS}>
       <div className="mx-auto max-w-5xl space-y-4 md:space-y-6">
-        <section className="rounded-box border border-base-300 bg-gradient-to-r from-primary/10 via-base-100 to-accent/10 px-4 py-4 md:px-5 md:py-5">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/80 text-primary shadow-sm">
-                <TablerIconByName name="chart-bar" className="h-5 w-5" />
+        <section
+          className="relative isolate overflow-hidden rounded-3xl border border-base-300 wrapped-hero-bg wrapped-reveal px-5 py-6 md:px-8 md:py-7 shadow-sm"
+          style={revealStyle(0)}
+        >
+          <div className="pointer-events-none absolute inset-0 wrapped-hero-shimmer" />
+          <div className="pointer-events-none absolute -top-24 right-6 h-44 w-44 rounded-full wrapped-spotlight" />
+          <div className="pointer-events-none absolute top-8 -left-12 h-32 w-32 rounded-full wrapped-spotlight-warm" />
+          <div className="pointer-events-none absolute -bottom-10 right-24 h-28 w-28 rounded-full wrapped-spotlight-warm opacity-70" />
+          <div className="relative flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-4 min-w-0">
+              <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white/85 text-primary shadow-sm ring-1 ring-white/60">
+                <TablerIconByName name="confetti" className="h-6 w-6" />
               </span>
               <div className="min-w-0">
-                <h1 className="text-lg md:text-xl font-semibold truncate">{t("js.wrapped.title")}</h1>
+                <h1 className="wrapped-display text-2xl md:text-3xl font-semibold truncate">
+                  {wrappedTitle}
+                </h1>
                 <p className="text-sm text-base-content/70">{t("js.wrapped.subtitle")}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <select
-                className="select select-sm select-bordered"
+                className="select select-sm select-bordered bg-white/80"
                 value={year}
                 onChange={(e) => setYear(Number(e.target.value))}
               >
@@ -74,7 +93,12 @@ export default function WrappedModulePage() {
                   </option>
                 ))}
               </select>
-              <button type="button" className="btn btn-sm btn-primary" onClick={() => setShareOpen(true)} disabled={!data}>
+              <button
+                type="button"
+                className="btn btn-sm btn-primary shadow-sm"
+                onClick={() => setShareOpen(true)}
+                disabled={!data}
+              >
                 {t("js.wrapped.share.button")}
               </button>
             </div>
@@ -92,13 +116,13 @@ export default function WrappedModulePage() {
         {!loading && data ? (
           <>
             <section className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div className="card bg-base-100 border border-base-300">
-                <div className="card-body p-4">
+              <div className="card bg-base-100 border border-base-300 md:col-span-2 wrapped-reveal" style={revealStyle(80)}>
+                <div className="card-body p-5">
                   <div className="flex items-center justify-between">
                     <p className="text-sm text-base-content/70">{t("js.wrapped.cards.events")}</p>
-                    <TablerIconByName name="calendar-days" className="h-4 w-4 text-primary" />
+                    <TablerIconByName name="calendar-days" className="h-5 w-5 text-primary" />
                   </div>
-                  <p className="text-3xl font-semibold">{data.personal.events.total}</p>
+                  <p className="wrapped-display mt-2 text-5xl font-semibold">{data.personal.events.total}</p>
                   <p className="text-xs text-base-content/70">
                     {t("js.wrapped.cards.eventsBreakdown", [
                       String(data.personal.events.rehearsals),
@@ -107,32 +131,32 @@ export default function WrappedModulePage() {
                   </p>
                 </div>
               </div>
-              <div className="card bg-base-100 border border-base-300">
-                <div className="card-body p-4">
+              <div className="card bg-base-100 border border-base-300 wrapped-reveal" style={revealStyle(140)}>
+                <div className="card-body p-5">
                   <div className="flex items-center justify-between">
                     <p className="text-sm text-base-content/70">{t("js.wrapped.cards.yesRate")}</p>
-                    <TablerIconByName name="check-circle" className="h-4 w-4 text-success" />
+                    <TablerIconByName name="check-circle" className="h-5 w-5 text-success" />
                   </div>
-                  <p className="text-3xl font-semibold">{data.personal.responses.yesRate.toFixed(1)}%</p>
+                  <p className="wrapped-display mt-2 text-4xl font-semibold">{data.personal.responses.yesRate.toFixed(1)}%</p>
                   <p className="text-xs text-base-content/70">
                     {t("js.wrapped.cards.responses", [String(data.personal.responses.total)])}
                   </p>
                 </div>
               </div>
-              <div className="card bg-base-100 border border-base-300">
-                <div className="card-body p-4">
+              <div className="card bg-base-100 border border-base-300 wrapped-reveal" style={revealStyle(200)}>
+                <div className="card-body p-5">
                   <div className="flex items-center justify-between">
                     <p className="text-sm text-base-content/70">{t("js.wrapped.cards.eventsBreakdownTitle")}</p>
-                    <TablerIconByName name="layout-list" className="h-4 w-4 text-base-content/70" />
+                    <TablerIconByName name="layout-list" className="h-5 w-5 text-base-content/70" />
                   </div>
-                  <div className="mt-2 space-y-1 text-sm">
-                    <div className="flex items-center justify-between">
-                      <span className="text-base-content/70">{t("js.sidebar.rehearsals")}</span>
-                      <span className="font-semibold">{data.personal.events.rehearsals}</span>
+                  <div className="mt-3 space-y-2 text-sm">
+                    <div className="flex items-center justify-between rounded-full px-3 py-1.5 wrapped-chip-primary">
+                      <span className="text-base-content/80">{t("js.sidebar.rehearsals")}</span>
+                      <span className="font-semibold text-base-content">{data.personal.events.rehearsals}</span>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-base-content/70">{t("js.sidebar.concerts")}</span>
-                      <span className="font-semibold">{data.personal.events.concerts}</span>
+                    <div className="flex items-center justify-between rounded-full px-3 py-1.5 wrapped-chip-accent">
+                      <span className="text-base-content/80">{t("js.sidebar.concerts")}</span>
+                      <span className="font-semibold text-base-content">{data.personal.events.concerts}</span>
                     </div>
                   </div>
                 </div>
@@ -140,21 +164,34 @@ export default function WrappedModulePage() {
             </section>
 
             <section className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="card bg-base-100 border border-base-300">
-                <div className="card-body p-4">
-                  <h2 className="card-title text-base">{t("js.wrapped.story.vibeTitle")}</h2>
-                  <p>
+              <div className="card bg-base-100 border border-base-300 wrapped-reveal" style={revealStyle(260)}>
+                <div className="card-body p-5">
+                  <div className="flex items-center gap-3">
+                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                      <TablerIconByName name="music" className="h-5 w-5" />
+                    </span>
+                    <h2 className="card-title text-base">{t("js.wrapped.story.vibeTitle")}</h2>
+                  </div>
+                  <p className="mt-3 border-l-4 border-primary/40 pl-3 text-base-content/80">
                     {t("js.wrapped.story.vibeText", [
                       data.profile.firstName,
                       t(data.personal.funFacts.favoriteType === "concert" ? "js.sidebar.concerts" : "js.sidebar.rehearsals"),
                     ])}
                   </p>
+                  <p className="mt-3 rounded-full px-3 py-1.5 text-xs font-semibold wrapped-chip-primary">
+                    {responseSplitText}
+                  </p>
                 </div>
               </div>
-              <div className="card bg-base-100 border border-base-300">
-                <div className="card-body p-4">
-                  <h2 className="card-title text-base">{t("js.wrapped.story.monthTitle")}</h2>
-                  <p>
+              <div className="card bg-base-100 border border-base-300 wrapped-reveal" style={revealStyle(320)}>
+                <div className="card-body p-5">
+                  <div className="flex items-center gap-3">
+                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl wrapped-accent-bg wrapped-accent-text">
+                      <TablerIconByName name="calendar" className="h-5 w-5" />
+                    </span>
+                    <h2 className="card-title text-base">{t("js.wrapped.story.monthTitle")}</h2>
+                  </div>
+                  <p className="mt-3 border-l-4 wrapped-accent-border pl-3 text-base-content/80">
                     {t("js.wrapped.story.monthText", [formatMonthLabel(data.personal.topMonth || "", lang)])}
                   </p>
                 </div>
@@ -162,13 +199,15 @@ export default function WrappedModulePage() {
             </section>
 
             {data.band && data.band.events.total > 0 ? (
-              <section className="card bg-base-100 border border-base-300">
-                <div className="card-body p-4">
-                  <h2 className="card-title text-base">{t("js.wrapped.band.title")}</h2>
-                  <p className="text-sm text-base-content/70">
-                    {t("js.wrapped.band.subtitle", [data.band.yesRate.toFixed(1)])}
-                  </p>
-                  <div className="mt-3 overflow-x-auto">
+              <section className="rounded-3xl border border-base-300 bg-base-200/40 wrapped-reveal" style={revealStyle(380)}>
+                <div className="p-5">
+                  <div className="flex items-center justify-between">
+                    <h2 className="card-title text-base">{t("js.wrapped.band.title")}</h2>
+                    <span className="rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-base-content/70">
+                      {t("js.wrapped.band.subtitle", [data.band.yesRate.toFixed(1)])}
+                    </span>
+                  </div>
+                  <div className="mt-3 overflow-x-auto rounded-2xl bg-white">
                     <table className="table table-sm">
                       <thead>
                         <tr>
@@ -199,4 +238,3 @@ export default function WrappedModulePage() {
     </main>
   );
 }
-

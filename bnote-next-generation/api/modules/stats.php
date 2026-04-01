@@ -8,10 +8,14 @@
 
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
+require_once BNOTE_ROOT . '/src/data/modules/aufgabendata.php';
+require_once BNOTE_ROOT . '/src/data/modules/abstimmungdata.php';
 
 class StatsModule {
     /** @var string[] */
     private array $statsModuleAliases = ['Stats', 'Auswertungen', 'Statistik', 'Statistics'];
+    /** @var array<string, bool> */
+    private array $columnCache = [];
 
     public function __construct() {
         $this->assertPermission();
@@ -78,7 +82,7 @@ class StatsModule {
         $query = "SELECT MIN(begin) as min_begin FROM rehearsal
                   UNION ALL
                   SELECT MIN(begin) as min_begin FROM concert";
-        $rows = $this->rows($system_data->dbcon->getSelection($query));
+        $rows = $this->rows($this->getSelectionSafe($query, [], 'available-years'));
         $minYear = intval(date('Y'));
         foreach ($rows as $row) {
             $value = trim((string)($row['min_begin'] ?? ''));
@@ -101,9 +105,10 @@ class StatsModule {
     }
 
     private function periodKeyExpression(string $column, array $context): string {
+        $expr = $this->normalizeDateExpression($column);
         return $context['scope'] === 'all'
-            ? "DATE_FORMAT($column, '%Y')"
-            : "DATE_FORMAT($column, '%Y-%m')";
+            ? "DATE_FORMAT($expr, '%Y')"
+            : "DATE_FORMAT($expr, '%Y-%m')";
     }
 
     /**
@@ -115,7 +120,8 @@ class StatsModule {
         }
         $params[] = ['s', (string)$context['start']];
         $params[] = ['s', (string)$context['end']];
-        return " WHERE $column >= ? AND $column <= ? ";
+        $expr = $this->normalizeDateExpression($column);
+        return " WHERE $expr IS NOT NULL AND $expr >= ? AND $expr <= ? ";
     }
 
     private function assertPermission(): void {
@@ -192,6 +198,36 @@ class StatsModule {
     }
 
     /**
+     * @param array<int, array<int|string>> $params
+     * @return array<mixed>
+     */
+    private function getSelectionSafe(string $query, array $params = [], string $label = ''): array {
+        global $system_data;
+        return $system_data->dbcon->getSelection($query, $params);
+    }
+
+    private function hasColumn(string $table, string $column): bool {
+        $key = $table . '.' . $column;
+        if (array_key_exists($key, $this->columnCache)) {
+            return $this->columnCache[$key];
+        }
+        global $system_data;
+        $query = "SELECT COUNT(*) as cnt
+                  FROM information_schema.COLUMNS
+                  WHERE TABLE_SCHEMA = DATABASE()
+                    AND TABLE_NAME = ?
+                    AND COLUMN_NAME = ?";
+        $rows = $this->rows($this->getSelectionSafe($query, [['s', $table], ['s', $column]], 'has-column'));
+        $has = count($rows) > 0 && intval($rows[0]['cnt'] ?? 0) > 0;
+        $this->columnCache[$key] = $has;
+        return $has;
+    }
+
+    private function normalizeDateExpression(string $column): string {
+        return "COALESCE(STR_TO_DATE($column, '%Y-%m-%d %H:%i:%s'), STR_TO_DATE($column, '%Y-%m-%d'))";
+    }
+
+    /**
      * @return array<int, string>
      */
     private function monthSeries(int $months): array {
@@ -233,7 +269,7 @@ class StatsModule {
                   FROM `$table`";
         $query .= $this->applyDateFilter($dateColumn, $context, $params);
         $query .= " GROUP BY ym";
-        $rows = $this->rows($system_data->dbcon->getSelection($query, $params));
+        $rows = $this->rows($this->getSelectionSafe($query, $params, 'month-count-map'));
         $map = [];
         foreach ($rows as $row) {
             $map[(string)($row['ym'] ?? '')] = intval($row['cnt'] ?? 0);
@@ -252,7 +288,7 @@ class StatsModule {
                   JOIN `group` g ON cg.`group` = g.id
                   GROUP BY g.id, g.name
                   ORDER BY num DESC, g.name ASC";
-        $rows = $this->rows($system_data->dbcon->getSelection($query));
+        $rows = $this->rows($this->getSelectionSafe($query, [], 'members-per-group'));
         $out = [];
         foreach ($rows as $row) {
             $out[] = [
@@ -282,7 +318,7 @@ class StatsModule {
                   GROUP BY ru.`user`, c.name, c.surname, i.name
                   ORDER BY score DESC, c.surname ASC, c.name ASC
                   LIMIT 0, 8";
-        return $this->rankedParticipants($this->rows($system_data->dbcon->getSelection($query, $params)));
+        return $this->rankedParticipants($this->rows($this->getSelectionSafe($query, $params, 'top-rehearsal-participants')));
     }
 
     /**
@@ -304,7 +340,7 @@ class StatsModule {
                   GROUP BY vou.`user`, c.name, c.surname, i.name
                   ORDER BY score DESC, c.surname ASC, c.name ASC
                   LIMIT 0, 8";
-        return $this->rankedParticipants($this->rows($system_data->dbcon->getSelection($query, $params)));
+        return $this->rankedParticipants($this->rows($this->getSelectionSafe($query, $params, 'top-vote-participants')));
     }
 
     /**
@@ -354,24 +390,30 @@ class StatsModule {
     private function getCriticalRehearsals(int $limit): array {
         global $system_data;
 
+        $beginExpr = $this->normalizeDateExpression("r.begin");
         $query = "SELECT
                     r.id,
                     r.begin,
                     r.approve_until,
+                    r.status,
+                    l.name as location_name,
                     COUNT(DISTINCT u.id) as invited_users,
                     COUNT(DISTINCT ru.user) as replied_users,
                     SUM(CASE WHEN ru.user IS NULL THEN 1 ELSE 0 END) as pending_users
                   FROM `rehearsal` r
+                  LEFT JOIN `location` l ON r.location = l.id
                   JOIN `rehearsal_contact` rc ON rc.rehearsal = r.id
                   JOIN `user` u ON u.contact = rc.contact
                   LEFT JOIN `rehearsal_user` ru ON ru.rehearsal = r.id AND ru.user = u.id
-                  WHERE r.begin >= NOW() AND r.begin <= DATE_ADD(NOW(), INTERVAL 90 DAY)
-                  GROUP BY r.id, r.begin, r.approve_until
+                  WHERE $beginExpr IS NOT NULL
+                    AND $beginExpr >= NOW()
+                    AND $beginExpr <= DATE_ADD(NOW(), INTERVAL 90 DAY)
+                  GROUP BY r.id, r.begin, r.approve_until, r.status, l.name
                   HAVING pending_users > 0
                   ORDER BY pending_users DESC, r.begin ASC
                   LIMIT 0, ?";
 
-        $rows = $this->rows($system_data->dbcon->getSelection($query, [['i', $limit]]));
+        $rows = $this->rows($this->getSelectionSafe($query, [['i', $limit]], 'critical-rehearsals'));
         $out = [];
         foreach ($rows as $row) {
             $out[] = $this->formatCriticalEventRow('rehearsal', $row, 'Rehearsal #' . intval($row['id'] ?? 0));
@@ -385,25 +427,31 @@ class StatsModule {
     private function getCriticalConcerts(int $limit): array {
         global $system_data;
 
+        $beginExpr = $this->normalizeDateExpression("c.begin");
         $query = "SELECT
                     c.id,
                     c.title,
                     c.begin,
                     c.approve_until,
+                    c.status,
+                    l.name as location_name,
                     COUNT(DISTINCT u.id) as invited_users,
                     COUNT(DISTINCT cu.user) as replied_users,
                     SUM(CASE WHEN cu.user IS NULL THEN 1 ELSE 0 END) as pending_users
                   FROM `concert` c
+                  LEFT JOIN `location` l ON c.location = l.id
                   JOIN `concert_contact` cc ON cc.concert = c.id
                   JOIN `user` u ON u.contact = cc.contact
                   LEFT JOIN `concert_user` cu ON cu.concert = c.id AND cu.user = u.id
-                  WHERE c.begin >= NOW() AND c.begin <= DATE_ADD(NOW(), INTERVAL 90 DAY)
-                  GROUP BY c.id, c.title, c.begin, c.approve_until
+                  WHERE $beginExpr IS NOT NULL
+                    AND $beginExpr >= NOW()
+                    AND $beginExpr <= DATE_ADD(NOW(), INTERVAL 90 DAY)
+                  GROUP BY c.id, c.title, c.begin, c.approve_until, c.status, l.name
                   HAVING pending_users > 0
                   ORDER BY pending_users DESC, c.begin ASC
                   LIMIT 0, ?";
 
-        $rows = $this->rows($system_data->dbcon->getSelection($query, [['i', $limit]]));
+        $rows = $this->rows($this->getSelectionSafe($query, [['i', $limit]], 'critical-concerts'));
         $out = [];
         foreach ($rows as $row) {
             $fallbackTitle = 'Concert #' . intval($row['id'] ?? 0);
@@ -433,6 +481,8 @@ class StatsModule {
             'title' => $title,
             'begin' => (string)($row['begin'] ?? ''),
             'approveUntil' => $approveUntil,
+            'status' => (string)($row['status'] ?? ''),
+            'locationName' => (string)($row['location_name'] ?? ''),
             'invitedUsers' => intval($row['invited_users'] ?? 0),
             'repliedUsers' => intval($row['replied_users'] ?? 0),
             'pendingUsers' => intval($row['pending_users'] ?? 0),
@@ -524,7 +574,7 @@ class StatsModule {
         $query .= $this->applyDateFilter("e.begin", $context, $params);
         $query .= "
                   GROUP BY ym";
-        $rows = $this->rows($system_data->dbcon->getSelection($query, $params));
+        $rows = $this->rows($this->getSelectionSafe($query, $params, 'monthly-participation-rows'));
         $map = [];
         foreach ($rows as $row) {
             $map[(string)($row['ym'] ?? '')] = [
@@ -559,7 +609,7 @@ class StatsModule {
         $query .= $this->applyDateFilter("e.begin", $context, $params);
         $query .= "
                   GROUP BY ym";
-        $rows = $this->rows($system_data->dbcon->getSelection($query, $params));
+        $rows = $this->rows($this->getSelectionSafe($query, $params, 'monthly-invitation-rows'));
         $map = [];
         foreach ($rows as $row) {
             $map[(string)($row['ym'] ?? '')] = [
@@ -612,6 +662,1027 @@ class StatsModule {
         ];
     }
 
+    /**
+     * @return array<string, array{invited:int,yes:int,maybe:int,no:int,pending:int}>
+     */
+    private function monthlyResponseMixRows(
+        string $eventTable,
+        string $inviteTable,
+        string $responseTable,
+        string $fk,
+        array $context
+    ): array {
+        global $system_data;
+        $params = [];
+
+        $query = "SELECT
+                    " . $this->periodKeyExpression("e.begin", $context) . " as ym,
+                    COUNT(*) as invited_count,
+                    SUM(CASE WHEN r.participate = 1 THEN 1 ELSE 0 END) as yes_count,
+                    SUM(CASE WHEN r.participate = 2 THEN 1 ELSE 0 END) as maybe_count,
+                    SUM(CASE WHEN r.participate = 0 THEN 1 ELSE 0 END) as no_count,
+                    SUM(CASE WHEN r.participate IS NULL OR r.participate < 0 THEN 1 ELSE 0 END) as pending_count
+                  FROM `$eventTable` e
+                  JOIN `$inviteTable` i ON i.`$fk` = e.id
+                  JOIN `user` u ON u.contact = i.contact
+                  LEFT JOIN `$responseTable` r ON r.`$fk` = e.id AND r.user = u.id";
+        $query .= $this->applyDateFilter("e.begin", $context, $params);
+        $query .= "
+                  GROUP BY ym";
+
+        $rows = $this->rows($this->getSelectionSafe($query, $params, 'monthly-response-mix'));
+        $map = [];
+        foreach ($rows as $row) {
+            $map[(string)($row['ym'] ?? '')] = [
+                'invited' => intval($row['invited_count'] ?? 0),
+                'yes' => intval($row['yes_count'] ?? 0),
+                'maybe' => intval($row['maybe_count'] ?? 0),
+                'no' => intval($row['no_count'] ?? 0),
+                'pending' => intval($row['pending_count'] ?? 0),
+            ];
+        }
+        return $map;
+    }
+
+    /**
+     * @param array<string, array{invited:int,yes:int,maybe:int,no:int,pending:int}> $map
+     * @return array{invited:int,yes:int,maybe:int,no:int,pending:int}
+     */
+    private function summarizeResponseMix(array $map): array {
+        $summary = [
+            'invited' => 0,
+            'yes' => 0,
+            'maybe' => 0,
+            'no' => 0,
+            'pending' => 0,
+        ];
+        foreach ($map as $row) {
+            $summary['invited'] += intval($row['invited'] ?? 0);
+            $summary['yes'] += intval($row['yes'] ?? 0);
+            $summary['maybe'] += intval($row['maybe'] ?? 0);
+            $summary['no'] += intval($row['no'] ?? 0);
+            $summary['pending'] += intval($row['pending'] ?? 0);
+        }
+        return $summary;
+    }
+
+    /**
+     * @return array{medianHours:float,p90Hours:float,avgHours:float,sampleSize:int}
+     */
+    private function getResponseLeadTimeStats(array $context): array {
+        global $system_data;
+        $params = [];
+
+        $query = "SELECT TIMESTAMPDIFF(HOUR, x.reply_dt, x.approve_dt) as lead_hours
+                  FROM (
+                    SELECT
+                      COALESCE(STR_TO_DATE(ru.replyon, '%Y-%m-%d %H:%i:%s'), STR_TO_DATE(ru.replyon, '%Y-%m-%d')) as reply_dt,
+                      COALESCE(STR_TO_DATE(r.approve_until, '%Y-%m-%d %H:%i:%s'), STR_TO_DATE(r.approve_until, '%Y-%m-%d')) as approve_dt,
+                      COALESCE(STR_TO_DATE(r.begin, '%Y-%m-%d %H:%i:%s'), STR_TO_DATE(r.begin, '%Y-%m-%d')) as event_begin_dt
+                    FROM rehearsal_user ru
+                    JOIN rehearsal r ON r.id = ru.rehearsal
+                    UNION ALL
+                    SELECT
+                      COALESCE(STR_TO_DATE(cu.replyon, '%Y-%m-%d %H:%i:%s'), STR_TO_DATE(cu.replyon, '%Y-%m-%d')) as reply_dt,
+                      COALESCE(STR_TO_DATE(c.approve_until, '%Y-%m-%d %H:%i:%s'), STR_TO_DATE(c.approve_until, '%Y-%m-%d')) as approve_dt,
+                      COALESCE(STR_TO_DATE(c.begin, '%Y-%m-%d %H:%i:%s'), STR_TO_DATE(c.begin, '%Y-%m-%d')) as event_begin_dt
+                    FROM concert_user cu
+                    JOIN concert c ON c.id = cu.concert
+                  ) x
+                  WHERE x.reply_dt IS NOT NULL
+                    AND x.approve_dt IS NOT NULL
+                    AND x.event_begin_dt IS NOT NULL
+                    AND x.reply_dt <= x.approve_dt";
+        if ($context['scope'] !== 'all') {
+            $expr = "x.event_begin_dt";
+            $params[] = ['s', (string)$context['start']];
+            $params[] = ['s', (string)$context['end']];
+            $query .= " AND $expr IS NOT NULL AND $expr >= ? AND $expr <= ? ";
+        }
+
+        $rows = $this->rows($this->getSelectionSafe($query, $params, 'lead-time'));
+        $values = [];
+        foreach ($rows as $row) {
+            $value = $row['lead_hours'] ?? null;
+            if ($value === null) {
+                continue;
+            }
+            $values[] = floatval($value);
+        }
+
+        if (count($values) === 0) {
+            return [
+                'medianHours' => 0.0,
+                'p90Hours' => 0.0,
+                'avgHours' => 0.0,
+                'sampleSize' => 0,
+            ];
+        }
+
+        sort($values, SORT_NUMERIC);
+        $median = $this->percentile($values, 50);
+        $p90 = $this->percentile($values, 90);
+        $avg = array_sum($values) / count($values);
+        return [
+            'medianHours' => round($median, 1),
+            'p90Hours' => round($p90, 1),
+            'avgHours' => round($avg, 1),
+            'sampleSize' => count($values),
+        ];
+    }
+
+    /**
+     * @param array<int, float> $values
+     */
+    private function percentile(array $values, float $percentile): float {
+        $count = count($values);
+        if ($count === 0) {
+            return 0.0;
+        }
+        $rank = ($percentile / 100) * ($count - 1);
+        $lower = (int) floor($rank);
+        $upper = (int) ceil($rank);
+        if ($lower === $upper) {
+            return $values[$lower];
+        }
+        $weight = $rank - $lower;
+        return ($values[$lower] * (1 - $weight)) + ($values[$upper] * $weight);
+    }
+
+    /**
+     * @param array<int, float> $values
+     */
+    private function variance(array $values): float {
+        $count = count($values);
+        if ($count === 0) {
+            return 0.0;
+        }
+        $mean = array_sum($values) / $count;
+        $sum = 0.0;
+        foreach ($values as $v) {
+            $sum += ($v - $mean) ** 2;
+        }
+        return $sum / $count;
+    }
+
+    /**
+     * @param array<int, array{month:string,rate:float,yes:int,total:int}> $series
+     * @return array{variance:float,stdDev:float}
+     */
+    private function getParticipationStabilityIndex(array $series): array {
+        $values = [];
+        foreach ($series as $row) {
+            if (intval($row['total'] ?? 0) <= 0) {
+                continue;
+            }
+            $values[] = floatval($row['rate'] ?? 0);
+        }
+        $variance = $this->variance($values);
+        return [
+            'variance' => round($variance, 2),
+            'stdDev' => round(sqrt($variance), 2),
+        ];
+    }
+
+    /**
+     * @param array<int, string> $labels
+     * @return array{series:array<int,array{month:string,rate:float,active:int,total:int}>,overallRate:float,active:int,total:int}
+     */
+    private function getActiveMemberTrend(array $labels, array $context): array {
+        global $system_data;
+        $totalSel = $this->getSelectionSafe(
+            "SELECT COUNT(*) as cnt FROM user WHERE isActive = 1",
+            [],
+            'active-members-total'
+        );
+        $totalRows = $this->rows($totalSel);
+        $totalActive = count($totalRows) > 0 ? intval($totalRows[0]['cnt'] ?? 0) : 0;
+
+        $params = [];
+        $ruReplyExpr = $this->normalizeDateExpression("ru.replyon");
+        $cuReplyExpr = $this->normalizeDateExpression("cu.replyon");
+        $query = "SELECT " . $this->periodKeyExpression("x.replyon", $context) . " as ym,
+                         COUNT(DISTINCT x.user) as cnt
+                  FROM (
+                    SELECT ru.user, ru.replyon FROM rehearsal_user ru WHERE $ruReplyExpr IS NOT NULL
+                    UNION ALL
+                    SELECT cu.user, cu.replyon FROM concert_user cu WHERE $cuReplyExpr IS NOT NULL
+                  ) x";
+        $query .= $this->applyDateFilter("x.replyon", $context, $params);
+        $query .= " GROUP BY ym";
+        $rows = $this->rows($this->getSelectionSafe($query, $params, 'active-members-trend'));
+        $map = [];
+        foreach ($rows as $row) {
+            $map[(string)($row['ym'] ?? '')] = intval($row['cnt'] ?? 0);
+        }
+
+        $series = [];
+        $overallActive = 0;
+        foreach ($labels as $month) {
+            $active = intval($map[$month] ?? 0);
+            $rate = $totalActive > 0 ? round(($active / $totalActive) * 100, 1) : 0.0;
+            $series[] = [
+                'month' => $month,
+                'rate' => $rate,
+                'active' => $active,
+                'total' => $totalActive,
+            ];
+            $overallActive += $active;
+        }
+
+        $overallRate = $totalActive > 0 ? round((($overallActive / max(1, count($labels))) / $totalActive) * 100, 1) : 0.0;
+        return [
+            'series' => $series,
+            'overallRate' => $overallRate,
+            'active' => $overallActive,
+            'total' => $totalActive,
+        ];
+    }
+
+    /**
+     * @return array{buckets:array<int,array{label:string,count:int}>,totalUsers:int}
+     */
+    private function getResponseConsistencyStreaks(array $context): array {
+        global $system_data;
+        $params = [];
+        $replyExpr = $this->normalizeDateExpression("x.replyon");
+        $approveExpr = $this->normalizeDateExpression("x.approve_until");
+        $beginExpr = $this->normalizeDateExpression("x.event_begin");
+        $query = "SELECT x.user, x.event_begin, x.replyon, x.approve_until
+                  FROM (
+                    SELECT ru.user, r.begin as event_begin, ru.replyon, r.approve_until
+                    FROM rehearsal_user ru
+                    JOIN rehearsal r ON r.id = ru.rehearsal
+                    UNION ALL
+                    SELECT cu.user, c.begin as event_begin, cu.replyon, c.approve_until
+                    FROM concert_user cu
+                    JOIN concert c ON c.id = cu.concert
+                  ) x
+                  WHERE $replyExpr IS NOT NULL
+                    AND $approveExpr IS NOT NULL
+                    AND $beginExpr IS NOT NULL";
+        if ($context['scope'] !== 'all') {
+            $params[] = ['s', (string)$context['start']];
+            $params[] = ['s', (string)$context['end']];
+            $query .= " AND $beginExpr >= ? AND $beginExpr <= ? ";
+        }
+        $query .= " ORDER BY x.user ASC, x.event_begin ASC";
+        $rows = $this->rows($this->getSelectionSafe($query, $params, 'response-streaks'));
+
+        $maxStreakByUser = [];
+        $currentUser = null;
+        $currentStreak = 0;
+        $maxStreak = 0;
+        foreach ($rows as $row) {
+            $uid = intval($row['user'] ?? 0);
+            if ($currentUser !== $uid) {
+                if ($currentUser !== null) {
+                    $maxStreakByUser[$currentUser] = max($maxStreak, $currentStreak);
+                }
+                $currentUser = $uid;
+                $currentStreak = 0;
+                $maxStreak = 0;
+            }
+            $replyon = (string)($row['replyon'] ?? '');
+            $approveUntil = (string)($row['approve_until'] ?? '');
+            if ($replyon !== '' && $approveUntil !== '' && strtotime($replyon) <= strtotime($approveUntil)) {
+                $currentStreak++;
+                $maxStreak = max($maxStreak, $currentStreak);
+            } else {
+                $currentStreak = 0;
+            }
+        }
+        if ($currentUser !== null) {
+            $maxStreakByUser[$currentUser] = max($maxStreak, $currentStreak);
+        }
+
+        $buckets = [
+            '1' => 0,
+            '2' => 0,
+            '3' => 0,
+            '4' => 0,
+            '5+' => 0,
+        ];
+        foreach ($maxStreakByUser as $streak) {
+            if ($streak >= 5) {
+                $buckets['5+']++;
+            } elseif ($streak >= 4) {
+                $buckets['4']++;
+            } elseif ($streak >= 3) {
+                $buckets['3']++;
+            } elseif ($streak >= 2) {
+                $buckets['2']++;
+            } elseif ($streak >= 1) {
+                $buckets['1']++;
+            }
+        }
+
+        $bucketRows = [];
+        foreach ($buckets as $label => $count) {
+            $bucketRows[] = ['label' => $label, 'count' => $count];
+        }
+
+        return [
+            'buckets' => $bucketRows,
+            'totalUsers' => count($maxStreakByUser),
+        ];
+    }
+
+    /**
+     * @param array<int, string> $labels
+     * @return array{series:array<int,array{month:string,medianHours:float,count:int}>,overallMedian:float,available:bool}
+     */
+    private function getTaskCompletionLatency(array $labels, array $context): array {
+        global $system_data;
+        $completionColumn = null;
+        foreach (['completed_at', 'done_at', 'finished_at', 'closed_at'] as $col) {
+            if ($this->hasColumn('task', $col)) {
+                $completionColumn = $col;
+                break;
+            }
+        }
+        if ($completionColumn === null || !$this->hasColumn('task', 'created_at')) {
+            $series = [];
+            foreach ($labels as $month) {
+                $series[] = ['month' => $month, 'medianHours' => 0.0, 'count' => 0];
+            }
+            return ['series' => $series, 'overallMedian' => 0.0, 'available' => false];
+        }
+
+        $params = [];
+        $completedExpr = $this->normalizeDateExpression("t.$completionColumn");
+        $createdExpr = $this->normalizeDateExpression("t.created_at");
+        $query = "SELECT " . $this->periodKeyExpression("t.$completionColumn", $context) . " as ym,
+                         TIMESTAMPDIFF(HOUR, $createdExpr, $completedExpr) as hours
+                  FROM task t
+                  WHERE $completedExpr IS NOT NULL
+                    AND $createdExpr IS NOT NULL";
+        if ($context['scope'] !== 'all') {
+            $params[] = ['s', (string)$context['start']];
+            $params[] = ['s', (string)$context['end']];
+            $query .= " AND $completedExpr >= ? AND $completedExpr <= ? ";
+        }
+        $rows = $this->rows($this->getSelectionSafe($query, $params, 'task-latency'));
+        $byMonth = [];
+        foreach ($rows as $row) {
+            $month = (string)($row['ym'] ?? '');
+            $hours = $row['hours'] ?? null;
+            if ($month === '' || $hours === null) {
+                continue;
+            }
+            $byMonth[$month][] = floatval($hours);
+        }
+
+        $series = [];
+        $allValues = [];
+        foreach ($labels as $month) {
+            $values = $byMonth[$month] ?? [];
+            sort($values, SORT_NUMERIC);
+            $median = count($values) > 0 ? $this->percentile($values, 50) : 0.0;
+            foreach ($values as $v) {
+                $allValues[] = $v;
+            }
+            $series[] = [
+                'month' => $month,
+                'medianHours' => round($median, 1),
+                'count' => count($values),
+            ];
+        }
+        sort($allValues, SORT_NUMERIC);
+        $overallMedian = count($allValues) > 0 ? $this->percentile($allValues, 50) : 0.0;
+        return [
+            'series' => $series,
+            'overallMedian' => round($overallMedian, 1),
+            'available' => true,
+        ];
+    }
+
+    /**
+     * @param array<int, string> $labels
+     * @return array{series:array<int,array{month:string,rate:float,votes:int,eligible:int}>,overallRate:float}
+     */
+    private function getVoteParticipationTrend(array $labels, array $context): array {
+        global $system_data;
+        $params = [];
+        $endExpr = $this->normalizeDateExpression("v.end");
+        $query = "SELECT v.id, v.end,
+                         COALESCE(eligible.cnt, 0) as eligible,
+                         COALESCE(voted.cnt, 0) as voted
+                  FROM vote v
+                  LEFT JOIN (
+                    SELECT vote, COUNT(DISTINCT user) as cnt
+                    FROM vote_group
+                    GROUP BY vote
+                  ) eligible ON eligible.vote = v.id
+                  LEFT JOIN (
+                    SELECT vo.vote, COUNT(DISTINCT vou.user) as cnt
+                    FROM vote_option vo
+                    JOIN vote_option_user vou ON vo.id = vou.vote_option
+                    GROUP BY vo.vote
+                  ) voted ON voted.vote = v.id
+                  WHERE $endExpr IS NOT NULL";
+        if ($context['scope'] !== 'all') {
+            $params[] = ['s', (string)$context['start']];
+            $params[] = ['s', (string)$context['end']];
+            $query .= " AND $endExpr >= ? AND $endExpr <= ? ";
+        }
+        $rows = $this->rows($this->getSelectionSafe($query, $params, 'vote-participation'));
+        $byMonth = [];
+        $overallEligible = 0;
+        $overallVoted = 0;
+        foreach ($rows as $row) {
+            $end = (string)($row['end'] ?? '');
+            if ($end === '') continue;
+            $key = $context['scope'] === 'all'
+                ? date('Y', strtotime($end))
+                : date('Y-m', strtotime($end));
+            $eligible = intval($row['eligible'] ?? 0);
+            $voted = intval($row['voted'] ?? 0);
+            $byMonth[$key][] = ['eligible' => $eligible, 'voted' => $voted];
+            $overallEligible += $eligible;
+            $overallVoted += $voted;
+        }
+
+        $series = [];
+        foreach ($labels as $month) {
+            $items = $byMonth[$month] ?? [];
+            $eligibleSum = 0;
+            $votedSum = 0;
+            foreach ($items as $it) {
+                $eligibleSum += $it['eligible'];
+                $votedSum += $it['voted'];
+            }
+            $rate = $eligibleSum > 0 ? round(($votedSum / $eligibleSum) * 100, 1) : 0.0;
+            $series[] = [
+                'month' => $month,
+                'rate' => $rate,
+                'votes' => $votedSum,
+                'eligible' => $eligibleSum,
+            ];
+        }
+        $overallRate = $overallEligible > 0 ? round(($overallVoted / $overallEligible) * 100, 1) : 0.0;
+        return [
+            'series' => $series,
+            'overallRate' => $overallRate,
+        ];
+    }
+
+    /**
+     * @return array{beforeCount:int,afterCount:int,upliftRate:float,escalations:int}
+     */
+    private function getReminderEffectiveness(array $context): array {
+        global $system_data;
+        $params = [];
+        $escalationExpr = $this->normalizeDateExpression("e.created_at");
+        $rehearsalReplyExpr = $this->normalizeDateExpression("ru.replyon");
+        $concertReplyExpr = $this->normalizeDateExpression("cu.replyon");
+        $query = "SELECT
+                    SUM(CASE WHEN r.replyon BETWEEN e.created_at AND DATE_ADD(e.created_at, INTERVAL 24 HOUR) THEN 1 ELSE 0 END) as after_count,
+                    SUM(CASE WHEN r.replyon BETWEEN DATE_SUB(e.created_at, INTERVAL 24 HOUR) AND e.created_at THEN 1 ELSE 0 END) as before_count,
+                    COUNT(DISTINCT e.id) as escalation_count
+                  FROM nextgen_escalation_audit e
+                  JOIN (
+                    SELECT 'R' as otype, ru.rehearsal as oid, ru.replyon
+                    FROM rehearsal_user ru
+                    WHERE $rehearsalReplyExpr IS NOT NULL
+                    UNION ALL
+                    SELECT 'C' as otype, cu.concert as oid, cu.replyon
+                    FROM concert_user cu
+                    WHERE $concertReplyExpr IS NOT NULL
+                  ) r ON r.otype = e.otype AND r.oid = e.oid
+                  WHERE e.is_test = 0
+                    AND $escalationExpr IS NOT NULL";
+        if ($context['scope'] !== 'all') {
+            $params[] = ['s', (string)$context['start']];
+            $params[] = ['s', (string)$context['end']];
+            $query .= " AND $escalationExpr >= ? AND $escalationExpr <= ? ";
+        }
+        $rows = $this->rows($this->getSelectionSafe($query, $params, 'reminder-effectiveness'));
+        $row = count($rows) > 0 ? $rows[0] : [];
+        $after = intval($row['after_count'] ?? 0);
+        $before = intval($row['before_count'] ?? 0);
+        $total = $after + $before;
+        $uplift = $total > 0 ? round((($after - $before) / $total) * 100, 1) : 0.0;
+        return [
+            'beforeCount' => $before,
+            'afterCount' => $after,
+            'upliftRate' => $uplift,
+            'escalations' => intval($row['escalation_count'] ?? 0),
+        ];
+    }
+
+    /**
+     * @return array<string,int>
+     */
+    private function getInstrumentMinimumsFromConfig(): array {
+        global $system_data;
+        $json = $system_data->getDynamicConfigParameter('instrument_minimums');
+        if (!$json) {
+            return [];
+        }
+        $parsed = json_decode((string)$json, true);
+        if (!is_array($parsed)) {
+            return [];
+        }
+        $out = [];
+        foreach ($parsed as $instId => $min) {
+            $id = is_numeric($instId) ? intval($instId) : 0;
+            $val = is_numeric($min) ? intval($min) : 0;
+            if ($id > 0 && $val > 0) {
+                $out[$id] = $val;
+            }
+        }
+        return $out;
+    }
+
+    private function getInstrumentGapsForRehearsal($rid, $minimums) {
+        global $system_data;
+        $query = "SELECT i.id as instrument_id, i.name as instrument_name,
+                  SUM(CASE WHEN ru.participate IN (1,2) THEN 1 ELSE 0 END) as attending
+                  FROM rehearsal_contact rc
+                  JOIN contact ct ON rc.contact = ct.id
+                  LEFT JOIN instrument i ON ct.instrument = i.id
+                  LEFT JOIN user u ON u.contact = ct.id
+                  LEFT JOIN rehearsal_user ru ON ru.user = u.id AND ru.rehearsal = ?
+                  WHERE rc.rehearsal = ?
+                  GROUP BY i.id, i.name";
+        $rows = $this->getSelectionSafe($query, [['i', $rid], ['i', $rid]], 'instrument-gaps-rehearsal');
+        $gaps = [];
+        if (is_array($rows)) {
+            for ($i = 1; $i < count($rows); $i++) {
+                $row = $rows[$i];
+                $instId = (int) ($row['instrument_id'] ?? 0);
+                if ($instId <= 0) continue;
+                $min = isset($minimums[$instId]) ? (int) $minimums[$instId] : null;
+                if ($min === null || $min <= 0) continue;
+                $attending = (int) ($row['attending'] ?? 0);
+                if ($attending < $min) {
+                    $gaps[] = [
+                        'instrument_id' => $instId,
+                        'instrument_name' => $row['instrument_name'] ?? '',
+                        'current' => $attending,
+                        'minimum' => $min,
+                    ];
+                }
+            }
+        }
+        return $gaps;
+    }
+
+    private function getInstrumentGapsForConcert($cid, $minimums) {
+        global $system_data;
+        $query = "SELECT i.id as instrument_id, i.name as instrument_name,
+                  SUM(CASE WHEN cu.participate IN (1,2) THEN 1 ELSE 0 END) as attending
+                  FROM concert_contact cc
+                  JOIN contact ct ON cc.contact = ct.id
+                  LEFT JOIN instrument i ON ct.instrument = i.id
+                  LEFT JOIN user u ON u.contact = ct.id
+                  LEFT JOIN concert_user cu ON cu.user = u.id AND cu.concert = ?
+                  WHERE cc.concert = ?
+                  GROUP BY i.id, i.name";
+        $rows = $this->getSelectionSafe($query, [['i', $cid], ['i', $cid]], 'instrument-gaps-concert');
+        $gaps = [];
+        if (is_array($rows)) {
+            for ($i = 1; $i < count($rows); $i++) {
+                $row = $rows[$i];
+                $instId = (int) ($row['instrument_id'] ?? 0);
+                if ($instId <= 0) continue;
+                $min = isset($minimums[$instId]) ? (int) $minimums[$instId] : null;
+                if ($min === null || $min <= 0) continue;
+                $attending = (int) ($row['attending'] ?? 0);
+                if ($attending < $min) {
+                    $gaps[] = [
+                        'instrument_id' => $instId,
+                        'instrument_name' => $row['instrument_name'] ?? '',
+                        'current' => $attending,
+                        'minimum' => $min,
+                    ];
+                }
+            }
+        }
+        return $gaps;
+    }
+
+    /**
+     * @return array{byInstrument:array<int,array{name:string,shortfalls:int,events:int}>,totalEvents:int}
+     */
+    private function getInstrumentCoverageRisk(): array {
+        $minimums = $this->getInstrumentMinimumsFromConfig();
+        if (empty($minimums)) {
+            return ['byInstrument' => [], 'totalEvents' => 0];
+        }
+        $eventsWithGaps = 0;
+        $byInstrument = [];
+        global $system_data;
+        $rehearsals = $this->getSelectionSafe(
+            "SELECT id FROM rehearsal WHERE " . $this->normalizeDateExpression("begin") . " IS NOT NULL AND " . $this->normalizeDateExpression("begin") . " >= NOW() AND " . $this->normalizeDateExpression("begin") . " <= DATE_ADD(NOW(), INTERVAL 90 DAY)",
+            [],
+            'instrument-risk-rehearsals'
+        );
+        if (is_array($rehearsals)) {
+            for ($i = 1; $i < count($rehearsals); $i++) {
+                $rid = (int) ($rehearsals[$i]['id'] ?? 0);
+                $gaps = $this->getInstrumentGapsForRehearsal($rid, $minimums);
+                if (!empty($gaps)) {
+                    $eventsWithGaps++;
+                    foreach ($gaps as $gap) {
+                        $id = (int) ($gap['instrument_id'] ?? 0);
+                        if ($id <= 0) continue;
+                        if (!isset($byInstrument[$id])) {
+                            $byInstrument[$id] = ['name' => $gap['instrument_name'] ?? '', 'shortfalls' => 0, 'events' => 0];
+                        }
+                        $byInstrument[$id]['shortfalls']++;
+                        $byInstrument[$id]['events']++;
+                    }
+                }
+            }
+        }
+        $concerts = $this->getSelectionSafe(
+            "SELECT id FROM concert WHERE " . $this->normalizeDateExpression("begin") . " IS NOT NULL AND " . $this->normalizeDateExpression("begin") . " >= NOW() AND " . $this->normalizeDateExpression("begin") . " <= DATE_ADD(NOW(), INTERVAL 90 DAY)",
+            [],
+            'instrument-risk-concerts'
+        );
+        if (is_array($concerts)) {
+            for ($i = 1; $i < count($concerts); $i++) {
+                $cid = (int) ($concerts[$i]['id'] ?? 0);
+                $gaps = $this->getInstrumentGapsForConcert($cid, $minimums);
+                if (!empty($gaps)) {
+                    $eventsWithGaps++;
+                    foreach ($gaps as $gap) {
+                        $id = (int) ($gap['instrument_id'] ?? 0);
+                        if ($id <= 0) continue;
+                        if (!isset($byInstrument[$id])) {
+                            $byInstrument[$id] = ['name' => $gap['instrument_name'] ?? '', 'shortfalls' => 0, 'events' => 0];
+                        }
+                        $byInstrument[$id]['shortfalls']++;
+                        $byInstrument[$id]['events']++;
+                    }
+                }
+            }
+        }
+        return [
+            'byInstrument' => array_values($byInstrument),
+            'totalEvents' => $eventsWithGaps,
+        ];
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function getUserResponseAggregates(array $context): array {
+        global $system_data;
+        $params = [];
+        $dateFilterRehearsal = $context['scope'] === 'all'
+            ? ''
+            : " AND " . $this->normalizeDateExpression("r.begin") . " IS NOT NULL AND " . $this->normalizeDateExpression("r.begin") . " >= ? AND " . $this->normalizeDateExpression("r.begin") . " <= ? ";
+        $dateFilterConcert = $context['scope'] === 'all'
+            ? ''
+            : " AND " . $this->normalizeDateExpression("c.begin") . " IS NOT NULL AND " . $this->normalizeDateExpression("c.begin") . " >= ? AND " . $this->normalizeDateExpression("c.begin") . " <= ? ";
+        if ($context['scope'] !== 'all') {
+            $params[] = ['s', (string)$context['start']];
+            $params[] = ['s', (string)$context['end']];
+            $params[] = ['s', (string)$context['start']];
+            $params[] = ['s', (string)$context['end']];
+        }
+
+        $query = "SELECT
+                    u.id as user_id,
+                    c.name,
+                    c.surname,
+                    COALESCE(i.name, '') as instrument,
+                    COUNT(*) as invited_count,
+                    SUM(CASE WHEN x.response_user IS NOT NULL THEN 1 ELSE 0 END) as replied_count,
+                    SUM(CASE WHEN x.participate = 1 THEN 1 ELSE 0 END) as yes_count,
+                    SUM(CASE WHEN x.participate = 2 THEN 1 ELSE 0 END) as maybe_count,
+                    SUM(CASE WHEN x.participate = 0 THEN 1 ELSE 0 END) as no_count,
+                    SUM(CASE WHEN x.reply_dt IS NOT NULL AND x.approve_dt IS NOT NULL AND x.event_begin_dt IS NOT NULL
+                              AND x.reply_dt > x.approve_dt AND x.reply_dt <= x.event_begin_dt THEN 1 ELSE 0 END) as late_count,
+                    AVG(CASE WHEN x.reply_dt IS NOT NULL AND x.approve_dt IS NOT NULL AND x.event_begin_dt IS NOT NULL
+                              AND x.reply_dt <= x.approve_dt
+                              THEN TIMESTAMPDIFF(HOUR, x.reply_dt, x.approve_dt) END) as avg_lead_hours
+                  FROM (
+                    SELECT u.id as user_id, ru.user as response_user, ru.participate, ru.replyon,
+                           r.approve_until, r.begin as event_begin,
+                           " . $this->normalizeDateExpression("ru.replyon") . " as reply_dt,
+                           " . $this->normalizeDateExpression("r.approve_until") . " as approve_dt,
+                           " . $this->normalizeDateExpression("r.begin") . " as event_begin_dt
+                    FROM rehearsal_contact rc
+                    JOIN user u ON u.contact = rc.contact
+                    JOIN rehearsal r ON r.id = rc.rehearsal
+                    LEFT JOIN rehearsal_user ru ON ru.rehearsal = r.id AND ru.user = u.id
+                    WHERE 1=1 $dateFilterRehearsal
+                    UNION ALL
+                    SELECT u.id as user_id, cu.user as response_user, cu.participate, cu.replyon,
+                           c.approve_until, c.begin as event_begin,
+                           " . $this->normalizeDateExpression("cu.replyon") . " as reply_dt,
+                           " . $this->normalizeDateExpression("c.approve_until") . " as approve_dt,
+                           " . $this->normalizeDateExpression("c.begin") . " as event_begin_dt
+                    FROM concert_contact cc
+                    JOIN user u ON u.contact = cc.contact
+                    JOIN concert c ON c.id = cc.concert
+                    LEFT JOIN concert_user cu ON cu.concert = c.id AND cu.user = u.id
+                    WHERE 1=1 $dateFilterConcert
+                  ) x
+                  JOIN user u ON u.id = x.user_id
+                  JOIN contact c ON u.contact = c.id
+                  LEFT JOIN instrument i ON c.instrument = i.id
+                  WHERE u.isActive = 1
+                  GROUP BY u.id, c.name, c.surname, i.name";
+
+        return $this->rows($this->getSelectionSafe($query, $params, 'user-response-aggregates'));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getUserRankings(array $context): array {
+        $rows = $this->getUserResponseAggregates($context);
+        $minInvited = 5;
+        $minReplied = 3;
+
+        $build = function (callable $valueFn, callable $filterFn, string $direction) use ($rows) {
+            $items = [];
+            foreach ($rows as $row) {
+                if (!$filterFn($row)) {
+                    continue;
+                }
+                $value = $valueFn($row);
+                if ($value === null) {
+                    continue;
+                }
+                $items[] = [
+                    'userId' => intval($row['user_id'] ?? 0),
+                    'name' => trim((string)($row['name'] ?? '')),
+                    'surname' => trim((string)($row['surname'] ?? '')),
+                    'instrument' => trim((string)($row['instrument'] ?? '')),
+                    'value' => $value,
+                ];
+            }
+            usort($items, function ($a, $b) use ($direction) {
+                $cmp = ($a['value'] ?? 0) <=> ($b['value'] ?? 0);
+                return $direction === 'asc' ? $cmp : -$cmp;
+            });
+            return array_slice($items, 0, 5);
+        };
+
+        $positive = [
+            'fastestResponses' => $build(
+                static function ($row) {
+                    $avg = $row['avg_lead_hours'] ?? null;
+                    return $avg === null ? null : round(floatval($avg), 1);
+                },
+                static function ($row) use ($minReplied) {
+                    return intval($row['replied_count'] ?? 0) >= $minReplied && $row['avg_lead_hours'] !== null;
+                },
+                'asc'
+            ),
+            'highestResponseRate' => $build(
+                static function ($row) {
+                    $invited = intval($row['invited_count'] ?? 0);
+                    $replied = intval($row['replied_count'] ?? 0);
+                    return $invited > 0 ? round(($replied / $invited) * 100, 1) : null;
+                },
+                static function ($row) use ($minInvited) {
+                    return intval($row['invited_count'] ?? 0) >= $minInvited;
+                },
+                'desc'
+            ),
+            'highestYesRate' => $build(
+                static function ($row) {
+                    $replied = intval($row['replied_count'] ?? 0);
+                    $yes = intval($row['yes_count'] ?? 0);
+                    return $replied > 0 ? round(($yes / $replied) * 100, 1) : null;
+                },
+                static function ($row) use ($minReplied) {
+                    return intval($row['replied_count'] ?? 0) >= $minReplied;
+                },
+                'desc'
+            ),
+            'mostResponses' => $build(
+                static function ($row) {
+                    return intval($row['replied_count'] ?? 0);
+                },
+                static function ($row) use ($minReplied) {
+                    return intval($row['replied_count'] ?? 0) >= $minReplied;
+                },
+                'desc'
+            ),
+        ];
+
+        $negative = [
+            'slowestResponses' => $build(
+                static function ($row) {
+                    $avg = $row['avg_lead_hours'] ?? null;
+                    return $avg === null ? null : round(floatval($avg), 1);
+                },
+                static function ($row) use ($minReplied) {
+                    return intval($row['replied_count'] ?? 0) >= $minReplied && $row['avg_lead_hours'] !== null;
+                },
+                'desc'
+            ),
+            'highestNoResponseRate' => $build(
+                static function ($row) {
+                    $invited = intval($row['invited_count'] ?? 0);
+                    $replied = intval($row['replied_count'] ?? 0);
+                    $pending = max(0, $invited - $replied);
+                    return $invited > 0 ? round(($pending / $invited) * 100, 1) : null;
+                },
+                static function ($row) use ($minInvited) {
+                    return intval($row['invited_count'] ?? 0) >= $minInvited;
+                },
+                'desc'
+            ),
+            'highestLateRate' => $build(
+                static function ($row) {
+                    $replied = intval($row['replied_count'] ?? 0);
+                    $late = intval($row['late_count'] ?? 0);
+                    return $replied > 0 ? round(($late / $replied) * 100, 1) : null;
+                },
+                static function ($row) use ($minReplied) {
+                    return intval($row['replied_count'] ?? 0) >= $minReplied;
+                },
+                'desc'
+            ),
+            'mostNoResponses' => $build(
+                static function ($row) {
+                    $invited = intval($row['invited_count'] ?? 0);
+                    $replied = intval($row['replied_count'] ?? 0);
+                    return max(0, $invited - $replied);
+                },
+                static function ($row) use ($minInvited) {
+                    return intval($row['invited_count'] ?? 0) >= $minInvited;
+                },
+                'desc'
+            ),
+        ];
+
+        return [
+            'positive' => $positive,
+            'negative' => $negative,
+            'thresholds' => [
+                'minInvited' => $minInvited,
+                'minReplied' => $minReplied,
+            ],
+        ];
+    }
+
+    /**
+     * @return array{late:int,total:int,rate:float}
+     */
+    private function getLateResponseStats(array $context): array {
+        global $system_data;
+        $params = [];
+        $query = "SELECT
+                    COUNT(*) as total_responses,
+                    SUM(CASE WHEN x.reply_dt > x.approve_dt AND x.reply_dt <= x.event_begin_dt THEN 1 ELSE 0 END) as late_count
+                  FROM (
+                    SELECT " . $this->normalizeDateExpression("ru.replyon") . " as reply_dt,
+                           " . $this->normalizeDateExpression("r.approve_until") . " as approve_dt,
+                           " . $this->normalizeDateExpression("r.begin") . " as event_begin_dt
+                    FROM rehearsal_user ru
+                    JOIN rehearsal r ON r.id = ru.rehearsal
+                    UNION ALL
+                    SELECT " . $this->normalizeDateExpression("cu.replyon") . " as reply_dt,
+                           " . $this->normalizeDateExpression("c.approve_until") . " as approve_dt,
+                           " . $this->normalizeDateExpression("c.begin") . " as event_begin_dt
+                    FROM concert_user cu
+                    JOIN concert c ON c.id = cu.concert
+                  ) x
+                  WHERE x.reply_dt IS NOT NULL
+                    AND x.approve_dt IS NOT NULL
+                    AND x.event_begin_dt IS NOT NULL";
+        if ($context['scope'] !== 'all') {
+            $params[] = ['s', (string)$context['start']];
+            $params[] = ['s', (string)$context['end']];
+            $query .= " AND x.event_begin_dt >= ? AND x.event_begin_dt <= ? ";
+        }
+
+        $rows = $this->rows($this->getSelectionSafe($query, $params, 'late-responses-overall'));
+        $row = count($rows) > 0 ? $rows[0] : [];
+        $total = intval($row['total_responses'] ?? 0);
+        $late = intval($row['late_count'] ?? 0);
+        return [
+            'late' => $late,
+            'total' => $total,
+            'rate' => $total > 0 ? round(($late / $total) * 100, 1) : 0.0,
+        ];
+    }
+
+    /**
+     * @return array{late:int,total:int,rate:float}
+     */
+    private function getLateResponseStatsForType(string $eventTable, string $responseTable, string $fk, array $context): array {
+        global $system_data;
+        $params = [];
+        $query = "SELECT
+                    COUNT(*) as total_responses,
+                    SUM(CASE WHEN " . $this->normalizeDateExpression("r.replyon") . " > " . $this->normalizeDateExpression("e.approve_until") . "
+                              AND " . $this->normalizeDateExpression("r.replyon") . " <= " . $this->normalizeDateExpression("e.begin") . " THEN 1 ELSE 0 END) as late_count
+                  FROM `$responseTable` r
+                  JOIN `$eventTable` e ON r.`$fk` = e.id
+                  WHERE " . $this->normalizeDateExpression("r.replyon") . " IS NOT NULL
+                    AND " . $this->normalizeDateExpression("e.approve_until") . " IS NOT NULL
+                    AND " . $this->normalizeDateExpression("e.begin") . " IS NOT NULL";
+        if ($context['scope'] !== 'all') {
+            $params[] = ['s', (string)$context['start']];
+            $params[] = ['s', (string)$context['end']];
+            $query .= " AND " . $this->normalizeDateExpression("e.begin") . " >= ? AND " . $this->normalizeDateExpression("e.begin") . " <= ? ";
+        }
+
+        $rows = $this->rows($this->getSelectionSafe($query, $params, 'late-responses-by-type'));
+        $row = count($rows) > 0 ? $rows[0] : [];
+        $total = intval($row['total_responses'] ?? 0);
+        $late = intval($row['late_count'] ?? 0);
+        return [
+            'late' => $late,
+            'total' => $total,
+            'rate' => $total > 0 ? round(($late / $total) * 100, 1) : 0.0,
+        ];
+    }
+
+    /**
+     * @param array<int, string> $labels
+     * @return array<string, mixed>
+     */
+    private function getResponseBehavior(array $labels, array $context): array {
+        $rehearsalMix = $this->monthlyResponseMixRows('rehearsal', 'rehearsal_contact', 'rehearsal_user', 'rehearsal', $context);
+        $concertMix = $this->monthlyResponseMixRows('concert', 'concert_contact', 'concert_user', 'concert', $context);
+        $mixSeries = [];
+        foreach ($labels as $month) {
+            $re = $rehearsalMix[$month] ?? ['invited' => 0, 'yes' => 0, 'maybe' => 0, 'no' => 0, 'pending' => 0];
+            $co = $concertMix[$month] ?? ['invited' => 0, 'yes' => 0, 'maybe' => 0, 'no' => 0, 'pending' => 0];
+            $invited = intval($re['invited']) + intval($co['invited']);
+            $yes = intval($re['yes']) + intval($co['yes']);
+            $maybe = intval($re['maybe']) + intval($co['maybe']);
+            $no = intval($re['no']) + intval($co['no']);
+            $pending = intval($re['pending']) + intval($co['pending']);
+            $mixSeries[] = [
+                'month' => $month,
+                'invited' => $invited,
+                'yes' => $yes,
+                'maybe' => $maybe,
+                'no' => $no,
+                'pending' => $pending,
+                'pendingRate' => $invited > 0 ? round(($pending / $invited) * 100, 1) : 0.0,
+            ];
+        }
+        $rehearsalTotals = $this->summarizeResponseMix($rehearsalMix);
+        $concertTotals = $this->summarizeResponseMix($concertMix);
+
+        $overallTotals = [
+            'invited' => $rehearsalTotals['invited'] + $concertTotals['invited'],
+            'yes' => $rehearsalTotals['yes'] + $concertTotals['yes'],
+            'maybe' => $rehearsalTotals['maybe'] + $concertTotals['maybe'],
+            'no' => $rehearsalTotals['no'] + $concertTotals['no'],
+            'pending' => $rehearsalTotals['pending'] + $concertTotals['pending'],
+        ];
+        $respondedTotal = $overallTotals['yes'] + $overallTotals['maybe'] + $overallTotals['no'];
+        $noResponseRate = $overallTotals['invited'] > 0
+            ? round(($overallTotals['pending'] / $overallTotals['invited']) * 100, 1)
+            : 0.0;
+
+        $leadTime = $this->getResponseLeadTimeStats($context);
+        $lateOverall = $this->getLateResponseStats($context);
+        $lateRehearsal = $this->getLateResponseStatsForType('rehearsal', 'rehearsal_user', 'rehearsal', $context);
+        $lateConcert = $this->getLateResponseStatsForType('concert', 'concert_user', 'concert', $context);
+
+        return [
+            'leadTimeHours' => $leadTime,
+            'lateResponses' => $lateOverall,
+            'noResponses' => [
+                'pending' => $overallTotals['pending'],
+                'invited' => $overallTotals['invited'],
+                'rate' => $noResponseRate,
+            ],
+            'funnel' => [
+                'invited' => $overallTotals['invited'],
+                'responded' => $respondedTotal,
+                'confirmed' => $overallTotals['yes'],
+            ],
+            'mixTrend' => $mixSeries,
+            'byType' => [
+                'rehearsals' => [
+                    'invited' => $rehearsalTotals['invited'],
+                    'responded' => $rehearsalTotals['yes'] + $rehearsalTotals['maybe'] + $rehearsalTotals['no'],
+                    'pending' => $rehearsalTotals['pending'],
+                    'pendingRate' => $rehearsalTotals['invited'] > 0
+                        ? round(($rehearsalTotals['pending'] / $rehearsalTotals['invited']) * 100, 1)
+                        : 0.0,
+                    'lateRate' => $lateRehearsal['rate'],
+                ],
+                'concerts' => [
+                    'invited' => $concertTotals['invited'],
+                    'responded' => $concertTotals['yes'] + $concertTotals['maybe'] + $concertTotals['no'],
+                    'pending' => $concertTotals['pending'],
+                    'pendingRate' => $concertTotals['invited'] > 0
+                        ? round(($concertTotals['pending'] / $concertTotals['invited']) * 100, 1)
+                        : 0.0,
+                    'lateRate' => $lateConcert['rate'],
+                ],
+            ],
+        ];
+    }
+
     private function getDashboard(): array {
         $context = $this->resolvePeriodContext();
         $labels = $context['labels'];
@@ -622,6 +1693,15 @@ class StatsModule {
         $criticalEvents = $this->getCriticalEvents();
         $participation = $this->getParticipationTrend($labels, $context);
         $responseCompletion = $this->getResponseCompletionTrend($labels, $context);
+        $responseBehavior = $this->getResponseBehavior($labels, $context);
+        $participationStability = $this->getParticipationStabilityIndex($participation['series']);
+        $activeMembers = $this->getActiveMemberTrend($labels, $context);
+        $responseStreaks = $this->getResponseConsistencyStreaks($context);
+        $taskLatency = $this->getTaskCompletionLatency($labels, $context);
+        $voteParticipation = $this->getVoteParticipationTrend($labels, $context);
+        $reminderEffectiveness = $this->getReminderEffectiveness($context);
+        $instrumentCoverage = $this->getInstrumentCoverageRisk();
+        $userRankings = $this->getUserRankings($context);
 
         $pendingResponses = 0;
         foreach ($criticalEvents as $event) {
@@ -652,6 +1732,15 @@ class StatsModule {
             'membersPerGroup' => $membersPerGroup,
             'participationTrend' => $participation['series'],
             'responseCompletionTrend' => $responseCompletion['series'],
+            'responseBehavior' => $responseBehavior,
+            'participationStability' => $participationStability,
+            'activeMembersTrend' => $activeMembers,
+            'responseConsistency' => $responseStreaks,
+            'taskCompletionLatency' => $taskLatency,
+            'voteParticipationTrend' => $voteParticipation,
+            'reminderEffectiveness' => $reminderEffectiveness,
+            'instrumentCoverageRisk' => $instrumentCoverage,
+            'userRankings' => $userRankings,
             'criticalEventsList' => $criticalEvents,
             'topParticipants' => [
                 'rehearsals' => $topRehearsalParticipants,
@@ -667,4 +1756,3 @@ class StatsModule {
         ];
     }
 }
-

@@ -115,10 +115,18 @@ export function WrappedShareModal({
   const totalEvents = data?.personal.events.total ?? 0;
   const rehearsals = data?.personal.events.rehearsals ?? 0;
   const concerts = data?.personal.events.concerts ?? 0;
+  const totalResponses = data?.personal.responses.total ?? 0;
+  const yesResponses = data?.personal.responses.yes ?? 0;
+  const maybeResponses = data?.personal.responses.maybe ?? 0;
+  const noResponses = data?.personal.responses.no ?? 0;
+  const yesPct = totalResponses > 0 ? Math.round((yesResponses / totalResponses) * 100) : 0;
+  const maybePct = totalResponses > 0 ? Math.round((maybeResponses / totalResponses) * 100) : 0;
+  const noPct = totalResponses > 0 ? Math.max(0, 100 - yesPct - maybePct) : 0;
   const funnyText = t("js.wrapped.card.funLine", [
     data?.profile.firstName ?? "",
     t(data?.personal.funFacts.favoriteType === "concert" ? "js.sidebar.concerts" : "js.sidebar.rehearsals"),
   ]);
+  const responseSplitText = t("js.wrapped.card.responseSplit", [String(yesPct), String(maybePct), String(noPct)]);
 
   return (
     <Modal
@@ -133,50 +141,70 @@ export function WrappedShareModal({
           <div className="rounded-xl border border-base-300 p-2 bg-base-200/40">
             <div
               ref={previewRef}
-              className="w-[520px] max-w-[92vw] rounded-3xl bg-white p-0 text-[#111827] shadow-xl"
+              className="relative w-[520px] max-w-[92vw] overflow-hidden rounded-3xl bg-white p-0 text-[#0f172a] shadow-2xl"
               style={{ aspectRatio: "4 / 5" }}
             >
-              <div className="rounded-t-3xl bg-[linear-gradient(135deg,#bfdfff_0%,#d9ecff_38%,#edf6ff_62%,#d2e8ff_100%)] px-6 py-5">
+              <div className="absolute inset-0 wrapped-card-bg" />
+              <div className="absolute -top-20 -right-20 h-48 w-48 rounded-full wrapped-spotlight" />
+              <div className="absolute top-28 -left-16 h-40 w-40 rounded-full wrapped-spotlight-warm" />
+              <div className="relative flex h-full flex-col px-7 py-6">
                 <div className="flex items-center justify-between">
                   <div className="min-w-0">
-                    <p className="text-[10px] uppercase tracking-wide text-[#4b5563]">{data?.year}</p>
-                    <p className="truncate text-base font-semibold">{data?.profile.bandName}</p>
+                    <p className="text-[11px] uppercase tracking-[0.24em] text-primary">{data?.year}</p>
+                    <p className="truncate text-base font-semibold text-[#0f172a]">{data?.profile.bandName}</p>
                   </div>
-                  <BNoteLogo size="sm" />
+                  <div className="rounded-full bg-white/70 px-2.5 py-2 shadow-sm">
+                    <BNoteLogo size="sm" />
+                  </div>
                 </div>
+
                 <div className="mt-6">
-                  <h3 className="text-3xl font-bold">{t("js.wrapped.card.headline", [data?.profile.firstName ?? ""])}</h3>
-                  <p className="mt-1 text-sm text-[#4b5563]">{t("js.wrapped.card.subline", [String(data?.year ?? "")])}</p>
-                </div>
-              </div>
-
-              <div className="px-6 py-5">
-                <div className="grid grid-cols-2 gap-3 text-center">
-                  <div className="rounded-xl border border-[#cfe6ff] bg-[#eaf4ff] px-3 py-3">
-                    <div className="text-xs text-[#355070]">{t("js.wrapped.card.events")}</div>
-                    <div className="text-2xl font-bold text-[#0b2e4f]">{totalEvents}</div>
-                  </div>
-                  <div className="rounded-xl border border-[#c1dcfb] bg-[#dff0ff] px-3 py-3">
-                    <div className="text-xs text-[#355070]">{t("js.wrapped.card.yesRate")}</div>
-                    <div className="text-2xl font-bold text-[#0b2e4f]">{yesRate.toFixed(1)}%</div>
-                  </div>
+                  <h3 className="wrapped-display text-4xl font-bold leading-[1.05]">
+                    {t("js.wrapped.card.headline", [data?.profile.firstName ?? ""])}
+                  </h3>
+                  <p className="mt-1 text-sm text-[#334155]">
+                    {t("js.wrapped.card.subline", [String(data?.year ?? "")])}
+                  </p>
                 </div>
 
-                <div className="mt-4 rounded-xl border border-[#cfe6ff] bg-[#f4f9ff] px-4 py-3 text-sm">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[#355070]">{t("js.sidebar.rehearsals")}</span>
-                    <span className="font-semibold text-[#0b2e4f]">{rehearsals}</span>
+                <div className="mt-6 grid grid-cols-[1.25fr_0.75fr] gap-4">
+                  <div className="rounded-2xl border border-white/80 bg-white/80 px-4 py-4 shadow-sm">
+                    <div className="text-xs uppercase tracking-[0.2em] text-primary">
+                      {t("js.wrapped.card.events")}
+                    </div>
+                    <div className="wrapped-display mt-2 text-4xl font-bold text-[#0f172a]">{totalEvents}</div>
                   </div>
-                  <div className="mt-1 flex items-center justify-between">
-                    <span className="text-[#355070]">{t("js.sidebar.concerts")}</span>
-                    <span className="font-semibold text-[#0b2e4f]">{concerts}</span>
+                  <div className="rounded-2xl border border-primary/30 bg-primary/10 px-4 py-4 shadow-sm">
+                    <div className="text-xs uppercase tracking-[0.2em] text-primary">
+                      {t("js.wrapped.card.yesRate")}
+                    </div>
+                    <div className="wrapped-display mt-2 text-3xl font-bold text-[#0f172a]">
+                      {yesRate.toFixed(1)}%
+                    </div>
                   </div>
                 </div>
 
-                <div className="mt-4 rounded-xl border border-[#8fc7ff] bg-[#dcedff] px-4 py-3 text-sm text-[#0b2e4f]">
+                <div className="mt-4 flex flex-wrap gap-2 text-xs font-semibold">
+                  <span className="rounded-full px-3 py-1 wrapped-chip-primary">
+                    {t("js.sidebar.rehearsals")} · {rehearsals}
+                  </span>
+                  <span className="rounded-full px-3 py-1 wrapped-chip-accent">
+                    {t("js.sidebar.concerts")} · {concerts}
+                  </span>
+                </div>
+
+                <div className="mt-4 rounded-2xl border border-primary/25 bg-white/75 px-4 py-3 text-sm text-[#0f172a] shadow-sm">
                   <p className="font-medium">{funnyText}</p>
+                  <p className="mt-2 text-xs text-[#334155]">{responseSplitText}</p>
                 </div>
 
+                <div className="mt-auto flex items-center justify-between pt-5 text-xs text-[#334155]">
+                  <span className="truncate">#{data?.profile.bandName}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="uppercase tracking-[0.2em]">BNote</span>
+                    <BNoteLogo size="sm" className="scale-75" />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -206,4 +234,3 @@ export function WrappedShareModal({
     </Modal>
   );
 }
-

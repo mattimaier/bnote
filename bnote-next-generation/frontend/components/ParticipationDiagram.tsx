@@ -20,7 +20,7 @@ interface ParticipationDiagramProps {
   stats: ParticipationStats | null | undefined;
 }
 
-const SEGMENT_COLORS = {
+export const PARTICIPATION_SEGMENT_COLORS = {
   yes: "var(--color-success)",
   maybe: "var(--color-warning)",
   no: "var(--color-error)",
@@ -38,7 +38,7 @@ export function ParticipationDiagram({ stats }: ParticipationDiagramProps) {
     );
   }
 
-  const segments: { key: keyof typeof SEGMENT_COLORS; count: number; pct: number }[] = [];
+  const segments: { key: keyof typeof PARTICIPATION_SEGMENT_COLORS; count: number; pct: number }[] = [];
   if (yes > 0) segments.push({ key: "yes", count: yes, pct: (yes / total) * 100 });
   if (maybe > 0) segments.push({ key: "maybe", count: maybe, pct: (maybe / total) * 100 });
   if (no > 0) segments.push({ key: "no", count: no, pct: (no / total) * 100 });
@@ -68,7 +68,7 @@ export function ParticipationDiagram({ stats }: ParticipationDiagramProps) {
               className={`h-8 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0 ${rounded}`}
               style={{
                 width: `${seg.pct}%`,
-                backgroundColor: SEGMENT_COLORS[seg.key],
+                backgroundColor: PARTICIPATION_SEGMENT_COLORS[seg.key],
               }}
               title={`${seg.key}: ${seg.count}`}
             >

@@ -148,6 +148,148 @@ body {
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
+/* Wrapped: expressive display type + festival background utilities */
+.wrapped-display {
+  font-family: var(--font-wrapped-display), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  letter-spacing: -0.015em;
+}
+
+.wrapped-hero-bg {
+  background:
+    radial-gradient(
+      60% 80% at 90% 10%,
+      color-mix(in oklch, var(--color-primary) 45%, transparent) 0%,
+      transparent 72%
+    ),
+    radial-gradient(
+      60% 60% at 10% 20%,
+      color-mix(in oklch, var(--chart-4) 35%, transparent) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      45% 55% at 50% 0%,
+      color-mix(in oklch, var(--chart-4) 22%, transparent) 0%,
+      transparent 70%
+    ),
+    linear-gradient(
+      120deg,
+      color-mix(in oklch, var(--color-primary) 20%, white) 0%,
+      #ffffff 42%,
+      color-mix(in oklch, var(--chart-4) 18%, white) 100%
+    );
+}
+
+.wrapped-hero-shimmer {
+  background-image:
+    radial-gradient(
+      120px 80px at 18% 22%,
+      color-mix(in oklch, var(--color-primary) 18%, transparent) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      160px 120px at 82% 18%,
+      color-mix(in oklch, var(--chart-4) 20%, transparent) 0%,
+      transparent 70%
+    ),
+    repeating-linear-gradient(
+      115deg,
+      color-mix(in oklch, var(--color-primary) 8%, transparent) 0%,
+      transparent 8%,
+      color-mix(in oklch, var(--chart-4) 10%, transparent) 16%,
+      transparent 24%
+    );
+  opacity: 0.45;
+  mix-blend-mode: soft-light;
+}
+
+.wrapped-card-bg {
+  background:
+    radial-gradient(
+      40% 45% at 82% 2%,
+      color-mix(in oklch, var(--color-primary) 42%, transparent) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      45% 45% at 8% 28%,
+      color-mix(in oklch, var(--chart-4) 38%, transparent) 0%,
+      transparent 72%
+    ),
+    linear-gradient(
+      140deg,
+      color-mix(in oklch, var(--color-primary) 14%, white) 0%,
+      #ffffff 52%,
+      color-mix(in oklch, var(--chart-4) 16%, white) 100%
+    );
+}
+
+.wrapped-spotlight {
+  background: radial-gradient(
+    circle at center,
+    color-mix(in oklch, var(--color-primary) 48%, transparent) 0%,
+    transparent 70%
+  );
+  filter: blur(2px);
+}
+
+.wrapped-spotlight-warm {
+  background: radial-gradient(
+    circle at center,
+    color-mix(in oklch, var(--chart-4) 42%, transparent) 0%,
+    transparent 70%
+  );
+  filter: blur(2px);
+}
+
+.wrapped-chip-primary {
+  background: color-mix(in oklch, var(--color-primary) 16%, white);
+  border: 1px solid color-mix(in oklch, var(--color-primary) 35%, white);
+  color: var(--color-base-content);
+}
+
+.wrapped-chip-accent {
+  background: color-mix(in oklch, var(--chart-4) 18%, white);
+  border: 1px solid color-mix(in oklch, var(--chart-4) 38%, white);
+  color: var(--color-base-content);
+}
+
+.wrapped-accent-bg {
+  background: color-mix(in oklch, var(--chart-4) 18%, white);
+}
+
+.wrapped-accent-border {
+  border-color: color-mix(in oklch, var(--chart-4) 45%, white);
+}
+
+.wrapped-accent-text {
+  color: var(--chart-4);
+}
+
+.wrapped-reveal {
+  opacity: 0;
+  transform: translateY(14px) scale(0.98);
+  animation: wrapped-rise 520ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: var(--wrapped-delay, 0ms);
+}
+
+@keyframes wrapped-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wrapped-reveal {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+}
+
 /* Before JS/theme attribute is applied, follow system dark preference. */
 @media (prefers-color-scheme: dark) {
   html:not([data-theme]) {
