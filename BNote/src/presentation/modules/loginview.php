@@ -25,13 +25,21 @@ class LoginView extends AbstractView {
 		}
 
 		$nextGenBannerFile = false;
+		$documentRoot = isset($_SERVER["DOCUMENT_ROOT"]) ? rtrim((string)$_SERVER["DOCUMENT_ROOT"], "/\\") : "";
+		$docRootParent = ($documentRoot !== "") ? dirname($documentRoot) : "";
 		$candidates = array(
-			realpath(__DIR__ . "/../../../legacy-login-nextgen-banner.php"),
-			realpath(__DIR__ . "/../../../../bnote-next-generation/legacy-login-nextgen-banner.php"),
-			realpath(__DIR__ . "/../../../../BNote-Next-Generation/legacy-login-nextgen-banner.php"),
+			__DIR__ . "/../../../../bnote-next-generation/api/legacy-login-nextgen-banner.php",
+			__DIR__ . "/../../../../BNote-Next-Generation/api/legacy-login-nextgen-banner.php",
+			($documentRoot !== "" ? $documentRoot . "/bnote-next-generation/api/legacy-login-nextgen-banner.php" : null),
+			($docRootParent !== "" ? $docRootParent . "/bnote-next-generation/api/legacy-login-nextgen-banner.php" : null),
 		);
 		foreach($candidates as $candidate) {
-			if($candidate !== false && is_file($candidate)) {
+			if($candidate === null || $candidate === false || $candidate === "") {
+				continue;
+			}
+			$exists = is_file($candidate);
+			$readable = is_readable($candidate);
+			if($exists && $readable) {
 				$nextGenBannerFile = $candidate;
 				break;
 			}

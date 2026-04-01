@@ -2,11 +2,19 @@
 
 if(!function_exists("bnote_render_legacy_login_nextgen_banner")) {
 	function bnote_render_legacy_login_nextgen_banner($rawLang = "en") {
-		$nextGenRoot = __DIR__;
+		$helperDir = __DIR__;
+		$nextGenRoot = dirname($helperDir);
 		$indexFile = $nextGenRoot . DIRECTORY_SEPARATOR . "index.html";
 		$apiIndexFile = $nextGenRoot . DIRECTORY_SEPARATOR . "api" . DIRECTORY_SEPARATOR . "index.php";
+		$apiIndexSameDir = $helperDir . DIRECTORY_SEPARATOR . "index.php";
 		if(!is_file($indexFile) && !is_file($apiIndexFile)) {
+			$apiSameDirExists = is_file($apiIndexSameDir);
+			if($apiSameDirExists) {
+				// Fallback for deployments where only API files are present at this point.
+			}
+			else {
 			return;
+			}
 		}
 
 		$copy = array(
@@ -63,6 +71,7 @@ if(!function_exists("bnote_render_legacy_login_nextgen_banner")) {
 				display: block;
 				margin: 0.9rem auto 1.8rem;
 				width: calc(100% - 1rem);
+				max-width: 448px;
 				border-radius: 0.75rem;
 				overflow: hidden;
 				background: transparent;
@@ -82,16 +91,6 @@ if(!function_exists("bnote_render_legacy_login_nextgen_banner")) {
 				background-size: 24.04px 24.04px;
 				height: 0.46rem;
 				animation: nextgen-tape-move 2.7s linear infinite;
-			}
-			.nextgen-login-banner-ribbon {
-				background: #f0b63a;
-				color: #111111;
-				font-weight: 800;
-				font-size: 1.05rem;
-				line-height: 1.2;
-				padding: 0.55rem 0.8rem;
-				text-align: center;
-				letter-spacing: 0.01em;
 			}
 			.nextgen-login-banner-inner {
 				background: #eef2f6;
@@ -154,10 +153,6 @@ if(!function_exists("bnote_render_legacy_login_nextgen_banner")) {
 			@media (max-width: 576px) {
 				.nextgen-login-banner {
 					width: calc(100% - 0.6rem);
-				}
-				.nextgen-login-banner-ribbon {
-					font-size: 0.94rem;
-					padding: 0.5rem 0.6rem;
 				}
 				.nextgen-login-banner-inner {
 					padding: 0.85rem 0.8rem 0.95rem;
