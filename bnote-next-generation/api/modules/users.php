@@ -31,6 +31,7 @@ require_once BNOTE_ROOT . '/src/data/modules/userdata.php';
 require_once BNOTE_ROOT . '/src/logic/modules/logincontroller.php';
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
+require_once __DIR__ . '/../module_provisioning.php';
 require_once __DIR__ . '/../mail/NextGenMailer.php';
 require_once __DIR__ . '/../mail/MailEnv.php';
 require_once __DIR__ . '/../mail/builders/UserWelcomeMailBuilder.php';
@@ -495,6 +496,9 @@ class UsersModule {
         if (!$system_data->isUserSuperUser() && $system_data->isUserSuperUser($id)) {
             Response::error('Access denied', 403);
         }
+
+        // Lazy provisioning: ensure Wrapped module exists when privilege matrix is opened.
+        ModuleProvisioning::ensureModuleExists('Wrapped', 'cake', 'main');
         
         $privileges = $this->data->getPrivileges($id);
         
@@ -507,17 +511,33 @@ class UsersModule {
         // Also get all available modules for the form
         $allModules = $system_data->getModuleArray();
         $modules = [];
+        $presentModuleIds = [];
         foreach ($allModules as $modId => $modRow) {
             // Skip public modules
             if ($modRow['category'] == 'public') {
                 continue;
             }
-            
+            $resolvedId = intval($modId);
+            $presentModuleIds[] = $resolvedId;
             $modules[] = [
-                'id' => intval($modId),
+                'id' => $resolvedId,
                 'name' => $modRow['name'],
-                'hasAccess' => in_array(intval($modId), $moduleIds)
+                'hasAccess' => in_array($resolvedId, $moduleIds)
             ];
+        }
+
+        // Ensure Wrapped appears in privileges when enabled, even if installation-specific
+        // module arrays omit it from getModuleArray().
+        $wrappedEnabled = strval($system_data->getDynamicConfigParameter('wrapped_module_enabled')) === '1';
+        if ($wrappedEnabled) {
+            $wrappedModuleId = intval($system_data->getModuleId('Wrapped'));
+            if ($wrappedModuleId > 0 && !in_array($wrappedModuleId, $presentModuleIds, true)) {
+                $modules[] = [
+                    'id' => $wrappedModuleId,
+                    'name' => 'Wrapped',
+                    'hasAccess' => in_array($wrappedModuleId, $moduleIds, true)
+                ];
+            }
         }
         
         return [

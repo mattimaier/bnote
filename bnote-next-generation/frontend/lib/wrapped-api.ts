@@ -39,9 +39,34 @@ export interface WrappedYearData {
       score: number;
     }>;
   };
+  achievements: {
+    personalBadges: Array<{
+      id: "attendance_commitment" | "response_speed" | "response_reliability" | "event_energy";
+      level: "gold" | "silver" | "bronze";
+      value: number;
+      unit: "percent" | "hours" | "count";
+    }>;
+    bandLeaderboard: {
+      minEvents: number;
+      topAttendance: Array<{
+        firstName: string;
+        surname: string;
+        eventCount: number;
+        attendanceCount: number;
+        attendanceRate: number;
+      }>;
+      lowestAttendance: Array<{
+        firstName: string;
+        surname: string;
+        eventCount: number;
+        attendanceCount: number;
+        attendanceRate: number;
+      }>;
+    };
+  };
 }
 
 export const wrappedApi = {
+  canAccess: () => api.get<{ canAccess: boolean }>("wrapped", "canAccess"),
   getYear: (year: number) => api.get<WrappedYearData>("wrapped", "year", { year: String(year) }),
 };
-

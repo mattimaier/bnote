@@ -117,6 +117,8 @@
   --spacing: 0.25rem;
   --text-xs: 0.75rem;
   --font-weight-medium: 500;
+  --wrapped-rehearsal: #3399ff;
+  --wrapped-concert: #e8a84d;
 }
 
 .dark {
@@ -157,75 +159,60 @@ body {
 .wrapped-hero-bg {
   background:
     radial-gradient(
-      60% 80% at 90% 10%,
-      color-mix(in oklch, var(--color-primary) 45%, transparent) 0%,
+      46% 52% at 86% 10%,
+      color-mix(in oklch, var(--wrapped-aurora-a) 26%, transparent) 0%,
       transparent 72%
     ),
     radial-gradient(
-      60% 60% at 10% 20%,
-      color-mix(in oklch, var(--chart-4) 35%, transparent) 0%,
-      transparent 70%
-    ),
-    radial-gradient(
-      45% 55% at 50% 0%,
-      color-mix(in oklch, var(--chart-4) 22%, transparent) 0%,
-      transparent 70%
+      42% 46% at 10% 90%,
+      color-mix(in oklch, var(--wrapped-aurora-b) 22%, transparent) 0%,
+      transparent 72%
     ),
     linear-gradient(
-      120deg,
-      color-mix(in oklch, var(--color-primary) 20%, white) 0%,
-      #ffffff 42%,
-      color-mix(in oklch, var(--chart-4) 18%, white) 100%
+      130deg,
+      color-mix(in oklch, var(--wrapped-rehearsal) 24%, var(--color-base-100)) 0%,
+      var(--color-base-100) 46%,
+      color-mix(in oklch, var(--wrapped-concert) 20%, var(--color-base-100)) 100%
     );
 }
 
 .wrapped-hero-shimmer {
   background-image:
-    radial-gradient(
-      120px 80px at 18% 22%,
-      color-mix(in oklch, var(--color-primary) 18%, transparent) 0%,
-      transparent 70%
-    ),
-    radial-gradient(
-      160px 120px at 82% 18%,
-      color-mix(in oklch, var(--chart-4) 20%, transparent) 0%,
-      transparent 70%
-    ),
     repeating-linear-gradient(
-      115deg,
-      color-mix(in oklch, var(--color-primary) 8%, transparent) 0%,
-      transparent 8%,
-      color-mix(in oklch, var(--chart-4) 10%, transparent) 16%,
-      transparent 24%
+      120deg,
+      color-mix(in oklch, var(--wrapped-rehearsal) 11%, transparent) 0%,
+      transparent 9%,
+      color-mix(in oklch, var(--wrapped-concert) 10%, transparent) 18%,
+      transparent 28%
     );
-  opacity: 0.45;
+  opacity: 0.3;
   mix-blend-mode: soft-light;
 }
 
 .wrapped-card-bg {
   background:
     radial-gradient(
-      40% 45% at 82% 2%,
-      color-mix(in oklch, var(--color-primary) 42%, transparent) 0%,
-      transparent 70%
+      34% 40% at 84% 14%,
+      color-mix(in oklch, var(--wrapped-aurora-a) 20%, transparent) 0%,
+      transparent 72%
     ),
     radial-gradient(
-      45% 45% at 8% 28%,
-      color-mix(in oklch, var(--chart-4) 38%, transparent) 0%,
+      34% 40% at 16% 88%,
+      color-mix(in oklch, var(--wrapped-aurora-b) 16%, transparent) 0%,
       transparent 72%
     ),
     linear-gradient(
-      140deg,
-      color-mix(in oklch, var(--color-primary) 14%, white) 0%,
-      #ffffff 52%,
-      color-mix(in oklch, var(--chart-4) 16%, white) 100%
+      138deg,
+      color-mix(in oklch, var(--wrapped-rehearsal) 20%, var(--color-base-100)) 0%,
+      var(--color-base-100) 52%,
+      color-mix(in oklch, var(--wrapped-concert) 16%, var(--color-base-100)) 100%
     );
 }
 
 .wrapped-spotlight {
   background: radial-gradient(
     circle at center,
-    color-mix(in oklch, var(--color-primary) 48%, transparent) 0%,
+    color-mix(in oklch, var(--wrapped-aurora-a) 36%, transparent) 0%,
     transparent 70%
   );
   filter: blur(2px);
@@ -234,34 +221,34 @@ body {
 .wrapped-spotlight-warm {
   background: radial-gradient(
     circle at center,
-    color-mix(in oklch, var(--chart-4) 42%, transparent) 0%,
+    color-mix(in oklch, var(--wrapped-aurora-b) 34%, transparent) 0%,
     transparent 70%
   );
   filter: blur(2px);
 }
 
 .wrapped-chip-primary {
-  background: color-mix(in oklch, var(--color-primary) 16%, white);
-  border: 1px solid color-mix(in oklch, var(--color-primary) 35%, white);
+  background: color-mix(in oklch, var(--wrapped-rehearsal) 16%, var(--color-base-100));
+  border: 1px solid color-mix(in oklch, var(--wrapped-rehearsal) 30%, var(--color-base-100));
   color: var(--color-base-content);
 }
 
 .wrapped-chip-accent {
-  background: color-mix(in oklch, var(--chart-4) 18%, white);
-  border: 1px solid color-mix(in oklch, var(--chart-4) 38%, white);
+  background: color-mix(in oklch, var(--wrapped-concert) 16%, var(--color-base-100));
+  border: 1px solid color-mix(in oklch, var(--wrapped-concert) 30%, var(--color-base-100));
   color: var(--color-base-content);
 }
 
 .wrapped-accent-bg {
-  background: color-mix(in oklch, var(--chart-4) 18%, white);
+  background: color-mix(in oklch, var(--wrapped-concert) 16%, var(--color-base-100));
 }
 
 .wrapped-accent-border {
-  border-color: color-mix(in oklch, var(--chart-4) 45%, white);
+  border-color: color-mix(in oklch, var(--wrapped-concert) 45%, white);
 }
 
 .wrapped-accent-text {
-  color: var(--chart-4);
+  color: var(--wrapped-concert);
 }
 
 .wrapped-reveal {

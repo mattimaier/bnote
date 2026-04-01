@@ -3,22 +3,27 @@
  * BNote Next Generation - Wrapped API Module
  *
  * Personal yearly summary ("Spotify Wrapped"-style) for members,
- * with optional band-wide aggregates for admins.
+ * including playful achievements and band-visible rankings.
  */
 
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
+require_once __DIR__ . '/../module_provisioning.php';
 
 class WrappedModule {
+    private int $userId;
+
     public function __construct() {
         if (!Auth::check()) {
             Response::error('Authentication required', 403);
         }
-        global $system_data;
-        $enabled = strval($system_data->getDynamicConfigParameter('wrapped_module_enabled')) === '1';
-        if (!$enabled) {
-            Response::error('Wrapped module is disabled', 403);
+
+        $this->userId = intval(Auth::getUserId() ?? 0);
+        if ($this->userId <= 0) {
+            Response::error('Authentication required', 403);
         }
+
+        $this->assertAccess();
     }
 
     public function handle() {
@@ -26,8 +31,24 @@ class WrappedModule {
         switch ($action) {
             case 'year':
                 return $this->getYearWrapped();
+            case 'canAccess':
+                return ['canAccess' => true];
             default:
                 Response::error('Unknown action: ' . $action, 400);
+        }
+    }
+
+    private function assertAccess(): void {
+        global $system_data;
+
+        $enabled = strval($system_data->getDynamicConfigParameter('wrapped_module_enabled')) === '1';
+        if (!$enabled) {
+            Response::error('Wrapped module is disabled', 403);
+        }
+
+        $moduleId = ModuleProvisioning::ensureModuleExists('Wrapped', 'cake', 'main');
+        if ($moduleId <= 0 || !$system_data->userHasPermission($moduleId)) {
+            Response::error('Access denied to Wrapped', 403);
         }
     }
 
@@ -58,10 +79,25 @@ class WrappedModule {
      * @return array{start:string,end:string}
      */
     private function yearRange(int $year): array {
+        $start = sprintf('%04d-01-01 00:00:00', $year);
+        $yearEnd = sprintf('%04d-12-31 23:59:59', $year);
+        $now = date('Y-m-d H:i:s');
+        $end = strcmp($yearEnd, $now) <= 0 ? $yearEnd : $now;
+
         return [
-            'start' => sprintf('%04d-01-01 00:00:00', $year),
-            'end' => sprintf('%04d-12-31 23:59:59', $year),
+            'start' => $start,
+            'end' => $end,
         ];
+    }
+
+    private function badgeLevelFromThresholds(float $value, float $gold, float $silver): string {
+        if ($value >= $gold) {
+            return 'gold';
+        }
+        if ($value >= $silver) {
+            return 'silver';
+        }
+        return 'bronze';
     }
 
     /**
@@ -170,6 +206,118 @@ class WrappedModule {
     }
 
     /**
+     * @return array<int,array<string,mixed>>
+     */
+    private function getBandAttendanceRanking(int $year, int $minEvents, string $direction): array {
+        global $system_data;
+
+        $range = $this->yearRange($year);
+        $params = [
+            ['s', $range['start']],
+            ['s', $range['end']],
+            ['s', $range['start']],
+            ['s', $range['end']],
+            ['i', $minEvents],
+        ];
+
+        $order = $direction === 'asc'
+            ? 'attendanceRate ASC, invited DESC, c.name ASC, c.surname ASC'
+            : 'attendanceRate DESC, invited DESC, c.name ASC, c.surname ASC';
+
+        $sql = "SELECT
+                c.name as firstName,
+                c.surname as surname,
+                COUNT(*) as invited,
+                SUM(CASE WHEN x.participate IN (1,2) THEN 1 ELSE 0 END) as attending,
+                ROUND((SUM(CASE WHEN x.participate IN (1,2) THEN 1 ELSE 0 END) / COUNT(*)) * 100, 1) as attendanceRate
+            FROM (
+                SELECT ru.user as user_id, ru.participate
+                FROM rehearsal_user ru
+                JOIN rehearsal r ON r.id = ru.rehearsal
+                WHERE r.begin >= ? AND r.begin <= ?
+                UNION ALL
+                SELECT cu.user as user_id, cu.participate
+                FROM concert_user cu
+                JOIN concert c2 ON c2.id = cu.concert
+                WHERE c2.begin >= ? AND c2.begin <= ?
+            ) x
+            JOIN user u ON u.id = x.user_id
+            JOIN contact c ON c.id = u.contact
+            WHERE IFNULL(u.isActive, 1) = 1
+            GROUP BY x.user_id, c.name, c.surname
+            HAVING COUNT(*) >= ?
+            ORDER BY $order
+            LIMIT 0, 5";
+
+        $rows = $this->rows($system_data->dbcon->getSelection($sql, $params));
+
+        $ranking = [];
+        foreach ($rows as $row) {
+            $ranking[] = [
+                'firstName' => trim((string)($row['firstName'] ?? '')),
+                'surname' => trim((string)($row['surname'] ?? '')),
+                'eventCount' => intval($row['invited'] ?? 0),
+                'attendanceCount' => intval($row['attending'] ?? 0),
+                'attendanceRate' => round(floatval($row['attendanceRate'] ?? 0), 1),
+            ];
+        }
+
+        return $ranking;
+    }
+
+    /**
+     * @param array<string,mixed> $personal
+     * @return array<string,mixed>
+     */
+    private function getAchievements(int $year, array $personal): array {
+        $totalEvents = intval($personal['events']['total'] ?? 0);
+        $totalResponses = intval($personal['responses']['total'] ?? 0);
+        $yesRate = floatval($personal['responses']['yesRate'] ?? 0);
+        $avgLeadHours = floatval($personal['avgLeadHours'] ?? 0);
+        $responseCompletionRate = $totalEvents > 0
+            ? round(($totalResponses / $totalEvents) * 100, 1)
+            : 0.0;
+
+        $personalBadges = [
+            [
+                'id' => 'attendance_commitment',
+                'level' => $this->badgeLevelFromThresholds($yesRate, 85, 70),
+                'value' => round($yesRate, 1),
+                'unit' => 'percent',
+            ],
+            [
+                'id' => 'response_speed',
+                'level' => $this->badgeLevelFromThresholds($avgLeadHours, 72, 24),
+                'value' => round($avgLeadHours, 1),
+                'unit' => 'hours',
+            ],
+            [
+                'id' => 'response_reliability',
+                'level' => $this->badgeLevelFromThresholds($responseCompletionRate, 95, 80),
+                'value' => round($responseCompletionRate, 1),
+                'unit' => 'percent',
+            ],
+            [
+                'id' => 'event_energy',
+                'level' => $this->badgeLevelFromThresholds(floatval($totalEvents), 40, 20),
+                'value' => $totalEvents,
+                'unit' => 'count',
+            ],
+        ];
+
+        $minEvents = 5;
+
+        return [
+            'personalBadges' => $personalBadges,
+            'bandLeaderboard' => [
+                'minEvents' => $minEvents,
+                'topAttendance' => $this->getBandAttendanceRanking($year, $minEvents, 'desc'),
+                'lowestAttendance' => $this->getBandAttendanceRanking($year, $minEvents, 'asc'),
+            ],
+        ];
+    }
+
+    /**
      * @return array<string,mixed>
      */
     private function getBandSummaryIfAdmin(int $year): array {
@@ -254,11 +402,6 @@ class WrappedModule {
     private function getYearWrapped(): array {
         global $system_data;
 
-        $userId = intval(Auth::getUserId() ?? 0);
-        if ($userId <= 0) {
-            Response::error('Authentication required', 403);
-        }
-
         $year = $this->resolveYear();
         $range = $this->yearRange($year);
         $userInfo = Auth::getUserInfo();
@@ -267,6 +410,8 @@ class WrappedModule {
             $firstName = trim((string)($userInfo['login'] ?? 'Member'));
         }
 
+        $personal = $this->getPersonalSummary($this->userId, $year);
+
         return [
             'year' => $year,
             'yearRange' => $range,
@@ -274,9 +419,9 @@ class WrappedModule {
                 'firstName' => $firstName,
                 'bandName' => (string)($system_data->getCompany() ?? 'BNote'),
             ],
-            'personal' => $this->getPersonalSummary($userId, $year),
+            'personal' => $personal,
             'band' => $this->getBandSummaryIfAdmin($year),
+            'achievements' => $this->getAchievements($year, $personal),
         ];
     }
 }
-

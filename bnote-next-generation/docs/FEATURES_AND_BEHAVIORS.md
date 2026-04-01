@@ -126,7 +126,7 @@ Architecture-level permission decisions are documented in **[ARCHITECTURE_DECISI
   - Users: list, get, create, update, delete, activate, getPrivileges, updatePrivileges, getContacts.  
   - Contacts: list, get, create, update, delete, getGroups, getIntegrationBundle, integrate.  
   - Rehearsals / concerts / calendar / appointments / reservations: per module.  
-  - Tasks, votes, comments, news, share: per module.  
+  - Tasks, votes, comments, news, share, wrapped: per module.  
   - Search: search (with filters).  
   - Participation: get participation, set participation.  
   - Translations: list of keys or full locale JSON.

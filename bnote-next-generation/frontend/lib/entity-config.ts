@@ -168,17 +168,10 @@ export function getEventTypeConfig(
   };
 }
 
-/**
- * Map bnoteType (from calendar API) to entity color.
- * Uses hex for rehearsal/concert to ensure consistent rendering in color-mix across browsers.
- */
+/** Map bnoteType (from calendar API) to entity color from shared entity config. */
 export function getColorForBnoteType(bnoteType: string): string | null {
   const c = getEntityConfig(bnoteType);
-  if (c?.color) {
-    if (bnoteType === "rehearsal") return "#3399FF";
-    if (bnoteType === "concert") return "#E8A84D";
-    return c.color;
-  }
+  if (c?.color) return c.color;
   if (bnoteType === "phase") return "#3D9970";
   return null;
 }

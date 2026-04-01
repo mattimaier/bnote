@@ -42,6 +42,7 @@ require_once __DIR__ . '/../nextgen_participation_token.php';
 require_once __DIR__ . '/../participation_magic_apply.php';
 require_once __DIR__ . '/../nextgen_calendar_subscription_token.php';
 require_once __DIR__ . '/../auth.php';
+require_once __DIR__ . '/../module_provisioning.php';
 
 class AuthModule {
     private $loginData;
@@ -215,6 +216,7 @@ class AuthModule {
             'user_registration' => strval($userReg) === '1',
             'auto_user_activation' => $system_data->autoUserActivation(),
             'demo_mode' => $system_data->inDemoMode(),
+            'beta_bug_report_enabled' => strval($system_data->getDynamicConfigParameter('beta_bug_report_enabled')) === '1',
         ];
         $debug = isset($_GET['debug']) && $_GET['debug'] === '1';
         if ($debug) {
@@ -240,6 +242,12 @@ class AuthModule {
         
         if (!Auth::check()) {
             Response::error('Authentication required', 403);
+        }
+
+        // Lazy provisioning: create Wrapped module row when feature is enabled.
+        $wrappedEnabled = strval($system_data->getDynamicConfigParameter('wrapped_module_enabled')) === '1';
+        if ($wrappedEnabled) {
+            ModuleProvisioning::ensureModuleExists('Wrapped', 'cake', 'main');
         }
         
         // Read all modules across categories. Some installations place
@@ -397,6 +405,11 @@ class AuthModule {
                 'route' => '/calendar',
                 'icon' => 'calendar-days',
                 'i18n' => 'js.sidebar.calendar'
+            ],
+            'Wrapped' => [
+                'route' => '/wrapped',
+                'icon' => 'cake',
+                'i18n' => 'js.sidebar.wrapped'
             ]
         ];
         $calendarAlreadyAdded = false;
@@ -418,6 +431,14 @@ class AuthModule {
             if ($modName === 'Registration' && !$showRegistration) {
                 error_log("getModules: Skipping $modName (registration disabled)");
                 continue;
+            }
+            // Wrapped must be enabled by global configuration in addition to module permission.
+            if ($modName === 'Wrapped') {
+                $wrappedEnabled = strval($system_data->getDynamicConfigParameter('wrapped_module_enabled')) === '1';
+                if (!$wrappedEnabled) {
+                    error_log("getModules: Skipping $modName (wrapped disabled)");
+                    continue;
+                }
             }
             
             // Only check modules that have a mapping (i.e., implemented in bnote-next-generation/)
@@ -492,6 +513,29 @@ class AuthModule {
                 'i18n' => 'js.sidebar.contacts'
             ];
         }
+
+        // Robustness fallback for installations where Wrapped module may not be returned
+        // by getModuleArray(), but exists and is permission-controlled in module table.
+        $wrappedEnabled = strval($system_data->getDynamicConfigParameter('wrapped_module_enabled')) === '1';
+        $wrappedModuleId = intval($system_data->getModuleId('Wrapped'));
+        if ($wrappedEnabled && $wrappedModuleId > 0 && $system_data->userHasPermission($wrappedModuleId)) {
+            $wrappedExists = false;
+            foreach ($modules as $m) {
+                if (($m['route'] ?? '') === '/wrapped') {
+                    $wrappedExists = true;
+                    break;
+                }
+            }
+            if (!$wrappedExists) {
+                $modules[] = [
+                    'id' => $wrappedModuleId,
+                    'name' => 'Wrapped',
+                    'route' => '/wrapped',
+                    'icon' => 'cake',
+                    'i18n' => 'js.sidebar.wrapped'
+                ];
+            }
+        }
         
         // Sort: use config order if available, otherwise by module ID
         $orderConfigPath = __DIR__ . '/../../frontend/config/sidebar-module-order.json';
@@ -512,35 +556,6 @@ class AuthModule {
             }
             return $a['id'] <=> $b['id'];
         });
-
-        // Add Wrapped only when enabled via configuration (off by default).
-        $wrappedEnabled = strval($system_data->getDynamicConfigParameter('wrapped_module_enabled')) === '1';
-        if ($wrappedEnabled) {
-            $wrapped = [
-                'id' => -2,
-                'name' => 'Wrapped',
-                'route' => '/wrapped',
-                'icon' => 'cake',
-                'i18n' => 'js.sidebar.wrapped'
-            ];
-            $wrappedExists = false;
-            foreach ($modules as $m) {
-                if (($m['route'] ?? '') === $wrapped['route']) {
-                    $wrappedExists = true;
-                    break;
-                }
-            }
-            if (!$wrappedExists) {
-                $insertIndex = count($modules);
-                foreach ($modules as $idx => $m) {
-                    if (($m['name'] ?? '') === 'Start') {
-                        $insertIndex = $idx + 1;
-                        break;
-                    }
-                }
-                array_splice($modules, $insertIndex, 0, [$wrapped]);
-            }
-        }
 
         // Add Band Overview for admins only (synthetic module, not from BNote DB)
         $userId = Auth::getUserId();

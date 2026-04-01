@@ -1439,6 +1439,34 @@ Delete file.
 
 ---
 
+## Wrapped
+
+### GET /api/v1/wrapped/can-access
+
+Check whether the current user can access Wrapped.
+
+**Notes:**
+- Requires authenticated user
+- Requires `wrapped_module_enabled = 1`
+- Requires Wrapped module permission
+
+---
+
+### GET /api/v1/wrapped/year
+
+Get wrapped data for one year.
+
+**Query Parameters:**
+- `year` - Year to load
+
+**Response Highlights:**
+- `personal` summary (responses, events, top month)
+- `band` summary (admin-only payload)
+- `achievements.personalBadges` (commitment, response speed, reliability, event energy)
+- `achievements.bandLeaderboard` (top attendance + lowest attendance, with minimum event threshold)
+
+---
+
 ## Statistics
 
 ### GET /api/v1/stats/overview
