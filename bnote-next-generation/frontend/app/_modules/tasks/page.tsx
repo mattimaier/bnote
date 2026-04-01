@@ -183,6 +183,7 @@ export default function TasksPage() {
   return (
     <PageContent className="px-1 md:px-4">
       <AppPageHeader
+        moduleKey="task"
         title={t("js.sidebar.tasks") !== "js.sidebar.tasks" ? t("js.sidebar.tasks") : "Tasks"}
         subtitle={t("js.tasks.subtitle") !== "js.tasks.subtitle" ? t("js.tasks.subtitle") : "Assign and track tasks"}
         actions={(

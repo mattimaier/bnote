@@ -242,6 +242,7 @@ export default function EmailModulePage() {
   return (
     <PageContent className="px-1 md:px-4">
       <AppPageHeader
+        moduleKey="email"
         title={t("js.sidebar.email") !== "js.sidebar.email" ? t("js.sidebar.email") : "Email"}
         subtitle={t("js.email.subtitle") !== "js.email.subtitle" ? t("js.email.subtitle") : "Compose and send emails to groups and contacts"}
       />

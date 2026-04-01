@@ -132,6 +132,7 @@ export default function LocationsPage() {
   return (
     <PageContent>
       <AppPageHeader
+        moduleKey="location"
         title={t("js.locations.title") !== "js.locations.title" ? t("js.locations.title") : "Locations"}
         subtitle={t("js.locations.subtitle") !== "js.locations.subtitle" ? t("js.locations.subtitle") : "Manage venues and rehearsal rooms"}
         actions={(

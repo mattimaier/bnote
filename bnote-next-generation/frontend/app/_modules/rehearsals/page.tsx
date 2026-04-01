@@ -135,6 +135,7 @@ export default function RehearsalsPage() {
   return (
     <PageContent className="px-1 md:px-4">
       <AppPageHeader
+        moduleKey="rehearsal"
         title={t("js.sidebar.rehearsals") !== "js.sidebar.rehearsals" ? t("js.sidebar.rehearsals") : "Rehearsals"}
         actions={(
           <>

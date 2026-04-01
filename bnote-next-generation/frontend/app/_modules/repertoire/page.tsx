@@ -133,6 +133,7 @@ export default function RepertoirePage() {
   return (
     <div className={PAGE_CONTENT_CLASS}>
       <AppPageHeader
+        moduleKey="repertoire"
         title={t("js.repertoire.title") !== "js.repertoire.title" ? t("js.repertoire.title") : "Repertoire"}
         subtitle={t("js.repertoire.subtitle") !== "js.repertoire.subtitle" ? t("js.repertoire.subtitle") : "Manage songs and repertoire"}
         actions={(

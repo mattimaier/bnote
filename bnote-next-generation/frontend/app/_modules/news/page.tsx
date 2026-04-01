@@ -162,6 +162,7 @@ export default function NewsPage() {
   return (
     <div className={PAGE_CONTENT_BASE_CLASS}>
       <AppPageHeader
+        moduleKey="news"
         title={t("js.sidebar.news") !== "js.sidebar.news" ? t("js.sidebar.news") : "News"}
         subtitle={t("js.news.subtitle") !== "js.news.subtitle" ? t("js.news.subtitle") : "Edit the message shown on the dashboard."}
       />

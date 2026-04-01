@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import { useI18n } from "@/contexts/I18nContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { logout } from "@/lib/auth";
+import { configurationApi } from "@/lib/configuration-api";
 import { prefixPath } from "@/lib/path";
 import { useSearch } from "@/contexts/SearchContext";
 import { SearchAutocompleteOverlay } from "@/components/SearchAutocompleteOverlay";
@@ -45,14 +46,19 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
   const { t } = useI18n();
   const { query, setQuery, setOverlayOpen } = useSearch();
   const [user, setUser] = useState<SessionUser | null>(null);
+  const [canConfigure, setCanConfigure] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const searchAnchorRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
   useEffect(() => {
-    checkSession().then((s) => {
+    Promise.all([
+      checkSession(),
+      configurationApi.canAccess().catch(() => ({ canAccess: false })),
+    ]).then(([s, access]) => {
       if (s.user) setUser(s.user);
+      setCanConfigure(Boolean(access?.canAccess));
     });
   }, []);
 
@@ -69,6 +75,7 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
 
   const fullName = [user?.name, user?.surname].filter(Boolean).join(" ") || t("js.common.user");
   const SettingsMenuIcon = getIcon("settings");
+  const ConfigurationMenuIcon = getIcon("key");
 
   async function handleLogout() {
     await logout();
@@ -168,6 +175,16 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
                 <SettingsMenuIcon className="h-4 w-4" />
                 {t("js.profile.menuSettings") !== "js.profile.menuSettings" ? t("js.profile.menuSettings") : "Preferences"}
               </Link>
+              {canConfigure ? (
+                <Link
+                  href="/configuration/"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-base-200 transition-colors text-base-content"
+                >
+                  <ConfigurationMenuIcon className="h-4 w-4" />
+                  {t("js.profile.menuConfiguration") !== "js.profile.menuConfiguration" ? t("js.profile.menuConfiguration") : "Configuration"}
+                </Link>
+              ) : null}
               <button
                 type="button"
                 onClick={() => {

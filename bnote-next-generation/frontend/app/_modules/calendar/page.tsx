@@ -284,6 +284,7 @@ export default function CalendarPage() {
   return (
     <PageContent>
       <AppPageHeader
+        moduleKey="calendar"
         title={t("js.sidebar.calendar") !== "js.sidebar.calendar" ? t("js.sidebar.calendar") : "Kalender"}
         actions={(
           <>

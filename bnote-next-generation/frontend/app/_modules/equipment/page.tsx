@@ -141,6 +141,7 @@ export default function EquipmentPage() {
   return (
     <div className={PAGE_CONTENT_CLASS}>
       <AppPageHeader
+        moduleKey="equipment"
         title={t("js.equipment.title") !== "js.equipment.title" ? t("js.equipment.title") : "Equipment"}
         subtitle={t("js.equipment.subtitle") !== "js.equipment.subtitle" ? t("js.equipment.subtitle") : "Manage inventory and assets"}
         actions={(

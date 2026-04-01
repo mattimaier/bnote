@@ -125,6 +125,7 @@ export default function OutfitsPage() {
   return (
     <div className={PAGE_CONTENT_CLASS}>
       <AppPageHeader
+        moduleKey="outfit"
         title={t("js.outfits.title") !== "js.outfits.title" ? t("js.outfits.title") : "Outfits"}
         subtitle={t("js.outfits.subtitle") !== "js.outfits.subtitle" ? t("js.outfits.subtitle") : "Manage costumes and uniforms"}
         actions={(

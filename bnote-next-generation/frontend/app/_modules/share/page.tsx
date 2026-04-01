@@ -178,7 +178,7 @@ export default function SharePage() {
 
   return (
     <div className={PAGE_CONTENT_CLASS}>
-      <AppPageHeader title={title} subtitle={subtitle} />
+      <AppPageHeader moduleKey="share" title={title} subtitle={subtitle} />
 
       {error && (
         <div

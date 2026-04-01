@@ -154,6 +154,7 @@ export default function VotesPage() {
   return (
     <PageContent>
       <AppPageHeader
+        moduleKey="vote"
         title={t("js.votes.title") !== "js.votes.title" ? t("js.votes.title") : "Votes"}
         subtitle={t("js.votes.subtitle") !== "js.votes.subtitle" ? t("js.votes.subtitle") : "Polls and surveys"}
         actions={(
