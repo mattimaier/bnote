@@ -4,6 +4,12 @@ declare(strict_types=1);
 use PHPMailer\PHPMailer\PHPMailer;
 
 final class NextGenMailer {
+    private static string $lastError = '';
+
+    public static function getLastError(): string {
+        return self::$lastError;
+    }
+
     /**
      * Send several messages in order, pausing between sends when bulk delay is non-zero (see MailEnv::bulkSendDelayMicroseconds).
      *
@@ -31,6 +37,7 @@ final class NextGenMailer {
     }
 
     public static function send(NextGenMailMessage $message): bool {
+        self::$lastError = '';
         require_once __DIR__ . '/bootstrap.php';
         if (!defined('BNOTE_ROOT')) {
             require_once dirname(__DIR__) . '/paths.php';
@@ -38,10 +45,12 @@ final class NextGenMailer {
         require_once __DIR__ . '/MailRecipientPolicy.php';
         global $system_data;
         if (!class_exists(PHPMailer::class)) {
-            error_log('NextGenMailer: PHPMailer not installed (run composer install in bnote-next-generation/api).');
+            self::$lastError = 'PHPMailer not installed';
+            error_log('NextGenMailer: ' . self::$lastError . ' (run composer install in bnote-next-generation/api).');
             return false;
         }
         if ($message->subject === '' || $message->htmlBody === '') {
+            self::$lastError = 'Missing subject or HTML body';
             return false;
         }
 
@@ -118,7 +127,12 @@ final class NextGenMailer {
             $mail->send();
             return true;
         } catch (Throwable $e) {
-            error_log('NextGenMailer: ' . $e->getMessage());
+            $msg = trim((string) $e->getMessage());
+            self::$lastError = $msg !== '' ? $msg : 'Unknown SMTP error';
+            if (isset($mail) && $mail instanceof PHPMailer && trim((string) $mail->ErrorInfo) !== '') {
+                self::$lastError .= ' | ' . trim((string) $mail->ErrorInfo);
+            }
+            error_log('NextGenMailer: ' . self::$lastError);
             return false;
         }
     }

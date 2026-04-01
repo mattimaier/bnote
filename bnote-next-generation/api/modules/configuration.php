@@ -37,6 +37,8 @@ class ConfigurationModule {
         'export_rehearsal_notes' => ['type' => 'boolean', 'section' => 'system', 'caption' => 'Export rehearsal notes', 'used_in_nextgen' => false],
         'export_rehearsalsong_notes' => ['type' => 'boolean', 'section' => 'system', 'caption' => 'Export rehearsal song notes', 'used_in_nextgen' => false],
         'enable_failed_login_log' => ['type' => 'boolean', 'section' => 'system', 'caption' => 'Enable failed login log', 'used_in_nextgen' => true],
+        'beta_bug_report_enabled' => ['type' => 'boolean', 'section' => 'system', 'caption' => 'Enable beta bug reporting', 'used_in_nextgen' => true],
+        'beta_bug_report_email' => ['type' => 'char', 'section' => 'system', 'caption' => 'Beta bug report recipient email', 'used_in_nextgen' => true],
     ];
 
     public function __construct() {

@@ -18,7 +18,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const { editingBar } = useEditingBar();
 
   return (
-    <div className="flex min-h-screen flex-col bg-base-100 md:h-screen md:flex-row md:overflow-hidden">
+    <div data-bnote-capture-root="1" className="flex min-h-screen flex-col bg-base-100 md:h-screen md:flex-row md:overflow-hidden">
       <AppSidebar />
       <div className="app-shell-mobile-topbar-offset flex min-w-0 flex-1 flex-col md:min-h-0">
         <AppTopbar onOpenMobileNav={() => setMobileNavOpen(true)} />

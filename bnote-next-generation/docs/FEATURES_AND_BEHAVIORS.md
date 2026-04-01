@@ -30,6 +30,7 @@ Architecture-level permission decisions are documented in **[ARCHITECTURE_DECISI
 
 - **Sidebar (desktop):** BNote logo, nav links (Dashboard, Users, Contacts from API modules). Logo from `getBnoteLogoUrl()` in `lib/bnote-assets.ts` (BNote/style/images/BNote_Logo_white_transparent.svg); fallback “B” when URL missing.
 - **Top bar:** Global search input, theme toggle (sun/moon), user indicator.
+- **Beta bug report action (config-gated):** When `beta_bug_report_enabled` is `true` and user is authenticated, topbar and user menu show **Report bug**. The modal uses one required message field plus optional diagnostics toggles (screenshot, recent network requests, recent logs).
 - **Mobile:** Sidebar hidden; hamburger opens full-screen nav drawer with same links and logo.
 - **Theme:** Dark/light via CSS variables; persisted (e.g. localStorage). Use semantic variables (e.g. `--background`, `--foreground`, `--primary`) in `frontend/app/globals.css`.
 
@@ -121,6 +122,7 @@ Architecture-level permission decisions are documented in **[ARCHITECTURE_DECISI
 - **Auth:** Session cookie; requests are same-origin or credentials included so cookie is sent.
 - **Main endpoints used by UI:**  
   - Auth: login, session/me, logout, getPublicConfig, getRegistrationOptions, register, requestPasswordReset, completePasswordReset, participation token helpers as needed.  
+  - Bug report: `bugreport.send` (single-message report with optional diagnostics payload).
   - Calendar subscription: `auth.getCalendarSubscriptionLink` (stable token), `auth.regenerateCalendarSubscriptionLink` (token rotation).  
   - Dashboard: company, events, events needing response, admin/action summaries.  
   - Users: list, get, create, update, delete, activate, getPrivileges, updatePrivileges, getContacts.  
@@ -133,6 +135,7 @@ Architecture-level permission decisions are documented in **[ARCHITECTURE_DECISI
 - **Module routes:** API returns sidebar modules with `route` (e.g. `/dashboard`, `/users`, `/contacts`). Frontend uses these as Next.js paths (e.g. `dashboard/index.html`, `users/index.html` in static export).
 - **ICS feed behavior:** Public endpoint `api/calendar.ics.php?token=...` is token-authenticated per user (session-independent), contains past+future events, keeps `LOCATION` as one normalized address line for calendar geocoding, and uses multiline `DESCRIPTION` sections for readable details. Concerts may be split into two entries (`meeting time` and actual `concert`) when a valid meeting time exists.
 - **Transactional email (PHP):** When contacts are added to rehearsals/concerts (participation invites), when tasks are assigned/updated, and when entity discussion notifications fire, mail uses **`NextGenMailPolicy`**: contacts **without** a BNote user still receive mail when appropriate; contacts linked only to an **inactive** user do **not**; active users follow the **`email_notification`** preference. Invites include participation magic-link URLs when configured. Details: **[MAIL.md](MAIL.md)** (subsystem map and “Transactional mail: who receives it”).
+- **Bug report email (PHP):** `module=bugreport&action=send` sends to configured `beta_bug_report_email` if `beta_bug_report_enabled=1`. Backend enriches with authenticated reporter info, redacts sensitive diagnostics keys/values, attaches optional screenshot embed, and includes server summary. Rate limit is file-based per IP+user.
 
 ---
 
@@ -147,6 +150,7 @@ Architecture-level permission decisions are documented in **[ARCHITECTURE_DECISI
 - **Search:** Top-bar overlay; search results page with query in URL; filters; result list with type icon, date, tag, time, location.
 - **Entity detail:** Path-based view/edit; type title + icon + tag; metadata; map links; participation widget; overview bar; participants with group-by and status icons. Edit mode in URL; delete only in edit view (DetailDeleteSection + ConfirmModal).
 - **Shell:** Sidebar, mobile drawer, top bar (search, theme, user); logo everywhere.
+- **Bug reporting:** Report button visible only when feature flag is enabled; modal has single required message field; diagnostics counters populate after app activity; report send returns a `reportId` on success.
 - **Translations:** No “[module module]” or raw keys; company name in subtitle; all strings from lang/ or API.
 - **Icons:** All entity types and actions use icons from `entity-config` + `icons.tsx`; logo loads; no broken placeholders.
 - **Mobile:** Drawer, search overlay, compact event cards, no layout breaks.

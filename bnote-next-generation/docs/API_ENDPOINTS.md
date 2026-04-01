@@ -125,7 +125,7 @@ Check current session status.
 
 Public config for the Next.js login page (no authentication).
 
-**Response (200):** `lang`, `country`, `company`, `user_registration` (boolean), `auto_user_activation` (boolean).
+**Response (200):** `lang`, `country`, `company`, `user_registration` (boolean), `auto_user_activation` (boolean), `beta_bug_report_enabled` (boolean).
 
 ---
 
@@ -1550,6 +1550,59 @@ Get configuration.
 Update configuration.
 
 **Note:** Admin only
+
+---
+
+### Next-Gen config keys (used in `/configuration`)
+
+- `beta_bug_report_enabled` (boolean): enables global in-app bug report action for authenticated users.
+- `beta_bug_report_email` (string email): destination mailbox for beta bug reports.
+
+---
+
+## Bug Report
+
+### POST `api/index.php?module=bugreport&action=send`
+
+Authenticated beta bug report endpoint. Feature must be enabled via configuration.
+
+**Request body (JSON):**
+```json
+{
+  "message": "Save button does nothing",
+  "screenshotDataUrl": "data:image/png;base64,...",
+  "clientContext": { "route": "...", "viewport": "414x896" },
+  "networkEvents": [{ "timestamp": "...", "method": "GET", "url": "...", "status": 200 }],
+  "logEvents": [{ "timestamp": "...", "level": "error", "message": "..." }]
+}
+```
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "sent": true,
+    "reportId": "BUG-20260402-081530-a1b2"
+  }
+}
+```
+
+**Errors:**
+- `403` `bug_report_feature_disabled`
+- `400` `bug_report_recipient_not_configured`
+- `400` `bug_report_required_fields_missing`
+- `400` `bug_report_payload_too_large`
+- `400` `bug_report_screenshot_too_large`
+- `429` `bug_report_rate_limited`
+- `500` `bug_report_mail_config_invalid: ...`
+- `500` `bug_report_send_failed: ...`
+
+**Notes:**
+- Current reporter identity is always resolved server-side from session.
+- Sensitive values in diagnostics are redacted before mail rendering.
+- Current rate limit: **5 successful sends / 15 minutes** per **IP + user**.
+- On successful send, mail includes report id, user info, message, optional screenshot, recent logs/requests, and server summary.
 
 ---
 

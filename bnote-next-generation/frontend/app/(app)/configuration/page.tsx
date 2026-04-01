@@ -36,6 +36,8 @@ const SECTION_LABELS: Record<string, string> = {
 const PARAM_HELP_FALLBACK: Record<string, string> = {
   rehearsal_show_max: "Used on Dashboard and Response Needed lists: controls how many rehearsal items are shown per load step.",
   concert_show_max: "Used on Dashboard and Response Needed lists: controls how many concert items are shown per load step.",
+  beta_bug_report_enabled: "Show a global bug-report action for logged-in beta testers.",
+  beta_bug_report_email: "Destination inbox for beta bug reports.",
 };
 const LOCALE_COUNTRY_PARAM = "default_country";
 
@@ -711,4 +713,3 @@ export default function ConfigurationPage() {
     </div>
   );
 }
-

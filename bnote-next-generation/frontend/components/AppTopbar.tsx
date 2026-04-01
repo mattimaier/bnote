@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import { useI18n } from "@/contexts/I18nContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { logout } from "@/lib/auth";
+import { api } from "@/lib/api";
 import { configurationApi } from "@/lib/configuration-api";
 import { prefixPath } from "@/lib/path";
 import { useSearch } from "@/contexts/SearchContext";
@@ -24,6 +25,8 @@ import { useEffect, useRef, useState } from "react";
 import { checkSession, type SessionUser } from "@/lib/auth";
 import { Search, Menu, X, LogOut, User, getIcon } from "@/components/icons";
 import { Avatar } from "@/components/Avatar";
+import { BugReportModal } from "@/components/bug-report/BugReportModal";
+import { initBugReportDiagnostics } from "@/lib/bug-report-diagnostics";
 
 function useMediaQuery(query: string): boolean {
   const [matches, setMatches] = useState(false);
@@ -41,24 +44,33 @@ interface AppTopbarProps {
   onOpenMobileNav?: () => void;
 }
 
+interface PublicConfig {
+  beta_bug_report_enabled?: boolean;
+}
+
 export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
   const router = useRouter();
   const { t } = useI18n();
   const { query, setQuery, setOverlayOpen } = useSearch();
   const [user, setUser] = useState<SessionUser | null>(null);
   const [canConfigure, setCanConfigure] = useState(false);
+  const [bugReportEnabled, setBugReportEnabled] = useState(false);
+  const [bugReportOpen, setBugReportOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const searchAnchorRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
   useEffect(() => {
+    initBugReportDiagnostics();
     Promise.all([
       checkSession(),
       configurationApi.canAccess().catch(() => ({ canAccess: false })),
-    ]).then(([s, access]) => {
+      api.get<PublicConfig>("auth", "getPublicConfig").catch(() => ({ beta_bug_report_enabled: false })),
+    ]).then(([s, access, publicConfig]) => {
       if (s.user) setUser(s.user);
       setCanConfigure(Boolean(access?.canAccess));
+      setBugReportEnabled(Boolean(s.authenticated && s.user && s.user.id && publicConfig?.beta_bug_report_enabled));
     });
   }, []);
 
@@ -143,6 +155,19 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
       {/* Theme + user: shrink-0 so they don't overlap */}
       <div className="flex shrink-0 items-center gap-1.5 md:gap-3">
         <ThemeToggle inline />
+        {bugReportEnabled ? (
+          <button
+            type="button"
+            onClick={() => setBugReportOpen(true)}
+            className="btn btn-soft btn-sm gap-2"
+            title={t("js.bugReport.openButton") !== "js.bugReport.openButton" ? t("js.bugReport.openButton") : "Report bug"}
+          >
+            <span className="icon-[tabler--bug] h-4 w-4" aria-hidden />
+            <span className="hidden lg:inline">
+              {t("js.bugReport.openButton") !== "js.bugReport.openButton" ? t("js.bugReport.openButton") : "Report bug"}
+            </span>
+          </button>
+        ) : null}
         <div className="h-6 w-px hidden sm:block opacity-30 bg-base-300" />
         <div ref={userMenuRef} className="relative">
           <button
@@ -185,6 +210,19 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
                   {t("js.profile.menuConfiguration") !== "js.profile.menuConfiguration" ? t("js.profile.menuConfiguration") : "Configuration"}
                 </Link>
               ) : null}
+              {bugReportEnabled ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    setBugReportOpen(true);
+                  }}
+                  className="flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-base-200 transition-colors text-left text-base-content"
+                >
+                  <span className="icon-[tabler--bug] h-4 w-4" aria-hidden />
+                  {t("js.bugReport.openButton") !== "js.bugReport.openButton" ? t("js.bugReport.openButton") : "Report bug"}
+                </button>
+              ) : null}
               <button
                 type="button"
                 onClick={() => {
@@ -200,6 +238,7 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
           )}
         </div>
       </div>
+      <BugReportModal open={bugReportOpen} onClose={() => setBugReportOpen(false)} />
     </header>
   );
 }
