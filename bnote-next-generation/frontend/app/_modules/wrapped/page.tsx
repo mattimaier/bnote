@@ -227,7 +227,9 @@ export default function WrappedModulePage() {
               <TablerIconByName name="confetti" className="h-6 w-6" />
             </span>
             <div className="min-w-0">
-              <h1 className="wrapped-display text-xl md:text-3xl font-semibold truncate">{wrappedTitle}</h1>
+              <h1 className="wrapped-display text-xl md:text-3xl font-semibold leading-tight whitespace-normal break-words [overflow-wrap:anywhere]">
+                {wrappedTitle}
+              </h1>
               <p className="text-xs md:text-sm text-base-content/70">{t("js.wrapped.heroYear", [String(year)])}</p>
             </div>
           </div>

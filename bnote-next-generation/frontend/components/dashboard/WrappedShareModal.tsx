@@ -15,6 +15,9 @@ interface ShareCardCreateResult {
   expiresAt: number;
 }
 
+const SHARE_CARD_WIDTH = 420;
+const SHARE_CARD_HEIGHT = 560;
+
 function medalIconName(level: "gold" | "silver" | "bronze"): string {
   if (level === "gold") return "laurel-wreath-1";
   if (level === "silver") return "laurel-wreath-2";
@@ -22,9 +25,9 @@ function medalIconName(level: "gold" | "silver" | "bronze"): string {
 }
 
 function medalCircleTone(level: "gold" | "silver" | "bronze"): string {
-  if (level === "gold") return "bg-gradient-to-br from-[#f8de83]/35 to-[#d4af37]/20 text-[#b38712] border-[#d4af37]/45";
-  if (level === "silver") return "bg-gradient-to-br from-[#e4e8ef]/45 to-[#b7bcc5]/22 text-[#7f8794] border-[#b7bcc5]/45";
-  return "bg-gradient-to-br from-[#e1b186]/40 to-[#b87333]/22 text-[#9b5b22] border-[#b87333]/45";
+  if (level === "gold") return "bg-[#f8e8b2] text-[#b38712] border-[#d4af37]/55";
+  if (level === "silver") return "bg-[#e8ecf2] text-[#7f8794] border-[#b7bcc5]/55";
+  return "bg-[#ebc8a8] text-[#9b5b22] border-[#b87333]/55";
 }
 
 function formatDeadlineGapForDisplay(
@@ -124,6 +127,8 @@ export function WrappedShareModal({
   t: (key: string, params?: string[]) => string;
 }) {
   const previewRef = useRef<HTMLDivElement | null>(null);
+  const previewViewportRef = useRef<HTMLDivElement | null>(null);
+  const captureRef = useRef<HTMLDivElement | null>(null);
   const preparedShareIdRef = useRef("");
   const didClickShareRef = useRef(false);
 
@@ -132,6 +137,7 @@ export function WrappedShareModal({
   const [preparedShareUrl, setPreparedShareUrl] = useState("");
   const [preparedShareId, setPreparedShareId] = useState("");
   const [error, setError] = useState("");
+  const [previewScale, setPreviewScale] = useState(1);
 
   const fileName = useMemo(() => {
     const firstName = data?.profile.firstName || "member";
@@ -142,9 +148,10 @@ export function WrappedShareModal({
   const themeStyle = useMemo(() => getWrappedThemeStyle(data?.year), [data?.year]);
 
   const createShareBlob = useCallback(async (): Promise<Blob> => {
-    if (!previewRef.current) throw new Error("No preview");
-    await waitForImagesToBeReady(previewRef.current);
-    const blob = await toBlob(previewRef.current, {
+    const captureNode = captureRef.current ?? previewRef.current;
+    if (!captureNode) throw new Error("No preview");
+    await waitForImagesToBeReady(captureNode);
+    const blob = await toBlob(captureNode, {
       cacheBust: true,
       pixelRatio: 3,
       backgroundColor: "#ffffff",
@@ -277,6 +284,40 @@ export function WrappedShareModal({
     };
   }, [open, deleteShareCard, prepareShareUrl, t]);
 
+  useEffect(() => {
+    if (!open) return;
+
+    const updatePreviewScale = () => {
+      const viewport = previewViewportRef.current;
+      if (!viewport) return;
+      const availableWidth = Math.max(220, viewport.clientWidth - 12);
+      const availableHeight = Math.max(240, viewport.clientHeight - 12);
+      const rawScale = Math.min(
+        1,
+        availableWidth / SHARE_CARD_WIDTH,
+        availableHeight / SHARE_CARD_HEIGHT
+      );
+      const scale = Math.min(1, rawScale * 0.97);
+      setPreviewScale(scale);
+    };
+
+    updatePreviewScale();
+
+    let observer: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== "undefined" && previewViewportRef.current) {
+      observer = new ResizeObserver(() => updatePreviewScale());
+      observer.observe(previewViewportRef.current);
+    }
+
+    window.addEventListener("resize", updatePreviewScale);
+    window.addEventListener("orientationchange", updatePreviewScale);
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener("resize", updatePreviewScale);
+      window.removeEventListener("orientationchange", updatePreviewScale);
+    };
+  }, [open]);
+
   const handleShare = async () => {
     if (!data) return;
     setBusy(true);
@@ -325,6 +366,82 @@ export function WrappedShareModal({
   const vibeProofLine = t("js.wrapped.vibe.proofLine", [vibeProofLabel, vibeProofText]);
   const showLowerIsBetterHint = vibePersona?.proof.direction === "lower_better";
   const medals = data?.achievements.personalBadges ?? [];
+  const renderShareCardContent = () => (
+    <>
+      <div className="absolute inset-0 wrapped-card-bg" />
+      <div className="absolute -top-20 -right-20 h-44 w-44 rounded-full wrapped-spotlight" />
+      <div className="absolute top-20 -left-14 h-32 w-32 rounded-full wrapped-spotlight-warm" />
+      <div className="relative flex h-full flex-col px-5 py-5">
+        <div className="flex items-center justify-between">
+          <div className="min-w-0">
+            <p className="text-[10px] uppercase tracking-[0.24em] text-primary">{data?.year}</p>
+            <p className="truncate text-sm font-semibold text-[#0f172a]">{data?.profile.bandName}</p>
+          </div>
+          <BNoteLogo size="sm" />
+        </div>
+
+        <div className="mt-5">
+          <h3 className="wrapped-display text-3xl font-bold leading-[1.05]">
+            {t("js.wrapped.card.headline", [data?.profile.firstName ?? ""])}
+          </h3>
+          <p className="mt-1 text-xs text-[#334155]">
+            {t("js.wrapped.card.subline", [String(data?.year ?? "")])}
+          </p>
+        </div>
+
+        <div className="mt-4 rounded-2xl border border-primary/25 bg-white/80 px-3 py-3 text-xs text-[#0f172a] shadow-sm">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-primary">{t("js.wrapped.story.vibeTitle")}</p>
+          <p className="wrapped-display mt-1 text-2xl font-bold text-[#0f172a]">{vibeHeadline}</p>
+          <p className="mt-1.5 font-medium leading-snug [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical] overflow-hidden">
+            {vibeHype}
+          </p>
+          <p className="mt-1.5 text-[11px] text-[#334155] leading-snug [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical] overflow-hidden">
+            {vibeProofLine}
+          </p>
+          {showLowerIsBetterHint ? (
+            <p className="mt-1 text-[10px] text-[#475569] leading-snug [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical] overflow-hidden">
+              {t("js.wrapped.metric.deadlineGap.hint")}
+            </p>
+          ) : null}
+        </div>
+
+        {medals.length > 0 ? (
+          <div className="mt-3 rounded-2xl border border-primary/20 bg-white/75 px-3 py-2.5 shadow-sm">
+            <p className="text-[10px] uppercase tracking-[0.2em] text-primary">
+              {t("js.wrapped.achievements.title")}
+            </p>
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              {medals.slice(0, 4).map((badge) => (
+                <div
+                  key={badge.id}
+                  className="flex min-w-0 items-start gap-2 rounded-xl border border-primary/20 bg-white/90 px-2 py-1.5 min-h-12"
+                >
+                  <span
+                    className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border ${medalCircleTone(
+                      badge.level
+                    )}`}
+                  >
+                    <TablerIconByName name={medalIconName(badge.level)} className="h-4 w-4" />
+                  </span>
+                  <span className="min-w-0 text-[10px] font-semibold leading-tight text-[#0f172a] whitespace-normal break-words [overflow-wrap:anywhere] [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical] overflow-hidden">
+                    {t(`js.wrapped.achievements.badge.${badge.id}.title`)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
+        <div className="mt-auto flex items-center justify-between pt-4 text-xs text-[#334155]">
+          <span className="truncate">#{data?.profile.bandName}</span>
+          <div className="flex items-center gap-2">
+            <span className="uppercase tracking-[0.2em]">BNote</span>
+            <BNoteLogo size="sm" className="scale-75" />
+          </div>
+        </div>
+      </div>
+    </>
+  );
 
   return (
     <Modal
@@ -335,78 +452,44 @@ export function WrappedShareModal({
       bodyClassName="max-h-[90dvh] p-0 pt-0"
     >
       <div className="flex max-h-[90dvh] flex-col">
+        <div className="fixed left-[-10000px] top-0 pointer-events-none" aria-hidden="true">
+          <div className="rounded-xl border border-base-300 bg-base-200/30 p-2" data-theme="bnotelight" style={{ colorScheme: "light" }}>
+            <div
+              ref={captureRef}
+              className="relative mx-auto w-[420px] overflow-hidden rounded-3xl bg-white p-0 text-[#0f172a]"
+              style={{ aspectRatio: "3 / 4", ...themeStyle }}
+            >
+              {renderShareCardContent()}
+            </div>
+          </div>
+        </div>
+
         <div className="overflow-y-auto p-4">
-          <div className="flex justify-center">
+          <div ref={previewViewportRef} className="max-h-[62dvh] overflow-auto rounded-xl [touch-action:pan-x_pan-y]">
+            <div className="flex justify-center">
             <div className="inline-block rounded-xl border border-base-300 bg-base-200/30 p-2" data-theme="bnotelight" style={{ colorScheme: "light" }}>
               <div
-                ref={previewRef}
-                className="relative mx-auto w-[320px] md:w-[420px] max-w-[88vw] overflow-hidden rounded-3xl bg-white p-0 text-[#0f172a] shadow-2xl"
-                style={{ aspectRatio: "3 / 4", ...themeStyle }}
+                className="relative"
+                style={{
+                  width: `${Math.ceil(SHARE_CARD_WIDTH * previewScale)}px`,
+                  height: `${Math.ceil(SHARE_CARD_HEIGHT * previewScale)}px`,
+                }}
               >
-                <div className="absolute inset-0 wrapped-card-bg" />
-                <div className="absolute -top-20 -right-20 h-44 w-44 rounded-full wrapped-spotlight" />
-                <div className="absolute top-20 -left-14 h-32 w-32 rounded-full wrapped-spotlight-warm" />
-                <div className="relative flex h-full flex-col px-5 py-5 md:px-6 md:py-6">
-                  <div className="flex items-center justify-between">
-                    <div className="min-w-0">
-                      <p className="text-[10px] uppercase tracking-[0.24em] text-primary">{data?.year}</p>
-                      <p className="truncate text-sm md:text-base font-semibold text-[#0f172a]">{data?.profile.bandName}</p>
-                    </div>
-                    <BNoteLogo size="sm" />
-                  </div>
-
-                  <div className="mt-5">
-                    <h3 className="wrapped-display text-3xl md:text-4xl font-bold leading-[1.05]">
-                      {t("js.wrapped.card.headline", [data?.profile.firstName ?? ""])}
-                    </h3>
-                    <p className="mt-1 text-xs md:text-sm text-[#334155]">
-                      {t("js.wrapped.card.subline", [String(data?.year ?? "")])}
-                    </p>
-                  </div>
-
-                  <div className="mt-5 rounded-2xl border border-primary/25 bg-white/80 px-3 py-3 text-xs md:text-sm text-[#0f172a] shadow-sm">
-                    <p className="text-[10px] md:text-xs uppercase tracking-[0.2em] text-primary">{t("js.wrapped.story.vibeTitle")}</p>
-                    <p className="wrapped-display mt-1 text-2xl md:text-3xl font-bold text-[#0f172a]">{vibeHeadline}</p>
-                    <p className="mt-2 font-medium">{vibeHype}</p>
-                    <p className="mt-2 text-[11px] md:text-xs text-[#334155]">{vibeProofLine}</p>
-                    {showLowerIsBetterHint ? (
-                      <p className="mt-1 text-[10px] md:text-xs text-[#475569]">{t("js.wrapped.metric.deadlineGap.hint")}</p>
-                    ) : null}
-                  </div>
-
-                  {medals.length > 0 ? (
-                    <div className="mt-3 rounded-2xl border border-primary/20 bg-white/75 px-3 py-3 shadow-sm">
-                      <p className="text-[10px] md:text-xs uppercase tracking-[0.2em] text-primary">
-                        {t("js.wrapped.achievements.title")}
-                      </p>
-                      <div className="mt-2 grid grid-cols-2 gap-2.5">
-                        {medals.slice(0, 4).map((badge) => (
-                          <div key={badge.id} className="flex items-start gap-2 rounded-xl border border-primary/20 bg-white/90 px-2.5 py-2 min-h-14">
-                            <span
-                              className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border shadow-sm ${medalCircleTone(
-                                badge.level
-                              )}`}
-                            >
-                              <TablerIconByName name={medalIconName(badge.level)} className="h-5 w-5" />
-                            </span>
-                            <span className="text-[11px] md:text-xs font-semibold leading-tight text-[#0f172a] break-words whitespace-normal">
-                              {t(`js.wrapped.achievements.badge.${badge.id}.title`)}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ) : null}
-
-                  <div className="mt-auto flex items-center justify-between pt-4 text-[10px] md:text-xs text-[#334155]">
-                    <span className="truncate">#{data?.profile.bandName}</span>
-                    <div className="flex items-center gap-2">
-                      <span className="uppercase tracking-[0.2em]">BNote</span>
-                      <BNoteLogo size="sm" className="scale-75" />
-                    </div>
-                  </div>
+                <div
+                  ref={previewRef}
+                  className="absolute left-0 top-0 overflow-hidden rounded-3xl bg-white p-0 text-[#0f172a]"
+                  style={{
+                    width: `${SHARE_CARD_WIDTH}px`,
+                    height: `${SHARE_CARD_HEIGHT}px`,
+                    transform: `scale(${previewScale})`,
+                    transformOrigin: "top left",
+                    ...themeStyle,
+                  }}
+                >
+                  {renderShareCardContent()}
                 </div>
               </div>
+            </div>
             </div>
           </div>
 
