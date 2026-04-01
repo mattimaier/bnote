@@ -9,7 +9,13 @@ import { useToast } from "@/contexts/ToastContext";
 import { getErrorMessage } from "@/lib/error-utils";
 import { PAGE_CONTENT_CLASS } from "@/lib/layout";
 import { checkSession } from "@/lib/auth";
-import { configurationApi, type ConfigurationResponse } from "@/lib/configuration-api";
+import {
+  configurationApi,
+  type ConfigurationResponse,
+  type InstrumentAdminCategory,
+  type InstrumentAdminInstrument,
+  type InstrumentSectionConfig,
+} from "@/lib/configuration-api";
 import { remindersApi, type EscalationGroup, type ReminderConfig } from "@/lib/reminders-api";
 import { getEscalationWarningUiConfig } from "@/lib/entity-config";
 import { TablerIconByName } from "@/components/icons";
@@ -17,12 +23,12 @@ import { getModuleHeadlineConfig } from "@/lib/module-headline-config";
 
 interface EscalationConfigDraft {
   enabled: boolean;
-  pending_threshold_percent: number;
-  dropout_window_hours: number;
+  pending_threshold_percent: { rehearsal: number; concert: number };
+  dropout_window_hours: { rehearsal: number; concert: number };
   escalation_target_group_id: number;
   include_event_organizer: boolean;
-  warning_window_hours: number;
-  critical_window_hours: number;
+  warning_window_hours: { rehearsal: number; concert: number };
+  critical_window_hours: { rehearsal: number; concert: number };
 }
 
 const SECTION_LABELS: Record<string, string> = {
@@ -31,6 +37,7 @@ const SECTION_LABELS: Record<string, string> = {
   defaults: "Defaults and registration",
   display: "Display options",
   system: "System options",
+  feature_flags: "Feature flags",
 };
 
 const PARAM_HELP_FALLBACK: Record<string, string> = {
@@ -59,6 +66,13 @@ export default function ConfigurationPage() {
   const [escalationGroups, setEscalationGroups] = useState<EscalationGroup[]>([]);
   const [escalationDraft, setEscalationDraft] = useState<EscalationConfigDraft | null>(null);
   const [calendarTimezone, setCalendarTimezone] = useState("Europe/Berlin");
+  const [instrumentCategories, setInstrumentCategories] = useState<InstrumentAdminCategory[]>([]);
+  const [instrumentItems, setInstrumentItems] = useState<InstrumentAdminInstrument[]>([]);
+  const [sections, setSections] = useState<InstrumentSectionConfig[]>([]);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [newInstrumentName, setNewInstrumentName] = useState("");
+  const [newInstrumentCategoryId, setNewInstrumentCategoryId] = useState(0);
+  const [savingInstrumentAdmin, setSavingInstrumentAdmin] = useState(false);
 
   const label = (key: string, fallback: string) => (t(key) !== key ? t(key) : fallback);
 
@@ -72,11 +86,12 @@ export default function ConfigurationPage() {
         return;
       }
 
-      const [cfgRes, reminderRes, timezoneRes, groupsRes] = await Promise.all([
+      const [cfgRes, reminderRes, timezoneRes, groupsRes, instrumentAdminRes] = await Promise.all([
         configurationApi.getConfig(),
         remindersApi.getConfig(),
         remindersApi.getCalendarTimezone(),
         remindersApi.getEscalationGroups().catch(() => ({ groups: [] as EscalationGroup[] })),
+        configurationApi.getInstrumentAdminData().catch(() => null),
       ]);
 
       setConfig(cfgRes);
@@ -96,19 +111,58 @@ export default function ConfigurationPage() {
       setEscalationGroups(groups);
 
       const esc = reminderRes?.config?.escalation;
+      const pendingRaw = esc?.pending_threshold_percent as unknown;
+      const dropoutRaw = esc?.dropout_window_hours as unknown;
+      const deadlineRaw = esc?.deadline_windows_hours as unknown;
+      const pendingRehearsal = typeof pendingRaw === "object" && pendingRaw !== null
+        ? Number((pendingRaw as Record<string, unknown>).rehearsal ?? 20)
+        : Number(pendingRaw ?? 20);
+      const pendingConcert = typeof pendingRaw === "object" && pendingRaw !== null
+        ? Number((pendingRaw as Record<string, unknown>).concert ?? pendingRehearsal)
+        : Number(pendingRaw ?? 20);
+      const dropoutRehearsal = typeof dropoutRaw === "object" && dropoutRaw !== null
+        ? Number((dropoutRaw as Record<string, unknown>).rehearsal ?? 24)
+        : Number(dropoutRaw ?? 24);
+      const dropoutConcert = typeof dropoutRaw === "object" && dropoutRaw !== null
+        ? Number((dropoutRaw as Record<string, unknown>).concert ?? dropoutRehearsal)
+        : Number(dropoutRaw ?? 24);
+      const rehearsalWindows = Array.isArray((deadlineRaw as Record<string, unknown> | null)?.rehearsal)
+        ? ((deadlineRaw as Record<string, unknown>).rehearsal as unknown[])
+        : Array.isArray(deadlineRaw)
+          ? (deadlineRaw as unknown[])
+          : [48, 12];
+      const concertWindows = Array.isArray((deadlineRaw as Record<string, unknown> | null)?.concert)
+        ? ((deadlineRaw as Record<string, unknown>).concert as unknown[])
+        : rehearsalWindows;
       setEscalationDraft(
         esc
           ? {
               enabled: Boolean(esc.enabled),
-              pending_threshold_percent: Number(esc.pending_threshold_percent ?? 20),
-              dropout_window_hours: Number(esc.dropout_window_hours ?? 24),
+              pending_threshold_percent: {
+                rehearsal: Number(pendingRehearsal),
+                concert: Number(pendingConcert),
+              },
+              dropout_window_hours: {
+                rehearsal: Number(dropoutRehearsal),
+                concert: Number(dropoutConcert),
+              },
               escalation_target_group_id: Number(esc.escalation_target_group_id ?? 0),
               include_event_organizer: Boolean(esc.include_event_organizer ?? true),
-              warning_window_hours: Number(esc.deadline_windows_hours?.[0] ?? 48),
-              critical_window_hours: Number(esc.deadline_windows_hours?.[1] ?? 12),
+              warning_window_hours: {
+                rehearsal: Number(rehearsalWindows?.[0] ?? 48),
+                concert: Number(concertWindows?.[0] ?? rehearsalWindows?.[0] ?? 48),
+              },
+              critical_window_hours: {
+                rehearsal: Number(rehearsalWindows?.[1] ?? 12),
+                concert: Number(concertWindows?.[1] ?? rehearsalWindows?.[1] ?? 12),
+              },
             }
           : null
       );
+      setInstrumentCategories(Array.isArray(instrumentAdminRes?.categories) ? instrumentAdminRes.categories : []);
+      setInstrumentItems(Array.isArray(instrumentAdminRes?.instruments) ? instrumentAdminRes.instruments : []);
+      const nextSections = Array.isArray(instrumentAdminRes?.sections) ? instrumentAdminRes.sections : [];
+      setSections(nextSections);
     } catch (err) {
       showToast(getErrorMessage(err, t, "js.settings.loadError"), "error");
     } finally {
@@ -156,19 +210,39 @@ export default function ConfigurationPage() {
     if (!reminderConfig || !escalationDraft) return;
     setSavingEscalation(true);
     try {
-      const warningHours = Math.max(1, Number(escalationDraft.warning_window_hours || 48));
-      const criticalHours = Math.max(1, Number(escalationDraft.critical_window_hours || 12));
-      const windows = warningHours >= criticalHours ? [warningHours, criticalHours] : [criticalHours, warningHours];
+      const warningRehearsal = Math.max(1, Number(escalationDraft.warning_window_hours.rehearsal || 48));
+      const criticalRehearsal = Math.max(1, Number(escalationDraft.critical_window_hours.rehearsal || 12));
+      const warningConcert = Math.max(1, Number(escalationDraft.warning_window_hours.concert || 48));
+      const criticalConcert = Math.max(1, Number(escalationDraft.critical_window_hours.concert || 12));
+      const rehearsalWindows = warningRehearsal >= criticalRehearsal
+        ? [warningRehearsal, criticalRehearsal]
+        : [criticalRehearsal, warningRehearsal];
+      const concertWindows = warningConcert >= criticalConcert
+        ? [warningConcert, criticalConcert]
+        : [criticalConcert, warningConcert];
       const { warning_window_hours, critical_window_hours, ...restDraft } = escalationDraft;
       const res = await remindersApi.updateConfig({
         escalation: {
           ...reminderConfig.escalation,
           ...restDraft,
-          deadline_windows_hours: windows,
+          deadline_windows_hours: {
+            rehearsal: rehearsalWindows,
+            concert: concertWindows,
+          },
         },
       });
       setReminderConfig(res.config);
-      setEscalationDraft((prev) => prev ? { ...prev, warning_window_hours: windows[0], critical_window_hours: windows[1] } : prev);
+      setEscalationDraft((prev) => prev ? {
+        ...prev,
+        warning_window_hours: {
+          rehearsal: rehearsalWindows[0],
+          concert: concertWindows[0],
+        },
+        critical_window_hours: {
+          rehearsal: rehearsalWindows[1],
+          concert: concertWindows[1],
+        },
+      } : prev);
       showToast(label("js.settings.saved", "Saved"), "success");
     } catch (err) {
       showToast(getErrorMessage(err, t, "js.common.saveFailed"), "error");
@@ -207,6 +281,93 @@ export default function ConfigurationPage() {
       showToast(getErrorMessage(err, t, "js.common.saveFailed"), "error");
     } finally {
       setRunningReminder(false);
+    }
+  }
+
+  async function reloadInstrumentAdminData() {
+    try {
+      const res = await configurationApi.getInstrumentAdminData();
+      setInstrumentCategories(Array.isArray(res?.categories) ? res.categories : []);
+      setInstrumentItems(Array.isArray(res?.instruments) ? res.instruments : []);
+      const nextSections = Array.isArray(res?.sections) ? res.sections : [];
+      setSections(nextSections);
+    } catch (err) {
+      showToast(getErrorMessage(err, t, "js.common.failedToLoad"), "error");
+    }
+  }
+
+  async function createCategory() {
+    const name = newCategoryName.trim();
+    if (name === "") return;
+    setSavingInstrumentAdmin(true);
+    try {
+      await configurationApi.createCategory(name);
+      setNewCategoryName("");
+      await reloadInstrumentAdminData();
+      showToast(label("js.settings.saved", "Saved"), "success");
+    } catch (err) {
+      showToast(getErrorMessage(err, t, "js.common.saveFailed"), "error");
+    } finally {
+      setSavingInstrumentAdmin(false);
+    }
+  }
+
+  async function deleteCategory(id: number) {
+    setSavingInstrumentAdmin(true);
+    try {
+      await configurationApi.deleteCategory(id);
+      await reloadInstrumentAdminData();
+      showToast(label("js.settings.saved", "Saved"), "success");
+    } catch (err) {
+      showToast(getErrorMessage(err, t, "js.common.deleteFailed"), "error");
+    } finally {
+      setSavingInstrumentAdmin(false);
+    }
+  }
+
+  async function createInstrument() {
+    const name = newInstrumentName.trim();
+    if (name === "") return;
+    setSavingInstrumentAdmin(true);
+    try {
+      await configurationApi.createInstrument({
+        name,
+        category_id: newInstrumentCategoryId > 0 ? newInstrumentCategoryId : 0,
+        rank: 0,
+      });
+      setNewInstrumentName("");
+      await reloadInstrumentAdminData();
+      showToast(label("js.settings.saved", "Saved"), "success");
+    } catch (err) {
+      showToast(getErrorMessage(err, t, "js.common.saveFailed"), "error");
+    } finally {
+      setSavingInstrumentAdmin(false);
+    }
+  }
+
+  async function deleteInstrument(id: number) {
+    setSavingInstrumentAdmin(true);
+    try {
+      await configurationApi.deleteInstrument(id);
+      await reloadInstrumentAdminData();
+      showToast(label("js.settings.saved", "Saved"), "success");
+    } catch (err) {
+      showToast(getErrorMessage(err, t, "js.common.deleteFailed"), "error");
+    } finally {
+      setSavingInstrumentAdmin(false);
+    }
+  }
+
+  async function seedInstrumentDefaults() {
+    setSavingInstrumentAdmin(true);
+    try {
+      await configurationApi.seedInstrumentDefaults();
+      await reloadInstrumentAdminData();
+      showToast(label("js.settings.saved", "Saved"), "success");
+    } catch (err) {
+      showToast(getErrorMessage(err, t, "js.common.saveFailed"), "error");
+    } finally {
+      setSavingInstrumentAdmin(false);
     }
   }
 
@@ -254,6 +415,10 @@ export default function ConfigurationPage() {
       return localized.includes(q) || p.param.toLowerCase().includes(q) || sectionName.includes(q);
     });
   }, [legacyReadonlyParameters, searchQuery]);
+
+  const sectionCoverageEnabled = configDraft.beta_section_coverage_enabled === true
+    || configDraft.beta_section_coverage_enabled === 1
+    || configDraft.beta_section_coverage_enabled === "1";
 
   if (!ready || loading) {
     return (
@@ -560,35 +725,89 @@ export default function ConfigurationPage() {
                   ))}
                 </select>
               </label>
-              <label className="form-control max-w-2xl">
+              <div className="space-y-2 max-w-3xl">
                 <span className="label-text text-xs font-medium text-base-content/70">
                   {label("js.settings.escalation.pendingThreshold", "Open-response threshold (%)")}
                 </span>
-                <input
-                  type="number"
-                  min={1}
-                  max={100}
-                  className="input input-bordered mb-2"
-                  value={Number(escalationDraft?.pending_threshold_percent ?? 20)}
-                  disabled={savingEscalation}
-                  onChange={(e) => setEscalationDraft((prev) => (prev ? { ...prev, pending_threshold_percent: Number(e.target.value) } : prev))}
-                />
-              </label>
-              <label className="form-control max-w-2xl">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <label className="form-control">
+                    <span className="label-text text-xs text-base-content/60">
+                      {label("js.sidebar.rehearsals", "Rehearsals")}
+                    </span>
+                    <input
+                      type="number"
+                      min={1}
+                      max={100}
+                      className="input input-bordered mb-2"
+                      value={Number(escalationDraft?.pending_threshold_percent.rehearsal ?? 20)}
+                      disabled={savingEscalation}
+                      onChange={(e) => setEscalationDraft((prev) => (prev ? {
+                        ...prev,
+                        pending_threshold_percent: { ...prev.pending_threshold_percent, rehearsal: Number(e.target.value) },
+                      } : prev))}
+                    />
+                  </label>
+                  <label className="form-control">
+                    <span className="label-text text-xs text-base-content/60">
+                      {label("js.sidebar.concerts", "Concerts")}
+                    </span>
+                    <input
+                      type="number"
+                      min={1}
+                      max={100}
+                      className="input input-bordered mb-2"
+                      value={Number(escalationDraft?.pending_threshold_percent.concert ?? 20)}
+                      disabled={savingEscalation}
+                      onChange={(e) => setEscalationDraft((prev) => (prev ? {
+                        ...prev,
+                        pending_threshold_percent: { ...prev.pending_threshold_percent, concert: Number(e.target.value) },
+                      } : prev))}
+                    />
+                  </label>
+                </div>
+              </div>
+              <div className="space-y-2 max-w-3xl">
                 <span className="label-text text-xs font-medium text-base-content/70">
                   {label("js.settings.escalation.dropoutWindow", "Late-dropout window (hours)")}
                 </span>
-                <input
-                  type="number"
-                  min={1}
-                  max={240}
-                  className="input input-bordered mb-2"
-                  value={Number(escalationDraft?.dropout_window_hours ?? 24)}
-                  disabled={savingEscalation}
-                  onChange={(e) => setEscalationDraft((prev) => (prev ? { ...prev, dropout_window_hours: Number(e.target.value) } : prev))}
-                />
-              </label>
-              <label className="form-control max-w-2xl">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <label className="form-control">
+                    <span className="label-text text-xs text-base-content/60">
+                      {label("js.sidebar.rehearsals", "Rehearsals")}
+                    </span>
+                    <input
+                      type="number"
+                      min={1}
+                      max={240}
+                      className="input input-bordered mb-2"
+                      value={Number(escalationDraft?.dropout_window_hours.rehearsal ?? 24)}
+                      disabled={savingEscalation}
+                      onChange={(e) => setEscalationDraft((prev) => (prev ? {
+                        ...prev,
+                        dropout_window_hours: { ...prev.dropout_window_hours, rehearsal: Number(e.target.value) },
+                      } : prev))}
+                    />
+                  </label>
+                  <label className="form-control">
+                    <span className="label-text text-xs text-base-content/60">
+                      {label("js.sidebar.concerts", "Concerts")}
+                    </span>
+                    <input
+                      type="number"
+                      min={1}
+                      max={240}
+                      className="input input-bordered mb-2"
+                      value={Number(escalationDraft?.dropout_window_hours.concert ?? 24)}
+                      disabled={savingEscalation}
+                      onChange={(e) => setEscalationDraft((prev) => (prev ? {
+                        ...prev,
+                        dropout_window_hours: { ...prev.dropout_window_hours, concert: Number(e.target.value) },
+                      } : prev))}
+                    />
+                  </label>
+                </div>
+              </div>
+              <div className="space-y-2 max-w-3xl">
                 <span className="label-text text-xs font-medium text-base-content/70 inline-flex items-center gap-2 flex-wrap leading-tight">
                   <span
                     className="inline-flex h-5 w-5 items-center justify-center rounded-full border"
@@ -601,17 +820,44 @@ export default function ConfigurationPage() {
                   </span>
                   {label("js.settings.escalation.warningWindowHours", "Warning window (hours)")}
                 </span>
-                <input
-                  type="number"
-                  min={1}
-                  max={240}
-                  className="input input-bordered mb-2"
-                  value={Number(escalationDraft?.warning_window_hours ?? 48)}
-                  disabled={savingEscalation}
-                  onChange={(e) => setEscalationDraft((prev) => (prev ? { ...prev, warning_window_hours: Number(e.target.value) } : prev))}
-                />
-              </label>
-              <label className="form-control max-w-2xl">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <label className="form-control">
+                    <span className="label-text text-xs text-base-content/60">
+                      {label("js.sidebar.rehearsals", "Rehearsals")}
+                    </span>
+                    <input
+                      type="number"
+                      min={1}
+                      max={240}
+                      className="input input-bordered mb-2"
+                      value={Number(escalationDraft?.warning_window_hours.rehearsal ?? 48)}
+                      disabled={savingEscalation}
+                      onChange={(e) => setEscalationDraft((prev) => (prev ? {
+                        ...prev,
+                        warning_window_hours: { ...prev.warning_window_hours, rehearsal: Number(e.target.value) },
+                      } : prev))}
+                    />
+                  </label>
+                  <label className="form-control">
+                    <span className="label-text text-xs text-base-content/60">
+                      {label("js.sidebar.concerts", "Concerts")}
+                    </span>
+                    <input
+                      type="number"
+                      min={1}
+                      max={240}
+                      className="input input-bordered mb-2"
+                      value={Number(escalationDraft?.warning_window_hours.concert ?? 48)}
+                      disabled={savingEscalation}
+                      onChange={(e) => setEscalationDraft((prev) => (prev ? {
+                        ...prev,
+                        warning_window_hours: { ...prev.warning_window_hours, concert: Number(e.target.value) },
+                      } : prev))}
+                    />
+                  </label>
+                </div>
+              </div>
+              <div className="space-y-2 max-w-3xl">
                 <span className="label-text text-xs font-medium text-base-content/70 inline-flex items-center gap-2 flex-wrap leading-tight">
                   <span
                     className="inline-flex h-5 w-5 items-center justify-center rounded-full border"
@@ -624,16 +870,43 @@ export default function ConfigurationPage() {
                   </span>
                   {label("js.settings.escalation.criticalWindowHours", "Critical window (hours)")}
                 </span>
-                <input
-                  type="number"
-                  min={1}
-                  max={240}
-                  className="input input-bordered mb-2"
-                  value={Number(escalationDraft?.critical_window_hours ?? 12)}
-                  disabled={savingEscalation}
-                  onChange={(e) => setEscalationDraft((prev) => (prev ? { ...prev, critical_window_hours: Number(e.target.value) } : prev))}
-                />
-              </label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <label className="form-control">
+                    <span className="label-text text-xs text-base-content/60">
+                      {label("js.sidebar.rehearsals", "Rehearsals")}
+                    </span>
+                    <input
+                      type="number"
+                      min={1}
+                      max={240}
+                      className="input input-bordered mb-2"
+                      value={Number(escalationDraft?.critical_window_hours.rehearsal ?? 12)}
+                      disabled={savingEscalation}
+                      onChange={(e) => setEscalationDraft((prev) => (prev ? {
+                        ...prev,
+                        critical_window_hours: { ...prev.critical_window_hours, rehearsal: Number(e.target.value) },
+                      } : prev))}
+                    />
+                  </label>
+                  <label className="form-control">
+                    <span className="label-text text-xs text-base-content/60">
+                      {label("js.sidebar.concerts", "Concerts")}
+                    </span>
+                    <input
+                      type="number"
+                      min={1}
+                      max={240}
+                      className="input input-bordered mb-2"
+                      value={Number(escalationDraft?.critical_window_hours.concert ?? 12)}
+                      disabled={savingEscalation}
+                      onChange={(e) => setEscalationDraft((prev) => (prev ? {
+                        ...prev,
+                        critical_window_hours: { ...prev.critical_window_hours, concert: Number(e.target.value) },
+                      } : prev))}
+                    />
+                  </label>
+                </div>
+              </div>
               <label className="flex cursor-pointer items-center gap-2 max-w-2xl">
                 <input
                   type="checkbox"
@@ -659,6 +932,131 @@ export default function ConfigurationPage() {
 
         </>
       )}
+
+      <DetailSection className="space-y-4">
+        <div>
+          <span className="text-lg font-bold text-base-content">
+            {label("js.configuration.instruments.title", "Instrument management")}
+          </span>
+          <p className="mt-1 text-sm text-base-content/70">
+            {label("js.configuration.instruments.help", "Manage instruments/categories here. Section setup and concert seat targets are configured in a dedicated setup page.")}
+          </p>
+          {sectionCoverageEnabled ? (
+            <p className="mt-1 text-xs text-base-content/60">
+              {label("js.configuration.instruments.summary", "Sections: {sections}")
+                .replace("{sections}", String(sections.length))}
+            </p>
+          ) : null}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button type="button" className="btn btn-soft" disabled={savingInstrumentAdmin} onClick={() => void seedInstrumentDefaults()}>
+            {label("js.configuration.instruments.seedDefaults", "Import default presets")}
+          </button>
+          <button type="button" className="btn btn-soft" disabled={savingInstrumentAdmin} onClick={() => void reloadInstrumentAdminData()}>
+            {label("js.common.refresh", "Refresh")}
+          </button>
+          {sectionCoverageEnabled ? (
+            <Link href="/settings/instrument-setup" className="btn btn-soft btn-primary">
+              {label("js.configuration.instruments.openSetup", "Open section setup")}
+            </Link>
+          ) : null}
+          <Link href="/settings/instrument-minimums" className="btn btn-soft">
+            {label("js.settings.escalation.minimumsOpen", "Open instrument minimum table")}
+          </Link>
+        </div>
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+          <div className="space-y-3 rounded-box border border-base-300 p-4">
+            <h3 className="text-sm font-semibold text-base-content">
+              {label("js.configuration.instruments.categories", "Categories")}
+            </h3>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                className="input input-bordered flex-1"
+                value={newCategoryName}
+                disabled={savingInstrumentAdmin}
+                onChange={(e) => setNewCategoryName(e.target.value)}
+                placeholder={label("js.configuration.instruments.newCategoryPlaceholder", "New category")}
+              />
+              <button type="button" className="btn btn-soft btn-primary" disabled={savingInstrumentAdmin || newCategoryName.trim() === ""} onClick={() => void createCategory()}>
+                {label("js.common.add", "Add")}
+              </button>
+            </div>
+            <div className="max-h-56 overflow-auto rounded-box border border-base-300">
+              {instrumentCategories.map((category) => (
+                <div key={category.id} className="flex items-center justify-between gap-2 border-b border-base-300 px-3 py-2 text-sm">
+                  <span>{category.name}</span>
+                  <button type="button" className="btn btn-xs btn-soft" disabled={savingInstrumentAdmin} onClick={() => void deleteCategory(category.id)}>
+                    {label("js.common.delete", "Delete")}
+                  </button>
+                </div>
+              ))}
+              {instrumentCategories.length === 0 && (
+                <p className="px-3 py-3 text-sm text-base-content/60">{label("js.common.noData", "No data")}</p>
+              )}
+            </div>
+          </div>
+          <div className="space-y-3 rounded-box border border-base-300 p-4">
+            <h3 className="text-sm font-semibold text-base-content">
+              {label("js.configuration.instruments.items", "Instruments")}
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              <input
+                type="text"
+                className="input input-bordered flex-1 min-w-[12rem]"
+                value={newInstrumentName}
+                disabled={savingInstrumentAdmin}
+                onChange={(e) => setNewInstrumentName(e.target.value)}
+                placeholder={label("js.configuration.instruments.newInstrumentPlaceholder", "New instrument")}
+              />
+              <select
+                className="select select-bordered min-w-[11rem]"
+                value={String(newInstrumentCategoryId)}
+                disabled={savingInstrumentAdmin}
+                onChange={(e) => setNewInstrumentCategoryId(Number(e.target.value))}
+              >
+                <option value="0">{label("js.configuration.instruments.noCategory", "No category")}</option>
+                {instrumentCategories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+              <button type="button" className="btn btn-soft btn-primary" disabled={savingInstrumentAdmin || newInstrumentName.trim() === ""} onClick={() => void createInstrument()}>
+                {label("js.common.add", "Add")}
+              </button>
+            </div>
+            <div className="max-h-56 overflow-auto rounded-box border border-base-300">
+              {instrumentItems.map((instrument) => (
+                <div key={instrument.id} className="flex items-center justify-between gap-2 border-b border-base-300 px-3 py-2 text-sm">
+                  <span className="truncate">
+                    {instrument.name}
+                    {instrument.category_name ? ` · ${instrument.category_name}` : ""}
+                  </span>
+                  <button type="button" className="btn btn-xs btn-soft" disabled={savingInstrumentAdmin} onClick={() => void deleteInstrument(instrument.id)}>
+                    {label("js.common.delete", "Delete")}
+                  </button>
+                </div>
+              ))}
+              {instrumentItems.length === 0 && (
+                <p className="px-3 py-3 text-sm text-base-content/60">{label("js.common.noData", "No data")}</p>
+              )}
+            </div>
+          </div>
+        </div>
+        {sectionCoverageEnabled ? (
+          <div className="rounded-box border border-base-300 p-4">
+            <p className="text-sm text-base-content/70">
+              {label("js.configuration.instruments.setupBlurb", "Use the dedicated setup page for section mapping, rehearsal/concert totals, and optional strict concert seats.")}
+            </p>
+            <div className="mt-3">
+              <Link href="/settings/instrument-setup" className="btn btn-soft btn-primary">
+                {label("js.configuration.instruments.openSetup", "Open section setup")}
+              </Link>
+            </div>
+          </div>
+        ) : null}
+      </DetailSection>
 
       {filteredLegacyReadonlyParameters.length > 0 ? (
           <DetailSection className="space-y-4">

@@ -1260,8 +1260,11 @@ class DashboardModule {
 
     private function getAdminInstrumentGaps($uid) {
         global $system_data;
-        $minimums = $this->getInstrumentMinimumsFromConfig();
-        if (empty($minimums)) {
+        $minimumsByType = $this->getInstrumentMinimumsFromConfig();
+        $coverageMode = (($minimumsByType['mode'] ?? 'instrument') === 'section') ? 'section' : 'instrument';
+        $rehearsalMinimums = is_array($minimumsByType['rehearsal'] ?? null) ? $minimumsByType['rehearsal'] : [];
+        $concertMinimums = is_array($minimumsByType['concert'] ?? null) ? $minimumsByType['concert'] : [];
+        if (count($rehearsalMinimums) < 1 && count($concertMinimums) < 1) {
             return ['count' => 0, 'events' => []];
         }
 
@@ -1269,7 +1272,7 @@ class DashboardModule {
         $allRehearsals = $this->data->adp()->getFutureRehearsals(true);
         for ($i = 1; $i < count($allRehearsals); $i++) {
             $r = $allRehearsals[$i];
-            $gaps = $this->getInstrumentGapsForRehearsal((int) ($r['id'] ?? 0), $minimums);
+            $gaps = $this->getInstrumentGapsForRehearsal((int) ($r['id'] ?? 0), $rehearsalMinimums, $coverageMode);
             if (!empty($gaps)) {
                 $eventsWithGaps[] = [
                     'id' => (int) ($r['id'] ?? 0),
@@ -1284,7 +1287,7 @@ class DashboardModule {
         $allConcerts = $this->data->adp()->getFutureConcerts($uid);
         for ($i = 1; $i < count($allConcerts); $i++) {
             $c = $allConcerts[$i];
-            $gaps = $this->getInstrumentGapsForConcert((int) ($c['id'] ?? 0), $minimums);
+            $gaps = $this->getInstrumentGapsForConcert((int) ($c['id'] ?? 0), $concertMinimums, $coverageMode);
             if (!empty($gaps)) {
                 $eventsWithGaps[] = [
                     'id' => (int) ($c['id'] ?? 0),
@@ -1299,12 +1302,126 @@ class DashboardModule {
         return ['count' => count($eventsWithGaps), 'events' => array_slice($eventsWithGaps, 0, 10)];
     }
 
+    private function normalizeMinimumMap($input, $mode = 'instrument') {
+        if ($mode === 'section' && !$this->isSectionCoverageEnabled()) {
+            $mode = 'instrument';
+        }
+        $out = [];
+        if (!is_array($input)) {
+            return $out;
+        }
+        foreach ($input as $key => $value) {
+            $min = is_numeric($value) ? max(0, (int) $value) : 0;
+            if ($min < 1) {
+                continue;
+            }
+            $keyStr = trim((string) $key);
+            if ($keyStr === '') {
+                continue;
+            }
+            if (is_numeric($keyStr) && (int) $keyStr > 0) {
+                $out[(string) ((int) $keyStr)] = $min;
+                continue;
+            }
+            if ($mode === 'section' && str_starts_with($keyStr, 'section:')) {
+                $sectionId = trim(substr($keyStr, 8));
+                if ($sectionId !== '') {
+                    $out['section:' . $sectionId] = $min;
+                }
+            }
+        }
+        return $out;
+    }
+
     private function getInstrumentMinimumsFromConfig() {
         global $system_data;
+        $sectionCoverageEnabled = $this->isSectionCoverageEnabled();
         $val = $system_data->getDynamicConfigParameter('instrument_minimums');
-        if (!$val) return [];
+        if (!$val) return ['mode' => 'instrument', 'rehearsal' => [], 'concert' => []];
         $decoded = json_decode($val, true);
+        if (!is_array($decoded)) {
+            return ['mode' => 'instrument', 'rehearsal' => [], 'concert' => []];
+        }
+        $mode = (($decoded['mode'] ?? 'instrument') === 'section' && $sectionCoverageEnabled) ? 'section' : 'instrument';
+        if (isset($decoded['rehearsal']) || isset($decoded['concert'])) {
+            $reh = $this->normalizeMinimumMap($decoded['rehearsal'] ?? [], $mode);
+            $con = $this->normalizeMinimumMap($decoded['concert'] ?? [], $mode);
+            if (count($con) < 1) {
+                $con = $reh;
+            }
+            return ['mode' => $mode, 'rehearsal' => $reh, 'concert' => $con];
+        }
+        $legacy = $this->normalizeMinimumMap($decoded, 'instrument');
+        return ['mode' => 'instrument', 'rehearsal' => $legacy, 'concert' => $legacy];
+    }
+
+    private function getInstrumentSections() {
+        global $system_data;
+        if (!$this->isSectionCoverageEnabled()) {
+            return [];
+        }
+        $raw = (string) ($system_data->getDynamicConfigParameter('nextgen_instrument_sections') ?? '');
+        if ($raw === '') {
+            return [];
+        }
+        $decoded = json_decode($raw, true);
         return is_array($decoded) ? $decoded : [];
+    }
+
+    private function isSectionCoverageEnabled(): bool {
+        global $system_data;
+        return (string) ($system_data->getDynamicConfigParameter('beta_section_coverage_enabled') ?? '') === '1';
+    }
+
+    private function getResolvedSectionsForCoverage() {
+        $sections = $this->getInstrumentSections();
+        $out = [];
+        foreach ($sections as $section) {
+            if (!is_array($section)) {
+                continue;
+            }
+            $sectionId = trim((string) ($section['id'] ?? ''));
+            $sectionName = trim((string) ($section['name'] ?? ''));
+            if ($sectionId === '' || $sectionName === '') {
+                continue;
+            }
+            $ids = [];
+            foreach (($section['instrument_ids'] ?? []) as $rawId) {
+                $iid = (int) $rawId;
+                if ($iid > 0) {
+                    $ids[] = $iid;
+                }
+            }
+            $targetMap = [];
+            foreach (($section['concert_instrument_targets'] ?? []) as $target) {
+                if (!is_array($target)) {
+                    continue;
+                }
+                $targetInstrumentId = (int) ($target['instrument_id'] ?? 0);
+                $targetRequired = max(0, (int) ($target['required'] ?? 0));
+                if ($targetInstrumentId > 0 && $targetRequired > 0) {
+                    $targetMap[$targetInstrumentId] = $targetRequired;
+                    $ids[] = $targetInstrumentId;
+                }
+            }
+            $rehearsalMinTotal = max(0, (int) ($section['rehearsal_min_total'] ?? 0));
+            $concertMinTotal = max(0, (int) ($section['concert_min_total'] ?? 0));
+            if ($rehearsalMinTotal < 1) {
+                $legacyMin = (int) ($section['minimum_total'] ?? 0);
+                if ($legacyMin > 0) {
+                    $rehearsalMinTotal = $legacyMin;
+                }
+            }
+            $out[] = [
+                'id' => $sectionId,
+                'name' => $sectionName,
+                'instrument_ids' => array_values(array_unique($ids)),
+                'rehearsal_min_total' => $rehearsalMinTotal,
+                'concert_min_total' => $concertMinTotal,
+                'concert_instrument_targets' => $targetMap,
+            ];
+        }
+        return $out;
     }
 
     /**
@@ -1345,8 +1462,16 @@ class DashboardModule {
         if (!Auth::check()) {
             Response::error('Not authenticated', 401);
         }
-        $minimums = $this->getInstrumentMinimumsFromConfig();
-        return ['minimums' => $minimums];
+        $minimumsWithMode = $this->getInstrumentMinimumsFromConfig();
+        return [
+            'mode' => (string) ($minimumsWithMode['mode'] ?? 'instrument'),
+            'minimums' => [
+                'rehearsal' => is_array($minimumsWithMode['rehearsal'] ?? null) ? $minimumsWithMode['rehearsal'] : [],
+                'concert' => is_array($minimumsWithMode['concert'] ?? null) ? $minimumsWithMode['concert'] : [],
+            ],
+            'aliasPools' => [],
+            'sections' => $this->getInstrumentSections(),
+        ];
     }
 
     /**
@@ -1363,17 +1488,24 @@ class DashboardModule {
         }
         $rawInput = file_get_contents('php://input');
         $data = $rawInput ? json_decode($rawInput, true) : $_POST;
+        $sectionCoverageEnabled = $this->isSectionCoverageEnabled();
+        $mode = (($data['mode'] ?? 'instrument') === 'section' && $sectionCoverageEnabled) ? 'section' : 'instrument';
         $minimums = $data['minimums'] ?? [];
         if (!is_array($minimums)) {
             $minimums = [];
         }
-        $sanitized = [];
-        foreach ($minimums as $instId => $min) {
-            $id = is_numeric($instId) ? intval($instId) : 0;
-            $val = is_numeric($min) ? intval($min) : 0;
-            if ($id > 0 && $val >= 0) {
-                $sanitized[(string) $id] = $val;
+        if (isset($minimums['rehearsal']) || isset($minimums['concert'])) {
+            $rehRaw = is_array($minimums['rehearsal'] ?? null) ? $minimums['rehearsal'] : [];
+            $conRaw = is_array($minimums['concert'] ?? null) ? $minimums['concert'] : [];
+            $reh = $this->normalizeMinimumMap($rehRaw, $mode);
+            $con = $this->normalizeMinimumMap($conRaw, $mode);
+            if (count($con) < 1) {
+                $con = $reh;
             }
+            $sanitized = ['mode' => $mode, 'rehearsal' => $reh, 'concert' => $con];
+        } else {
+            $legacy = $this->normalizeMinimumMap($minimums);
+            $sanitized = ['mode' => 'instrument', 'rehearsal' => $legacy, 'concert' => $legacy];
         }
         $json = json_encode($sanitized);
         $existing = $system_data->dbcon->colValue(
@@ -1395,7 +1527,7 @@ class DashboardModule {
         return ['success' => true, 'minimums' => $sanitized];
     }
 
-    private function getInstrumentGapsForRehearsal($rid, $minimums) {
+    private function getInstrumentGapsForRehearsal($rid, $minimums, $mode = 'instrument') {
         global $system_data;
         $query = "SELECT i.id as instrument_id, i.name as instrument_name,
                   SUM(CASE WHEN ru.participate IN (1,2) THEN 1 ELSE 0 END) as attending
@@ -1408,28 +1540,120 @@ class DashboardModule {
                   GROUP BY i.id, i.name";
         $rows = $system_data->dbcon->getSelection($query, [['i', $rid], ['i', $rid]]);
         $gaps = [];
+        $attendingByInstrument = [];
+        $instrumentNamesById = [];
         if (is_array($rows)) {
             for ($i = 1; $i < count($rows); $i++) {
                 $row = $rows[$i];
                 $instId = (int) ($row['instrument_id'] ?? 0);
                 if ($instId <= 0) continue;
+                $attending = (int) ($row['attending'] ?? 0);
+                $attendingByInstrument[$instId] = $attending;
+                $instrumentNamesById[$instId] = (string) ($row['instrument_name'] ?? '');
                 $min = isset($minimums[$instId]) ? (int) $minimums[$instId] : null;
                 if ($min === null || $min <= 0) continue;
-                $attending = (int) ($row['attending'] ?? 0);
                 if ($attending < $min) {
                     $gaps[] = [
                         'instrument_id' => $instId,
-                        'instrument_name' => $row['instrument_name'] ?? '',
+                        'instrument_name' => $instrumentNamesById[$instId] ?? '',
                         'current' => $attending,
                         'minimum' => $min,
                     ];
                 }
             }
         }
+        if ($mode === 'section') {
+            $assignedInstrumentIds = [];
+            foreach ($this->getResolvedSectionsForCoverage() as $section) {
+                $sectionId = (string) ($section['id'] ?? '');
+                if ($sectionId === '') {
+                    continue;
+                }
+                foreach (($section['instrument_ids'] ?? []) as $instrumentId) {
+                    $iid = (int) $instrumentId;
+                    if ($iid > 0) {
+                        $assignedInstrumentIds[$iid] = true;
+                    }
+                }
+                $min = max(
+                    (int) ($section['rehearsal_min_total'] ?? 0),
+                    isset($minimums['section:' . $sectionId]) ? (int) $minimums['section:' . $sectionId] : 0
+                );
+                if ($min < 1) {
+                    continue;
+                }
+                $current = 0;
+                foreach (($section['instrument_ids'] ?? []) as $instrumentId) {
+                    $iid = (int) $instrumentId;
+                    if ($iid > 0) {
+                        $current += (int) ($attendingByInstrument[$iid] ?? 0);
+                    }
+                }
+                if ($current < $min) {
+                    $gaps[] = [
+                        'instrument_id' => 'section:' . $sectionId,
+                        'instrument_name' => (string) ($section['name'] ?? $sectionId),
+                        'current' => $current,
+                        'minimum' => $min,
+                    ];
+                }
+            }
+            foreach ($minimums as $instrumentId => $minRaw) {
+                if (!is_numeric($instrumentId)) {
+                    continue;
+                }
+                $iid = (int) $instrumentId;
+                if ($iid < 1 || isset($assignedInstrumentIds[$iid])) {
+                    continue;
+                }
+                $min = (int) $minRaw;
+                $current = (int) ($attendingByInstrument[$iid] ?? 0);
+                if ($min > 0 && $current < $min) {
+                    $name = '';
+                    if (is_array($rows)) {
+                        for ($i = 1; $i < count($rows); $i++) {
+                            if ((int) ($rows[$i]['instrument_id'] ?? 0) === $iid) {
+                                $name = (string) ($rows[$i]['instrument_name'] ?? '');
+                                break;
+                            }
+                        }
+                    }
+                    $gaps[] = [
+                        'instrument_id' => $iid,
+                        'instrument_name' => $name !== '' ? $name : ($instrumentNamesById[$iid] ?? ''),
+                        'current' => $current,
+                        'minimum' => $min,
+                    ];
+                }
+            }
+            return $gaps;
+        }
+        foreach ($minimums as $instrumentId => $minRaw) {
+            if (!is_numeric($instrumentId)) {
+                continue;
+            }
+            $iid = (int) $instrumentId;
+            if ($iid < 1) {
+                continue;
+            }
+            $min = (int) $minRaw;
+            if ($min < 1) {
+                continue;
+            }
+            $current = (int) ($attendingByInstrument[$iid] ?? 0);
+            if ($current < $min) {
+                $gaps[] = [
+                    'instrument_id' => $iid,
+                    'instrument_name' => $instrumentNamesById[$iid] ?? '',
+                    'current' => $current,
+                    'minimum' => $min,
+                ];
+            }
+        }
         return $gaps;
     }
 
-    private function getInstrumentGapsForConcert($cid, $minimums) {
+    private function getInstrumentGapsForConcert($cid, $minimums, $mode = 'instrument') {
         global $system_data;
         $query = "SELECT i.id as instrument_id, i.name as instrument_name,
                   SUM(CASE WHEN cu.participate IN (1,2) THEN 1 ELSE 0 END) as attending
@@ -1442,22 +1666,127 @@ class DashboardModule {
                   GROUP BY i.id, i.name";
         $rows = $system_data->dbcon->getSelection($query, [['i', $cid], ['i', $cid]]);
         $gaps = [];
+        $attendingByInstrument = [];
+        $instrumentNamesById = [];
         if (is_array($rows)) {
             for ($i = 1; $i < count($rows); $i++) {
                 $row = $rows[$i];
                 $instId = (int) ($row['instrument_id'] ?? 0);
                 if ($instId <= 0) continue;
+                $attending = (int) ($row['attending'] ?? 0);
+                $attendingByInstrument[$instId] = $attending;
+                $instrumentNamesById[$instId] = (string) ($row['instrument_name'] ?? '');
                 $min = isset($minimums[$instId]) ? (int) $minimums[$instId] : null;
                 if ($min === null || $min <= 0) continue;
-                $attending = (int) ($row['attending'] ?? 0);
                 if ($attending < $min) {
                     $gaps[] = [
                         'instrument_id' => $instId,
-                        'instrument_name' => $row['instrument_name'] ?? '',
+                        'instrument_name' => $instrumentNamesById[$instId] ?? '',
                         'current' => $attending,
                         'minimum' => $min,
                     ];
                 }
+            }
+        }
+        if ($mode === 'section') {
+            $assignedInstrumentIds = [];
+            foreach ($this->getResolvedSectionsForCoverage() as $section) {
+                $sectionId = (string) ($section['id'] ?? '');
+                if ($sectionId === '') {
+                    continue;
+                }
+                foreach (($section['instrument_ids'] ?? []) as $instrumentId) {
+                    $iid = (int) $instrumentId;
+                    if ($iid > 0) {
+                        $assignedInstrumentIds[$iid] = true;
+                    }
+                }
+
+                $targets = is_array($section['concert_instrument_targets'] ?? null) ? $section['concert_instrument_targets'] : [];
+                if (count($targets) > 0) {
+                    foreach ($targets as $targetInstrumentId => $requiredRaw) {
+                        $targetId = (int) $targetInstrumentId;
+                        $required = (int) $requiredRaw;
+                        if ($targetId < 1 || $required < 1) {
+                            continue;
+                        }
+                        $current = (int) ($attendingByInstrument[$targetId] ?? 0);
+                        if ($current < $required) {
+                            $gaps[] = [
+                                'instrument_id' => 'section:' . $sectionId,
+                                'instrument_name' => (string) ($section['name'] ?? $sectionId),
+                                'current' => $current,
+                                'minimum' => $required,
+                            ];
+                        }
+                    }
+                    continue;
+                }
+
+                $min = max(
+                    (int) ($section['concert_min_total'] ?? 0),
+                    isset($minimums['section:' . $sectionId]) ? (int) $minimums['section:' . $sectionId] : 0
+                );
+                if ($min < 1) {
+                    continue;
+                }
+                $currentTotal = 0;
+                foreach (($section['instrument_ids'] ?? []) as $instrumentId) {
+                    $iid = (int) $instrumentId;
+                    if ($iid > 0) {
+                        $currentTotal += (int) ($attendingByInstrument[$iid] ?? 0);
+                    }
+                }
+                if ($currentTotal < $min) {
+                    $gaps[] = [
+                        'instrument_id' => 'section:' . $sectionId,
+                        'instrument_name' => (string) ($section['name'] ?? $sectionId),
+                        'current' => $currentTotal,
+                        'minimum' => $min,
+                    ];
+                }
+            }
+            foreach ($minimums as $instrumentId => $minRaw) {
+                if (!is_numeric($instrumentId)) {
+                    continue;
+                }
+                $iid = (int) $instrumentId;
+                if ($iid < 1 || isset($assignedInstrumentIds[$iid])) {
+                    continue;
+                }
+                $min = (int) $minRaw;
+                $current = (int) ($attendingByInstrument[$iid] ?? 0);
+                if ($min > 0 && $current < $min) {
+                    $gaps[] = [
+                        'instrument_id' => $iid,
+                        'instrument_name' => $instrumentNamesById[$iid] ?? '',
+                        'current' => $current,
+                        'minimum' => $min,
+                    ];
+                }
+            }
+            return $gaps;
+        }
+        foreach ($minimums as $instrumentId => $minRaw) {
+            if (!is_numeric($instrumentId)) {
+                continue;
+            }
+            $iid = (int) $instrumentId;
+            if ($iid < 1) {
+                continue;
+            }
+            $min = (int) $minRaw;
+            if ($min < 1) {
+                continue;
+            }
+            $current = (int) ($attendingByInstrument[$iid] ?? 0);
+            if ($current < $min) {
+                $gaps[] = [
+                    'instrument_id' => $iid,
+                    'instrument_name' => $instrumentNamesById[$iid] ?? '',
+                    'current' => $current,
+                    'minimum' => $min,
+                ];
             }
         }
         return $gaps;

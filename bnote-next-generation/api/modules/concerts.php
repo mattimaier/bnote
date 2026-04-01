@@ -241,15 +241,79 @@ class ConcertsModule {
         if (!is_array($decoded)) {
             return [];
         }
+        if (isset($decoded['rehearsal']) || isset($decoded['concert'])) {
+            $decoded = is_array($decoded['concert'] ?? null) ? $decoded['concert'] : [];
+        }
         $out = [];
         foreach ($decoded as $instrumentId => $minimum) {
-            $id = is_numeric($instrumentId) ? (int) $instrumentId : 0;
+            $key = trim((string) $instrumentId);
             $min = is_numeric($minimum) ? max(0, (int) $minimum) : 0;
-            if ($id > 0 && $min > 0) {
-                $out[(string) $id] = $min;
+            if ($min < 1 || $key === '') {
+                continue;
+            }
+            if (is_numeric($key) && (int) $key > 0) {
+                $out[(string) ((int) $key)] = $min;
+                continue;
             }
         }
         return $out;
+    }
+
+    /**
+     * @return array<string,array{id:string,name:string}>
+     */
+    private function loadInstrumentSectionsByInstrument() {
+        global $system_data;
+        if ((string) ($system_data->getDynamicConfigParameter('beta_section_coverage_enabled') ?? '') !== '1') {
+            return [];
+        }
+        $sectionsRaw = (string) ($system_data->getDynamicConfigParameter('nextgen_instrument_sections') ?? '');
+        if ($sectionsRaw === '') {
+            return [];
+        }
+        $sectionsDecoded = json_decode($sectionsRaw, true);
+        if (!is_array($sectionsDecoded)) {
+            return [];
+        }
+        $map = [];
+        foreach ($sectionsDecoded as $section) {
+            if (!is_array($section)) {
+                continue;
+            }
+            $sectionId = trim((string) ($section['id'] ?? ''));
+            $sectionName = trim((string) ($section['name'] ?? ''));
+            if ($sectionId === '' || $sectionName === '') {
+                continue;
+            }
+            $instrumentIds = [];
+            $rawInstrumentIds = isset($section['instrument_ids']) && is_array($section['instrument_ids']) ? $section['instrument_ids'] : [];
+            foreach ($rawInstrumentIds as $rawId) {
+                $instrumentId = (int) $rawId;
+                if ($instrumentId > 0) {
+                    $instrumentIds[] = $instrumentId;
+                }
+            }
+            foreach (($section['concert_instrument_targets'] ?? []) as $target) {
+                if (!is_array($target)) {
+                    continue;
+                }
+                $targetInstrumentId = (int) ($target['instrument_id'] ?? 0);
+                if ($targetInstrumentId > 0) {
+                    $instrumentIds[] = $targetInstrumentId;
+                }
+            }
+            $instrumentIds = array_values(array_unique($instrumentIds));
+            foreach ($instrumentIds as $instrumentId) {
+                $key = (string) $instrumentId;
+                if (!isset($map[$key])) {
+                    $map[$key] = [
+                        'id' => $sectionId,
+                        'name' => $sectionName,
+                    ];
+                }
+            }
+        }
+        return $map;
     }
     
     /**
@@ -459,6 +523,7 @@ class ConcertsModule {
         $participantsByInstrument = [];
         $totalStats = ['yes' => 0, 'maybe' => 0, 'no' => 0, 'pending' => 0];
         $instrumentMinimums = $this->loadInstrumentMinimums();
+        $instrumentSections = $this->loadInstrumentSectionsByInstrument();
         
         foreach ($usedInstruments as $instrument) {
             $instrumentId = $instrument['id'];
@@ -521,6 +586,7 @@ class ConcertsModule {
                         'id' => intval($instrumentId),
                         'name' => $instrument['name'],
                         'minimumRequired' => $instrumentMinimums[(string) intval($instrumentId)] ?? 0,
+                        'section' => $instrumentSections[(string) intval($instrumentId)] ?? null,
                         'category' => [
                             'id' => intval($instrument['category_id'] ?? 0),
                             'name' => $instrument['category_name'] ?? 'Uncategorized'

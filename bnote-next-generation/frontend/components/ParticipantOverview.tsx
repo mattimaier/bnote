@@ -6,7 +6,7 @@
 
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useI18n } from "@/contexts/I18nContext";
 import { ParticipationDiagram, type ParticipationStats } from "@/components/ParticipationDiagram";
@@ -23,7 +23,13 @@ export interface ParticipantItem {
 }
 
 export interface InstrumentGroup {
-  instrument: { id: number; name: string; minimumRequired?: number; category?: { id: number; name: string } };
+  instrument: {
+    id: number;
+    name: string;
+    minimumRequired?: number;
+    category?: { id: number; name: string };
+    section?: { id?: string | number; name?: string };
+  };
   participants: ParticipantItem[];
   stats?: { yes: number; maybe: number; no: number; pending: number };
 }
@@ -37,7 +43,8 @@ interface ParticipantOverviewProps {
   getEntityHref?: GetEntityHref | null;
 }
 
-function getGroupName(group: InstrumentGroup, mode: "category" | "instrument"): string {
+function getGroupName(group: InstrumentGroup, mode: "category" | "instrument" | "section"): string {
+  if (mode === "section" && group.instrument.section?.name) return group.instrument.section.name;
   if (mode === "category" && group.instrument.category?.name) return group.instrument.category.name;
   return group.instrument.name;
 }
@@ -74,6 +81,41 @@ function groupByCategory(groups: InstrumentGroup[]): InstrumentGroup[] {
     }
   }
   return Array.from(byCategory.values());
+}
+
+function groupBySection(groups: InstrumentGroup[]): InstrumentGroup[] {
+  const bySection = new Map<string, InstrumentGroup>();
+  for (const g of groups) {
+    const sectionName = g.instrument.section?.name ?? "Section";
+    const existing = bySection.get(sectionName);
+    if (!existing) {
+      bySection.set(sectionName, {
+        instrument: {
+          id: 0,
+          name: sectionName,
+          section: { id: g.instrument.section?.id ?? sectionName, name: sectionName },
+          minimumRequired: Math.max(0, g.instrument.minimumRequired ?? 0),
+          category: g.instrument.category,
+        },
+        participants: [...g.participants],
+        stats: g.stats
+          ? { ...g.stats }
+          : { yes: 0, maybe: 0, no: 0, pending: 0 },
+      });
+    } else {
+      existing.participants.push(...g.participants);
+      existing.instrument.minimumRequired =
+        Math.max(0, existing.instrument.minimumRequired ?? 0) + Math.max(0, g.instrument.minimumRequired ?? 0);
+      if (g.stats) {
+        existing.stats = existing.stats ?? { yes: 0, maybe: 0, no: 0, pending: 0 };
+        existing.stats.yes += g.stats.yes ?? 0;
+        existing.stats.maybe += g.stats.maybe ?? 0;
+        existing.stats.no += g.stats.no ?? 0;
+        existing.stats.pending += g.stats.pending ?? 0;
+      }
+    }
+  }
+  return Array.from(bySection.values());
 }
 
 function StatusIcon({ participate }: { participate: number | null }) {
@@ -150,10 +192,21 @@ function ParticipantRow({
 
 export function ParticipantOverview({ participantsByInstrument, getEntityHref }: ParticipantOverviewProps) {
   const { t } = useI18n();
-  const [groupMode, setGroupMode] = useState<"category" | "instrument">("category");
+  const [groupMode, setGroupMode] = useState<"category" | "instrument" | "section">("category");
+  const hasSectionData = useMemo(
+    () => Boolean(participantsByInstrument?.some((group) => (group.instrument.section?.name ?? "").trim() !== "")),
+    [participantsByInstrument]
+  );
+
+  useEffect(() => {
+    if (!hasSectionData && groupMode === "section") {
+      setGroupMode("category");
+    }
+  }, [groupMode, hasSectionData]);
 
   const groups = useMemo(() => {
     if (!participantsByInstrument?.length) return [];
+    if (groupMode === "section") return groupBySection(participantsByInstrument);
     if (groupMode === "category") return groupByCategory(participantsByInstrument);
     return participantsByInstrument;
   }, [participantsByInstrument, groupMode]);
@@ -190,6 +243,15 @@ export function ParticipantOverview({ participantsByInstrument, getEntityHref }:
         >
           {t("js.participants.instrument") !== "js.participants.instrument" ? t("js.participants.instrument") : "Instrument"}
         </button>
+        {hasSectionData ? (
+          <button
+            type="button"
+            onClick={() => setGroupMode("section")}
+            className={`filter-bubble ${groupMode === "section" ? "filter-bubble-performance selected" : "filter-bubble-performance"}`}
+          >
+            {t("js.event.share.sectionFallback") !== "js.event.share.sectionFallback" ? t("js.event.share.sectionFallback") : "Section"}
+          </button>
+        ) : null}
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {groups.map((group, idx) => {

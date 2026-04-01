@@ -82,7 +82,8 @@ final class EscalationAlertService {
 
             $eventUrl = self::eventAbsoluteUrl((string) $event['otype'], (int) $event['oid']);
             $eventBegin = (string) ($event['begin'] ?? '');
-            $urgency = self::urgencyForEvent($eventBegin, (array) ($esc['deadline_windows_hours'] ?? [168, 48]));
+            $windowsForType = self::deadlineWindowsForType($esc, (string) ($event['otype'] ?? 'R'));
+            $urgency = self::urgencyForEvent($eventBegin, $windowsForType);
             $detail = [
                 'event' => $event,
                 'urgency' => $urgency,
@@ -166,7 +167,7 @@ final class EscalationAlertService {
             return ['status' => 'event_not_found'];
         }
         $hoursToBegin = self::hoursUntil((string) ($event['begin'] ?? ''));
-        if ($hoursToBegin !== null && $hoursToBegin > (int) ($esc['dropout_window_hours'] ?? 24)) {
+        if ($hoursToBegin !== null && $hoursToBegin > self::dropoutWindowForType($esc, $otype)) {
             return ['status' => 'outside_dropout_window', 'hours_to_begin' => $hoursToBegin];
         }
 
@@ -218,7 +219,10 @@ final class EscalationAlertService {
         if ($hoursToBegin === null || $hoursToBegin < 0) {
             return null;
         }
-        $urgency = self::urgencyForEvent((string) ($event['begin'] ?? ''), (array) ($esc['deadline_windows_hours'] ?? [168, 48]));
+        $urgency = self::urgencyForEvent(
+            (string) ($event['begin'] ?? ''),
+            self::deadlineWindowsForType($esc, (string) ($event['otype'] ?? $otype))
+        );
         return self::uiWarningPayload($event, $urgency);
     }
 
@@ -228,13 +232,23 @@ final class EscalationAlertService {
      */
     private static function escalationCfg(array $cfg): array {
         $esc = (isset($cfg['escalation']) && is_array($cfg['escalation'])) ? $cfg['escalation'] : [];
+        $rawWindows = $esc['deadline_windows_hours'] ?? [168, 48];
+        $legacyWindows = self::normalizeWindowList($rawWindows, [168, 48]);
+        if (is_array($rawWindows) && (array_key_exists('rehearsal', $rawWindows) || array_key_exists('concert', $rawWindows))) {
+            $rehWindows = self::normalizeWindowList($rawWindows['rehearsal'] ?? null, $legacyWindows);
+            $conWindows = self::normalizeWindowList($rawWindows['concert'] ?? null, $legacyWindows);
+        } else {
+            $rehWindows = $legacyWindows;
+            $conWindows = $legacyWindows;
+        }
         return [
             'enabled' => !empty($esc['enabled']),
-            'deadline_windows_hours' => (isset($esc['deadline_windows_hours']) && is_array($esc['deadline_windows_hours']))
-                ? array_values(array_map('intval', $esc['deadline_windows_hours']))
-                : [168, 48],
-            'dropout_window_hours' => max(1, (int) ($esc['dropout_window_hours'] ?? 24)),
-            'pending_threshold_percent' => max(1, (int) ($esc['pending_threshold_percent'] ?? 20)),
+            'deadline_windows_hours' => [
+                'rehearsal' => $rehWindows,
+                'concert' => $conWindows,
+            ],
+            'dropout_window_hours' => self::normalizeThresholdByType($esc['dropout_window_hours'] ?? 24, 24, 1, 240),
+            'pending_threshold_percent' => self::normalizeThresholdByType($esc['pending_threshold_percent'] ?? 20, 20, 1, 100),
             'escalation_target_group_id' => max(0, (int) ($esc['escalation_target_group_id'] ?? 0)),
             'include_event_organizer' => !empty($esc['include_event_organizer']),
         ];
@@ -322,9 +336,12 @@ final class EscalationAlertService {
         if ($base === null) {
             return null;
         }
-        $deadline = (string) ($base['approve_until'] ?? '');
+        $deadline = self::effectiveDeadline(
+            (string) ($base['approve_until'] ?? ''),
+            (string) ($base['begin'] ?? '')
+        );
         $hoursToDeadline = self::hoursUntil($deadline);
-        $windows = (array) ($esc['deadline_windows_hours'] ?? [168, 48]);
+        $windows = self::deadlineWindowsForType($esc, $otype);
         $maxWindow = count($windows) > 0 ? max($windows) : 48;
         if ($hoursToDeadline !== null && $hoursToDeadline > $maxWindow) {
             return null;
@@ -334,10 +351,13 @@ final class EscalationAlertService {
         $pendingPct = $counts['invited_users'] > 0
             ? (int) round(($counts['pending_users'] * 100) / $counts['invited_users'])
             : 0;
-        $minimums = self::loadInstrumentMinimums($system_data);
-        $gaps = self::instrumentGaps($db, $otype, $oid, $minimums);
+        $coverage = self::loadInstrumentMinimums($system_data, $otype);
+        $minimums = is_array($coverage['minimums'] ?? null) ? $coverage['minimums'] : [];
+        $coverageMode = (($coverage['mode'] ?? 'instrument') === 'section') ? 'section' : 'instrument';
+        $gaps = self::instrumentGaps($system_data, $db, $otype, $oid, $minimums, $coverageMode);
         $reasons = [];
-        if ($pendingPct >= (int) ($esc['pending_threshold_percent'] ?? 20)) {
+        $pendingThreshold = self::pendingThresholdForType($esc, $otype);
+        if ($pendingPct >= $pendingThreshold) {
             $reasons[] = MailI18n::interpolate(MailI18n::t('mail.escalation.reasonPendingThreshold', $locale), [
                 'pending' => (string) $counts['pending_users'],
                 'total' => (string) $counts['invited_users'],
@@ -360,7 +380,7 @@ final class EscalationAlertService {
             'begin' => (string) ($base['begin'] ?? ''),
             'approve_until' => $deadline,
             'hours_to_deadline' => $hoursToDeadline,
-            'pending_threshold_percent' => (int) ($esc['pending_threshold_percent'] ?? 20),
+            'pending_threshold_percent' => $pendingThreshold,
             'counts' => $counts,
             'pending_percent' => $pendingPct,
             'instrument_gaps' => $gaps,
@@ -396,13 +416,16 @@ final class EscalationAlertService {
         $pendingPct = $counts['invited_users'] > 0
             ? (int) round(($counts['pending_users'] * 100) / $counts['invited_users'])
             : 0;
-        $minimums = self::loadInstrumentMinimums($system_data);
-        $gaps = self::instrumentGaps($db, $otype, $oid, $minimums);
+        $coverage = self::loadInstrumentMinimums($system_data, $otype);
+        $minimums = is_array($coverage['minimums'] ?? null) ? $coverage['minimums'] : [];
+        $coverageMode = (($coverage['mode'] ?? 'instrument') === 'section') ? 'section' : 'instrument';
+        $gaps = self::instrumentGaps($system_data, $db, $otype, $oid, $minimums, $coverageMode);
 
         $reasons = [
             self::dropoutReasonText($db, $locale, $source, $contactId),
         ];
-        if ($pendingPct >= (int) ($esc['pending_threshold_percent'] ?? 20)) {
+        $pendingThreshold = self::pendingThresholdForType($esc, $otype);
+        if ($pendingPct >= $pendingThreshold) {
             $reasons[] = MailI18n::interpolate(MailI18n::t('mail.escalation.reasonPendingThreshold', $locale), [
                 'pending' => (string) $counts['pending_users'],
                 'total' => (string) $counts['invited_users'],
@@ -421,8 +444,11 @@ final class EscalationAlertService {
             'title' => (string) ($base['title'] ?? ''),
             'begin' => (string) ($base['begin'] ?? ''),
             'approve_until' => (string) ($base['approve_until'] ?? ''),
-            'hours_to_deadline' => self::hoursUntil((string) ($base['approve_until'] ?? '')),
-            'pending_threshold_percent' => (int) ($esc['pending_threshold_percent'] ?? 20),
+            'hours_to_deadline' => self::hoursUntil(self::effectiveDeadline(
+                (string) ($base['approve_until'] ?? ''),
+                (string) ($base['begin'] ?? '')
+            )),
+            'pending_threshold_percent' => $pendingThreshold,
             'counts' => $counts,
             'pending_percent' => $pendingPct,
             'instrument_gaps' => $gaps,
@@ -471,33 +497,54 @@ final class EscalationAlertService {
     }
 
     /**
-     * @return array<string,int>
+     * @return array{mode:string,minimums:array<string,int>}
      */
-    private static function loadInstrumentMinimums($system_data): array {
+    private static function loadInstrumentMinimums($system_data, string $otype): array {
         $val = (string) ($system_data->getDynamicConfigParameter('instrument_minimums') ?? '');
         if ($val === '') {
-            return [];
+            return ['mode' => 'instrument', 'minimums' => []];
         }
         $decoded = json_decode($val, true);
         if (!is_array($decoded)) {
-            return [];
+            return ['mode' => 'instrument', 'minimums' => []];
+        }
+        $mode = (($decoded['mode'] ?? 'instrument') === 'section' && self::isSectionCoverageEnabled($system_data))
+            ? 'section'
+            : 'instrument';
+        if (isset($decoded['rehearsal']) || isset($decoded['concert'])) {
+            $typeKey = strtoupper($otype) === 'C' ? 'concert' : 'rehearsal';
+            $selected = $decoded[$typeKey] ?? [];
+            if (!is_array($selected)) {
+                $selected = [];
+            }
+            $decoded = $selected;
         }
         $out = [];
         foreach ($decoded as $id => $min) {
-            $instId = is_numeric($id) ? (int) $id : 0;
             $instMin = is_numeric($min) ? max(0, (int) $min) : 0;
-            if ($instId > 0 && $instMin > 0) {
-                $out[(string) $instId] = $instMin;
+            $key = trim((string) $id);
+            if ($instMin < 1 || $key === '') {
+                continue;
+            }
+            if (is_numeric($key) && (int) $key > 0) {
+                $out[(string) ((int) $key)] = $instMin;
+                continue;
+            }
+            if ($mode === 'section' && str_starts_with($key, 'section:')) {
+                $sectionId = trim(substr($key, 8));
+                if ($sectionId !== '') {
+                    $out['section:' . $sectionId] = $instMin;
+                }
             }
         }
-        return $out;
+        return ['mode' => $mode, 'minimums' => $out];
     }
 
     /**
      * @param array<string,int> $minimums
      * @return list<array{instrument_name:string,current:int,minimum:int}>
      */
-    private static function instrumentGaps(object $db, string $otype, int $oid, array $minimums): array {
+    private static function instrumentGaps($system_data, object $db, string $otype, int $oid, array $minimums, string $mode = 'instrument'): array {
         if (count($minimums) < 1) {
             return [];
         }
@@ -514,30 +561,295 @@ final class EscalationAlertService {
                   WHERE ec.{$entityCol} = ?
                   GROUP BY i.id, i.name";
         $sel = $db->getSelection($query, [['i', $oid], ['i', $oid]]);
-        if (!is_array($sel) || count($sel) < 2) {
-            return [];
-        }
         $gaps = [];
+        $attendingByInstrument = [];
+        $instrumentNamesById = [];
+        if (!is_array($sel)) {
+            $sel = [];
+        }
         for ($i = 1; $i < count($sel); $i++) {
             $row = $sel[$i];
             $instId = (int) ($row['instrument_id'] ?? 0);
             if ($instId < 1) {
                 continue;
             }
+            $attending = (int) ($row['attending'] ?? 0);
+            $attendingByInstrument[$instId] = $attending;
+            $instrumentNamesById[$instId] = trim((string) ($row['instrument_name'] ?? ''));
             $min = $minimums[(string) $instId] ?? 0;
             if ($min < 1) {
                 continue;
             }
-            $attending = (int) ($row['attending'] ?? 0);
             if ($attending < $min) {
                 $gaps[] = [
-                    'instrument_name' => (string) ($row['instrument_name'] ?? ''),
+                    'instrument_name' => $instrumentNamesById[$instId] ?? '',
                     'current' => $attending,
                     'minimum' => $min,
                 ];
             }
         }
+        $missingNameIds = [];
+        foreach ($minimums as $instrumentId => $_minRaw) {
+            if (!is_numeric((string) $instrumentId)) {
+                continue;
+            }
+            $iid = (int) $instrumentId;
+            if ($iid < 1) {
+                continue;
+            }
+            if (!isset($instrumentNamesById[$iid]) || $instrumentNamesById[$iid] === '') {
+                $missingNameIds[] = $iid;
+            }
+        }
+        if (count($missingNameIds) > 0) {
+            $resolved = self::loadInstrumentNamesByIds($db, $missingNameIds);
+            foreach ($resolved as $iid => $name) {
+                if ($iid > 0 && $name !== '') {
+                    $instrumentNamesById[$iid] = $name;
+                }
+            }
+        }
+        if ($mode === 'section') {
+            $sections = self::loadInstrumentSections($system_data);
+            $assignedInstrumentIds = [];
+            foreach ($sections as $section) {
+                $sectionId = (string) ($section['id'] ?? '');
+                if ($sectionId === '') {
+                    continue;
+                }
+                foreach (($section['instrument_ids'] ?? []) as $rawInstrumentId) {
+                    $instrumentId = (int) $rawInstrumentId;
+                    if ($instrumentId > 0) {
+                        $assignedInstrumentIds[$instrumentId] = true;
+                    }
+                }
+                if (strtoupper($otype) === 'C' && is_array($section['concert_instrument_targets'] ?? null) && count($section['concert_instrument_targets']) > 0) {
+                    foreach ($section['concert_instrument_targets'] as $targetInstrumentId => $requiredRaw) {
+                        $targetId = (int) $targetInstrumentId;
+                        $required = (int) $requiredRaw;
+                        if ($targetId < 1 || $required < 1) {
+                            continue;
+                        }
+                        $current = (int) ($attendingByInstrument[$targetId] ?? 0);
+                        if ($current < $required) {
+                            $gaps[] = [
+                                'instrument_name' => (string) ($section['name'] ?? $sectionId),
+                                'current' => $current,
+                                'minimum' => $required,
+                                'section_id' => $sectionId,
+                            ];
+                        }
+                    }
+                    continue;
+                }
+                $min = strtoupper($otype) === 'C'
+                    ? max((int) ($section['concert_min_total'] ?? 0), (int) ($minimums['section:' . $sectionId] ?? 0))
+                    : max((int) ($section['rehearsal_min_total'] ?? 0), (int) ($minimums['section:' . $sectionId] ?? 0));
+                if ($min < 1) {
+                    continue;
+                }
+                $current = 0;
+                foreach (($section['instrument_ids'] ?? []) as $rawInstrumentId) {
+                    $instrumentId = (int) $rawInstrumentId;
+                    if ($instrumentId > 0) {
+                        $current += (int) ($attendingByInstrument[$instrumentId] ?? 0);
+                    }
+                }
+                if ($current < $min) {
+                    $gaps[] = [
+                        'instrument_name' => (string) ($section['name'] ?? $sectionId),
+                        'current' => $current,
+                        'minimum' => $min,
+                        'section_id' => $sectionId,
+                    ];
+                }
+            }
+            foreach ($minimums as $instrumentId => $minRaw) {
+                if (!is_numeric((string) $instrumentId)) {
+                    continue;
+                }
+                $iid = (int) $instrumentId;
+                if ($iid < 1 || isset($assignedInstrumentIds[$iid])) {
+                    continue;
+                }
+                if (array_key_exists($iid, $attendingByInstrument)) {
+                    continue;
+                }
+                $min = (int) $minRaw;
+                $current = (int) ($attendingByInstrument[$iid] ?? 0);
+                if ($min > 0 && $current < $min) {
+                    $gaps[] = [
+                        'instrument_name' => $instrumentNamesById[$iid] ?? '',
+                        'current' => $current,
+                        'minimum' => $min,
+                    ];
+                }
+            }
+            return $gaps;
+        }
+        foreach ($minimums as $instrumentId => $minRaw) {
+            if (!is_numeric((string) $instrumentId)) {
+                continue;
+            }
+            $iid = (int) $instrumentId;
+            if ($iid < 1) {
+                continue;
+            }
+            $min = (int) $minRaw;
+            if ($min < 1) {
+                continue;
+            }
+            if (array_key_exists($iid, $attendingByInstrument)) {
+                continue;
+            }
+            $current = (int) ($attendingByInstrument[$iid] ?? 0);
+            if ($current < $min) {
+                $gaps[] = [
+                    'instrument_name' => $instrumentNamesById[$iid] ?? '',
+                    'current' => $current,
+                    'minimum' => $min,
+                ];
+            }
+        }
         return $gaps;
+    }
+
+    /**
+     * @param list<int> $instrumentIds
+     * @return array<int,string>
+     */
+    private static function loadInstrumentNamesByIds(object $db, array $instrumentIds): array {
+        $ids = [];
+        foreach ($instrumentIds as $rawId) {
+            $id = (int) $rawId;
+            if ($id > 0) {
+                $ids[$id] = true;
+            }
+        }
+        $ids = array_keys($ids);
+        if (count($ids) < 1) {
+            return [];
+        }
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $params = [];
+        foreach ($ids as $id) {
+            $params[] = ['i', $id];
+        }
+        $rows = $db->getSelection(
+            "SELECT id, name FROM instrument WHERE id IN ({$placeholders})",
+            $params
+        );
+        $out = [];
+        if (!is_array($rows)) {
+            return $out;
+        }
+        for ($i = 1; $i < count($rows); $i++) {
+            $id = (int) ($rows[$i]['id'] ?? 0);
+            $name = trim((string) ($rows[$i]['name'] ?? ''));
+            if ($id > 0 && $name !== '') {
+                $out[$id] = $name;
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * @return list<array{id:string,name:string,instrument_ids:list<int>,rehearsal_min_total:int,concert_min_total:int,concert_instrument_targets:array<int,int>}>
+     */
+    private static function loadInstrumentSections($system_data): array {
+        if (!self::isSectionCoverageEnabled($system_data)) {
+            return [];
+        }
+        $raw = (string) ($system_data->getDynamicConfigParameter('nextgen_instrument_sections') ?? '');
+        if ($raw === '') {
+            return [];
+        }
+        $decoded = json_decode($raw, true);
+        if (!is_array($decoded)) {
+            return [];
+        }
+        $out = [];
+        foreach ($decoded as $section) {
+            if (!is_array($section)) {
+                continue;
+            }
+            $id = trim((string) ($section['id'] ?? ''));
+            $name = trim((string) ($section['name'] ?? ''));
+            if ($id === '' || $name === '') {
+                continue;
+            }
+            $ids = [];
+            foreach (($section['instrument_ids'] ?? []) as $rawInstrumentId) {
+                $instrumentId = (int) $rawInstrumentId;
+                if ($instrumentId > 0) {
+                    $ids[] = $instrumentId;
+                }
+            }
+            $targetMap = [];
+            foreach (($section['concert_instrument_targets'] ?? []) as $target) {
+                if (!is_array($target)) {
+                    continue;
+                }
+                $targetInstrumentId = (int) ($target['instrument_id'] ?? 0);
+                $targetRequired = max(0, (int) ($target['required'] ?? 0));
+                if ($targetInstrumentId > 0 && $targetRequired > 0) {
+                    $targetMap[$targetInstrumentId] = $targetRequired;
+                    $ids[] = $targetInstrumentId;
+                }
+            }
+            $out[] = [
+                'id' => $id,
+                'name' => $name,
+                'instrument_ids' => array_values(array_unique($ids)),
+                'rehearsal_min_total' => max(0, (int) ($section['rehearsal_min_total'] ?? 0)),
+                'concert_min_total' => max(0, (int) ($section['concert_min_total'] ?? 0)),
+                'concert_instrument_targets' => $targetMap,
+            ];
+        }
+        return $out;
+    }
+
+    private static function isSectionCoverageEnabled($system_data): bool {
+        return (string) ($system_data->getDynamicConfigParameter('beta_section_coverage_enabled') ?? '') === '1';
+    }
+
+    /**
+     * @return list<array{id:string,name:string,instrument_ids:list<int>}>
+     */
+    private static function loadInstrumentAliasPools($system_data): array {
+        $raw = (string) ($system_data->getDynamicConfigParameter('nextgen_instrument_alias_pools') ?? '');
+        if ($raw === '') {
+            return [];
+        }
+        $decoded = json_decode($raw, true);
+        if (!is_array($decoded)) {
+            return [];
+        }
+        $out = [];
+        foreach ($decoded as $pool) {
+            if (!is_array($pool)) {
+                continue;
+            }
+            $id = trim((string) ($pool['id'] ?? ''));
+            $name = trim((string) ($pool['name'] ?? ''));
+            $instrumentIdsRaw = isset($pool['instrument_ids']) && is_array($pool['instrument_ids']) ? $pool['instrument_ids'] : [];
+            $instrumentIds = [];
+            foreach ($instrumentIdsRaw as $rawInstrumentId) {
+                $instrumentId = (int) $rawInstrumentId;
+                if ($instrumentId > 0) {
+                    $instrumentIds[] = $instrumentId;
+                }
+            }
+            if ($id === '' || $name === '' || count($instrumentIds) < 1) {
+                continue;
+            }
+            $out[] = [
+                'id' => $id,
+                'name' => $name,
+                'instrument_ids' => array_values(array_unique($instrumentIds)),
+            ];
+        }
+        return $out;
     }
 
     /**
@@ -691,6 +1003,24 @@ final class EscalationAlertService {
         }
     }
 
+    private static function effectiveDeadline(string $approveUntil, string $begin): string {
+        $approveRaw = trim($approveUntil);
+        $beginRaw = trim($begin);
+        if ($approveRaw === '') {
+            return $beginRaw;
+        }
+        if ($beginRaw === '') {
+            return $approveRaw;
+        }
+        try {
+            $approveAt = new DateTimeImmutable($approveRaw, new DateTimeZone('UTC'));
+            $beginAt = new DateTimeImmutable($beginRaw, new DateTimeZone('UTC'));
+            return ($approveAt->getTimestamp() <= $beginAt->getTimestamp()) ? $approveRaw : $beginRaw;
+        } catch (Throwable $e) {
+            return $beginRaw !== '' ? $beginRaw : $approveRaw;
+        }
+    }
+
     /**
      * @param list<int> $windows
      */
@@ -701,6 +1031,98 @@ final class EscalationAlertService {
         }
         $criticalThreshold = count($windows) > 0 ? min($windows) : 12;
         return $hours <= $criticalThreshold ? 'critical' : 'soon';
+    }
+
+    /**
+     * @param array<string,mixed> $esc
+     * @return list<int>
+     */
+    private static function deadlineWindowsForType(array $esc, string $otype): array {
+        $key = strtoupper($otype) === 'C' ? 'concert' : 'rehearsal';
+        $raw = $esc['deadline_windows_hours'] ?? null;
+        if (is_array($raw) && isset($raw[$key]) && is_array($raw[$key])) {
+            return self::normalizeWindowList($raw[$key], [168, 48]);
+        }
+        return self::normalizeWindowList($raw, [168, 48]);
+    }
+
+    /**
+     * @param array<string,mixed> $esc
+     */
+    private static function pendingThresholdForType(array $esc, string $otype): int {
+        return self::thresholdForType($esc['pending_threshold_percent'] ?? null, $otype, 20, 1, 100);
+    }
+
+    /**
+     * @param array<string,mixed> $esc
+     */
+    private static function dropoutWindowForType(array $esc, string $otype): int {
+        return self::thresholdForType($esc['dropout_window_hours'] ?? null, $otype, 24, 1, 240);
+    }
+
+    /**
+     * @param mixed $raw
+     */
+    private static function thresholdForType($raw, string $otype, int $default, int $min, int $max): int {
+        $typeKey = strtoupper($otype) === 'C' ? 'concert' : 'rehearsal';
+        if (is_array($raw) && array_key_exists($typeKey, $raw) && is_numeric($raw[$typeKey])) {
+            return max($min, min($max, (int) $raw[$typeKey]));
+        }
+        if (is_numeric($raw)) {
+            return max($min, min($max, (int) $raw));
+        }
+        return max($min, min($max, $default));
+    }
+
+    /**
+     * @param mixed $raw
+     * @param list<int> $fallback
+     * @return list<int>
+     */
+    private static function normalizeWindowList($raw, array $fallback): array {
+        $out = [];
+        if (is_array($raw)) {
+            foreach ($raw as $w) {
+                $n = (int) $w;
+                if ($n > 0 && $n <= 240) {
+                    $out[] = $n;
+                }
+            }
+        } elseif (is_numeric($raw)) {
+            $n = (int) $raw;
+            if ($n > 0 && $n <= 240) {
+                $out[] = $n;
+            }
+        }
+        if (count($out) < 1) {
+            $out = $fallback;
+        }
+        rsort($out);
+        if (count($out) > 2) {
+            $out = array_slice($out, 0, 2);
+        }
+        return array_values($out);
+    }
+
+    /**
+     * @param mixed $raw
+     * @return array{rehearsal:int,concert:int}
+     */
+    private static function normalizeThresholdByType($raw, int $default, int $min, int $max): array {
+        $legacy = is_numeric($raw) ? (int) $raw : $default;
+        $legacy = max($min, min($max, $legacy));
+        if (is_array($raw) && (array_key_exists('rehearsal', $raw) || array_key_exists('concert', $raw))) {
+            $reh = is_numeric($raw['rehearsal'] ?? null) ? (int) $raw['rehearsal'] : $legacy;
+            $con = is_numeric($raw['concert'] ?? null) ? (int) $raw['concert'] : $legacy;
+            return [
+                'rehearsal' => max($min, min($max, $reh)),
+                'concert' => max($min, min($max, $con)),
+            ];
+        }
+        return [
+            'rehearsal' => $legacy,
+            'concert' => $legacy,
+        ];
     }
 
     /**
