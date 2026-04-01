@@ -1,0 +1,96 @@
+# AGENTS.md
+
+## Project Purpose
+BNote Next Generation is the modern UI/API layer for BNote (ensemble management). This repo is the active codebase: Next.js frontend (`frontend/`) + PHP API (`api/`) + translations (`lang/`).
+
+## Stack and Major Subsystems
+- Frontend: Next.js App Router, React, TypeScript, Tailwind (`frontend/`)
+- Backend: PHP module router (`api/index.php`) + module handlers (`api/modules/*.php`)
+- i18n: JSON locale files (`lang/de.json`, `lang/en.json`, `lang/es.json`, `lang/fr.json`)
+- Build/deploy: `build.sh`, `deploy.sh`
+
+## Non-Negotiable Invariants
+- Scope boundary: modify only `bnote-next-generation/`; legacy `../BNote/` is read-only unless explicitly requested.
+- i18n required: no hardcoded user-facing text in app flows; add keys to all 4 locales.
+- Mobile quality is required: every UI change must be verified for phone + desktop before done.
+- Dark mode compatibility: use semantic theme variables/classes; avoid hardcoded color-only solutions.
+- Shared UX is required: reuse existing entity/module components and flows before building anything new.
+- Do not introduce new component variants when an equivalent shared component/pattern already exists.
+- Security baseline: Next Generation must not be less secure than legacy; changes should maintain or improve security posture.
+- Authorization is mandatory: all read/write actions must respect role/module rights and server-side permission checks.
+- URL-driven edit mode conventions must stay consistent with shipped behavior and `docs/UI_PATTERNS.md`.
+- Date/time formatting must use shared helpers from `frontend/lib/date-time.ts`.
+
+## Coding Conventions Used in This Repo
+- Prefer small, localized edits over broad rewrites.
+- Preserve existing naming and module boundaries.
+- For UI errors, prefer user-facing copy (localized), not technical internal text.
+- Keep list/detail/edit behaviors consistent across modules (see `docs/UI_PATTERNS.md`).
+- Keep module UX consistent: similar operations (list, detail, edit, save/cancel, delete, status display) should behave the same across modules.
+- Do not add explicit Back buttons by default (strong preference). Use existing navigation unless product asks otherwise.
+
+## Multi-Step Task Workflow
+1. Inspect existing patterns in relevant module(s) before coding.
+2. Reuse existing entity/module components and shared helpers first; do not create parallel UI patterns.
+3. Implement changes with mobile-first constraints (small viewport behavior first).
+4. Run required validation commands.
+5. Run route-level smoke checks (mobile + desktop) for touched flows.
+6. Update docs when behavior/contracts changed.
+
+## Verification Commands
+Run what applies to touched areas.
+
+- Frontend lint:
+  - `cd frontend && npm run lint`
+- Frontend build:
+  - `cd frontend && npm run build`
+- Frontend dev:
+  - `cd frontend && npm run dev`
+  - optional fallback: `cd frontend && npm run dev:webpack`
+- Full bundle build (frontend + api + lang):
+  - `./build.sh`
+- Build output verification:
+  - `./build.sh --verify-only`
+
+Notes:
+- No dedicated repo-wide `typecheck` or unit-test script is currently standardized in `frontend/package.json`.
+- API dependencies are installed via Composer inside `build.sh`.
+
+## Mobile Smoke Checklist (Required for UI Changes)
+Validate at ~375px and ~430px widths, plus desktop.
+
+- No horizontal overflow or clipped cards/modals/drawers.
+- Header/topbar/search remain usable and readable.
+- Tap targets are reachable; primary actions are visible without desktop-only affordances.
+- Edit/create/detail flows are fully usable on mobile.
+- Light + dark theme and i18n strings still render correctly.
+
+## Change Safety Rules
+- Do not silently change API contracts without frontend alignment (and vice versa).
+- Preserve and verify permission checks; avoid UI-only authorization assumptions.
+- Avoid introducing parallel implementations of the same UI behavior.
+- Before adding a new UI component, verify an existing shared component cannot satisfy the requirement.
+- Do not trust client input for authorization-sensitive behavior; enforce checks in backend handlers.
+- Treat security-relevant changes (auth, permissions, tokens, sensitive endpoints) as high-risk and validate explicitly.
+- Keep debug/dev-only behavior gated as documented (`NEXT_PUBLIC_ENABLE_DEVELOPER_TOOLS`).
+- If you find conflicting docs vs code, resolve or document the drift in the same change.
+
+## Definition of Done
+A task is done only when:
+- behavior is implemented and matches current architecture conventions,
+- i18n coverage exists for all new user-facing text,
+- mobile + desktop smoke checks pass for touched routes,
+- rights/permission behavior is validated for affected flows (allowed and denied cases),
+- no change weakens existing security controls; backend authorization remains enforced,
+- lint/build checks pass for affected areas,
+- related docs are updated when behavior/contracts changed,
+- residual risks/open questions are explicitly noted.
+
+## Deeper Docs
+- Architecture/API: `docs/API_ARCHITECTURE.md`, `docs/API_ENDPOINTS.md`
+- UI conventions: `docs/UI_PATTERNS.md`
+- Feature behavior baseline: `docs/FEATURES_AND_BEHAVIORS.md`
+- Architecture decisions: `docs/ARCHITECTURE_DECISIONS.md`
+- Known issues: `docs/KNOWN_ISSUES.md`
+- Agent playbooks: `docs/agent-skills/`
+- Agent memory: `docs/agent-memory/`
