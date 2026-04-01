@@ -48,8 +48,8 @@ class Regex {
 		$this->regex ["bankno"] = '/^[a-zA-Z0-9\ ]{5,30}$/';
 		
 		$this->regex ["kdnr"] = '/^\d{4}-\d{3,6}$/';
-		$this->regex ["password"] = '/^[[:alpha:]' . Regex::$SPECIALCHARACTERS . '0-9\ \.\-\,\;\:\_\+\&\#\'\/\!\$]{6,45}$/';
-		$this->regex_js ["password"] = '^[\\\w' . Regex::$SPECIALCHARACTERS . '\\\s\\\.\\\-\\\,\\\;\\\:\\\_\\\+\\\&\\\\#\\\'\\\/\\\!\\\$]{6,45}$';
+		$this->regex ["password"] = '/^.{6,45}$/';
+		$this->regex_js ["password"] = '^.{6,45}$';
 		
 		$this->regex ["login"] = '/^[[:alnum:]\.\-\_]{3,45}$/';
 		$this->regex_js ["login"] = '^[\\\w\\\.\\\-\\\_]{3,45}$';
