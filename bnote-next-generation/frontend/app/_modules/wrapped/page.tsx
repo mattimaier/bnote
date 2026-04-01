@@ -326,50 +326,6 @@ export default function WrappedModulePage() {
               </div>
             </section>
 
-            {data.band && data.band.events.total > 0 ? (
-              <section className="rounded-3xl border border-base-300 bg-base-200/40 wrapped-reveal" style={revealStyle(380)}>
-                <div className="p-4 md:p-5">
-                  <div className="flex items-center justify-between gap-2">
-                    <h2 className="card-title text-base">{t("js.wrapped.band.title")}</h2>
-                    <span className="rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-base-content/70">
-                      {t("js.wrapped.band.subtitle", [data.band.yesRate.toFixed(1)])}
-                    </span>
-                  </div>
-
-                  <div className="mt-3 md:hidden space-y-2">
-                    {data.band.topResponders.map((row, idx) => (
-                      <div key={`${row.firstName}-${idx}`} className="rounded-xl border border-base-300 bg-base-100 p-3">
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="font-medium">{idx + 1}. {row.firstName}</span>
-                          <span className="badge badge-soft">{row.score}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="mt-3 hidden md:block overflow-x-auto rounded-2xl bg-white">
-                    <table className="table table-sm">
-                      <thead>
-                        <tr>
-                          <th>#</th>
-                          <th>{t("js.wrapped.band.firstName")}</th>
-                          <th className="text-right">{t("js.wrapped.band.score")}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {data.band.topResponders.map((row, idx) => (
-                          <tr key={`${row.firstName}-${idx}`}>
-                            <td>{idx + 1}</td>
-                            <td>{row.firstName}</td>
-                            <td className="text-right">{row.score}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </section>
-            ) : null}
           </>
         ) : null}
       </div>
