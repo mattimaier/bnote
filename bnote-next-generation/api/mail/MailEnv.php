@@ -53,6 +53,13 @@ final class MailEnv {
         if ($full !== '') {
             return rtrim($full, '/');
         }
+        if (self::isLocalDevContext()) {
+            $inferredOrigin = self::inferRequestOrigin();
+            if ($inferredOrigin !== '') {
+                $path = self::nextgenAppPathPrefix();
+                return rtrim($inferredOrigin, '/') . ($path !== '' ? $path : '');
+            }
+        }
         $origin = trim(self::getenvFirst([
             'BNOTE_NEXT_GENERATION_PUBLIC_ORIGIN',
         ]));
@@ -467,6 +474,59 @@ final class MailEnv {
 
         self::$deployEnvCache = $out;
         return self::$deployEnvCache;
+    }
+
+    private static function inferRequestOrigin(): string {
+        $originRaw = trim((string) ($_SERVER['HTTP_ORIGIN'] ?? ''));
+        $origin = self::normalizeHttpOrigin($originRaw);
+        if ($origin !== '') {
+            return $origin;
+        }
+
+        $refererRaw = trim((string) ($_SERVER['HTTP_REFERER'] ?? ''));
+        if ($refererRaw !== '') {
+            $scheme = strtolower((string) parse_url($refererRaw, PHP_URL_SCHEME));
+            $host = (string) parse_url($refererRaw, PHP_URL_HOST);
+            $port = parse_url($refererRaw, PHP_URL_PORT);
+            if (($scheme === 'http' || $scheme === 'https') && $host !== '') {
+                $p = is_int($port) ? ':' . $port : '';
+                return $scheme . '://' . $host . $p;
+            }
+        }
+
+        $hostRaw = trim((string) ($_SERVER['HTTP_HOST'] ?? ''));
+        if ($hostRaw === '') {
+            return '';
+        }
+        $scheme = self::isHttpsRequest() ? 'https' : 'http';
+        return $scheme . '://' . $hostRaw;
+    }
+
+    private static function normalizeHttpOrigin(string $origin): string {
+        if ($origin === '') {
+            return '';
+        }
+        $scheme = strtolower((string) parse_url($origin, PHP_URL_SCHEME));
+        $host = (string) parse_url($origin, PHP_URL_HOST);
+        $port = parse_url($origin, PHP_URL_PORT);
+        if (($scheme !== 'http' && $scheme !== 'https') || $host === '') {
+            return '';
+        }
+        $p = is_int($port) ? ':' . $port : '';
+        return $scheme . '://' . $host . $p;
+    }
+
+    private static function isHttpsRequest(): bool {
+        $https = strtolower((string) ($_SERVER['HTTPS'] ?? ''));
+        if ($https === 'on' || $https === '1') {
+            return true;
+        }
+        $forwardedProto = strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''));
+        if ($forwardedProto === 'https') {
+            return true;
+        }
+        $serverPort = (string) ($_SERVER['SERVER_PORT'] ?? '');
+        return $serverPort === '443';
     }
 
     private static function isLocalDevContext(): bool {
