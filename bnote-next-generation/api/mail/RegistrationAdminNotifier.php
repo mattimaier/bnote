@@ -30,6 +30,10 @@ final class RegistrationAdminNotifier {
             $n = is_array($admins) ? count($admins) : 0;
             for ($i = 1; $i < $n; $i++) {
                 $row = $admins[$i];
+                $contactId = (int) ($row['id'] ?? 0);
+                if (!self::contactHasActiveUser($system_data, $contactId)) {
+                    continue;
+                }
                 $e = trim((string) ($row['email'] ?? ''));
                 if ($e === '' || !filter_var($e, FILTER_VALIDATE_EMAIL) || isset($seen[$e])) {
                     continue;
@@ -65,5 +69,17 @@ final class RegistrationAdminNotifier {
         } catch (Throwable $e) {
             error_log('RegistrationAdminNotifier: ' . $e->getMessage());
         }
+    }
+
+    private static function contactHasActiveUser($system_data, int $contactId): bool {
+        if ($contactId < 1 || !$system_data || !isset($system_data->dbcon)) {
+            return false;
+        }
+        $activeUid = $system_data->dbcon->colValue(
+            'SELECT id FROM user WHERE contact = ? AND isActive = 1 LIMIT 1',
+            'id',
+            [['i', $contactId]]
+        );
+        return $activeUid !== null;
     }
 }

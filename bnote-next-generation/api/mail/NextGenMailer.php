@@ -36,6 +36,7 @@ final class NextGenMailer {
             require_once dirname(__DIR__) . '/paths.php';
         }
         require_once __DIR__ . '/MailRecipientPolicy.php';
+        global $system_data;
         if (!class_exists(PHPMailer::class)) {
             error_log('NextGenMailer: PHPMailer not installed (run composer install in bnote-next-generation/api).');
             return false;
@@ -47,14 +48,22 @@ final class NextGenMailer {
         $to = [];
         foreach ($message->to as $addr) {
             $addr = trim((string) $addr);
-            if ($addr !== '' && !MailRecipientPolicy::shouldSkipOutboundDelivery($addr)) {
+            if (
+                $addr !== ''
+                && !MailRecipientPolicy::shouldSkipOutboundDelivery($addr)
+                && !MailRecipientPolicy::shouldSkipInactiveUserRecipient($addr, $system_data)
+            ) {
                 $to[] = $addr;
             }
         }
         $bcc = [];
         foreach ($message->bcc as $addr) {
             $addr = trim((string) $addr);
-            if ($addr !== '' && !MailRecipientPolicy::shouldSkipOutboundDelivery($addr)) {
+            if (
+                $addr !== ''
+                && !MailRecipientPolicy::shouldSkipOutboundDelivery($addr)
+                && !MailRecipientPolicy::shouldSkipInactiveUserRecipient($addr, $system_data)
+            ) {
                 $bcc[] = $addr;
             }
         }
