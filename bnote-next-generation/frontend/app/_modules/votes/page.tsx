@@ -400,13 +400,7 @@ function VotesTable({
               ]}
             >
               <thead>
-                <tr
-                  className="border-b"
-                  style={{
-                    borderColor: "var(--border)",
-                    background: "var(--muted)/30",
-                  }}
-                >
+                <tr className="border-b border-base-300 bg-base-200/60">
                   <SortableTh
                     columnId="name"
                     label={t("js.votes.name") !== "js.votes.name" ? t("js.votes.name") : "Name"}
@@ -444,8 +438,7 @@ function VotesTable({
                   sortedItems.map((row) => (
                     <tr
                       key={row.id}
-                      className="cursor-pointer border-b transition-colors hover:bg-[var(--muted)]/30"
-                      style={{ borderColor: "var(--border)" }}
+                      className="cursor-pointer border-b border-base-300 transition-colors hover:bg-base-200/70"
                       onClick={() => onRowClick(row.id)}
                     >
                       <td className="p-3 font-medium">{row.name ?? emptyText}</td>

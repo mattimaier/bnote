@@ -33,7 +33,7 @@ export function EditingBar({
     : (t("js.common.save") !== "js.common.save" ? t("js.common.save") : "Save");
 
   return (
-    <div className="z-30 w-full rounded-b-box border border-base-300 border-t-0 bg-[color-mix(in_oklch,var(--primary)_10%,white)] px-4 py-3 shadow-sm text-base-content">
+    <div className="z-30 w-full rounded-b-box border border-base-300 border-t-0 bg-[color-mix(in_oklch,var(--primary)_10%,var(--card))] px-4 py-3 shadow-sm text-base-content">
       <div className="mx-auto flex max-w-[1200px] flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="text-sm font-medium">
           {t("js.common.editing") !== "js.common.editing"

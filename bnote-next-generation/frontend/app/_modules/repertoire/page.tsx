@@ -221,13 +221,7 @@ export default function RepertoirePage() {
               ]}
             >
               <thead>
-                <tr
-                  className="border-b"
-                  style={{
-                    borderColor: "var(--border)",
-                    background: "var(--muted)/30",
-                  }}
-                >
+                <tr className="border-b border-base-300 bg-base-200/60">
                   <SortableTh
                     label={
                       t("js.repertoire.songTitle") !== "js.repertoire.songTitle"
@@ -304,8 +298,7 @@ export default function RepertoirePage() {
                   sorted.map((item) => (
                     <tr
                       key={item.id}
-                      className="cursor-pointer border-b transition-colors hover:bg-[var(--muted)]/30"
-                      style={{ borderColor: "var(--border)" }}
+                      className="cursor-pointer border-b border-base-300 transition-colors hover:bg-base-200/70"
                       onClick={() => handleRowClick(item.id)}
                     >
                       <td className="p-3 font-medium">{item.title ?? emptyText}</td>

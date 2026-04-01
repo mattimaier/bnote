@@ -14,7 +14,7 @@ const variantClasses: Record<SpinnerVariant, string> = {
   primary:
     "border-2 border-primary border-t-transparent",
   muted:
-    "border-2 border-zinc-400 border-t-transparent dark:border-zinc-500",
+    "border-2 border-base-content/40 border-t-transparent",
 };
 
 export interface SpinnerProps {

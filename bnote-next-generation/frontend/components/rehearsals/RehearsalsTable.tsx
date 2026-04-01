@@ -206,7 +206,7 @@ export function RehearsalsTable({
               ]}
             >
               <thead>
-                <tr className="border-b" style={{ borderColor: "var(--border)", background: "var(--muted)/30" }}>
+                <tr className="border-b border-base-300 bg-base-200/60">
                   <SortableTh
                     columnId="begin"
                     label={t("js.event.begin") !== "js.event.begin" ? t("js.event.begin") : "Begin"}
@@ -258,8 +258,7 @@ export function RehearsalsTable({
                   sortedItems.map((row) => (
                     <tr
                       key={row.id}
-                      className="cursor-pointer border-b transition-colors hover:bg-[var(--muted)]/30"
-                      style={{ borderColor: "var(--border)" }}
+                      className="cursor-pointer border-b border-base-300 transition-colors hover:bg-base-200/70"
                       onClick={() => onRowClick(row.id)}
                     >
                       <td className="p-3">{row.begin ? formatDateTime(new Date(row.begin)) : emptyText}</td>

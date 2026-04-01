@@ -247,6 +247,8 @@ These scripts live under **`api/debug/`**, work only from **127.0.0.1** or **::1
    Example: `…/api/debug/mail_test_send.php?to=you@example.com&template=event_invite_concert&locale=de`
 
 3. **HTML preview** (no SMTP): open **`api/debug/mail_debug.php`** for a list of templates and locales, or call **`api/debug/mail_preview.php?template=password_reset&locale=en`**. Every supported `template=` id is listed in **`MailPreviewRegistry::templates()`** (see [Subsystem map](#subsystem-map-handover)); examples include **`long_demo`** (stress-test layout), **`comment_discussion_*`**, **`event_invite_*`**, **`task_assigned`** / **`task_updated`**. Example: `api/debug/mail_preview.php?template=comment_discussion_rehearsal_short&locale=de`  
+   - Preview theme override for dark-mode QA: add **`&theme=auto|light|dark`** (default `auto`).  
+   - The debug index now includes an **Auto / Light / Dark** switch and forwards it to all preview links.
    The JSON from **`mail_config_check.php`** includes a **`mailDebug`** object with paths under **`api/debug/`**. Logo uses a data URL in the browser; real sends use a CID attachment.
 
 **Dark mode:** HTML mail sets `color-scheme: light dark`, meta `color-scheme` / `supported-color-schemes`, and **`@media (prefers-color-scheme: dark)`** using dark palette tokens in **`frontend/mail-design-tokens.json`** (aligned with FlyonUI `bnotedark`). Apple Mail and many iOS clients follow this; Gmail and other webmail may keep a light canvas or apply their own rules.

@@ -232,18 +232,29 @@ final class EscalationAlertMailBuilder {
             ? MailDesignTokens::get('participationDestructive')
             : MailDesignTokens::get('participationWarning');
         $headlineKey = $isCritical ? 'mail.escalation.headlineCritical' : 'mail.escalation.headlineSoon';
+        $icon = self::alertTriangleSvg();
 
         return '<div style="margin:0 0 12px;padding:10px 12px;border:1px solid ' . htmlspecialchars($border, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
             . ';background:' . htmlspecialchars($bg, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
             . ';border-radius:10px;">'
-            . '<span style="display:inline-block;padding:3px 8px;border-radius:999px;border:1px solid ' . htmlspecialchars($border, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
-            . ';background:#ffffff;font-size:12px;line-height:1.2;font-weight:700;color:' . htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . ';">'
-            . htmlspecialchars(MailI18n::t('mail.escalation.alertBadge', $locale), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
+            . '<span class="em-alert-chip" style="display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border-radius:999px;border:1px solid ' . htmlspecialchars($border, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
+            . ';font-size:12px;line-height:1.2;font-weight:700;color:' . htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . ';">'
+            . '<span style="display:inline-flex;align-items:center;justify-content:center;color:' . htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . ';">' . $icon . '</span>'
+            . '<span>' . htmlspecialchars(MailI18n::t('mail.escalation.alertBadge', $locale), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</span>'
             . '</span>'
             . '<span style="margin-left:8px;font-size:13px;font-weight:600;color:' . htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . ';">'
             . htmlspecialchars(MailI18n::t($headlineKey, $locale), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
             . '</span>'
             . '</div>';
+    }
+
+    private static function alertTriangleSvg(): string {
+        return '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" '
+            . 'stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:block;">'
+            . '<path d="M12 9v4" />'
+            . '<path d="M12 17h.01" />'
+            . '<path d="M10.29 3.86l-8 14a2 2 0 0 0 1.71 3h16a2 2 0 0 0 1.71-3l-8-14a2 2 0 0 0-3.42 0z" />'
+            . '</svg>';
     }
 
     /**
@@ -287,7 +298,7 @@ final class EscalationAlertMailBuilder {
             'maybe' => MailDesignTokens::get('participationWarning'),
             'no' => MailDesignTokens::get('participationDestructive'),
             // Match app-style neutral pending segment.
-            'pending' => 'oklch(0.78 0.01 250)',
+            'pending' => MailDesignTokens::get('pendingNeutral', '#9ca3af'),
         ];
 
         $parts = [];
@@ -318,9 +329,9 @@ final class EscalationAlertMailBuilder {
             . '<p style="margin:0 0 6px;font-weight:600;">'
             . htmlspecialchars(MailI18n::t('js.event.participation', $locale), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
             . '</p>'
-            . '<div style="display:flex;align-items:center;gap:0;border-radius:0.5rem;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08);border:1px solid '
+            . '<div class="em-participation-track" style="display:flex;align-items:center;gap:0;border-radius:0.5rem;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08);border:1px solid '
             . htmlspecialchars(MailDesignTokens::get('border'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
-            . ';background:#e5e7eb;">'
+            . ';background:' . htmlspecialchars(MailDesignTokens::get('surfaceBorder', '#e5e7eb'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . ';">'
             . implode('', $parts)
             . '</div>'
             . '</div>';

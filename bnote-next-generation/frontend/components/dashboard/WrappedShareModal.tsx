@@ -278,7 +278,7 @@ export function WrappedShareModal({
       <div className="flex max-h-[90dvh] flex-col">
         <div className="overflow-y-auto p-4">
           <div className="flex justify-center">
-            <div className="inline-block rounded-xl border border-base-300 bg-base-200/30 p-2">
+            <div className="inline-block rounded-xl border border-base-300 bg-base-200/30 p-2" data-theme="bnotelight" style={{ colorScheme: "light" }}>
               <div
                 ref={previewRef}
                 className="relative mx-auto w-[320px] md:w-[420px] max-w-[88vw] overflow-hidden rounded-3xl bg-white p-0 text-[#0f172a] shadow-2xl"

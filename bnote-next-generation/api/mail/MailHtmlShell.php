@@ -60,6 +60,22 @@ final class MailHtmlShell {
         $tmD = $t['textMutedDark'] ?? '#8b95a5';
         $bdD = $t['borderDark'] ?? '#3d4654';
         $shD = $t['shadowCardDark'] ?? '0 1px 3px rgba(0,0,0,0.45)';
+        $surfaceBg = $t['surfaceBg'] ?? '#f3f4f6';
+        $surfaceBgD = $t['surfaceBgDark'] ?? '#2a303b';
+        $surfaceBorder = $t['surfaceBorder'] ?? '#e5e7eb';
+        $surfaceBorderD = $t['surfaceBorderDark'] ?? '#4a5465';
+        $surfaceText = $t['surfaceText'] ?? '#111827';
+        $surfaceTextD = $t['surfaceTextDark'] ?? '#eceff4';
+        $surfaceQuoteBorder = $t['surfaceQuoteBorder'] ?? '#d1d5db';
+        $surfaceQuoteBorderD = $t['surfaceQuoteBorderDark'] ?? '#6b7383';
+        $surfaceQuoteText = $t['surfaceQuoteText'] ?? '#374151';
+        $surfaceQuoteTextD = $t['surfaceQuoteTextDark'] ?? '#d6dbe4';
+        $surfaceHighlight = $t['surfaceHighlight'] ?? '#fef08a';
+        $surfaceHighlightD = $t['surfaceHighlightDark'] ?? '#7a6412';
+        $chatAvatarBg = $t['chatAvatarBg'] ?? '#dbeafe';
+        $chatAvatarBgD = $t['chatAvatarBgDark'] ?? '#2f446b';
+        $chatAvatarText = $t['chatAvatarText'] ?? '#1d4ed8';
+        $chatAvatarTextD = $t['chatAvatarTextDark'] ?? '#dce9ff';
 
         $pageBgEsc = htmlspecialchars($pageBg, ENT_QUOTES, 'UTF-8');
         $styleBlock = '<style type="text/css">'
@@ -77,6 +93,16 @@ final class MailHtmlShell {
             . '.em-body .em-list{color:' . $tc . ';}'
             . '.em-body .em-list-plain{list-style:none!important;padding-left:0!important;margin:16px 0;color:' . $tc . ';}'
             . '.em-body .em-list-plain li{margin:0 0 8px;}'
+            . '.em-surface{background:' . $surfaceBg . ' !important;border:1px solid ' . $surfaceBorder . ' !important;color:' . $surfaceText . ' !important;}'
+            . '.em-surface-pre{background:' . $surfaceBg . ' !important;border:1px solid ' . $surfaceBorder . ' !important;color:' . $surfaceText . ' !important;}'
+            . '.em-surface-code{background:' . $surfaceBg . ' !important;border:1px solid ' . $surfaceBorder . ' !important;color:' . $surfaceText . ' !important;border-radius:4px;padding:0 4px;}'
+            . '.em-surface-quote{border-left:3px solid ' . $surfaceQuoteBorder . ' !important;color:' . $surfaceQuoteText . ' !important;}'
+            . '.em-mark{background:' . $surfaceHighlight . ' !important;color:inherit !important;padding:0 2px;border-radius:2px;}'
+            . '.em-chat-avatar{background-color:' . $chatAvatarBg . ' !important;color:' . $chatAvatarText . ' !important;}'
+            . '.em-chat-bubble{background-color:' . $surfaceBg . ' !important;border:1px solid ' . $surfaceBorder . ' !important;color:' . $surfaceText . ' !important;}'
+            . '.em-new-comment-head{background-color:rgba(255,255,255,0.55) !important;}'
+            . '.em-alert-chip{background:' . $cardBg . ' !important;border:1px solid ' . $border . ' !important;color:' . $tc . ' !important;}'
+            . '.em-participation-track{border:1px solid ' . $border . ' !important;background:' . $surfaceBorder . ' !important;}'
             . '.em-hr{border:none;border-top:1px solid ' . $border . ';margin:24px 0;}'
             . '.em-body p a,.em-body p a:link,.em-body p a:visited{color:' . $primary . ' !important;text-decoration:underline !important;font-weight:600 !important;}'
             . 'a.em-link,a.em-link:link,a.em-link:visited{color:' . $primary . ' !important;text-decoration:underline !important;font-weight:600 !important;}'
@@ -112,6 +138,15 @@ final class MailHtmlShell {
             . '.em-body .em-text-secondary{color:' . $tsD . ' !important;}'
             . '.em-body .em-section-title{color:' . $textD . ' !important;}'
             . '.em-body .em-section-p-muted{color:' . $tmD . ' !important;}'
+            . '.em-surface,.em-surface-pre{background:' . $surfaceBgD . ' !important;border-color:' . $surfaceBorderD . ' !important;color:' . $surfaceTextD . ' !important;}'
+            . '.em-surface-code{background:' . $surfaceBgD . ' !important;border-color:' . $surfaceBorderD . ' !important;color:' . $surfaceTextD . ' !important;}'
+            . '.em-surface-quote{border-left-color:' . $surfaceQuoteBorderD . ' !important;color:' . $surfaceQuoteTextD . ' !important;}'
+            . '.em-mark{background:' . $surfaceHighlightD . ' !important;color:' . $surfaceTextD . ' !important;}'
+            . '.em-chat-avatar{background-color:' . $chatAvatarBgD . ' !important;color:' . $chatAvatarTextD . ' !important;}'
+            . '.em-chat-bubble{background-color:' . $surfaceBgD . ' !important;border-color:' . $surfaceBorderD . ' !important;color:' . $surfaceTextD . ' !important;}'
+            . '.em-new-comment-head{background-color:rgba(0,0,0,0.2) !important;}'
+            . '.em-alert-chip{background:' . $cardD . ' !important;border-color:' . $bdD . ' !important;color:' . $textD . ' !important;}'
+            . '.em-participation-track{border-color:' . $bdD . ' !important;background:' . $surfaceBorderD . ' !important;}'
             . '.em-hr{border-top-color:' . $bdD . ' !important;}'
             . '}'
             . '</style>';

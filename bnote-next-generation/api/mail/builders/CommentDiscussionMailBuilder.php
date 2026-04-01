@@ -18,12 +18,6 @@ require_once dirname(__DIR__) . '/CommentDiscussionEntityUrl.php';
 final class CommentDiscussionMailBuilder {
     private const THREAD_MAX = 15;
 
-    /** Receiver bubble (FlyonUI chat-receiver / base-200 approximation). */
-    private const BUBBLE_BG = '#f3f4f6';
-    private const BUBBLE_BORDER = '#e5e7eb';
-    private const AVATAR_BG = '#dbeafe';
-    private const AVATAR_FG = '#1d4ed8';
-
     /**
      * @param list<array{author:string,message:string,created_at:string,is_new:bool}> $thread Chronological, oldest first
      * @param array{
@@ -351,10 +345,10 @@ final class CommentDiscussionMailBuilder {
         }
         $initialEsc = htmlspecialchars($initial, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 
-        $avatarBg = htmlspecialchars(self::AVATAR_BG, ENT_QUOTES, 'UTF-8');
-        $avatarFg = htmlspecialchars(self::AVATAR_FG, ENT_QUOTES, 'UTF-8');
-        $bubbleBg = htmlspecialchars(self::BUBBLE_BG, ENT_QUOTES, 'UTF-8');
-        $bubbleBd = htmlspecialchars(self::BUBBLE_BORDER, ENT_QUOTES, 'UTF-8');
+        $avatarBg = htmlspecialchars(MailDesignTokens::get('chatAvatarBg', '#dbeafe'), ENT_QUOTES, 'UTF-8');
+        $avatarFg = htmlspecialchars(MailDesignTokens::get('chatAvatarText', '#1d4ed8'), ENT_QUOTES, 'UTF-8');
+        $bubbleBg = htmlspecialchars(MailDesignTokens::get('surfaceBg', '#f3f4f6'), ENT_QUOTES, 'UTF-8');
+        $bubbleBd = htmlspecialchars(MailDesignTokens::get('surfaceBorder', '#e5e7eb'), ENT_QUOTES, 'UTF-8');
         $labelColor = htmlspecialchars($textMuted, ENT_QUOTES, 'UTF-8');
         $textColor = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
         $fsSmallEsc = htmlspecialchars($fsSmall, ENT_QUOTES, 'UTF-8');
@@ -362,14 +356,14 @@ final class CommentDiscussionMailBuilder {
 
         $inner = '<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>'
             . '<td valign="top" style="width:44px;padding:0 10px 0 0;">'
-            . '<div style="width:36px;height:36px;border-radius:9999px;background-color:' . $avatarBg . ';color:' . $avatarFg
+            . '<div class="em-chat-avatar" style="width:36px;height:36px;border-radius:9999px;background-color:' . $avatarBg . ';color:' . $avatarFg
             . ';font-weight:700;font-size:14px;line-height:36px;text-align:center;">' . $initialEsc . '</div>'
             . '</td>'
             . '<td valign="top" style="padding:0;">'
             . '<p style="margin:0 0 6px;font-size:' . $fsSmallEsc . ';line-height:1.4;color:' . $labelColor . ';">'
             . '<span style="font-weight:600;color:' . $textColor . ';">' . $author . '</span>'
             . ' <span style="color:' . $labelColor . ';">· ' . $when . '</span></p>'
-            . '<div style="display:inline-block;max-width:100%;border-radius:16px;padding:10px 14px;background-color:' . $bubbleBg
+            . '<div class="em-chat-bubble" style="display:inline-block;max-width:100%;border-radius:16px;padding:10px 14px;background-color:' . $bubbleBg
             . ';border:1px solid ' . $bubbleBd . ';color:' . $textColor . ';font-size:' . $fsBodyEsc
             . ';line-height:1.5;word-wrap:break-word;">' . $msgHtml . '</div>'
             . '</td></tr></table>';
@@ -381,7 +375,7 @@ final class CommentDiscussionMailBuilder {
             return '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 18px;">'
                 . '<tr><td style="padding:0;">'
                 . '<div style="border:2px solid ' . $accentEsc . ';border-radius:18px;background-color:' . $newCommentFrameBgEsc . ';overflow:hidden;">'
-                . '<div style="padding:12px 14px 10px;border-bottom:1px solid ' . $accentEsc . ';background-color:rgba(255,255,255,0.55);">'
+                . '<div class="em-new-comment-head" style="padding:12px 14px 10px;border-bottom:1px solid ' . $accentEsc . ';">'
                 . '<span style="font-size:11px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:' . $accentEsc . ';">'
                 . $newLabel . '</span>'
                 . '</div>'

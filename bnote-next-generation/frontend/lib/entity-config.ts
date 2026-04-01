@@ -303,10 +303,10 @@ export function getEscalationWarningUiConfig(severityRaw: string): EscalationWar
       color: "#ffffff",
     },
     cardStyle: {
-      borderColor: border,
-      backgroundColor: bg,
-      color: severity === "critical" ? "#6f4d54" : "#6b6244",
+      borderColor: `color-mix(in oklab, ${border} 70%, var(--border))`,
+      backgroundColor: `color-mix(in oklab, ${bg} 45%, var(--card))`,
+      color: "var(--foreground)",
     },
-    textColor: severity === "critical" ? "#6f4d54" : "#6b6244",
+    textColor: "var(--foreground)",
   };
 }

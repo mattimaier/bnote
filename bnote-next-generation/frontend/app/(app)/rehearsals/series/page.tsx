@@ -154,7 +154,7 @@ function SeriesTableSection({
               {items.length === 0 ? (
                 <tr><td className="p-8 text-center" colSpan={4}>{t("js.common.noData") !== "js.common.noData" ? t("js.common.noData") : "No data"}</td></tr>
               ) : items.map((row) => (
-                <tr key={row.id} className="cursor-pointer border-b hover:bg-[var(--muted)]/30" style={{ borderColor: "var(--border)" }} onClick={() => onOpen(row.id)}>
+                <tr key={row.id} className="cursor-pointer border-b border-base-300 hover:bg-base-200/70" onClick={() => onOpen(row.id)}>
                   <td className="p-3">{row.name || `#${row.id}`}</td>
                   <td className="p-3">{localizeDate(row.firstSession)}</td>
                   <td className="p-3">{localizeDate(row.lastSession)}</td>

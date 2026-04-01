@@ -9,8 +9,12 @@ mail_loopback_guard();
 
 $template = isset($_GET['template']) && is_string($_GET['template']) ? trim($_GET['template']) : 'password_reset';
 $locale = isset($_GET['locale']) && is_string($_GET['locale']) ? trim($_GET['locale']) : 'en';
+$theme = isset($_GET['theme']) && is_string($_GET['theme']) ? strtolower(trim($_GET['theme'])) : 'auto';
 if ($locale === '') {
     $locale = 'en';
+}
+if (!in_array($theme, ['auto', 'light', 'dark'], true)) {
+    $theme = 'auto';
 }
 
 require_once __DIR__ . '/../mail/MailPreviewRegistry.php';
@@ -33,5 +37,24 @@ try {
 }
 
 $html = MailPreviewHtml::replaceCidLogoWithDataUri($msg->htmlBody);
+
+if ($theme !== 'auto') {
+    // Debug-only override to simulate client color-scheme behavior in the browser preview.
+    $search = [
+        '@media (prefers-color-scheme:dark){',
+        '@media (prefers-color-scheme: dark){',
+    ];
+    $replace = $theme === 'dark'
+        ? ['@media all{', '@media all{']
+        : ['@media not all{', '@media not all{'];
+    $html = str_replace($search, $replace, $html);
+
+    $forcedScheme = $theme === 'dark' ? 'dark' : 'light';
+    $forceStyle = '<style id="debug-theme-force">html,body{color-scheme:' . $forcedScheme . ' !important;}</style>';
+    if (stripos($html, '</head>') !== false) {
+        $html = preg_replace('/<\/head>/i', $forceStyle . '</head>', $html, 1) ?? $html;
+    }
+}
+
 header('Content-Type: text/html; charset=UTF-8');
 echo $html;

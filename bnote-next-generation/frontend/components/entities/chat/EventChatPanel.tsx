@@ -220,7 +220,7 @@ export function EventChatPanel({
               }
             }}
             placeholder={placeholder}
-            className="textarea textarea-bordered join-item flex-1 min-w-0 min-h-[2.5rem] max-h-[120px] resize-none overflow-hidden !bg-white dark:!bg-base-200 focus:ring-inset"
+            className="textarea textarea-bordered join-item flex-1 min-w-0 min-h-[2.5rem] max-h-[120px] resize-none overflow-hidden bg-base-100 text-base-content placeholder:text-base-content/55 focus:ring-inset"
             style={{ height: "auto" }}
             rows={1}
             maxLength={2000}

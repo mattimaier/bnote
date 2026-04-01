@@ -227,7 +227,7 @@ final class EventInfoMailBuilder {
                 if (trim($codeEsc) === '') {
                     continue;
                 }
-                $htmlParts[] = '<pre style="margin:0 0 1em;padding:10px 12px;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:8px;overflow:auto;"><code style="font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,monospace;font-size:13px;line-height:1.45;color:#111827;">' . $codeEsc . '</code></pre>';
+                $htmlParts[] = '<pre class="em-surface-pre" style="margin:0 0 1em;padding:10px 12px;border-radius:8px;overflow:auto;"><code style="font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,monospace;font-size:13px;line-height:1.45;">' . $codeEsc . '</code></pre>';
                 $textParts[] = $codeRaw;
                 continue;
             }
@@ -237,7 +237,7 @@ final class EventInfoMailBuilder {
                 if ($txt === '') {
                     continue;
                 }
-                $htmlParts[] = '<blockquote style="margin:0 0 1em;padding:8px 12px;border-left:3px solid #d1d5db;color:#374151;font-style:italic;">' . $txt . '</blockquote>';
+                $htmlParts[] = '<blockquote class="em-surface-quote" style="margin:0 0 1em;padding:8px 12px;font-style:italic;">' . $txt . '</blockquote>';
                 $textParts[] = '> ' . self::plainInline($txtRaw);
                 continue;
             }
@@ -329,8 +329,8 @@ final class EventInfoMailBuilder {
     }
 
     private static function styleInlineTags(string $html): string {
-        $out = preg_replace('/<code>/i', '<code style="font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,monospace;font-size:0.92em;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:4px;padding:0 4px;">', $html) ?? $html;
-        $out = preg_replace('/<mark>/i', '<mark style="background:#fef08a;color:inherit;padding:0 2px;border-radius:2px;">', $out) ?? $out;
+        $out = preg_replace('/<code>/i', '<code class="em-surface-code" style="font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,monospace;font-size:0.92em;">', $html) ?? $html;
+        $out = preg_replace('/<mark>/i', '<mark class="em-mark">', $out) ?? $out;
         $out = preg_replace('/<strong>/i', '<strong style="font-weight:700;">', $out) ?? $out;
         $out = preg_replace('/<b>/i', '<b style="font-weight:700;">', $out) ?? $out;
         return $out;

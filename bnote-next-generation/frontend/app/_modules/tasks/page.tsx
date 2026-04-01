@@ -401,8 +401,7 @@ function TasksTable({
         >
             <thead>
                 <tr
-                  className="border-b"
-                  style={{ borderColor: "var(--border)", background: "var(--muted)/30" }}
+                  className="border-b border-base-300 bg-base-200/60"
                 >
                   {(showCheckbox || showUncompleteCheckbox) && (
                   <ResizableTh columnId="complete">
@@ -450,8 +449,7 @@ function TasksTable({
                 items.map((row) => (
                   <tr
                     key={row.id}
-                    className="cursor-pointer border-b transition-colors hover:bg-[var(--muted)]/30"
-                    style={{ borderColor: "var(--border)" }}
+                    className="cursor-pointer border-b border-base-300 transition-colors hover:bg-base-200/70"
                     onClick={() => onRowClick(row.id)}
                   >
                     {(showCheckbox || showUncompleteCheckbox) && (

@@ -150,6 +150,7 @@ Architecture-level permission decisions are documented in **[ARCHITECTURE_DECISI
 - **Search:** Top-bar overlay; search results page with query in URL; filters; result list with type icon, date, tag, time, location.
 - **Entity detail:** Path-based view/edit; type title + icon + tag; metadata; map links; participation widget; overview bar; participants with group-by and status icons. Edit mode in URL; delete only in edit view (DetailDeleteSection + ConfirmModal).
 - **Shell:** Sidebar, mobile drawer, top bar (search, theme, user); logo everywhere.
+- **Wrapped:** Module follows app theme (light/dark). The generated/shared Wrapped share card is intentionally rendered in light mode for consistent exported image colors.
 - **Bug reporting:** Report button visible only when feature flag is enabled; modal has single required message field; diagnostics counters populate after app activity; report send returns a `reportId` on success.
 - **Translations:** No “[module module]” or raw keys; company name in subtitle; all strings from lang/ or API.
 - **Icons:** All entity types and actions use icons from `entity-config` + `icons.tsx`; logo loads; no broken placeholders.

@@ -182,7 +182,7 @@ export default function NewsPage() {
 
       <div className="card card-border shadow-none rounded-xl border border-border/40 overflow-hidden">
         <div className="card-body p-0">
-          <div className="bg-white dark:bg-base-100 shadow-base-300/20 rounded-box w-full p-4 min-h-[280px]">
+          <div className="bg-base-100 shadow-base-300/20 rounded-box w-full p-4 min-h-[280px]">
             {loading && (
               <div className="flex items-center justify-center py-12">
                 <Spinner />
