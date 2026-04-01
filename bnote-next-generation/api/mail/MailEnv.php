@@ -402,13 +402,6 @@ final class MailEnv {
             return self::$deployEnvCache;
         }
 
-        // Safety guard: when running locally, never pull public URLs from deployment env.
-        // This prevents localhost-generated emails from containing production links/tokens.
-        if (self::isLocalDevContext()) {
-            self::$deployEnvCache = [];
-            return self::$deployEnvCache;
-        }
-
         $path = dirname(__DIR__, 2) . '/.deploy.env';
         if (!is_file($path) || !is_readable($path)) {
             self::$deployEnvCache = [];
@@ -464,6 +457,12 @@ final class MailEnv {
                 }
             }
             $out[$key] = trim($val);
+        }
+
+        if (self::isLocalDevContext()) {
+            // In local dev, keep MAIL_* fallbacks from .deploy.env, but never reuse
+            // deployment public URLs for link generation inside locally sent emails.
+            unset($out['BNOTE_NEXT_GENERATION_PUBLIC_URL'], $out['BNOTE_NEXT_GENERATION_PUBLIC_ORIGIN']);
         }
 
         self::$deployEnvCache = $out;
