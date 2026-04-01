@@ -40,6 +40,7 @@ require_once __DIR__ . '/../nextgen_password_reset.php';
 require_once __DIR__ . '/../participation_magic_rate_limit.php';
 require_once __DIR__ . '/../nextgen_participation_token.php';
 require_once __DIR__ . '/../participation_magic_apply.php';
+require_once __DIR__ . '/../nextgen_stats_audit_schema.php';
 require_once __DIR__ . '/../nextgen_calendar_subscription_token.php';
 require_once __DIR__ . '/../auth.php';
 require_once __DIR__ . '/../module_provisioning.php';
@@ -837,6 +838,19 @@ class AuthModule {
             $code = isset($result['error']) ? (string) $result['error'] : 'participation_failed';
             $http = ($code === 'participation_locked' || $code === 'participation_maybe_disabled') ? 403 : 400;
             Response::error($code, $http);
+        }
+
+        try {
+            NextGenStatsAuditSchema::logParticipationTokenApply(
+                $db,
+                (string) $row['event_type'],
+                (int) $row['event_id'],
+                (int) $row['user_id'],
+                (int) $row['contact_id'],
+                (string) $result['status']
+            );
+        } catch (Throwable $e) {
+            error_log('AuthModule participation token audit failed: ' . $e->getMessage());
         }
 
         return [

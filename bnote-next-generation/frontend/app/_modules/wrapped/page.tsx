@@ -10,6 +10,7 @@ import { TablerIconByName } from "@/components/icons";
 import { PageContent } from "@/components/PageContent";
 import { AppPageHeader } from "@/components/AppPageHeader";
 import { getWrappedThemeStyle } from "@/lib/wrapped-theme";
+import { formatHoursForDisplay } from "@/lib/duration-format";
 
 type BadgeLevel = "gold" | "silver" | "bronze";
 
@@ -39,13 +40,23 @@ function medalIconName(level: BadgeLevel): string {
 
 function badgeValueLabel(
   badge: WrappedYearData["achievements"]["personalBadges"][number],
-  t: (key: string, params?: string[]) => string
+  t: (key: string, params?: string[]) => string,
+  lang?: string
 ): string {
   if (badge.unit === "percent") {
     return t("js.wrapped.achievements.value.percent", [badge.value.toFixed(1)]);
   }
   if (badge.unit === "hours") {
-    return t("js.wrapped.achievements.value.hours", [badge.value.toFixed(1)]);
+    const absHours = Math.abs(badge.value);
+    if (absHours >= 24) {
+      const days = absHours / 24;
+      const formattedDays = new Intl.NumberFormat(lang || undefined, {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 1,
+      }).format(days);
+      return t("js.wrapped.achievements.value.days", [formattedDays]);
+    }
+    return formatHoursForDisplay(badge.value, t);
   }
   return t("js.wrapped.achievements.value.count", [String(Math.round(badge.value))]);
 }
@@ -267,7 +278,7 @@ export default function WrappedModulePage() {
                       <p className="mt-2 text-xs text-base-content/70">
                         {t(`js.wrapped.achievements.badge.${badge.id}.desc`)}
                       </p>
-                      <p className="mt-3 wrapped-display text-2xl font-semibold">{badgeValueLabel(badge, t)}</p>
+                      <p className="mt-3 wrapped-display text-2xl font-semibold">{badgeValueLabel(badge, t, lang)}</p>
                     </div>
                   ))}
                 </div>

@@ -8,6 +8,7 @@
 
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
+require_once __DIR__ . '/../nextgen_stats_audit_schema.php';
 require_once BNOTE_ROOT . '/src/data/modules/aufgabendata.php';
 require_once BNOTE_ROOT . '/src/data/modules/abstimmungdata.php';
 
@@ -225,6 +226,16 @@ class StatsModule {
 
     private function normalizeDateExpression(string $column): string {
         return "COALESCE(STR_TO_DATE($column, '%Y-%m-%d %H:%i:%s'), STR_TO_DATE($column, '%Y-%m-%d'))";
+    }
+
+    private function ensureAuditTablesForStats(): bool {
+        global $system_data;
+        try {
+            return NextGenStatsAuditSchema::ensureTables($system_data->dbcon);
+        } catch (Throwable $e) {
+            // Keep stats endpoint resilient even if audit table creation fails.
+            return false;
+        }
     }
 
     /**
@@ -1965,6 +1976,50 @@ class StatsModule {
         ];
     }
 
+    private function getEmailsSentTotal(array $context): int {
+        if (!$this->ensureAuditTablesForStats()) {
+            return 0;
+        }
+        $params = [];
+        $createdExpr = $this->normalizeDateExpression('created_at');
+        $query = "SELECT COALESCE(SUM(recipient_count), 0) as total
+                  FROM nextgen_mail_delivery_audit
+                  WHERE success = 1";
+        if ($context['scope'] !== 'all') {
+            $params[] = ['s', (string) $context['start']];
+            $params[] = ['s', (string) $context['end']];
+            $query .= " AND $createdExpr IS NOT NULL AND $createdExpr >= ? AND $createdExpr <= ? ";
+        }
+
+        $rows = $this->rows($this->getSelectionSafe($query, $params, 'emails-sent-total'));
+        if (count($rows) < 1) {
+            return 0;
+        }
+        return max(0, intval($rows[0]['total'] ?? 0));
+    }
+
+    private function getTokenParticipationSetTotal(array $context): int {
+        if (!$this->ensureAuditTablesForStats()) {
+            return 0;
+        }
+        $params = [];
+        $createdExpr = $this->normalizeDateExpression('created_at');
+        $query = "SELECT COUNT(*) as total
+                  FROM nextgen_participation_token_apply_audit
+                  WHERE 1 = 1";
+        if ($context['scope'] !== 'all') {
+            $params[] = ['s', (string) $context['start']];
+            $params[] = ['s', (string) $context['end']];
+            $query .= " AND $createdExpr IS NOT NULL AND $createdExpr >= ? AND $createdExpr <= ? ";
+        }
+
+        $rows = $this->rows($this->getSelectionSafe($query, $params, 'token-participation-set-total'));
+        if (count($rows) < 1) {
+            return 0;
+        }
+        return max(0, intval($rows[0]['total'] ?? 0));
+    }
+
     private function getDashboard(): array {
         $context = $this->resolvePeriodContext();
         $labels = $context['labels'];
@@ -1984,6 +2039,8 @@ class StatsModule {
         $reminderEffectiveness = $this->getReminderEffectiveness($context);
         $instrumentCoverage = $this->getInstrumentCoverageRisk();
         $userRankings = $this->getUserRankings($context);
+        $emailsSentTotal = $this->getEmailsSentTotal($context);
+        $tokenParticipationSetTotal = $this->getTokenParticipationSetTotal($context);
 
         $pendingResponses = 0;
         foreach ($criticalEvents as $event) {
@@ -2009,6 +2066,8 @@ class StatsModule {
                 'invitationsTotal' => $responseCompletion['invited'],
                 'rehearsalsTotal' => $totalRehearsals,
                 'concertsTotal' => $totalConcerts,
+                'emailsSentTotal' => $emailsSentTotal,
+                'tokenParticipationSetTotal' => $tokenParticipationSetTotal,
             ],
             'eventsByMonth' => $eventsByMonth,
             'membersPerGroup' => $membersPerGroup,

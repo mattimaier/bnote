@@ -1486,6 +1486,24 @@ Get statistics overview.
 }
 ```
 
+### GET `api/index.php?module=stats&action=dashboard&scope={year|all}&year={YYYY}`
+
+Next Gen stats dashboard payload used by the frontend stats module.
+
+**Overview fields include:**
+- `criticalEvents`
+- `pendingResponses`
+- `participationRate`
+- `rehearsalParticipationRate`
+- `concertParticipationRate`
+- `responseCompletionRate`
+- `responsesTotal`
+- `invitationsTotal`
+- `rehearsalsTotal`
+- `concertsTotal`
+- `emailsSentTotal` (successful recipient deliveries via `NextGenMailer`)
+- `tokenParticipationSetTotal` (successful participation updates via email token links)
+
 ---
 
 ## Admin

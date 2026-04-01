@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Bar,
@@ -31,6 +31,7 @@ import { getIcon } from "@/components/icons";
 import { formatDateShortDisplay, formatDateTimeShort } from "@/lib/date-time";
 import { Clock, MapPin } from "@/components/icons";
 import { getEntityPath } from "@/lib/entities/paths";
+import { formatHoursForDisplay } from "@/lib/duration-format";
 
 const CHART_COLORS = {
   rehearsal: "var(--primary)",
@@ -50,26 +51,145 @@ function StatCard({
   title,
   value,
   hint,
+  infoLabel,
 }: {
   iconName: string;
   iconColor: string;
   title: string;
   value: string;
   hint?: string;
+  infoLabel: string;
 }) {
   return (
     <div className="stats bg-base-100 md:stats-border shadow-none md:shadow rounded-none md:rounded-box overflow-hidden">
       <div className="stat px-4 py-3">
         <div className="flex items-center justify-between gap-2">
-          <div className="stat-title text-sm">{title}</div>
-          <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-base-200" style={{ color: iconColor }}>
-            <TablerIconByName name={iconName} className="h-4 w-4" />
-          </span>
+          <div className="stat-title text-sm whitespace-normal break-words leading-snug pr-2">{title}</div>
+          {hint ? (
+            <CardIconHintPopover label={infoLabel} content={hint} iconName={iconName} iconColor={iconColor} />
+          ) : (
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-base-200" style={{ color: iconColor }}>
+              <TablerIconByName name={iconName} className="h-4 w-4" />
+            </span>
+          )}
         </div>
         <div className="stat-value text-2xl md:text-3xl">{value}</div>
-        {hint ? <div className="stat-desc">{hint}</div> : null}
+        {hint ? <div className="stat-desc whitespace-normal break-words leading-snug">{hint}</div> : null}
       </div>
     </div>
+  );
+}
+
+function CardIconHintPopover({
+  label,
+  content,
+  iconName,
+  iconColor,
+}: {
+  label: string;
+  content: string;
+  iconName: string;
+  iconColor: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLSpanElement | null>(null);
+  const panelId = useId();
+
+  useEffect(() => {
+    if (!open) return;
+    const handlePointerDown = (event: MouseEvent) => {
+      if (rootRef.current?.contains(event.target as Node)) return;
+      setOpen(false);
+    };
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [open]);
+
+  return (
+    <span ref={rootRef} className="relative inline-flex">
+      <button
+        type="button"
+        className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-base-200 hover:bg-base-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+        style={{ color: iconColor }}
+        aria-label={label}
+        aria-expanded={open}
+        aria-controls={panelId}
+        onClick={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          setOpen((prev) => !prev);
+        }}
+      >
+        <TablerIconByName name={iconName} className="h-4 w-4" />
+      </button>
+      {open ? (
+        <span
+          id={panelId}
+          role="tooltip"
+          className="absolute right-0 top-full z-[70] mt-2 w-72 rounded-lg border border-base-300 bg-base-100 px-3 py-2 text-sm leading-relaxed text-base-content shadow-lg"
+        >
+          {content}
+        </span>
+      ) : null}
+    </span>
+  );
+}
+
+function InfoHintPopover({ label, content }: { label: string; content: string }) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLSpanElement | null>(null);
+  const panelId = useId();
+
+  useEffect(() => {
+    if (!open) return;
+    const handlePointerDown = (event: MouseEvent) => {
+      if (rootRef.current?.contains(event.target as Node)) return;
+      setOpen(false);
+    };
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [open]);
+
+  return (
+    <span ref={rootRef} className="relative inline-flex">
+      <button
+        type="button"
+        className="inline-flex h-4 w-4 items-center justify-center rounded-full text-base-content/60 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+        aria-label={label}
+        aria-expanded={open}
+        aria-controls={panelId}
+        onClick={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          setOpen((prev) => !prev);
+        }}
+      >
+        <TablerIconByName name="info-circle" className="h-3.5 w-3.5" />
+      </button>
+      {open ? (
+        <span
+          id={panelId}
+          role="tooltip"
+          className="absolute left-0 top-full z-[70] mt-2 w-72 rounded-lg border border-base-300 bg-base-100 px-3 py-2 text-sm leading-relaxed text-base-content shadow-lg"
+        >
+          {content}
+        </span>
+      ) : null}
+    </span>
   );
 }
 
@@ -131,10 +251,11 @@ export function StatsDashboardContent({
   const reminderEffectiveness = data?.reminderEffectiveness;
   const instrumentCoverage = data?.instrumentCoverageRisk?.byInstrument ?? [];
   const userRankings = data?.userRankings;
+  const moreInfoLabel = t("js.common.moreInfo");
 
-  const leadTimeValue = leadTime?.sampleSize ? `${leadTime.medianHours.toFixed(1)}h` : "—";
+  const leadTimeValue = leadTime?.sampleSize ? formatHoursForDisplay(leadTime.medianHours, t, { locale: lang }) : "—";
   const leadTimeHint = leadTime?.sampleSize
-    ? t("js.stats.cards.leadTimeHint", [`${leadTime.p90Hours.toFixed(1)}h`, String(leadTime.sampleSize)])
+    ? t("js.stats.cards.leadTimeHint", [formatHoursForDisplay(leadTime.p90Hours, t, { locale: lang }), String(leadTime.sampleSize)])
     : t("js.stats.cards.leadTimeEmpty");
   const lateRateValue = lateResponses ? `${lateResponses.rate.toFixed(1)}%` : "0.0%";
   const lateRateHint = lateResponses
@@ -152,7 +273,7 @@ export function StatsDashboardContent({
   const activeMemberHint = data?.activeMembersTrend
     ? t("js.stats.cards.activeMembersHint", [String(data.activeMembersTrend.active), String(data.activeMembersTrend.total)])
     : t("js.common.empty");
-  const taskLatencyValue = taskLatency?.available ? `${taskLatency.overallMedian.toFixed(1)}h` : "—";
+  const taskLatencyValue = taskLatency?.available ? formatHoursForDisplay(taskLatency.overallMedian, t, { locale: lang }) : "—";
   const taskLatencyHint = taskLatency?.available
     ? t("js.stats.cards.taskLatencyHint")
     : t("js.stats.cards.taskLatencyEmpty");
@@ -164,14 +285,17 @@ export function StatsDashboardContent({
     : t("js.common.empty");
 
   const formatRankingValue = (metricKey: string, value: number) => {
+    if (metricKey === "fastestResponses" || metricKey === "slowestResponses") {
+      return formatHoursForDisplay(value, t, { locale: lang });
+    }
     if (metricKey.toLowerCase().includes("rate")) {
       return `${value.toFixed(1)}%`;
     }
     if (metricKey.toLowerCase().includes("responses") || metricKey.toLowerCase().includes("noresponses")) {
       return String(Math.round(value));
     }
-    if (metricKey.toLowerCase().includes("lead") || metricKey.toLowerCase().includes("response")) {
-      return `${value.toFixed(1)}h`;
+    if (metricKey.toLowerCase().includes("lead")) {
+      return formatHoursForDisplay(value, t, { locale: lang });
     }
     return String(value);
   };
@@ -192,6 +316,22 @@ export function StatsDashboardContent({
 
   const rankingKeysPositive = ["fastestResponses", "highestResponseRate", "highestYesRate", "mostResponses"];
   const rankingKeysNegative = ["slowestResponses", "highestNoResponseRate", "highestLateRate", "mostNoResponses"];
+  const rankingMetricHint = (key: string) => {
+    const map: Record<string, string> = {
+      fastestResponses: "js.stats.rankings.hints.fastestResponses",
+      highestResponseRate: "js.stats.rankings.hints.highestResponseRate",
+      highestYesRate: "js.stats.rankings.hints.highestYesRate",
+      mostResponses: "js.stats.rankings.hints.mostResponses",
+      slowestResponses: "js.stats.rankings.hints.slowestResponses",
+      highestNoResponseRate: "js.stats.rankings.hints.highestNoResponseRate",
+      highestLateRate: "js.stats.rankings.hints.highestLateRate",
+      mostNoResponses: "js.stats.rankings.hints.mostNoResponses",
+    };
+    const translationKey = map[key];
+    if (!translationKey) return "";
+    const translated = t(translationKey);
+    return translated === translationKey ? "" : translated;
+  };
 
   const statusLabelFor = (value?: string) => {
     const key = (value ?? "").toLowerCase();
@@ -273,6 +413,7 @@ export function StatsDashboardContent({
             title={t("js.stats.cards.criticalEvents")}
             value={String(data?.overview.criticalEvents ?? 0)}
             hint={t("js.stats.cards.criticalEventsHint")}
+            infoLabel={moreInfoLabel}
           />
           <StatCard
             iconName="mail"
@@ -280,6 +421,7 @@ export function StatsDashboardContent({
             title={t("js.stats.cards.pendingResponses")}
             value={String(data?.overview.pendingResponses ?? 0)}
             hint={t("js.stats.cards.pendingResponsesHint")}
+            infoLabel={moreInfoLabel}
           />
           <StatCard
             iconName="music"
@@ -287,6 +429,7 @@ export function StatsDashboardContent({
             title={t("js.stats.cards.rehearsalRate")}
             value={`${(data?.overview.rehearsalParticipationRate ?? 0).toFixed(1)}%`}
             hint={t("js.stats.cards.rehearsalRateHint")}
+            infoLabel={moreInfoLabel}
           />
           <StatCard
             iconName="mic-vocal"
@@ -294,6 +437,7 @@ export function StatsDashboardContent({
             title={t("js.stats.cards.concertRate")}
             value={`${(data?.overview.concertParticipationRate ?? 0).toFixed(1)}%`}
             hint={t("js.stats.cards.concertRateHint")}
+            infoLabel={moreInfoLabel}
           />
           <StatCard
             iconName="check-circle"
@@ -301,6 +445,7 @@ export function StatsDashboardContent({
             title={t("js.stats.cards.participationRate")}
             value={`${(data?.overview.participationRate ?? 0).toFixed(1)}%`}
             hint={t("js.stats.cards.participationRateHint")}
+            infoLabel={moreInfoLabel}
           />
           <StatCard
             iconName="message-square"
@@ -311,6 +456,23 @@ export function StatsDashboardContent({
               String(data?.overview.responsesTotal ?? 0),
               String(data?.overview.invitationsTotal ?? 0),
             ])}
+            infoLabel={moreInfoLabel}
+          />
+          <StatCard
+            iconName="mail"
+            iconColor={CHART_COLORS.concert}
+            title={t("js.stats.cards.emailsSentTotal")}
+            value={String(data?.overview.emailsSentTotal ?? 0)}
+            hint={t("js.stats.cards.emailsSentTotalHint")}
+            infoLabel={moreInfoLabel}
+          />
+          <StatCard
+            iconName="link"
+            iconColor={CHART_COLORS.trend}
+            title={t("js.stats.cards.tokenParticipationSetTotal")}
+            value={String(data?.overview.tokenParticipationSetTotal ?? 0)}
+            hint={t("js.stats.cards.tokenParticipationSetTotalHint")}
+            infoLabel={moreInfoLabel}
           />
           <StatCard
             iconName="clock"
@@ -318,6 +480,7 @@ export function StatsDashboardContent({
             title={t("js.stats.cards.leadTime")}
             value={leadTimeValue}
             hint={leadTimeHint}
+            infoLabel={moreInfoLabel}
           />
           <StatCard
             iconName="alert-circle"
@@ -325,6 +488,7 @@ export function StatsDashboardContent({
             title={t("js.stats.cards.lateResponses")}
             value={lateRateValue}
             hint={lateRateHint}
+            infoLabel={moreInfoLabel}
           />
           <StatCard
             iconName="user-x"
@@ -332,6 +496,7 @@ export function StatsDashboardContent({
             title={t("js.stats.cards.noResponses")}
             value={noResponseValue}
             hint={noResponseHint}
+            infoLabel={moreInfoLabel}
           />
         </section>
 
@@ -342,6 +507,7 @@ export function StatsDashboardContent({
             title={t("js.stats.cards.participationStability")}
             value={stabilityValue}
             hint={stabilityHint}
+            infoLabel={moreInfoLabel}
           />
           <StatCard
             iconName="users"
@@ -349,6 +515,7 @@ export function StatsDashboardContent({
             title={t("js.stats.cards.activeMembers")}
             value={`${activeMemberRate.toFixed(1)}%`}
             hint={activeMemberHint}
+            infoLabel={moreInfoLabel}
           />
           <StatCard
             iconName="check-square"
@@ -356,6 +523,7 @@ export function StatsDashboardContent({
             title={t("js.stats.cards.taskLatency")}
             value={taskLatencyValue}
             hint={taskLatencyHint}
+            infoLabel={moreInfoLabel}
           />
           <StatCard
             iconName="vote"
@@ -363,6 +531,7 @@ export function StatsDashboardContent({
             title={t("js.stats.cards.voteParticipation")}
             value={voteParticipationValue}
             hint={voteParticipationHint}
+            infoLabel={moreInfoLabel}
           />
           <StatCard
             iconName="bell"
@@ -370,6 +539,7 @@ export function StatsDashboardContent({
             title={t("js.stats.cards.reminderEffectiveness")}
             value={reminderUpliftValue}
             hint={reminderUpliftHint}
+            infoLabel={moreInfoLabel}
           />
         </section>
 
@@ -657,7 +827,12 @@ export function StatsDashboardContent({
                   const entries = userRankings.positive[key] ?? [];
                   return (
                     <div key={`pos-${key}`} className="space-y-2">
-                      <h3 className="text-sm font-semibold text-base-content/80">{rankingMetricLabel(key)}</h3>
+                      <h3 className="text-sm font-semibold text-base-content/80 flex items-center gap-1.5">
+                        <span>{rankingMetricLabel(key)}</span>
+                        {rankingMetricHint(key) ? (
+                          <InfoHintPopover label={moreInfoLabel} content={rankingMetricHint(key)} />
+                        ) : null}
+                      </h3>
                       <div className="overflow-x-auto">
                         <table className="table table-sm">
                           <thead>
@@ -698,7 +873,12 @@ export function StatsDashboardContent({
                   const entries = userRankings.negative[key] ?? [];
                   return (
                     <div key={`neg-${key}`} className="space-y-2">
-                      <h3 className="text-sm font-semibold text-base-content/80">{rankingMetricLabel(key)}</h3>
+                      <h3 className="text-sm font-semibold text-base-content/80 flex items-center gap-1.5">
+                        <span>{rankingMetricLabel(key)}</span>
+                        {rankingMetricHint(key) ? (
+                          <InfoHintPopover label={moreInfoLabel} content={rankingMetricHint(key)} />
+                        ) : null}
+                      </h3>
                       <div className="overflow-x-auto">
                         <table className="table table-sm">
                           <thead>

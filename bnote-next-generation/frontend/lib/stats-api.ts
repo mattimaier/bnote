@@ -34,6 +34,8 @@ export interface StatsDashboardData {
     invitationsTotal: number;
     rehearsalsTotal: number;
     concertsTotal: number;
+    emailsSentTotal: number;
+    tokenParticipationSetTotal: number;
   };
   responseBehavior?: {
     leadTimeHours: {

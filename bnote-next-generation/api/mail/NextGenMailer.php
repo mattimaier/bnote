@@ -39,6 +39,7 @@ final class NextGenMailer {
     public static function send(NextGenMailMessage $message): bool {
         self::$lastError = '';
         require_once __DIR__ . '/bootstrap.php';
+        require_once dirname(__DIR__) . '/nextgen_stats_audit_schema.php';
         if (!defined('BNOTE_ROOT')) {
             require_once dirname(__DIR__) . '/paths.php';
         }
@@ -125,6 +126,20 @@ final class NextGenMailer {
             $mail->AltBody = $text;
 
             $mail->send();
+            try {
+                $templateId = trim($message->templateId);
+                $module = self::moduleForTemplateId($templateId);
+                NextGenStatsAuditSchema::logMailDelivery(
+                    $system_data->dbcon,
+                    $templateId,
+                    $module,
+                    count($to),
+                    count($bcc),
+                    true
+                );
+            } catch (Throwable $e) {
+                error_log('NextGenMailer audit log failed: ' . $e->getMessage());
+            }
             return true;
         } catch (Throwable $e) {
             $msg = trim((string) $e->getMessage());
@@ -135,5 +150,23 @@ final class NextGenMailer {
             error_log('NextGenMailer: ' . self::$lastError);
             return false;
         }
+    }
+
+    private static function moduleForTemplateId(string $templateId): string {
+        $normalized = strtolower(trim($templateId));
+        if ($normalized === '') {
+            return 'mailer';
+        }
+
+        return match ($normalized) {
+            'event_participant_invite', 'event_info' => 'events',
+            'task_notification' => 'tasks',
+            'generic_email_composer' => 'email',
+            'password_reset', 'new_user_admin', 'user_welcome' => 'auth',
+            'comment_discussion' => 'comments',
+            'reminder_digest', 'escalation_alert' => 'reminders',
+            'beta_bug_report' => 'bugreport',
+            default => 'mailer',
+        };
     }
 }
