@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toBlob } from "html-to-image";
 import { Modal } from "@/components/Modal";
 import { BNoteLogo } from "@/components/BNoteLogo";
+import { TablerIconByName } from "@/components/icons";
 import { getApiUrl } from "@/lib/api";
 import { type WrappedYearData } from "@/lib/wrapped-api";
 import { getWrappedThemeStyle } from "@/lib/wrapped-theme";
@@ -12,6 +13,57 @@ interface ShareCardCreateResult {
   url: string;
   shareId: string;
   expiresAt: number;
+}
+
+function medalIconName(level: "gold" | "silver" | "bronze"): string {
+  if (level === "gold") return "laurel-wreath-1";
+  if (level === "silver") return "laurel-wreath-2";
+  return "laurel-wreath-3";
+}
+
+function medalCircleTone(level: "gold" | "silver" | "bronze"): string {
+  if (level === "gold") return "bg-gradient-to-br from-[#f8de83]/35 to-[#d4af37]/20 text-[#b38712] border-[#d4af37]/45";
+  if (level === "silver") return "bg-gradient-to-br from-[#e4e8ef]/45 to-[#b7bcc5]/22 text-[#7f8794] border-[#b7bcc5]/45";
+  return "bg-gradient-to-br from-[#e1b186]/40 to-[#b87333]/22 text-[#9b5b22] border-[#b87333]/45";
+}
+
+function formatDeadlineGapForDisplay(
+  gapHours: number,
+  t: (key: string, params?: string[]) => string,
+  lang?: string
+): string {
+  if (!Number.isFinite(gapHours)) return "—";
+
+  const absHours = Math.abs(gapHours);
+  const absDays = absHours / 24;
+  const number = new Intl.NumberFormat(lang || undefined, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 1,
+  }).format(absHours >= 24 ? absDays : absHours);
+
+  if (gapHours <= 0) {
+    return absHours >= 24
+      ? t("js.wrapped.metric.deadlineGap.beforeDays", [number])
+      : t("js.wrapped.metric.deadlineGap.beforeHours", [number]);
+  }
+
+  return absHours >= 24
+    ? t("js.wrapped.metric.deadlineGap.afterDays", [number])
+    : t("js.wrapped.metric.deadlineGap.afterHours", [number]);
+}
+
+function vibeProofValue(
+  proof: WrappedYearData["personal"]["vibePersona"]["proof"],
+  t: (key: string, params?: string[]) => string,
+  lang?: string
+): string {
+  if (proof.label === "deadline_gap") {
+    return formatDeadlineGapForDisplay(proof.value * 24, t, lang);
+  }
+  if (proof.unit === "percent") {
+    return t("js.wrapped.achievements.value.percent", [proof.value.toFixed(1)]);
+  }
+  return t("js.wrapped.achievements.value.count", [String(Math.round(proof.value))]);
 }
 
 async function waitForImagesToBeReady(container: HTMLElement): Promise<void> {
@@ -62,11 +114,13 @@ export function WrappedShareModal({
   open,
   onClose,
   data,
+  lang,
   t,
 }: {
   open: boolean;
   onClose: () => void;
   data: WrappedYearData | null;
+  lang?: string;
   t: (key: string, params?: string[]) => string;
 }) {
   const previewRef = useRef<HTMLDivElement | null>(null);
@@ -251,21 +305,26 @@ export function WrappedShareModal({
   };
 
   const modalTitle = t("js.wrapped.share.title");
-  const yesRate = data?.personal.responses.yesRate ?? 0;
-  const totalEvents = data?.personal.events.total ?? 0;
-  const rehearsals = data?.personal.events.rehearsals ?? 0;
-  const concerts = data?.personal.events.concerts ?? 0;
-  const totalResponses = data?.personal.responses.total ?? 0;
-  const yesResponses = data?.personal.responses.yes ?? 0;
-  const maybeResponses = data?.personal.responses.maybe ?? 0;
-  const yesPct = totalResponses > 0 ? Math.round((yesResponses / totalResponses) * 100) : 0;
-  const maybePct = totalResponses > 0 ? Math.round((maybeResponses / totalResponses) * 100) : 0;
-  const noPct = totalResponses > 0 ? Math.max(0, 100 - yesPct - maybePct) : 0;
-  const funnyText = t("js.wrapped.card.funLine", [
-    data?.profile.firstName ?? "",
-    t(data?.personal.funFacts.favoriteType === "concert" ? "js.sidebar.concerts" : "js.sidebar.rehearsals"),
-  ]);
-  const responseSplitText = t("js.wrapped.card.responseSplit", [String(yesPct), String(maybePct), String(noPct)]);
+  const vibePersona = data?.personal.vibePersona ?? null;
+  const vibePersonaId = vibePersona?.id ?? "reliable_anchor";
+  const vibeVariant = vibePersona ? Math.max(0, Math.min(3, vibePersona.variant || 0)) : 0;
+  const vibeTitleKey = `js.wrapped.vibe.persona.${vibePersonaId}.title`;
+  const vibeHypeKey = `js.wrapped.vibe.persona.${vibePersonaId}.hype.${vibeVariant}`;
+  const vibeHypeFallbackKey = `js.wrapped.vibe.persona.${vibePersonaId}.hype.0`;
+  const vibeHeadline = t(vibeTitleKey);
+  const vibeHypeRaw = t(vibeHypeKey, [data?.profile.firstName ?? ""]);
+  const vibeHypeFallback = t(vibeHypeFallbackKey, [data?.profile.firstName ?? ""]);
+  const vibeHype =
+    vibeHypeRaw !== vibeHypeKey
+      ? vibeHypeRaw
+      : vibeHypeFallback !== vibeHypeFallbackKey
+        ? vibeHypeFallback
+        : t("js.wrapped.vibe.hypeFallback", [data?.profile.firstName ?? ""]);
+  const vibeProofLabel = t(`js.wrapped.vibe.proof.${vibePersona?.proof.label ?? "events"}`);
+  const vibeProofText = vibePersona ? vibeProofValue(vibePersona.proof, t, lang) : "—";
+  const vibeProofLine = t("js.wrapped.vibe.proofLine", [vibeProofLabel, vibeProofText]);
+  const showLowerIsBetterHint = vibePersona?.proof.direction === "lower_better";
+  const medals = data?.achievements.personalBadges ?? [];
 
   return (
     <Modal
@@ -282,7 +341,7 @@ export function WrappedShareModal({
               <div
                 ref={previewRef}
                 className="relative mx-auto w-[320px] md:w-[420px] max-w-[88vw] overflow-hidden rounded-3xl bg-white p-0 text-[#0f172a] shadow-2xl"
-                style={{ aspectRatio: "4 / 5", ...themeStyle }}
+                style={{ aspectRatio: "3 / 4", ...themeStyle }}
               >
                 <div className="absolute inset-0 wrapped-card-bg" />
                 <div className="absolute -top-20 -right-20 h-44 w-44 rounded-full wrapped-spotlight" />
@@ -305,36 +364,39 @@ export function WrappedShareModal({
                     </p>
                   </div>
 
-                  <div className="mt-5 grid grid-cols-[1.25fr_0.75fr] gap-3">
-                    <div className="rounded-2xl border border-white/80 bg-white/80 px-3 py-3 shadow-sm">
-                      <div className="text-[10px] md:text-xs uppercase tracking-[0.2em] text-primary">
-                        {t("js.wrapped.card.events")}
-                      </div>
-                      <div className="wrapped-display mt-1 text-3xl md:text-4xl font-bold text-[#0f172a]">{totalEvents}</div>
-                    </div>
-                    <div className="rounded-2xl border border-primary/30 bg-primary/10 px-3 py-3 shadow-sm">
-                      <div className="text-[10px] md:text-xs uppercase tracking-[0.2em] text-primary">
-                        {t("js.wrapped.card.yesRate")}
-                      </div>
-                      <div className="wrapped-display mt-1 text-2xl md:text-3xl font-bold text-[#0f172a]">
-                        {yesRate.toFixed(1)}%
-                      </div>
-                    </div>
+                  <div className="mt-5 rounded-2xl border border-primary/25 bg-white/80 px-3 py-3 text-xs md:text-sm text-[#0f172a] shadow-sm">
+                    <p className="text-[10px] md:text-xs uppercase tracking-[0.2em] text-primary">{t("js.wrapped.story.vibeTitle")}</p>
+                    <p className="wrapped-display mt-1 text-2xl md:text-3xl font-bold text-[#0f172a]">{vibeHeadline}</p>
+                    <p className="mt-2 font-medium">{vibeHype}</p>
+                    <p className="mt-2 text-[11px] md:text-xs text-[#334155]">{vibeProofLine}</p>
+                    {showLowerIsBetterHint ? (
+                      <p className="mt-1 text-[10px] md:text-xs text-[#475569]">{t("js.wrapped.metric.deadlineGap.hint")}</p>
+                    ) : null}
                   </div>
 
-                  <div className="mt-3 flex flex-wrap gap-2 text-[11px] md:text-xs font-semibold">
-                    <span className="rounded-full px-3 py-1 wrapped-chip-primary">
-                      {t("js.sidebar.rehearsals")} · {rehearsals}
-                    </span>
-                    <span className="rounded-full px-3 py-1 wrapped-chip-accent">
-                      {t("js.sidebar.concerts")} · {concerts}
-                    </span>
-                  </div>
-
-                  <div className="mt-3 rounded-2xl border border-primary/25 bg-white/75 px-3 py-3 text-xs md:text-sm text-[#0f172a] shadow-sm">
-                    <p className="font-medium">{funnyText}</p>
-                    <p className="mt-2 text-[11px] md:text-xs text-[#334155]">{responseSplitText}</p>
-                  </div>
+                  {medals.length > 0 ? (
+                    <div className="mt-3 rounded-2xl border border-primary/20 bg-white/75 px-3 py-3 shadow-sm">
+                      <p className="text-[10px] md:text-xs uppercase tracking-[0.2em] text-primary">
+                        {t("js.wrapped.achievements.title")}
+                      </p>
+                      <div className="mt-2 grid grid-cols-2 gap-2.5">
+                        {medals.slice(0, 4).map((badge) => (
+                          <div key={badge.id} className="flex items-start gap-2 rounded-xl border border-primary/20 bg-white/90 px-2.5 py-2 min-h-14">
+                            <span
+                              className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border shadow-sm ${medalCircleTone(
+                                badge.level
+                              )}`}
+                            >
+                              <TablerIconByName name={medalIconName(badge.level)} className="h-5 w-5" />
+                            </span>
+                            <span className="text-[11px] md:text-xs font-semibold leading-tight text-[#0f172a] break-words whitespace-normal">
+                              {t(`js.wrapped.achievements.badge.${badge.id}.title`)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
 
                   <div className="mt-auto flex items-center justify-between pt-4 text-[10px] md:text-xs text-[#334155]">
                     <span className="truncate">#{data?.profile.bandName}</span>

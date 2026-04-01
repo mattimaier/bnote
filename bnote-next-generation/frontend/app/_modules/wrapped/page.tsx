@@ -11,11 +11,12 @@ import { PageContent } from "@/components/PageContent";
 import { AppPageHeader } from "@/components/AppPageHeader";
 import { getWrappedThemeStyle } from "@/lib/wrapped-theme";
 import { formatHoursForDisplay } from "@/lib/duration-format";
+import { ActionButton } from "@/components/ActionButton";
 
 type BadgeLevel = "gold" | "silver" | "bronze";
 
 function yearOptions(now: number): number[] {
-  return [now, now - 1, now - 2];
+  return [now];
 }
 
 function formatMonthLabel(value: string, lang: string): string {
@@ -38,6 +39,45 @@ function medalIconName(level: BadgeLevel): string {
   return "laurel-wreath-3";
 }
 
+function formatDeadlineGapForDisplay(
+  gapHours: number,
+  t: (key: string, params?: string[]) => string,
+  lang?: string
+): string {
+  if (!Number.isFinite(gapHours)) return "—";
+
+  const absHours = Math.abs(gapHours);
+  const absDays = absHours / 24;
+  const number = new Intl.NumberFormat(lang || undefined, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 1,
+  }).format(absHours >= 24 ? absDays : absHours);
+
+  if (gapHours <= 0) {
+    return absHours >= 24
+      ? t("js.wrapped.metric.deadlineGap.beforeDays", [number])
+      : t("js.wrapped.metric.deadlineGap.beforeHours", [number]);
+  }
+
+  return absHours >= 24
+    ? t("js.wrapped.metric.deadlineGap.afterDays", [number])
+    : t("js.wrapped.metric.deadlineGap.afterHours", [number]);
+}
+
+function vibeProofValue(
+  proof: WrappedYearData["personal"]["vibePersona"]["proof"],
+  t: (key: string, params?: string[]) => string,
+  lang?: string
+): string {
+  if (proof.label === "deadline_gap") {
+    return formatDeadlineGapForDisplay(proof.value * 24, t, lang);
+  }
+  if (proof.unit === "percent") {
+    return t("js.wrapped.achievements.value.percent", [proof.value.toFixed(1)]);
+  }
+  return t("js.wrapped.achievements.value.count", [String(Math.round(proof.value))]);
+}
+
 function badgeValueLabel(
   badge: WrappedYearData["achievements"]["personalBadges"][number],
   t: (key: string, params?: string[]) => string,
@@ -58,13 +98,16 @@ function badgeValueLabel(
     }
     return formatHoursForDisplay(badge.value, t);
   }
+  if (badge.unit === "deadline_gap_hours") {
+    return formatDeadlineGapForDisplay(badge.value, t, lang);
+  }
   return t("js.wrapped.achievements.value.count", [String(Math.round(badge.value))]);
 }
 
 export default function WrappedModulePage() {
   const { t, lang } = useI18n();
   const currentYear = new Date().getFullYear();
-  const years = useMemo(() => yearOptions(currentYear), [currentYear]);
+  const [years, setYears] = useState<number[]>(yearOptions(currentYear));
   const [year, setYear] = useState<number>(years[0]);
   const [data, setData] = useState<WrappedYearData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -74,13 +117,25 @@ export default function WrappedModulePage() {
   const themeStyle = useMemo(() => getWrappedThemeStyle(year), [year]);
 
   const wrappedTitle = data?.profile.bandName ? `${data.profile.bandName} Wrapped` : t("js.wrapped.title");
-  const totalResponses = data?.personal.responses.total ?? 0;
-  const yesResponses = data?.personal.responses.yes ?? 0;
-  const maybeResponses = data?.personal.responses.maybe ?? 0;
-  const yesPct = totalResponses > 0 ? Math.round((yesResponses / totalResponses) * 100) : 0;
-  const maybePct = totalResponses > 0 ? Math.round((maybeResponses / totalResponses) * 100) : 0;
-  const noPct = totalResponses > 0 ? Math.max(0, 100 - yesPct - maybePct) : 0;
-  const responseSplitText = t("js.wrapped.card.responseSplit", [String(yesPct), String(maybePct), String(noPct)]);
+  const vibePersona = data?.personal.vibePersona ?? null;
+  const vibePersonaId = vibePersona?.id ?? "reliable_anchor";
+  const vibeVariant = vibePersona ? Math.max(0, Math.min(3, vibePersona.variant || 0)) : 0;
+  const vibeTitleKey = `js.wrapped.vibe.persona.${vibePersonaId}.title`;
+  const vibeHypeKey = `js.wrapped.vibe.persona.${vibePersonaId}.hype.${vibeVariant}`;
+  const vibeHypeFallbackKey = `js.wrapped.vibe.persona.${vibePersonaId}.hype.0`;
+  const vibeHeadline = t(vibeTitleKey);
+  const vibeHypeRaw = t(vibeHypeKey, [data?.profile.firstName ?? ""]);
+  const vibeHypeFallback = t(vibeHypeFallbackKey, [data?.profile.firstName ?? ""]);
+  const vibeHype =
+    vibeHypeRaw !== vibeHypeKey
+      ? vibeHypeRaw
+      : vibeHypeFallback !== vibeHypeFallbackKey
+        ? vibeHypeFallback
+        : t("js.wrapped.vibe.hypeFallback", [data?.profile.firstName ?? ""]);
+  const vibeProofLabel = t(`js.wrapped.vibe.proof.${vibePersona?.proof.label ?? "events"}`);
+  const vibeProofText = vibePersona ? vibeProofValue(vibePersona.proof, t, lang) : "—";
+  const vibeProofLine = t("js.wrapped.vibe.proofLine", [vibeProofLabel, vibeProofText]);
+  const showLowerIsBetterHint = vibePersona?.proof.direction === "lower_better";
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -106,37 +161,57 @@ export default function WrappedModulePage() {
     void loadData();
   }, [loadData]);
 
+  useEffect(() => {
+    let cancelled = false;
+    wrappedApi
+      .getYears()
+      .then((result) => {
+        if (cancelled) return;
+        const fetched = Array.isArray(result.years) && result.years.length > 0 ? result.years : [currentYear];
+        setYears(fetched);
+        setYear((prev) => (fetched.includes(prev) ? prev : fetched[0]));
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setYears((prev) => (prev.length > 0 ? prev : [currentYear]));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [currentYear]);
+
   return (
     <PageContent className="px-1 md:px-4">
-      <AppPageHeader
-        moduleKey="wrapped"
-        title={t("js.sidebar.wrapped") !== "js.sidebar.wrapped" ? t("js.sidebar.wrapped") : "Wrapped"}
-        subtitle={t("js.wrapped.subtitle") !== "js.wrapped.subtitle" ? t("js.wrapped.subtitle") : "Your personal year in music"}
-        actions={(
-          <div className="flex items-center gap-2">
-            <select
-              className="select select-sm select-bordered"
-              value={year}
-              onChange={(e) => setYear(Number(e.target.value))}
-              aria-label={t("js.wrapped.selectYear")}
-            >
-              {years.map((item) => (
-                <option key={item} value={item}>
-                  {item}
-                </option>
-              ))}
-            </select>
-            <button
-              type="button"
-              className="btn btn-sm btn-primary"
-              onClick={() => setShareOpen(true)}
-              disabled={!data}
-            >
-              {t("js.wrapped.share.button")}
-            </button>
-          </div>
-        )}
-      />
+      <div className="mx-auto max-w-5xl">
+        <AppPageHeader
+          moduleKey="wrapped"
+          title={t("js.sidebar.wrapped") !== "js.sidebar.wrapped" ? t("js.sidebar.wrapped") : "Wrapped"}
+          subtitle={t("js.wrapped.subtitle") !== "js.wrapped.subtitle" ? t("js.wrapped.subtitle") : "Your personal year in music"}
+          actions={(
+            <div className="flex w-full sm:w-auto flex-col sm:flex-row items-stretch sm:items-center gap-2">
+              <select
+                className="select select-bordered h-11 min-h-11 w-full sm:w-auto text-sm font-medium"
+                value={year}
+                onChange={(e) => setYear(Number(e.target.value))}
+                aria-label={t("js.wrapped.selectYear")}
+              >
+                {years.map((item) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
+                ))}
+              </select>
+              <ActionButton
+                className="h-11 px-5 whitespace-nowrap w-full sm:w-auto"
+                onClick={() => setShareOpen(true)}
+                disabled={!data}
+              >
+                {t("js.wrapped.share.button")}
+              </ActionButton>
+            </div>
+          )}
+        />
+      </div>
 
       <div className="mx-auto max-w-5xl space-y-3 md:space-y-5" style={themeStyle}>
         <section
@@ -227,13 +302,14 @@ export default function WrappedModulePage() {
                     </span>
                     <h2 className="card-title text-base">{t("js.wrapped.story.vibeTitle")}</h2>
                   </div>
-                  <p className="mt-3 border-l-4 border-primary/40 pl-3 text-sm md:text-base text-base-content/80">
-                    {t("js.wrapped.story.vibeText", [
-                      data.profile.firstName,
-                      t(data.personal.funFacts.favoriteType === "concert" ? "js.sidebar.concerts" : "js.sidebar.rehearsals"),
-                    ])}
-                  </p>
-                  <p className="mt-3 rounded-full px-3 py-1.5 text-xs font-semibold wrapped-chip-primary">{responseSplitText}</p>
+                  <div className="mt-3 border-l-4 border-primary/40 pl-3 text-sm md:text-base text-base-content/80">
+                    <p className="font-semibold text-base-content">{vibeHeadline}</p>
+                    <p className="mt-1">{vibeHype}</p>
+                  </div>
+                  <p className="mt-3 rounded-full px-3 py-1.5 text-xs font-semibold wrapped-chip-primary">{vibeProofLine}</p>
+                  {showLowerIsBetterHint ? (
+                    <p className="mt-2 text-xs text-base-content/70">{t("js.wrapped.metric.deadlineGap.hint")}</p>
+                  ) : null}
                 </div>
               </div>
               <div className="card bg-base-100 border border-base-300 wrapped-reveal" style={revealStyle(320)}>
@@ -341,7 +417,7 @@ export default function WrappedModulePage() {
         ) : null}
       </div>
 
-      <WrappedShareModal open={shareOpen} onClose={() => setShareOpen(false)} data={data} t={t} />
+      <WrappedShareModal open={shareOpen} onClose={() => setShareOpen(false)} data={data} lang={lang} t={t} />
     </PageContent>
   );
 }

@@ -12,6 +12,7 @@ require_once __DIR__ . '/../module_provisioning.php';
 
 class WrappedModule {
     private int $userId;
+    private const VIBE_VARIANT_COUNT = 4;
 
     public function __construct() {
         if (!Auth::check()) {
@@ -31,6 +32,8 @@ class WrappedModule {
         switch ($action) {
             case 'year':
                 return $this->getYearWrapped();
+            case 'years':
+                return $this->getAvailableYears();
             case 'canAccess':
                 return ['canAccess' => true];
             default:
@@ -100,6 +103,117 @@ class WrappedModule {
         return 'bronze';
     }
 
+    private function badgeLevelFromInverseThresholds(float $value, float $goldMax, float $silverMax): string {
+        if ($value <= $goldMax) {
+            return 'gold';
+        }
+        if ($value <= $silverMax) {
+            return 'silver';
+        }
+        return 'bronze';
+    }
+
+    private function clamp(float $value, float $min, float $max): float {
+        if ($value < $min) return $min;
+        if ($value > $max) return $max;
+        return $value;
+    }
+
+    /**
+     * @param array<string,mixed> $personal
+     * @return array{id:string,score:float,variant:int,proof:array<string,mixed>}
+     */
+    private function buildVibePersona(array $personal, int $year): array {
+        $totalEvents = intval($personal['events']['total'] ?? 0);
+        $totalResponses = intval($personal['responses']['total'] ?? 0);
+        $yesRate = floatval($personal['responses']['yesRate'] ?? 0);
+        $responseCompletionRate = $totalEvents > 0
+            ? ($totalResponses / $totalEvents) * 100.0
+            : 0.0;
+        $noResponses = max(0, $totalEvents - $totalResponses);
+        $avgDeadlineGapHours = floatval($personal['responses']['deadlineGapHours'] ?? 0);
+
+        $eventEnergyScore = $this->clamp(($totalEvents / 40.0) * 100.0, 0.0, 100.0);
+        $reliableAnchorScore = $this->clamp($responseCompletionRate - min($noResponses * 4.0, 35.0), 0.0, 100.0);
+        $earlyBirdScore = $this->clamp(70.0 - (($avgDeadlineGapHours / 24.0) * 12.0), 0.0, 100.0);
+        $allInScore = $this->clamp($yesRate, 0.0, 100.0);
+
+        $candidates = [
+            [
+                'id' => 'reliable_anchor',
+                'score' => round($reliableAnchorScore, 1),
+                'tieCompletion' => round($responseCompletionRate, 1),
+                'tieEvents' => $totalEvents,
+                'proof' => [
+                    'label' => 'response_completion',
+                    'value' => round($responseCompletionRate, 1),
+                    'unit' => 'percent',
+                    'direction' => 'higher_better',
+                ],
+            ],
+            [
+                'id' => 'early_bird',
+                'score' => round($earlyBirdScore, 1),
+                'tieCompletion' => round($responseCompletionRate, 1),
+                'tieEvents' => $totalEvents,
+                'proof' => [
+                    'label' => 'deadline_gap',
+                    'value' => round($avgDeadlineGapHours / 24.0, 1),
+                    'unit' => 'days',
+                    'direction' => 'lower_better',
+                ],
+            ],
+            [
+                'id' => 'all_in',
+                'score' => round($allInScore, 1),
+                'tieCompletion' => round($responseCompletionRate, 1),
+                'tieEvents' => $totalEvents,
+                'proof' => [
+                    'label' => 'yes_rate',
+                    'value' => round($yesRate, 1),
+                    'unit' => 'percent',
+                    'direction' => 'higher_better',
+                ],
+            ],
+            [
+                'id' => 'stage_beast',
+                'score' => round($eventEnergyScore, 1),
+                'tieCompletion' => round($responseCompletionRate, 1),
+                'tieEvents' => $totalEvents,
+                'proof' => [
+                    'label' => 'events',
+                    'value' => $totalEvents,
+                    'unit' => 'count',
+                    'direction' => 'higher_better',
+                ],
+            ],
+        ];
+
+        usort($candidates, function (array $a, array $b): int {
+            $scoreCmp = floatval($b['score'] ?? 0) <=> floatval($a['score'] ?? 0);
+            if ($scoreCmp !== 0) return $scoreCmp;
+
+            $completionCmp = floatval($b['tieCompletion'] ?? 0) <=> floatval($a['tieCompletion'] ?? 0);
+            if ($completionCmp !== 0) return $completionCmp;
+
+            $eventsCmp = intval($b['tieEvents'] ?? 0) <=> intval($a['tieEvents'] ?? 0);
+            if ($eventsCmp !== 0) return $eventsCmp;
+
+            return strcmp(strval($a['id'] ?? ''), strval($b['id'] ?? ''));
+        });
+
+        $winner = $candidates[0];
+        $variantSeed = crc32($this->userId . '|' . $year . '|' . strval($winner['id'] ?? ''));
+        $variant = intval(abs(intval($variantSeed)) % self::VIBE_VARIANT_COUNT);
+
+        return [
+            'id' => strval($winner['id'] ?? 'reliable_anchor'),
+            'score' => round(floatval($winner['score'] ?? 0), 1),
+            'variant' => $variant,
+            'proof' => is_array($winner['proof'] ?? null) ? $winner['proof'] : [],
+        ];
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -113,6 +227,8 @@ class WrappedModule {
                 SUM(CASE WHEN x.participate = 1 THEN 1 ELSE 0 END) as yesResponses,
                 SUM(CASE WHEN x.participate = 2 THEN 1 ELSE 0 END) as maybeResponses,
                 SUM(CASE WHEN x.participate = 0 THEN 1 ELSE 0 END) as noResponses,
+                AVG(CASE WHEN x.replyon IS NOT NULL AND x.approve_until IS NOT NULL
+                    THEN TIMESTAMPDIFF(HOUR, x.approve_until, x.replyon) END) as avgDeadlineGapHours,
                 AVG(CASE WHEN x.replyon IS NOT NULL AND x.approve_until IS NOT NULL
                     THEN TIMESTAMPDIFF(HOUR, x.replyon, x.approve_until) END) as avgLeadHours
             FROM (
@@ -182,15 +298,19 @@ class WrappedModule {
         $concerts = intval($events['concerts'] ?? 0);
         $totalEvents = intval($events['total'] ?? 0);
         $yesRate = $totalResponses > 0 ? round(($yesResponses / $totalResponses) * 100, 1) : 0.0;
+        $avgDeadlineGapHours = round(floatval($response['avgDeadlineGapHours'] ?? 0), 1);
 
-        return [
-            'responses' => [
-                'total' => $totalResponses,
-                'yes' => $yesResponses,
-                'maybe' => intval($response['maybeResponses'] ?? 0),
-                'no' => intval($response['noResponses'] ?? 0),
-                'yesRate' => $yesRate,
-            ],
+        $responses = [
+            'total' => $totalResponses,
+            'yes' => $yesResponses,
+            'maybe' => intval($response['maybeResponses'] ?? 0),
+            'no' => intval($response['noResponses'] ?? 0),
+            'yesRate' => $yesRate,
+            'deadlineGapHours' => $avgDeadlineGapHours,
+        ];
+
+        $personal = [
+            'responses' => $responses,
             'events' => [
                 'total' => $totalEvents,
                 'rehearsals' => $rehearsals,
@@ -203,6 +323,10 @@ class WrappedModule {
                 'responseStyle' => $yesRate >= 70 ? 'committed' : ($yesRate >= 40 ? 'balanced' : 'selective'),
             ],
         ];
+
+        $personal['vibePersona'] = $this->buildVibePersona($personal, $year);
+
+        return $personal;
     }
 
     /**
@@ -273,7 +397,7 @@ class WrappedModule {
         $totalEvents = intval($personal['events']['total'] ?? 0);
         $totalResponses = intval($personal['responses']['total'] ?? 0);
         $yesRate = floatval($personal['responses']['yesRate'] ?? 0);
-        $avgLeadHours = floatval($personal['avgLeadHours'] ?? 0);
+        $avgDeadlineGapHours = floatval($personal['responses']['deadlineGapHours'] ?? 0);
         $responseCompletionRate = $totalEvents > 0
             ? round(($totalResponses / $totalEvents) * 100, 1)
             : 0.0;
@@ -287,9 +411,9 @@ class WrappedModule {
             ],
             [
                 'id' => 'response_speed',
-                'level' => $this->badgeLevelFromThresholds($avgLeadHours, 72, 24),
-                'value' => round($avgLeadHours, 1),
-                'unit' => 'hours',
+                'level' => $this->badgeLevelFromInverseThresholds($avgDeadlineGapHours, -72, -24),
+                'value' => round($avgDeadlineGapHours, 1),
+                'unit' => 'deadline_gap_hours',
             ],
             [
                 'id' => 'response_reliability',
@@ -422,6 +546,45 @@ class WrappedModule {
             'personal' => $personal,
             'band' => $this->getBandSummaryIfAdmin($year),
             'achievements' => $this->getAchievements($year, $personal),
+        ];
+    }
+
+    /**
+     * @return array{years:array<int,int>,startYear:int,endYear:int}
+     */
+    private function getAvailableYears(): array {
+        global $system_data;
+
+        $currentYear = intval(date('Y'));
+        $params = [['i', $this->userId], ['i', $this->userId]];
+        $sql = "SELECT MIN(y) as minYear
+            FROM (
+                SELECT YEAR(r.begin) as y
+                FROM rehearsal_user ru
+                JOIN rehearsal r ON r.id = ru.rehearsal
+                WHERE ru.user = ? AND r.begin IS NOT NULL
+                UNION ALL
+                SELECT YEAR(c.begin) as y
+                FROM concert_user cu
+                JOIN concert c ON c.id = cu.concert
+                WHERE cu.user = ? AND c.begin IS NOT NULL
+            ) years";
+
+        $rows = $this->rows($system_data->dbcon->getSelection($sql, $params));
+        $minYear = intval($rows[0]['minYear'] ?? $currentYear);
+        if ($minYear < 2000 || $minYear > $currentYear) {
+            $minYear = $currentYear;
+        }
+
+        $years = [];
+        for ($y = $currentYear; $y >= $minYear; $y--) {
+            $years[] = $y;
+        }
+
+        return [
+            'years' => $years,
+            'startYear' => $minYear,
+            'endYear' => $currentYear,
         ];
     }
 }

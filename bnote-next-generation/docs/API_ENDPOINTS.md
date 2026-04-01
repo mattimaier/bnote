@@ -1461,9 +1461,24 @@ Get wrapped data for one year.
 
 **Response Highlights:**
 - `personal` summary (responses, events, top month)
+- `personal.responses.deadlineGapHours` (signed average hours: reply time minus deadline; lower means earlier)
+- `personal.vibePersona` (`id`, `score`, `variant`, `proof`)
 - `band` summary (admin-only payload)
 - `achievements.personalBadges` (commitment, response speed, reliability, event energy)
 - `achievements.bandLeaderboard` (top attendance + lowest attendance, with minimum event threshold)
+
+**Compatibility Notes:**
+- `personal.avgLeadHours` remains available as a legacy field during transition.
+- `personal.funFacts.favoriteType` and `personal.funFacts.responseStyle` remain available as legacy fields.
+
+### GET /api/v1/wrapped/years
+
+Get all available Wrapped years for the current user (descending).
+
+**Response Highlights:**
+- `years` (e.g. `[2026, 2025, ...]`)
+- `startYear` (earliest year with data)
+- `endYear` (current year)
 
 ---
 
