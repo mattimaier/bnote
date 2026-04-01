@@ -402,6 +402,13 @@ final class MailEnv {
             return self::$deployEnvCache;
         }
 
+        // Safety guard: when running locally, never pull public URLs from deployment env.
+        // This prevents localhost-generated emails from containing production links/tokens.
+        if (self::isLocalDevContext()) {
+            self::$deployEnvCache = [];
+            return self::$deployEnvCache;
+        }
+
         $path = dirname(__DIR__, 2) . '/.deploy.env';
         if (!is_file($path) || !is_readable($path)) {
             self::$deployEnvCache = [];
@@ -461,5 +468,27 @@ final class MailEnv {
 
         self::$deployEnvCache = $out;
         return self::$deployEnvCache;
+    }
+
+    private static function isLocalDevContext(): bool {
+        $host = strtolower((string) ($_SERVER['HTTP_HOST'] ?? ''));
+        if ($host !== '') {
+            $host = preg_replace('/:\d+$/', '', $host) ?? $host;
+        }
+        if ($host === 'localhost' || $host === '127.0.0.1' || $host === '::1') {
+            return true;
+        }
+
+        $serverAddr = strtolower((string) ($_SERVER['SERVER_ADDR'] ?? ''));
+        if ($serverAddr === '127.0.0.1' || $serverAddr === '::1') {
+            return true;
+        }
+
+        $remoteAddr = strtolower((string) ($_SERVER['REMOTE_ADDR'] ?? ''));
+        if ($remoteAddr === '127.0.0.1' || $remoteAddr === '::1') {
+            return true;
+        }
+
+        return false;
     }
 }
