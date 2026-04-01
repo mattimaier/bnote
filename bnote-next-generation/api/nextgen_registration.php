@@ -39,7 +39,7 @@ class NextGenRegistration {
         }
 
         $sc = Regex::$SPECIALCHARACTERS;
-        $reName = '/^[[:alnum:]' . $sc . '\ \.\-\,\;\:\_\+\&\#\'\/\(\)\?]{1,100}$/';
+        $reName = '/^[[:alnum:]' . $sc . '\ \.\-\,\;\:\_\+\&\#\'\/\(\)\?]{1,50}$/';
 
         $name = trim($get('name'));
         $surname = trim($get('surname'));
@@ -63,10 +63,20 @@ class NextGenRegistration {
         $pw1 = isset($body['pw1']) && is_string($body['pw1']) ? $body['pw1'] : '';
         $pw2 = isset($body['pw2']) && is_string($body['pw2']) ? $body['pw2'] : '';
 
+        $len = static function (string $value): int {
+            return function_exists('mb_strlen') ? mb_strlen($value, 'UTF-8') : strlen($value);
+        };
+
         if (!preg_match($reName, $name) || !preg_match($reName, $surname)) {
             Response::error('register_validation', 400);
         }
-        if ($nickname !== '' && !preg_match($reName, $nickname)) {
+        if ($len($name) > 50 || $len($surname) > 50) {
+            Response::error('register_validation', 400);
+        }
+        if ($nickname !== '' && (!preg_match($reName, $nickname) || $len($nickname) > 20)) {
+            Response::error('register_validation', 400);
+        }
+        if ($len($email) > 45) {
             Response::error('register_validation', 400);
         }
         if ($phone !== '' && !preg_match('/^[0-9\+\-\/\ \(\)]{1,29}$/', $phone)) {
@@ -79,24 +89,36 @@ class NextGenRegistration {
             Response::error('register_validation', 400);
         }
 
-        $reStreet = '/^[[:alpha:]' . $sc . '0-9\ \.\,\-\/\(\)]{1,100}$/';
+        $reStreet = '/^[[:alpha:]' . $sc . '0-9\ \.\,\-\/\(\)]{1,45}$/';
         if (!preg_match($reStreet, $street)) {
             Response::error('register_validation', 400);
         }
         if ($zip === '' || !preg_match('/^[[:alpha:]0-9\s]{4,7}$/', $zip)) {
             Response::error('register_validation', 400);
         }
-        if (!preg_match('/^[[:alpha:]' . $sc . '0-9\ \.\,\-]{1,100}$/', $city)) {
+        if (!preg_match('/^[[:alpha:]' . $sc . '0-9\ \.\,\-]{1,45}$/', $city)) {
             Response::error('register_validation', 400);
         }
-        if ($country !== '' && !preg_match('/^[[:alnum:]' . $sc . '\ \.\-\,\;\:\_\+\&\#\'\/\(\)\?]{1,255}$/', $country)) {
+        if ($country !== '' && !preg_match('/^[[:alnum:]' . $sc . '\ \.\-\,\;\:\_\+\&\#\'\/\(\)\?]{1,45}$/', $country)) {
             Response::error('register_validation', 400);
         }
-        if ($birthday !== '' && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $birthday)) {
-            Response::error('register_validation', 400);
+        if ($birthday !== '') {
+            if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $birthday)) {
+                Response::error('register_validation', 400);
+            }
+            $parts = explode('-', $birthday);
+            if (count($parts) !== 3) {
+                Response::error('register_validation', 400);
+            }
+            $year = (int) $parts[0];
+            $month = (int) $parts[1];
+            $day = (int) $parts[2];
+            if (!checkdate($month, $day, $year)) {
+                Response::error('register_validation', 400);
+            }
         }
 
-        $rePw = '/^[[:alpha:]' . $sc . '0-9\ \.\-\,\;\:\_\+\&\#\'\/\!\$]{6,45}$/';
+        $rePw = '/^.{6,45}$/';
         if (!preg_match($rePw, $pw1) || !preg_match($rePw, $pw2)) {
             Response::error('register_validation', 400);
         }

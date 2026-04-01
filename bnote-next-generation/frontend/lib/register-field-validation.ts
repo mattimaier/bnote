@@ -19,19 +19,19 @@ function ccChars(s: string): string {
 
 const _sc = ccChars(RX_SPECIAL);
 
-/** Name / surname / nickname (nickname optional on server): 1–100 chars. */
+/** Name / surname / nickname (nickname optional on server). */
 const RX_NAME = new RegExp(
-  `^[\\p{L}\\p{N}${_sc} \\.\\-,;:_+&#'/?()]{1,100}$`,
+  `^[\\p{L}\\p{N}${_sc} \\.\\-,;:_+&#'/?()]{1,50}$`,
   "u",
 );
 
 const RX_STREET = new RegExp(
-  `^[\\p{L}${_sc}0-9 \\.,\\-/()]{1,100}$`,
+  `^[\\p{L}${_sc}0-9 \\.,\\-/()]{1,45}$`,
   "u",
 );
 
 const RX_CITY = new RegExp(
-  `^[\\p{L}${_sc}0-9 \\.,\\-]{1,100}$`,
+  `^[\\p{L}${_sc}0-9 \\.,\\-]{1,45}$`,
   "u",
 );
 
@@ -40,11 +40,8 @@ const RX_ZIP = /^[\p{L}0-9\s]{4,7}$/u;
 
 const PHONE_RX = /^[0-9+\-/() ]{1,29}$/;
 
-/** Same character class as server password rule. */
-const RX_PASSWORD = new RegExp(
-  `^[\\p{L}${_sc}0-9 \\.\\-,;:_+&#'/!$]{6,45}$`,
-  "u",
-);
+/** Any characters allowed; length rule enforced (server-aligned). */
+const RX_PASSWORD = /^[\s\S]{6,45}$/;
 
 const RX_API_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const RX_API_EMAIL =
@@ -59,6 +56,12 @@ function isRealDateYmd(ymd: string): boolean {
 
 export function registerNameValid(value: string): boolean {
   return RX_NAME.test(value.trim());
+}
+
+export function registerNicknameValid(value: string): boolean {
+  const v = value.trim();
+  if (!v) return true;
+  return v.length <= 20 && RX_NAME.test(v);
 }
 
 export function registerStreetValid(value: string): boolean {
@@ -92,5 +95,7 @@ export function registerBirthdayValid(value: string): boolean {
 
 /** Same pattern as the registration API (stricter than generic email-validator). */
 export function registerApiEmailValid(value: string): boolean {
-  return RX_API_EMAIL.test(value.trim());
+  const v = value.trim();
+  if (v.length > 45) return false;
+  return RX_API_EMAIL.test(v);
 }
