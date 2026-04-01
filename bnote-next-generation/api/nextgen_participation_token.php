@@ -131,14 +131,16 @@ final class NextGenParticipationToken {
         $userId = self::userIdForContact($contactId, $db);
         $ttlSeconds = max(300, min(self::ABSOLUTE_MAX_LINK_TTL_SECONDS, $ttlSeconds));
 
+        // Keep existing still-valid tokens so previously sent emails remain usable.
+        // Clean only expired rows for the same event/identity to limit table growth.
         if ($userId > 0) {
             $db->execute(
-                'DELETE FROM participation_response_token WHERE event_type = ? AND event_id = ? AND user_id = ?',
+                'DELETE FROM participation_response_token WHERE event_type = ? AND event_id = ? AND user_id = ? AND expires_at <= NOW()',
                 [['s', $eventType], ['i', $eventId], ['i', $userId]]
             );
         } else {
             $db->execute(
-                'DELETE FROM participation_response_token WHERE event_type = ? AND event_id = ? AND contact_id = ? AND user_id IS NULL',
+                'DELETE FROM participation_response_token WHERE event_type = ? AND event_id = ? AND contact_id = ? AND user_id IS NULL AND expires_at <= NOW()',
                 [['s', $eventType], ['i', $eventId], ['i', $contactId]]
             );
         }

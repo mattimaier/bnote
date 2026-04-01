@@ -11,6 +11,8 @@ import mailDesignTokens from "@/mail-design-tokens.json";
 
 /** Canonical entity keys; module routes (e.g. "locations", "users") resolve to these via getEntityConfig. */
 export type EntityType =
+  | "stats"
+  | "wrapped"
   | "rehearsal"
   | "concert"
   | "contact"

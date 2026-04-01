@@ -33,6 +33,10 @@ require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
 require_once __DIR__ . '/../text_normalizer.php';
 require_once __DIR__ . '/../mail/EscalationAlertService.php';
+require_once __DIR__ . '/../mail/NextGenMailer.php';
+require_once __DIR__ . '/../mail/MailEnv.php';
+require_once __DIR__ . '/../mail/builders/ReminderDigestMailBuilder.php';
+require_once __DIR__ . '/../nextgen_participation_token.php';
 require_once __DIR__ . '/contacts/ContactsCRUD.php';
 
 class ContactsModule {
@@ -346,6 +350,9 @@ class ContactsModule {
         
         $errors = [];
         $successCount = 0;
+        $addedEventsByContact = [];
+        $rehearsalsById = $this->futureRehearsalsById();
+        $concertsById = $this->futureConcertsById();
         
         foreach ($memberIds as $cid) {
             // Add to rehearsals
@@ -353,8 +360,17 @@ class ContactsModule {
                 $res = $this->data->addContactRelation('rehearsal', $rid, $cid);
                 if ($res < 0) {
                     $errors[] = "Failed to add contact $cid to rehearsal $rid";
-                } else if ($res > 0) {
-                    $successCount++;
+                } else {
+                    if ($res > 0) {
+                        $successCount++;
+                    }
+                    if (isset($rehearsalsById[intval($rid)])) {
+                        $this->appendIntegrationEvent(
+                            $addedEventsByContact,
+                            intval($cid),
+                            $this->buildIntegrationEventSummary('R', $rehearsalsById[intval($rid)])
+                        );
+                    }
                 }
             }
             
@@ -373,8 +389,17 @@ class ContactsModule {
                 $res = $this->data->addContactRelation('concert', $conid, $cid);
                 if ($res < 0) {
                     $errors[] = "Failed to add contact $cid to concert $conid";
-                } else if ($res > 0) {
-                    $successCount++;
+                } else {
+                    if ($res > 0) {
+                        $successCount++;
+                    }
+                    if (isset($concertsById[intval($conid)])) {
+                        $this->appendIntegrationEvent(
+                            $addedEventsByContact,
+                            intval($cid),
+                            $this->buildIntegrationEventSummary('C', $concertsById[intval($conid)])
+                        );
+                    }
                 }
             }
             
@@ -388,13 +413,226 @@ class ContactsModule {
                 }
             }
         }
+        $mailStatus = $this->sendIntegrationUpcomingSummaryMails($addedEventsByContact);
         
         return [
             'success' => true,
             'message' => "Integration completed. $successCount relations created.",
             'created' => $successCount,
+            'summaryMailsSent' => $mailStatus['sent'],
+            'summaryMailsAttempted' => $mailStatus['attempted'],
+            'summaryMailsReason' => $mailStatus['reason'],
             'errors' => $errors
         ];
+    }
+
+    /**
+     * @return array<int,array<string,mixed>>
+     */
+    private function futureRehearsalsById() {
+        $rows = $this->getRehearsals();
+        $indexed = [];
+        foreach ($rows as $row) {
+            $id = intval($row['id'] ?? 0);
+            if ($id > 0) {
+                $indexed[$id] = $row;
+            }
+        }
+        return $indexed;
+    }
+
+    /**
+     * @return array<int,array<string,mixed>>
+     */
+    private function futureConcertsById() {
+        $rows = $this->getConcerts();
+        $indexed = [];
+        foreach ($rows as $row) {
+            $id = intval($row['id'] ?? 0);
+            if ($id > 0) {
+                $indexed[$id] = $row;
+            }
+        }
+        return $indexed;
+    }
+
+    /**
+     * @param array<int,list<array{otype:string,oid:int,title:string,eventBegin:string,replyUntil:string,location:string,status:string,participation:int,allow_maybe:bool,traffic_urls:array<string,string>}>> $addedEventsByContact
+     * @param array{otype:string,oid:int,title:string,eventBegin:string,replyUntil:string,location:string,status:string,participation:int,allow_maybe:bool,traffic_urls:array<string,string>} $event
+     */
+    private function appendIntegrationEvent(array &$addedEventsByContact, int $contactId, array $event) {
+        if (!isset($addedEventsByContact[$contactId])) {
+            $addedEventsByContact[$contactId] = [];
+        }
+        foreach ($addedEventsByContact[$contactId] as $existing) {
+            if ($existing['otype'] === $event['otype'] && intval($existing['oid']) === intval($event['oid'])) {
+                return;
+            }
+        }
+        $addedEventsByContact[$contactId][] = $event;
+    }
+
+    /**
+     * @param array<string,mixed> $eventRow
+     * @return array{otype:string,oid:int,title:string,eventBegin:string,replyUntil:string,location:string,status:string,participation:int,allow_maybe:bool,traffic_urls:array<string,string>}
+     */
+    private function buildIntegrationEventSummary(string $otype, array $eventRow) {
+        $oid = intval($eventRow['id'] ?? 0);
+        $title = '';
+        if ($otype === 'C') {
+            $title = trim((string) ($eventRow['title'] ?? ''));
+        }
+        if ($title === '') {
+            $title = trim((string) ($eventRow['begin'] ?? ''));
+        }
+        return [
+            'otype' => $otype,
+            'oid' => $oid,
+            'title' => $title,
+            'eventBegin' => trim((string) ($eventRow['begin'] ?? '')),
+            'replyUntil' => '',
+            'location' => trim((string) ($eventRow['location_name'] ?? '')),
+            'status' => trim((string) ($eventRow['status'] ?? '')),
+            'participation' => -1,
+            'allow_maybe' => true,
+            'traffic_urls' => [],
+        ];
+    }
+
+    /**
+     * @param array<int,list<array{otype:string,oid:int,title:string,eventBegin:string,replyUntil:string,location:string,status:string,participation:int,allow_maybe:bool,traffic_urls:array<string,string>}>> $addedEventsByContact
+     */
+    private function sendIntegrationUpcomingSummaryMails(array $addedEventsByContact) {
+        global $system_data;
+        if (count($addedEventsByContact) < 1) {
+            return ['attempted' => 0, 'sent' => 0, 'reason' => 'no_new_event_assignments'];
+        }
+        $locale = method_exists($system_data, 'getLang')
+            ? (string) $system_data->getLang()
+            : 'en';
+
+        $messages = [];
+        foreach ($addedEventsByContact as $contactId => $events) {
+            if (count($events) < 1) {
+                continue;
+            }
+            usort($events, static function ($a, $b) {
+                return strcmp((string) ($a['eventBegin'] ?? ''), (string) ($b['eventBegin'] ?? ''));
+            });
+            $recipient = $this->integrationRecipient(intval($contactId));
+            if ($recipient === null) {
+                continue;
+            }
+            $eventsWithTrafficUrls = $this->attachParticipationUrlsForIntegration(
+                $system_data,
+                $events,
+                intval($contactId)
+            );
+            $messages[] = ReminderDigestMailBuilder::build(
+                $system_data,
+                $locale,
+                $recipient['firstName'],
+                $eventsWithTrafficUrls,
+                [],
+                [],
+                [],
+                [$recipient['email']],
+                [],
+                [
+                    'headlineKey' => 'mail.shell.headlineIntegrationDigest',
+                    'subjectKey' => 'mail.integrationDigest.subject',
+                    'introKey' => 'mail.integrationDigest.intro',
+                    'ctaLabelKey' => 'mail.integrationDigest.ctaOpenCalendar',
+                    'ctaPath' => '/calendar',
+                    'templateKey' => 'integration_digest',
+                ]
+            );
+        }
+        if (count($messages) < 1) {
+            return ['attempted' => 0, 'sent' => 0, 'reason' => 'no_recipients_with_email'];
+        }
+        $host = MailEnv::host();
+        $from = MailEnv::fromAddress();
+        if ($host === '' || $from === '') {
+            return ['attempted' => count($messages), 'sent' => 0, 'reason' => 'mail_transport_not_configured'];
+        }
+        $sent = NextGenMailer::sendBulk($messages);
+        return [
+            'attempted' => count($messages),
+            'sent' => $sent,
+            'reason' => $sent > 0 ? 'sent_or_partial' : 'send_failed',
+        ];
+    }
+
+    /**
+     * @return array{email:string,firstName:string}|null
+     */
+    private function integrationRecipient(int $contactId) {
+        if ($contactId < 1) {
+            return null;
+        }
+        $contact = $this->data->getContact($contactId);
+        if (!is_array($contact)) {
+            return null;
+        }
+        $email = trim((string) ($contact['email'] ?? ''));
+        if ($email === '') {
+            return null;
+        }
+        return [
+            'email' => $email,
+            'firstName' => trim((string) ($contact['name'] ?? '')),
+        ];
+    }
+
+    /**
+     * @param array<int,array<string,mixed>> $events
+     * @return array<int,array<string,mixed>>
+     */
+    private function attachParticipationUrlsForIntegration($system_data, array $events, int $contactId) {
+        if ($contactId < 1) {
+            return $events;
+        }
+        $allowMaybe = (int) $system_data->getDynamicConfigParameter('allow_participation_maybe') === 1;
+        $backupTtl = NextGenParticipationToken::maxTtlSecondsFromConfig($system_data);
+        $db = $system_data->dbcon;
+        /** @var array<string,string> $tokenCache */
+        $tokenCache = [];
+        $out = [];
+        foreach ($events as $event) {
+            $otype = strtoupper((string) ($event['otype'] ?? ''));
+            $oid = (int) ($event['oid'] ?? 0);
+            if (($otype !== 'R' && $otype !== 'C') || $oid < 1) {
+                $out[] = $event;
+                continue;
+            }
+            $deadline = isset($event['replyUntil']) ? (string) $event['replyUntil'] : null;
+            $begin = isset($event['eventBegin']) ? (string) $event['eventBegin'] : null;
+            $ttl = NextGenParticipationToken::ttlSecondsForEvent($deadline, $begin, $backupTtl);
+            $cacheKey = $otype . ':' . $oid;
+            try {
+                if (isset($tokenCache[$cacheKey]) && $tokenCache[$cacheKey] !== '') {
+                    $plainToken = $tokenCache[$cacheKey];
+                } else {
+                    $plainToken = NextGenParticipationToken::newTokenRow($db, $otype, $oid, $contactId, $ttl)['plainToken'];
+                    $tokenCache[$cacheKey] = $plainToken;
+                }
+            } catch (Throwable $e) {
+                $out[] = $event;
+                continue;
+            }
+            $urls = [
+                'yes' => MailEnv::nextgenParticipationRespondAbsoluteUrl($plainToken, 'yes'),
+                'no' => MailEnv::nextgenParticipationRespondAbsoluteUrl($plainToken, 'no'),
+            ];
+            if ($allowMaybe) {
+                $urls['maybe'] = MailEnv::nextgenParticipationRespondAbsoluteUrl($plainToken, 'maybe');
+            }
+            $event['traffic_urls'] = $urls;
+            $event['allow_maybe'] = $allowMaybe;
+            $out[] = $event;
+        }
+        return $out;
     }
 
     /**

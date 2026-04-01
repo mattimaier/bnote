@@ -29,9 +29,11 @@
 require_once BNOTE_ROOT . '/src/logic/defaultcontroller.php';
 require_once BNOTE_ROOT . '/src/data/modules/userdata.php';
 require_once BNOTE_ROOT . '/src/logic/modules/logincontroller.php';
-require_once BNOTE_ROOT . '/src/logic/mailing.php';
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
+require_once __DIR__ . '/../mail/NextGenMailer.php';
+require_once __DIR__ . '/../mail/MailEnv.php';
+require_once __DIR__ . '/../mail/builders/UserWelcomeMailBuilder.php';
 
 class UsersModule {
     private $data;
@@ -237,6 +239,7 @@ class UsersModule {
         if (!$system_data->isUserSuperUser() && $system_data->isUserSuperUser($id)) {
             Response::error('Access denied', 403);
         }
+        $wasActiveBefore = $this->getUserIsActiveState(intval($id));
         
         // Prepare values for UserData->update()
         // Note: UserData->update() expects $_POST format, so we need to simulate it
@@ -283,9 +286,11 @@ class UsersModule {
             $query = "UPDATE user SET " . join(", ", $fields) . " WHERE id = ?";
             try {
                 $system_data->dbcon->execute($query, $params);
+                $mailStatus = $this->maybeSendWelcomeOnActivationChange($system_data, intval($id), $wasActiveBefore, $data);
                 return [
                     'success' => true,
-                    'message' => 'User updated successfully'
+                    'message' => 'User updated successfully',
+                    'mail' => $mailStatus,
                 ];
             } catch (BNoteError $e) {
                 Response::error($e->getMessage(), 400);
@@ -294,10 +299,12 @@ class UsersModule {
 
         try {
             $this->data->update($id, $_POST);
+            $mailStatus = $this->maybeSendWelcomeOnActivationChange($system_data, intval($id), $wasActiveBefore, $data);
 
             return [
                 'success' => true,
-                'message' => 'User updated successfully'
+                'message' => 'User updated successfully',
+                'mail' => $mailStatus,
             ];
         } catch (BNoteError $e) {
             Response::error($e->getMessage(), 400);
@@ -362,33 +369,116 @@ class UsersModule {
         
         try {
             $wasActivated = $this->data->changeUserStatus($id);
+            $mailStatus = [
+                'attempted' => false,
+                'sent' => false,
+                'reason' => 'not_applicable',
+            ];
             
-            // System mail: always notify on activation (ignore user email_notification preference).
+            // System mail: notify on activation using Next Gen mail only.
             if ($wasActivated) {
-                $to = $this->data->getUsermail($id);
-                if ($to) {
-                    $subject = Lang::txt("UserController_activate.message_1");
-                    $body = Lang::txt("UserController_activate.message_2") .
-                            $system_data->getCompany() .
-                            Lang::txt("UserController_activate.message_3");
-                    $body .= Lang::txt("UserController_activate.message_4") .
-                            $system_data->getSystemURL() .
-                            Lang::txt("UserController_activate.message_5");
-
-                    $mail = new Mailing($subject, $body);
-                    $mail->setTo($to);
-                    $mail->sendMail(); // Don't fail if email fails
+                $mailCtx = $this->getActivationMailContext(intval($id));
+                if ($mailCtx !== null) {
+                    $mailStatus['attempted'] = true;
+                    $locale = method_exists($system_data, 'getLang')
+                        ? (string) $system_data->getLang()
+                        : 'en';
+                    $message = UserWelcomeMailBuilder::build(
+                        $system_data,
+                        $locale,
+                        $mailCtx['to'],
+                        $mailCtx['firstName']
+                    );
+                    $sent = NextGenMailer::send($message); // Non-fatal by design
+                    $mailStatus['sent'] = $sent;
+                    $mailStatus['reason'] = $sent ? 'sent' : 'send_failed';
+                    if (!$sent && (MailEnv::host() === '' || MailEnv::fromAddress() === '')) {
+                        $mailStatus['reason'] = 'mail_transport_not_configured';
+                    }
+                } else {
+                    $mailStatus['reason'] = 'missing_recipient_email';
                 }
             }
             
             return [
                 'success' => true,
                 'isActive' => $wasActivated,
-                'message' => $wasActivated ? 'User activated' : 'User deactivated'
+                'message' => $wasActivated ? 'User activated' : 'User deactivated',
+                'mail' => $mailStatus,
             ];
         } catch (BNoteError $e) {
             Response::error($e->getMessage(), 400);
         }
+    }
+
+    /**
+     * @return array{to:string,firstName:string}|null
+     */
+    private function getActivationMailContext(int $userId) {
+        if ($userId < 1) {
+            return null;
+        }
+        global $system_data;
+        $query = "SELECT c.email, c.name as firstName FROM user u "
+            . "LEFT JOIN contact c ON c.id = u.contact WHERE u.id = ? LIMIT 1";
+        $rows = $system_data->dbcon->getSelection($query, [['i', $userId]]);
+        if (!is_array($rows) || count($rows) < 2) {
+            return null;
+        }
+        $row = $rows[1];
+        $to = trim((string) ($row['email'] ?? ''));
+        if ($to === '') {
+            return null;
+        }
+        return [
+            'to' => $to,
+            'firstName' => trim((string) ($row['firstName'] ?? '')),
+        ];
+    }
+
+    /**
+     * @param array<string,mixed> $data
+     * @return array{attempted:bool,sent:bool,reason:string}
+     */
+    private function maybeSendWelcomeOnActivationChange($system_data, int $userId, bool $wasActiveBefore, array $data) {
+        if (!array_key_exists('isActive', $data)) {
+            return ['attempted' => false, 'sent' => false, 'reason' => 'is_active_not_updated'];
+        }
+        $isActiveNow = !empty($data['isActive']);
+        if ($wasActiveBefore || !$isActiveNow) {
+            return ['attempted' => false, 'sent' => false, 'reason' => 'no_inactive_to_active_transition'];
+        }
+        $mailCtx = $this->getActivationMailContext($userId);
+        if ($mailCtx === null) {
+            return ['attempted' => false, 'sent' => false, 'reason' => 'missing_recipient_email'];
+        }
+        $locale = method_exists($system_data, 'getLang')
+            ? (string) $system_data->getLang()
+            : 'en';
+        $message = UserWelcomeMailBuilder::build(
+            $system_data,
+            $locale,
+            $mailCtx['to'],
+            $mailCtx['firstName']
+        );
+        $sent = NextGenMailer::send($message);
+        if (!$sent && (MailEnv::host() === '' || MailEnv::fromAddress() === '')) {
+            return ['attempted' => true, 'sent' => false, 'reason' => 'mail_transport_not_configured'];
+        }
+        return ['attempted' => true, 'sent' => $sent, 'reason' => $sent ? 'sent' : 'send_failed'];
+    }
+
+    private function getUserIsActiveState(int $userId) {
+        if ($userId < 1) {
+            return false;
+        }
+        global $system_data;
+        $val = $system_data->dbcon->colValue(
+            "SELECT isActive FROM user WHERE id = ?",
+            "isActive",
+            [['i', $userId]]
+        );
+        return intval($val) === 1;
     }
     
     /**

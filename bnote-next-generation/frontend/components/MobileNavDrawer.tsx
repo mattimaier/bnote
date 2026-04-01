@@ -146,11 +146,12 @@ export function MobileNavDrawer({ open, onClose }: MobileNavDrawerProps) {
           </button>
         </div>
         <nav className="flex-1 overflow-y-auto p-3 space-y-2">
-          {modules.map((m) => {
+          {modules.map((m, index) => {
             const rawRoute = (m.route ?? "").replace(/^\/+/, "").replace(/\/+$/, "") || "dashboard";
             const path = rawRoute.startsWith("/") ? rawRoute : `/${rawRoute}`;
             const href = path.endsWith("/") ? path : `${path}/`;
             const routeKey = rawRoute.toLowerCase();
+            const moduleKey = `${routeKey}::${m.id}::${m.name}::${index}`;
             const isActive = activeModuleKey === routeKey;
             const entityConfig = getEntityConfig(rawRoute);
             const iconName = entityConfig?.icon ?? m.icon;
@@ -158,7 +159,7 @@ export function MobileNavDrawer({ open, onClose }: MobileNavDrawerProps) {
             const iconColor = entityConfig?.color ?? undefined;
             return (
               <Link
-                key={m.id}
+                key={moduleKey}
                 href={href}
                 prefetch={false}
                 onClick={onClose}

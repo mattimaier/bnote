@@ -33,12 +33,20 @@ final class ReminderDigestMailBuilder {
         array $votes,
         array $tasks,
         array $to,
-        array $bcc
+        array $bcc,
+        array $options = []
     ): NextGenMailMessage {
         $company = method_exists($system_data, 'getCompany') ? (string) $system_data->getCompany() : '';
-        $headline = htmlspecialchars(MailI18n::t('mail.shell.headlineReminderDigest', $locale), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        $headlineKey = isset($options['headlineKey']) ? (string) $options['headlineKey'] : 'mail.shell.headlineReminderDigest';
+        $subjectKey = isset($options['subjectKey']) ? (string) $options['subjectKey'] : 'mail.reminder.subject';
+        $introKey = isset($options['introKey']) ? (string) $options['introKey'] : 'mail.reminder.intro';
+        $ctaLabelKey = isset($options['ctaLabelKey']) ? (string) $options['ctaLabelKey'] : 'mail.reminder.ctaOpenDashboard';
+        $ctaPath = isset($options['ctaPath']) ? trim((string) $options['ctaPath']) : '/dashboard';
+        $templateKey = isset($options['templateKey']) ? (string) $options['templateKey'] : 'reminder_digest_weekly';
+
+        $headline = htmlspecialchars(MailI18n::t($headlineKey, $locale), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
         $companyLine = MailBranding::bnoteBandLine($locale, $company);
-        $subject = MailI18n::interpolate(MailI18n::t('mail.reminder.subject', $locale), [
+        $subject = MailI18n::interpolate(MailI18n::t($subjectKey, $locale), [
             'orgPrefix' => MailSubject::orgPrefix($company),
         ]);
 
@@ -49,7 +57,7 @@ final class ReminderDigestMailBuilder {
                 . '</p>';
         }
         $intro .= '<p class="em-lead" style="margin:0 0 18px;">'
-            . htmlspecialchars(MailI18n::t('mail.reminder.intro', $locale), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
+            . htmlspecialchars(MailI18n::t($introKey, $locale), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
             . '</p>';
 
         $body = $intro
@@ -63,9 +71,13 @@ final class ReminderDigestMailBuilder {
         ]);
 
         $openUrl = MailEnv::nextgenPublicBaseUrl();
-        $ctaHref = $openUrl !== '' ? htmlspecialchars($openUrl . '/dashboard', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') : null;
+        $ctaHref = null;
+        if ($openUrl !== '') {
+            $path = $ctaPath !== '' ? ('/' . ltrim($ctaPath, '/')) : '/dashboard';
+            $ctaHref = htmlspecialchars($openUrl . $path, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        }
         $ctaLabel = $openUrl !== ''
-            ? htmlspecialchars(MailI18n::t('mail.reminder.ctaOpenDashboard', $locale), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
+            ? htmlspecialchars(MailI18n::t($ctaLabelKey, $locale), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
             : null;
 
         $html = MailHtmlShell::wrapTransactional(
@@ -79,7 +91,7 @@ final class ReminderDigestMailBuilder {
             MailAssets::logoImgSrcForEmail()
         );
 
-        $plain = self::buildPlain($locale, $recipientFirstName, $eventsUpcoming, $eventsPendingResponse, $votes, $tasks);
+        $plain = self::buildPlain($locale, $recipientFirstName, $eventsUpcoming, $eventsPendingResponse, $votes, $tasks, $introKey);
 
         return new NextGenMailMessage(
             $to,
@@ -87,7 +99,7 @@ final class ReminderDigestMailBuilder {
             $subject,
             $html,
             $plain,
-            'reminder_digest_weekly',
+            $templateKey,
             MailAssets::defaultLogoEmbeds()
         );
     }
@@ -474,14 +486,22 @@ final class ReminderDigestMailBuilder {
      * @param list<array<string,mixed>> $votes
      * @param list<array<string,mixed>> $tasks
      */
-    private static function buildPlain(string $locale, ?string $recipientFirstName, array $eventsUpcoming, array $eventsPendingResponse, array $votes, array $tasks): string {
+    private static function buildPlain(
+        string $locale,
+        ?string $recipientFirstName,
+        array $eventsUpcoming,
+        array $eventsPendingResponse,
+        array $votes,
+        array $tasks,
+        string $introKey = 'mail.reminder.intro'
+    ): string {
         $plain = '';
         if ($recipientFirstName !== null && trim($recipientFirstName) !== '') {
             $plain .= MailI18n::interpolate(MailI18n::t('mail.commentDiscussion.greetingHi', $locale), [
                 'firstName' => trim($recipientFirstName),
             ]) . "\n\n";
         }
-        $plain .= MailI18n::t('mail.reminder.intro', $locale) . "\n\n";
+        $plain .= MailI18n::t($introKey, $locale) . "\n\n";
         $plain .= self::plainSection($locale, MailI18n::t('mail.reminder.sectionEventsUpcoming', $locale), $eventsUpcoming);
         $plain .= self::plainSection($locale, MailI18n::t('mail.reminder.sectionEventsPendingResponse', $locale), $eventsPendingResponse);
         $plain .= self::plainSection($locale, MailI18n::t('mail.reminder.sectionVotes', $locale), $votes);

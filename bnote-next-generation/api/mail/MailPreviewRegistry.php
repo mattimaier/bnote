@@ -11,6 +11,7 @@ require_once __DIR__ . '/builders/EventInfoMailBuilder.php';
 require_once __DIR__ . '/builders/TaskNotificationMailBuilder.php';
 require_once __DIR__ . '/builders/ReminderDigestMailBuilder.php';
 require_once __DIR__ . '/builders/EscalationAlertMailBuilder.php';
+require_once __DIR__ . '/builders/UserWelcomeMailBuilder.php';
 require_once __DIR__ . '/NextGenMailMessage.php';
 
 final class MailPreviewRegistry {
@@ -19,6 +20,7 @@ final class MailPreviewRegistry {
         return [
             ['id' => 'password_reset', 'label' => 'Password reset'],
             ['id' => 'new_user_admin', 'label' => 'New user (admin notification)'],
+            ['id' => 'user_welcome', 'label' => 'User welcome (admin activation)'],
             ['id' => 'long_demo', 'label' => 'Long layout demo (lorem)'],
             ['id' => 'comment_discussion_rehearsal_short', 'label' => 'Comment discussion (rehearsal, short thread)'],
             ['id' => 'comment_discussion_rehearsal_long', 'label' => 'Comment discussion (rehearsal, long thread)'],
@@ -57,6 +59,14 @@ final class MailPreviewRegistry {
                     [MailPreviewFixtures::previewToEmail()],
                     [],
                     MailPreviewFixtures::recipientPreviewFirstName()
+                );
+            case 'user_welcome':
+                $welcome = MailPreviewFixtures::userWelcomeCtx();
+                return UserWelcomeMailBuilder::build(
+                    $sd,
+                    $locale,
+                    $welcome['toEmail'],
+                    $welcome['firstName']
                 );
             case 'long_demo':
                 return LongDemoMailBuilder::build(

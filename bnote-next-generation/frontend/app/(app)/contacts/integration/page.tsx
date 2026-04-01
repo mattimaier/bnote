@@ -54,6 +54,81 @@ function statusLabelFor(value: string | undefined, t: (k: string) => string, emp
   return value;
 }
 
+function interpolation(input: string, vars: Record<string, string>) {
+  let out = input;
+  Object.entries(vars).forEach(([k, v]) => {
+    out = out.replaceAll(`{${k}}`, v);
+  });
+  return out;
+}
+
+function integrationMailFeedback(
+  t: (k: string) => string,
+  result: { summaryMailsSent?: number; summaryMailsAttempted?: number; summaryMailsReason?: string }
+) {
+  const sent = Number(result.summaryMailsSent ?? 0);
+  const attempted = Number(result.summaryMailsAttempted ?? 0);
+  const reason = (result.summaryMailsReason ?? "").trim();
+  if (sent > 0) {
+    const label = t("js.contacts.integrationMailSent");
+    return {
+      text: interpolation(
+        label !== "js.contacts.integrationMailSent"
+          ? label
+          : "Integration email sent ({sent}/{attempted}).",
+        {
+          sent: String(sent),
+          attempted: String(Math.max(sent, attempted)),
+        }
+      ),
+      tone: "success" as const,
+    };
+  }
+  if (reason === "no_recipients_with_email") {
+    return {
+      text:
+        t("js.contacts.integrationMailNoRecipients") !== "js.contacts.integrationMailNoRecipients"
+          ? t("js.contacts.integrationMailNoRecipients")
+          : "No integration email sent: selected members have no email address.",
+      tone: "default" as const,
+    };
+  }
+  if (reason === "mail_transport_not_configured") {
+    return {
+      text:
+        t("js.contacts.integrationMailTransportMissing") !== "js.contacts.integrationMailTransportMissing"
+          ? t("js.contacts.integrationMailTransportMissing")
+          : "No integration email sent: mail transport is not configured.",
+      tone: "default" as const,
+    };
+  }
+  if (reason === "send_failed") {
+    return {
+      text:
+        t("js.contacts.integrationMailSendFailed") !== "js.contacts.integrationMailSendFailed"
+          ? t("js.contacts.integrationMailSendFailed")
+          : "Integration email sending failed.",
+      tone: "error" as const,
+    };
+  }
+  if (attempted > 0) {
+    const label = t("js.contacts.integrationMailNotSent");
+    return {
+      text: interpolation(
+        label !== "js.contacts.integrationMailNotSent"
+          ? label
+          : "Integration email not sent ({sent}/{attempted}).",
+        {
+          sent: String(sent),
+          attempted: String(attempted),
+        }
+      ),
+      tone: "default" as const,
+    };
+  }
+  return null;
+}
+
 function SearchField({
   value,
   onChange,
@@ -274,6 +349,10 @@ export default function ContactsIntegrationPage() {
             : t("js.contacts.integrationSuccess"),
           "success"
         );
+        const mailFeedback = integrationMailFeedback(t, result ?? {});
+        if (mailFeedback !== null) {
+          showToast(mailFeedback.text, mailFeedback.tone);
+        }
       }
       await loadBundle();
     } catch (err) {

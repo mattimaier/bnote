@@ -15,6 +15,7 @@ class ConfigurationModule {
         'default_contact_group' => ['type' => 'reference_group', 'section' => 'defaults', 'caption' => 'Default contact group', 'used_in_nextgen' => true],
         'auto_activation' => ['type' => 'boolean', 'section' => 'defaults', 'caption' => 'Auto activation', 'used_in_nextgen' => false],
         'user_registration' => ['type' => 'boolean', 'section' => 'defaults', 'caption' => 'User registration', 'used_in_nextgen' => true],
+        'wrapped_module_enabled' => ['type' => 'boolean', 'section' => 'display', 'caption' => 'Enable wrapped module', 'used_in_nextgen' => true],
         'share_nonadmin_viewmode' => ['type' => 'boolean', 'section' => 'display', 'caption' => 'Share non-admin view mode', 'used_in_nextgen' => false],
         'rehearsal_show_length' => ['type' => 'boolean', 'section' => 'display', 'caption' => 'Rehearsal length visible', 'used_in_nextgen' => false],
         'allow_participation_maybe' => ['type' => 'boolean', 'section' => 'defaults', 'caption' => 'Allow participation maybe', 'used_in_nextgen' => true],
@@ -123,9 +124,12 @@ class ConfigurationModule {
                 continue;
             }
             $normalized = $this->normalizeInputValue((string) $meta['type'], $value);
+            // Upsert so newly introduced parameters (without existing row) persist correctly.
             $system_data->dbcon->execute(
-                "UPDATE configuration SET value = ? WHERE param = ?",
-                [['s', $normalized], ['s', $key]]
+                "INSERT INTO configuration (param, value, is_active)
+                 VALUES (?, ?, 1)
+                 ON DUPLICATE KEY UPDATE value = VALUES(value), is_active = 1",
+                [['s', $key], ['s', $normalized]]
             );
         }
 

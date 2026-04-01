@@ -43,7 +43,7 @@ class ShareModule {
     public function __construct() {
         $this->action = $_GET['action'] ?? $_POST['action'] ?? 'list';
         $this->shareRoot = $GLOBALS['DATA_PATHS']['share'];
-        if ($this->action === 'shareCard') {
+        if ($this->action === 'shareCard' || $this->action === 'uploadShareCard' || $this->action === 'deleteShareCard') {
             return;
         }
         global $system_data;

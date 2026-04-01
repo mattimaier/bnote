@@ -293,6 +293,26 @@ class AuthModule {
                 'icon' => 'layout-dashboard',
                 'i18n' => 'js.sidebar.dashboard'
             ],
+            'Stats' => [
+                'route' => '/stats',
+                'icon' => 'chart-bar',
+                'i18n' => 'js.sidebar.stats'
+            ],
+            'Auswertungen' => [
+                'route' => '/stats',
+                'icon' => 'chart-bar',
+                'i18n' => 'js.sidebar.stats'
+            ],
+            'Statistik' => [
+                'route' => '/stats',
+                'icon' => 'chart-bar',
+                'i18n' => 'js.sidebar.stats'
+            ],
+            'Statistics' => [
+                'route' => '/stats',
+                'icon' => 'chart-bar',
+                'i18n' => 'js.sidebar.stats'
+            ],
             'Proben' => [
                 'route' => '/rehearsals',
                 'icon' => 'music',
@@ -492,6 +512,35 @@ class AuthModule {
             }
             return $a['id'] <=> $b['id'];
         });
+
+        // Add Wrapped only when enabled via configuration (off by default).
+        $wrappedEnabled = strval($system_data->getDynamicConfigParameter('wrapped_module_enabled')) === '1';
+        if ($wrappedEnabled) {
+            $wrapped = [
+                'id' => -2,
+                'name' => 'Wrapped',
+                'route' => '/wrapped',
+                'icon' => 'cake',
+                'i18n' => 'js.sidebar.wrapped'
+            ];
+            $wrappedExists = false;
+            foreach ($modules as $m) {
+                if (($m['route'] ?? '') === $wrapped['route']) {
+                    $wrappedExists = true;
+                    break;
+                }
+            }
+            if (!$wrappedExists) {
+                $insertIndex = count($modules);
+                foreach ($modules as $idx => $m) {
+                    if (($m['name'] ?? '') === 'Start') {
+                        $insertIndex = $idx + 1;
+                        break;
+                    }
+                }
+                array_splice($modules, $insertIndex, 0, [$wrapped]);
+            }
+        }
 
         // Add Band Overview for admins only (synthetic module, not from BNote DB)
         $userId = Auth::getUserId();

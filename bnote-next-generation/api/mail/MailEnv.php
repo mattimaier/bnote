@@ -9,6 +9,8 @@ final class MailEnv {
     private static $htaccessSetEnvCache = null;
     /** @var null|array<string,string> */
     private static $localConfigCache = null;
+    /** @var null|array<string,string> */
+    private static $deployEnvCache = null;
 
     public static function host(): string {
         return self::getenvTrim('MAIL_HOST');
@@ -229,6 +231,10 @@ final class MailEnv {
         if ($fromLocalConfig !== '') {
             return $fromLocalConfig;
         }
+        $fromDeployEnv = self::getFromDeployEnv($key);
+        if ($fromDeployEnv !== '') {
+            return $fromDeployEnv;
+        }
         $fromHtaccess = self::getSetEnvFromHtaccess($key);
         if ($fromHtaccess !== '') {
             return $fromHtaccess;
@@ -323,6 +329,11 @@ final class MailEnv {
         return isset($cfg[$key]) ? $cfg[$key] : '';
     }
 
+    private static function getFromDeployEnv(string $key): string {
+        $cfg = self::loadDeployEnvConfig();
+        return isset($cfg[$key]) ? $cfg[$key] : '';
+    }
+
     /**
      * Optional file-based mail configuration fallback for shared hosting where env passthrough is unavailable.
      *
@@ -379,5 +390,76 @@ final class MailEnv {
 
         self::$localConfigCache = $out;
         return self::$localConfigCache;
+    }
+
+    /**
+     * Optional fallback: parse bnote-next-generation/.deploy.env for local/dev runs.
+     *
+     * @return array<string,string>
+     */
+    private static function loadDeployEnvConfig(): array {
+        if (is_array(self::$deployEnvCache)) {
+            return self::$deployEnvCache;
+        }
+
+        $path = dirname(__DIR__, 2) . '/.deploy.env';
+        if (!is_file($path) || !is_readable($path)) {
+            self::$deployEnvCache = [];
+            return self::$deployEnvCache;
+        }
+        $content = @file_get_contents($path);
+        if (!is_string($content) || $content === '') {
+            self::$deployEnvCache = [];
+            return self::$deployEnvCache;
+        }
+
+        $allowed = [
+            'MAIL_HOST',
+            'MAIL_PORT',
+            'MAIL_ENCRYPTION',
+            'MAIL_USERNAME',
+            'MAIL_PASSWORD',
+            'MAIL_FROM_ADDRESS',
+            'MAIL_FROM_NAME',
+            'BNOTE_NEXT_GENERATION_PUBLIC_URL',
+            'BNOTE_NEXT_GENERATION_PUBLIC_ORIGIN',
+            'BNOTE_NEXT_GENERATION_MAIL_BULK_DELAY_MS',
+            'BNOTE_NEXT_GENERATION_REMINDER_SECRET',
+            'BNOTE_NEXT_GENERATION_REMINDER_ALLOWED_SKEW_SECONDS',
+            'NEXT_PUBLIC_BASE_PATH',
+        ];
+        $allowedSet = array_flip($allowed);
+
+        $out = [];
+        $lines = preg_split('/\R/', $content);
+        if (!is_array($lines)) {
+            self::$deployEnvCache = [];
+            return self::$deployEnvCache;
+        }
+        foreach ($lines as $line) {
+            $line = trim((string) $line);
+            if ($line === '' || strpos($line, '#') === 0) {
+                continue;
+            }
+            if (!preg_match('/^([A-Z0-9_]+)\s*=\s*(.*)$/', $line, $m)) {
+                continue;
+            }
+            $key = strtoupper(trim((string) $m[1]));
+            if (!isset($allowedSet[$key])) {
+                continue;
+            }
+            $val = trim((string) $m[2]);
+            if (strlen($val) >= 2) {
+                $first = $val[0];
+                $last = $val[strlen($val) - 1];
+                if (($first === '"' && $last === '"') || ($first === "'" && $last === "'")) {
+                    $val = substr($val, 1, -1);
+                }
+            }
+            $out[$key] = trim($val);
+        }
+
+        self::$deployEnvCache = $out;
+        return self::$deployEnvCache;
     }
 }

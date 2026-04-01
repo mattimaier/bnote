@@ -27,6 +27,8 @@ import ImprintModulePage from "@/app/_modules/imprint/page";
 import PrivacyModulePage from "@/app/_modules/privacy/page";
 import DeveloperModulePage from "@/app/_modules/developer/page";
 import EmailModulePage from "@/app/_modules/email/page";
+import StatsModulePage from "@/app/_modules/stats/page";
+import WrappedModulePage from "@/app/_modules/wrapped/page";
 
 const MODULE_PAGES: Record<string, () => ReactNode> = {
   dashboard: () => <DashboardPage />,
@@ -49,6 +51,8 @@ const MODULE_PAGES: Record<string, () => ReactNode> = {
   privacy: () => <PrivacyModulePage />,
   developer: () => <DeveloperModulePage />,
   email: () => <EmailModulePage />,
+  stats: () => <StatsModulePage />,
+  wrapped: () => <WrappedModulePage />,
 };
 
 const MODULE_KEYS = Object.keys(MODULE_PAGES);

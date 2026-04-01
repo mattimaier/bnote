@@ -10,6 +10,7 @@ export type MailTestLocale = (typeof MAIL_TEST_LOCALES)[number];
 export const MAIL_TEST_TEMPLATES: readonly { id: string; label: string }[] = [
   { id: "password_reset", label: "Password reset" },
   { id: "new_user_admin", label: "New user (admin notification)" },
+  { id: "user_welcome", label: "User welcome (admin activation)" },
   { id: "long_demo", label: "Long layout demo (lorem)" },
   { id: "comment_discussion_rehearsal_short", label: "Comment discussion (rehearsal, short thread)" },
   { id: "comment_discussion_rehearsal_long", label: "Comment discussion (rehearsal, long thread)" },

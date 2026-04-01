@@ -13,6 +13,7 @@ import React from "react";
 const TABLER_MAP: Record<string, string> = {
   "layout-dashboard": "icon-[tabler--layout-dashboard]",
   dashboard: "icon-[tabler--layout-dashboard]",
+  "chart-bar": "icon-[tabler--chart-bar]",
   users: "icon-[tabler--users]",
   "user-plus": "icon-[tabler--user-plus]",
   user: "icon-[tabler--user]",

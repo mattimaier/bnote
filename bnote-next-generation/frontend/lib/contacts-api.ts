@@ -87,6 +87,9 @@ export interface IntegrateResult {
   success: boolean;
   message?: string;
   created?: number;
+  summaryMailsSent?: number;
+  summaryMailsAttempted?: number;
+  summaryMailsReason?: string;
   removed?: number;
   affected?: {
     rehearsals?: number;

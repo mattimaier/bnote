@@ -41,6 +41,16 @@ final class MailPreviewFixtures {
         ];
     }
 
+    /**
+     * @return array{toEmail:string,firstName:string}
+     */
+    public static function userWelcomeCtx(): array {
+        return [
+            'toEmail' => self::previewToEmail(),
+            'firstName' => self::recipientPreviewFirstName(),
+        ];
+    }
+
     public static function previewToEmail(): string {
         return 'preview@example.com';
     }
