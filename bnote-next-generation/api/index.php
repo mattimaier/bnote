@@ -152,7 +152,8 @@ require_once $moduleFile;
 
 // Check authentication (except for auth/translations and public share-card image fetch)
 $isPublicShareCard = ($module === 'share' && $action === 'shareCard');
-if ($module !== 'auth' && $module !== 'translations' && !$isPublicShareCard && !Auth::check()) {
+$isPublicBugReportSend = ($module === 'bugreport' && $action === 'send');
+if ($module !== 'auth' && $module !== 'translations' && !$isPublicShareCard && !$isPublicBugReportSend && !Auth::check()) {
     Response::error('Authentication required', 403);
 }
 

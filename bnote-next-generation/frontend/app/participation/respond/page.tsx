@@ -8,10 +8,13 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { I18nProvider, useI18n } from "@/contexts/I18nContext";
+import { ToastProvider } from "@/contexts/ToastContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { BNoteLogo } from "@/components/BNoteLogo";
 import { Spinner } from "@/components/Spinner";
 import { LegalFooter } from "@/components/auth/LegalFooter";
+import { BugReportModal } from "@/components/bug-report/BugReportModal";
+import { ToastContainer } from "@/components/ToastContainer";
 import {
   applyParticipationToken,
   getParticipationTokenInfo,
@@ -19,8 +22,14 @@ import {
   participationEntityHref,
   type ApplyParticipationResult,
 } from "@/lib/participation-magic";
+import { api } from "@/lib/api";
 import { checkSession } from "@/lib/auth";
 import { formatDateTimeShort } from "@/lib/date-time";
+import { initBugReportDiagnostics } from "@/lib/bug-report-diagnostics";
+
+interface PublicConfig {
+  beta_bug_report_enabled?: boolean;
+}
 
 function ParticipateInner() {
   const router = useRouter();
@@ -33,6 +42,8 @@ function ParticipateInner() {
   const [comment, setComment] = useState("");
   const [entityHref, setEntityHref] = useState<string | null>(null);
   const [expiryLabel, setExpiryLabel] = useState<string | null>(null);
+  const [bugReportEnabled, setBugReportEnabled] = useState(false);
+  const [bugReportOpen, setBugReportOpen] = useState(false);
   const ranYes = useRef(false);
 
   const needsCommentStep = choice === "maybe" || choice === "no";
@@ -50,6 +61,22 @@ function ParticipateInner() {
       setState("loading");
     }
   }, [ready, token, choice, needsCommentStep, t]);
+
+  useEffect(() => {
+    initBugReportDiagnostics();
+  }, []);
+
+  useEffect(() => {
+    if (!ready) return;
+    api
+      .get<PublicConfig>("auth", "getPublicConfig")
+      .then((config) => {
+        setBugReportEnabled(Boolean(config?.beta_bug_report_enabled));
+      })
+      .catch(() => {
+        setBugReportEnabled(false);
+      });
+  }, [ready]);
 
   useEffect(() => {
     if (!ready || token.length !== 64 || !choice) return;
@@ -129,11 +156,27 @@ function ParticipateInner() {
     entityHref !== null && entityHref !== ""
       ? `${loginHref}?redirect=${encodeURIComponent(entityHref)}`
       : loginHref;
+  const bugReportLabel =
+    t("js.bugReport.openButton") !== "js.bugReport.openButton"
+      ? t("js.bugReport.openButton")
+      : "Report bug";
 
   return (
     <div className="w-full max-w-md pb-6 sm:mx-4 sm:pb-0">
-      <div className="fixed top-3 right-3 z-50 sm:top-4 sm:right-4">
-        <ThemeToggle />
+      <div className="fixed top-3 right-3 z-50 flex items-center gap-2 sm:top-4 sm:right-4">
+        <ThemeToggle inline />
+        {bugReportEnabled ? (
+          <button
+            type="button"
+            onClick={() => setBugReportOpen(true)}
+            className="btn btn-soft btn-sm px-2.5 sm:px-3"
+            title={bugReportLabel}
+            aria-label={bugReportLabel}
+          >
+            <span className="icon-[tabler--bug] h-4 w-4" aria-hidden />
+            <span className="hidden sm:inline">{bugReportLabel}</span>
+          </button>
+        ) : null}
       </div>
       <div className="construction-tape fixed right-0 bottom-0 left-0 z-40 sm:static">
         <div className="construction-tape-text">
@@ -198,6 +241,7 @@ function ParticipateInner() {
       <div className="mt-8 px-2">
         <LegalFooter />
       </div>
+      <BugReportModal open={bugReportOpen} onClose={() => setBugReportOpen(false)} />
     </div>
   );
 }
@@ -205,17 +249,20 @@ function ParticipateInner() {
 export default function ParticipationRespondPage() {
   return (
     <I18nProvider>
-      <div className="flex min-h-screen flex-col items-center justify-start bg-base-200 px-3 py-8 sm:bg-base-100 sm:py-12">
-        <Suspense
-          fallback={
-            <div className="flex min-h-[40vh] items-center justify-center">
-              <Spinner />
-            </div>
-          }
-        >
-          <ParticipateInner />
-        </Suspense>
-      </div>
+      <ToastProvider>
+        <div className="flex min-h-screen flex-col items-center justify-start bg-base-200 px-3 py-8 sm:bg-base-100 sm:py-12">
+          <Suspense
+            fallback={
+              <div className="flex min-h-[40vh] items-center justify-center">
+                <Spinner />
+              </div>
+            }
+          >
+            <ParticipateInner />
+          </Suspense>
+        </div>
+        <ToastContainer />
+      </ToastProvider>
     </I18nProvider>
   );
 }

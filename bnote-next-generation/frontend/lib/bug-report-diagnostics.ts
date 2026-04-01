@@ -22,6 +22,7 @@ export interface BugReportLogEvent {
 
 export interface BugReportClientContext {
   route: string;
+  currentUrl: string;
   viewport: string;
   language: string;
   theme: string;
@@ -35,7 +36,6 @@ const MAX_LOG_EVENTS = 50;
 
 const sensitiveNeedles = [
   "password",
-  "token",
   "authorization",
   "cookie",
   "set-cookie",
@@ -183,6 +183,7 @@ export function getBugReportLogEvents(): BugReportLogEvent[] {
 export function getBugReportClientContext(): BugReportClientContext {
   const href = typeof window !== "undefined" ? window.location.href : "";
   const route = sanitizeUrl(href);
+  const currentUrl = trimText(href, 1200);
   const viewport = typeof window !== "undefined" ? `${window.innerWidth}x${window.innerHeight}` : "unknown";
   const language = typeof navigator !== "undefined" ? navigator.language : "unknown";
   const userAgent = typeof navigator !== "undefined" ? navigator.userAgent : "unknown";
@@ -193,6 +194,7 @@ export function getBugReportClientContext(): BugReportClientContext {
 
   return {
     route,
+    currentUrl,
     viewport,
     language,
     theme,

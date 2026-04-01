@@ -17,11 +17,15 @@ import { useState, useEffect, Suspense } from "react";
 import { checkSession, login, LOGIN_POST_RESET_BANNER_KEY } from "@/lib/auth";
 import { api } from "@/lib/api";
 import { I18nProvider, useI18n } from "@/contexts/I18nContext";
+import { ToastProvider } from "@/contexts/ToastContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { BNoteLogo } from "@/components/BNoteLogo";
 import { safeString } from "@/lib/string-utils";
 import { Spinner } from "@/components/Spinner";
 import { LegalFooter } from "@/components/auth/LegalFooter";
+import { BugReportModal } from "@/components/bug-report/BugReportModal";
+import { initBugReportDiagnostics } from "@/lib/bug-report-diagnostics";
+import { ToastContainer } from "@/components/ToastContainer";
 
 interface PublicConfig {
   lang?: string;
@@ -29,6 +33,7 @@ interface PublicConfig {
   company?: unknown;
   user_registration?: boolean;
   auto_user_activation?: boolean;
+  beta_bug_report_enabled?: boolean;
 }
 
 function LoginFormInner() {
@@ -42,12 +47,18 @@ function LoginFormInner() {
   const [welcomeText, setWelcomeText] = useState("Welcome");
   const [userRegistration, setUserRegistration] = useState(false);
   const [resetSuccessBanner, setResetSuccessBanner] = useState(false);
+  const [bugReportEnabled, setBugReportEnabled] = useState(false);
+  const [bugReportOpen, setBugReportOpen] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined" && sessionStorage.getItem(LOGIN_POST_RESET_BANNER_KEY)) {
       setResetSuccessBanner(true);
       sessionStorage.removeItem(LOGIN_POST_RESET_BANNER_KEY);
     }
+  }, []);
+
+  useEffect(() => {
+    initBugReportDiagnostics();
   }, []);
 
   useEffect(() => {
@@ -69,9 +80,11 @@ function LoginFormInner() {
           company ? t("js.dashboard.subtitle", [company]) : t("js.common.appName")
         );
         setUserRegistration(Boolean(config?.user_registration));
+        setBugReportEnabled(Boolean(config?.beta_bug_report_enabled));
       })
       .catch(() => {
         setWelcomeText(t("js.common.appName"));
+        setBugReportEnabled(false);
       });
   }, [ready, t]);
 
@@ -102,10 +115,27 @@ function LoginFormInner() {
     );
   }
 
+  const bugReportLabel =
+    t("js.bugReport.openButton") !== "js.bugReport.openButton"
+      ? t("js.bugReport.openButton")
+      : "Report bug";
+
   return (
     <div className="w-full max-w-md pb-6 sm:mx-4 sm:pb-0">
-      <div className="fixed top-3 right-3 z-50 sm:top-4 sm:right-4">
-        <ThemeToggle />
+      <div className="fixed top-3 right-3 z-50 flex items-center gap-2 sm:top-4 sm:right-4">
+        <ThemeToggle inline />
+        {bugReportEnabled ? (
+          <button
+            type="button"
+            onClick={() => setBugReportOpen(true)}
+            className="btn btn-soft btn-sm px-2.5 sm:px-3"
+            title={bugReportLabel}
+            aria-label={bugReportLabel}
+          >
+            <span className="icon-[tabler--bug] h-4 w-4" aria-hidden />
+            <span className="hidden sm:inline">{bugReportLabel}</span>
+          </button>
+        ) : null}
       </div>
       {/* Construction tape banner */}
       <div className="construction-tape fixed right-0 bottom-0 left-0 z-40 sm:static">
@@ -214,6 +244,7 @@ function LoginFormInner() {
         </div>
       </div>
       <LegalFooter />
+      <BugReportModal open={bugReportOpen} onClose={() => setBugReportOpen(false)} />
     </div>
   );
 }
@@ -235,9 +266,12 @@ function LoginForm() {
 export default function LoginPage() {
   return (
     <I18nProvider>
-      <div className="flex min-h-screen items-center justify-center bg-base-200 sm:bg-base-100 px-0 sm:px-4">
-        <LoginForm />
-      </div>
+      <ToastProvider>
+        <div className="flex min-h-screen items-center justify-center bg-base-200 sm:bg-base-100 px-0 sm:px-4">
+          <LoginForm />
+        </div>
+        <ToastContainer />
+      </ToastProvider>
     </I18nProvider>
   );
 }

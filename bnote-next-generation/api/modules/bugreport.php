@@ -27,7 +27,6 @@ class BugreportModule {
     /** @var list<string> */
     private array $sensitiveNeedles = [
         'password',
-        'token',
         'authorization',
         'cookie',
         'set-cookie',
@@ -36,11 +35,7 @@ class BugreportModule {
         'api_key',
     ];
 
-    public function __construct() {
-        if (!Auth::check()) {
-            Response::error('Authentication required', 401);
-        }
-    }
+    public function __construct() {}
 
     public function handle() {
         $action = $_GET['action'] ?? $_POST['action'] ?? 'send';
@@ -65,9 +60,6 @@ class BugreportModule {
         }
 
         $userId = intval(Auth::getUserId() ?? 0);
-        if ($userId < 1) {
-            Response::error('Authentication required', 401);
-        }
         BugReportRateLimit::checkOr429($userId);
 
         $mailPreflightError = $this->mailPreflightError();
@@ -389,13 +381,17 @@ class BugreportModule {
     /** @return array<string,mixed> */
     private function resolveReporter($system_data, int $userId): array {
         $user = Auth::getUserInfo();
-        $isAdmin = $system_data->isUserSuperUser($userId) || $system_data->isUserMemberGroup(1, $userId);
+        $hasAuthenticatedUser = $userId > 0 && is_array($user);
+        $isAdmin = $hasAuthenticatedUser
+            ? ($system_data->isUserSuperUser($userId) || $system_data->isUserMemberGroup(1, $userId))
+            : false;
         return [
             'userId' => $userId,
-            'name' => trim((string) ($user['name'] ?? '')),
-            'surname' => trim((string) ($user['surname'] ?? '')),
-            'email' => trim((string) ($user['email'] ?? '')),
+            'name' => trim((string) ($hasAuthenticatedUser ? ($user['name'] ?? '') : '')),
+            'surname' => trim((string) ($hasAuthenticatedUser ? ($user['surname'] ?? '') : '')),
+            'email' => trim((string) ($hasAuthenticatedUser ? ($user['email'] ?? '') : '')),
             'isAdmin' => $isAdmin,
+            'isAuthenticated' => $hasAuthenticatedUser,
         ];
     }
 
@@ -409,7 +405,7 @@ class BugreportModule {
             'serverTimezone' => date_default_timezone_get(),
             'apiModule' => 'bugreport',
             'apiAction' => 'send',
-            'authenticatedUserId' => strval($userId),
+            'authenticatedUserId' => $userId > 0 ? strval($userId) : '',
             'host' => $host,
             'environment' => $envLabel !== '' ? $envLabel : 'unknown',
         ];
