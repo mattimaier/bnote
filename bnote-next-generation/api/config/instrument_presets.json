@@ -1,0 +1,281 @@
+{
+  "default_seed_presets": [
+    "choir",
+    "big_band"
+  ],
+  "presets": [
+    {
+      "id": "choir",
+      "sections": [
+        {
+          "id": "choir",
+          "name": "Choir",
+          "name_i18n": {
+            "de": "Chor",
+            "en": "Choir",
+            "es": "Coro",
+            "fr": "Chœur"
+          },
+          "rehearsal_min_total": 1,
+          "concert_min_total": 1,
+          "instrument_slots": [
+            {
+              "candidates": [
+                "Stimme",
+                "Voice",
+                "Voz",
+                "Voix"
+              ],
+              "count": 1
+            }
+          ],
+          "concert_targets": []
+        }
+      ]
+    },
+    {
+      "id": "big_band",
+      "sections": [
+        {
+          "id": "big_band_sax",
+          "name": "Saxophones (Reeds)",
+          "name_i18n": {
+            "de": "Saxophone (Reeds)",
+            "en": "Saxophones (Reeds)",
+            "es": "Saxofones (Reeds)",
+            "fr": "Saxophones (Reeds)"
+          },
+          "rehearsal_min_total": 4,
+          "concert_min_total": 5,
+          "instrument_slots": [
+            {
+              "candidates": [
+                "Altsaxophon",
+                "Saxo alto",
+                "Saxophone alto",
+                "Alto Sax"
+              ],
+              "count": 2
+            },
+            {
+              "candidates": [
+                "Tenorsaxophon",
+                "Saxo tenor",
+                "Saxophone ténor",
+                "Tenor Sax"
+              ],
+              "count": 2
+            },
+            {
+              "candidates": [
+                "Bariton Saxophon",
+                "Baritonsaxophon",
+                "Saxo barítono",
+                "Saxophone baryton",
+                "Baritone Sax"
+              ],
+              "count": 1
+            }
+          ],
+          "concert_targets": [
+            {
+              "candidates": [
+                "Altsaxophon",
+                "Saxo alto",
+                "Saxophone alto",
+                "Alto Sax"
+              ],
+              "required": 2
+            },
+            {
+              "candidates": [
+                "Tenorsaxophon",
+                "Saxo tenor",
+                "Saxophone ténor",
+                "Tenor Sax"
+              ],
+              "required": 2
+            },
+            {
+              "candidates": [
+                "Bariton Saxophon",
+                "Baritonsaxophon",
+                "Saxo barítono",
+                "Saxophone baryton",
+                "Baritone Sax"
+              ],
+              "required": 1
+            }
+          ]
+        },
+        {
+          "id": "big_band_trumpets",
+          "name": "Trumpets (Brass)",
+          "name_i18n": {
+            "de": "Trompeten (Brass)",
+            "en": "Trumpets (Brass)",
+            "es": "Trompetas (Brass)",
+            "fr": "Trompettes (Brass)"
+          },
+          "rehearsal_min_total": 4,
+          "concert_min_total": 4,
+          "instrument_slots": [
+            {
+              "candidates": [
+                "Trompete",
+                "Trompeta",
+                "Trompette",
+                "Trumpet"
+              ],
+              "count": 4
+            }
+          ],
+          "concert_targets": [
+            {
+              "candidates": [
+                "Trompete",
+                "Trompeta",
+                "Trompette",
+                "Trumpet"
+              ],
+              "required": 4
+            }
+          ]
+        },
+        {
+          "id": "big_band_trombones",
+          "name": "Trombones (Brass)",
+          "name_i18n": {
+            "de": "Posaunen (Brass)",
+            "en": "Trombones (Brass)",
+            "es": "Trombones (Brass)",
+            "fr": "Trombones (Brass)"
+          },
+          "rehearsal_min_total": 4,
+          "concert_min_total": 4,
+          "instrument_slots": [
+            {
+              "candidates": [
+                "Posaune",
+                "Trombón",
+                "Trombone"
+              ],
+              "count": 4
+            }
+          ],
+          "concert_targets": [
+            {
+              "candidates": [
+                "Posaune",
+                "Trombón",
+                "Trombone"
+              ],
+              "required": 4
+            }
+          ]
+        },
+        {
+          "id": "big_band_rhythm",
+          "name": "Rhythm Section",
+          "name_i18n": {
+            "de": "Rhythmusgruppe",
+            "en": "Rhythm Section",
+            "es": "Sección rítmica",
+            "fr": "Section rythmique"
+          },
+          "rehearsal_min_total": 4,
+          "concert_min_total": 4,
+          "instrument_slots": [
+            {
+              "candidates": [
+                "Klavier / ePiano",
+                "Klavier /ePiano",
+                "Piano"
+              ],
+              "count": 1
+            },
+            {
+              "candidates": [
+                "Gitarre",
+                "Guitarra",
+                "Guitare",
+                "Guitar"
+              ],
+              "count": 1
+            },
+            {
+              "candidates": [
+                "Bass",
+                "E-Bass",
+                "Kontrabass",
+                "Contrabajo",
+                "Contrebasse",
+                "Double Bass"
+              ],
+              "category_candidates": [
+                "Rhythmusgruppe",
+                "Rhythm",
+                "Sección rítmica",
+                "Rythmique"
+              ],
+              "count": 1
+            },
+            {
+              "candidates": [
+                "Schlagzeug",
+                "Batería",
+                "Batterie",
+                "Drums"
+              ],
+              "count": 1
+            }
+          ],
+          "concert_targets": [
+            {
+              "candidates": [
+                "Klavier / ePiano",
+                "Klavier /ePiano",
+                "Piano"
+              ],
+              "required": 1
+            },
+            {
+              "candidates": [
+                "Gitarre",
+                "Guitarra",
+                "Guitare",
+                "Guitar"
+              ],
+              "required": 1
+            },
+            {
+              "candidates": [
+                "E-Bass",
+                "Kontrabass",
+                "Contrabajo",
+                "Contrebasse",
+                "Double Bass"
+              ],
+              "category_candidates": [
+                "Rhythmusgruppe",
+                "Rhythm",
+                "Sección rítmica",
+                "Rythmique"
+              ],
+              "required": 1
+            },
+            {
+              "candidates": [
+                "Schlagzeug",
+                "Batería",
+                "Batterie",
+                "Drums"
+              ],
+              "required": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

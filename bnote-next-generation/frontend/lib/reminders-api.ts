@@ -11,9 +11,18 @@ export interface ReminderConfig {
   max_tasks: number;
   escalation: {
     enabled: boolean;
-    deadline_windows_hours: number[];
-    dropout_window_hours: number;
-    pending_threshold_percent: number;
+    deadline_windows_hours: {
+      rehearsal: number[];
+      concert: number[];
+    };
+    dropout_window_hours: {
+      rehearsal: number;
+      concert: number;
+    };
+    pending_threshold_percent: {
+      rehearsal: number;
+      concert: number;
+    };
     escalation_target_group_id: number;
     include_event_organizer: boolean;
   };
