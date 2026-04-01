@@ -14,6 +14,8 @@ require_once __DIR__ . '/../mail/EscalationAlertService.php';
 require_once __DIR__ . '/../text_normalizer.php';
 
 class RemindersModule {
+    private const CALENDAR_TIMEZONE_PARAM = 'calendar_timezone';
+
     public function handle() {
         $action = $_GET['action'] ?? $_POST['action'] ?? 'getConfig';
         switch ($action) {
@@ -35,6 +37,10 @@ class RemindersModule {
                 return $this->getEscalationEligibility();
             case 'getEscalationAudit':
                 return $this->getEscalationAudit();
+            case 'getCalendarTimezone':
+                return $this->getCalendarTimezone();
+            case 'updateCalendarTimezone':
+                return $this->updateCalendarTimezone();
             default:
                 Response::error('Unknown action: ' . $action, 400);
         }
@@ -233,6 +239,76 @@ class RemindersModule {
         return [
             'entries' => ReminderSchema::listEscalationAudit($system_data->dbcon, $limit),
         ];
+    }
+
+    private function getCalendarTimezone() {
+        if (!Auth::check()) {
+            Response::error('Authentication required', 403);
+        }
+        global $system_data;
+        ReminderAdmin::requireAdmin($system_data);
+
+        $stored = $system_data->dbcon->colValue(
+            "SELECT value FROM configuration WHERE param = ?",
+            "value",
+            [['s', self::CALENDAR_TIMEZONE_PARAM]]
+        );
+        $timezone = $this->normalizeTimezone(is_string($stored) ? $stored : '');
+        if ($timezone === '') {
+            $timezone = 'Europe/Berlin';
+        }
+
+        return [
+            'timezone' => $timezone,
+        ];
+    }
+
+    private function updateCalendarTimezone() {
+        if (!Auth::check()) {
+            Response::error('Authentication required', 403);
+        }
+        global $system_data;
+        ReminderAdmin::requireAdmin($system_data);
+
+        $payload = $this->readPayload();
+        $timezoneRaw = isset($payload['timezone']) ? (string) $payload['timezone'] : '';
+        $timezone = $this->normalizeTimezone($timezoneRaw);
+        if ($timezone === '') {
+            Response::error('Invalid timezone', 400);
+        }
+
+        $existing = $system_data->dbcon->colValue(
+            "SELECT value FROM configuration WHERE param = ?",
+            "value",
+            [['s', self::CALENDAR_TIMEZONE_PARAM]]
+        );
+        if ($existing !== null && $existing !== false) {
+            $system_data->dbcon->execute(
+                "UPDATE configuration SET value = ? WHERE param = ?",
+                [['s', $timezone], ['s', self::CALENDAR_TIMEZONE_PARAM]]
+            );
+        } else {
+            $system_data->dbcon->prepStatement(
+                "INSERT INTO configuration (param, value, is_active) VALUES (?, ?, 1)",
+                [['s', self::CALENDAR_TIMEZONE_PARAM], ['s', $timezone]]
+            );
+        }
+
+        return [
+            'success' => true,
+            'timezone' => $timezone,
+        ];
+    }
+
+    private function normalizeTimezone(string $timezone): string {
+        $timezone = trim($timezone);
+        if ($timezone === '') {
+            return '';
+        }
+        if (strcasecmp($timezone, 'CET') === 0 || strcasecmp($timezone, 'CEST') === 0) {
+            return 'Europe/Berlin';
+        }
+        return in_array($timezone, DateTimeZone::listIdentifiers(), true) ? $timezone : '';
     }
 
     /**

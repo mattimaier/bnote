@@ -60,6 +60,10 @@ export interface EscalationAuditEntry {
   payload?: Record<string, unknown> | null;
 }
 
+export interface CalendarTimezoneResponse {
+  timezone: string;
+}
+
 export const remindersApi = {
   getConfig: () => api.get<ReminderConfigResponse>("reminders", "getConfig"),
   getRecipients: () => api.get<{ recipients: ReminderRecipient[] }>("reminders", "getRecipients"),
@@ -92,4 +96,7 @@ export const remindersApi = {
     api.get<Record<string, unknown>>("reminders", "getEscalationEligibility", { eventType, eventId: String(eventId) }),
   getEscalationAudit: (limit = 50) =>
     api.get<{ entries: EscalationAuditEntry[] }>("reminders", "getEscalationAudit", { limit: String(limit) }),
+  getCalendarTimezone: () => api.get<CalendarTimezoneResponse>("reminders", "getCalendarTimezone"),
+  updateCalendarTimezone: (timezone: string) =>
+    api.post<{ success: boolean; timezone: string }>("reminders", "updateCalendarTimezone", { timezone }),
 };

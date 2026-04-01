@@ -39,8 +39,10 @@ export default function SettingsPage() {
   const [escalationDraft, setEscalationDraft] = useState<EscalationConfigDraft | null>(null);
   const [savingReminderConfig, setSavingReminderConfig] = useState(false);
   const [savingEscalation, setSavingEscalation] = useState(false);
+  const [savingCalendarTimezone, setSavingCalendarTimezone] = useState(false);
   const [runningReminder, setRunningReminder] = useState(false);
   const [runOutput, setRunOutput] = useState<string | null>(null);
+  const [calendarTimezone, setCalendarTimezone] = useState("Europe/Berlin");
 
   const label = (key: string, fallback: string) => (t(key) !== key ? t(key) : fallback);
 
@@ -55,8 +57,16 @@ export default function SettingsPage() {
       const admin = Boolean(session?.isAdmin);
       setIsAdmin(admin);
       if (admin) {
-        const cfgRes = await remindersApi.getConfig();
+        const [cfgRes, timezoneRes] = await Promise.all([
+          remindersApi.getConfig(),
+          remindersApi.getCalendarTimezone(),
+        ]);
         setReminderConfig(cfgRes?.config ?? null);
+        setCalendarTimezone(
+          typeof timezoneRes?.timezone === "string" && timezoneRes.timezone.trim() !== ""
+            ? timezoneRes.timezone.trim()
+            : "Europe/Berlin"
+        );
         setEscalationDraft(cfgRes?.config?.escalation ? {
           enabled: Boolean(cfgRes.config.escalation.enabled),
           pending_threshold_percent: Number(cfgRes.config.escalation.pending_threshold_percent ?? 20),
@@ -91,6 +101,7 @@ export default function SettingsPage() {
         setReminderConfig(null);
         setEscalationGroups([]);
         setEscalationDraft(null);
+        setCalendarTimezone("Europe/Berlin");
       }
     } catch (err) {
       showToast(getErrorMessage(err, t, "js.settings.loadError"), "error");
@@ -191,6 +202,24 @@ export default function SettingsPage() {
       showToast(getErrorMessage(err, t, "js.common.saveFailed"), "error");
     } finally {
       setRunningReminder(false);
+    }
+  }
+
+  async function saveCalendarTimezone() {
+    const input = calendarTimezone.trim();
+    if (input === "") {
+      showToast(label("js.common.saveFailed", "Save failed"), "error");
+      return;
+    }
+    setSavingCalendarTimezone(true);
+    try {
+      const res = await remindersApi.updateCalendarTimezone(input);
+      setCalendarTimezone(res.timezone || input);
+      showToast(label("js.settings.saved", "Saved"), "success");
+    } catch (err) {
+      showToast(getErrorMessage(err, t, "js.common.saveFailed"), "error");
+    } finally {
+      setSavingCalendarTimezone(false);
     }
   }
 
@@ -565,6 +594,45 @@ export default function SettingsPage() {
               }}
             >
               {savingEscalation ? label("js.common.saving", "Saving…") : label("js.common.save", "Save")}
+            </button>
+          </div>
+        </DetailSection>
+
+        <DetailSection className="space-y-4">
+          <div>
+            <span className="text-xs font-medium text-base-content/60">
+              {label("js.settings.calendarTimezone.title", "Calendar timezone")}
+            </span>
+            <p className="mt-1 text-sm text-base-content/70">
+              {label(
+                "js.settings.calendarTimezone.help",
+                "Global timezone for ICS export parsing (admin-only). Use IANA names like Europe/Berlin."
+              )}
+            </p>
+          </div>
+          <div className="flex flex-wrap items-end gap-3">
+            <label className="form-control w-full max-w-sm">
+              <span className="label-text text-xs font-medium text-base-content/70">
+                {label("js.settings.calendarTimezone.label", "IANA timezone")}
+              </span>
+              <input
+                type="text"
+                className="input input-bordered"
+                value={calendarTimezone}
+                disabled={savingCalendarTimezone}
+                onChange={(e) => setCalendarTimezone(e.target.value)}
+                placeholder="Europe/Berlin"
+              />
+            </label>
+            <button
+              type="button"
+              className="btn btn-soft btn-primary"
+              disabled={savingCalendarTimezone || calendarTimezone.trim() === ""}
+              onClick={() => {
+                void saveCalendarTimezone();
+              }}
+            >
+              {savingCalendarTimezone ? label("js.common.saving", "Saving…") : label("js.common.save", "Save")}
             </button>
           </div>
         </DetailSection>

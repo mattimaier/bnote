@@ -19,9 +19,51 @@ final class MailLocaleDateTime {
     }
 
     public static function defaultTimezone(): string {
+        $configured = self::configuredTimezone();
+        if ($configured !== '') {
+            return $configured;
+        }
+
         $z = @date_default_timezone_get();
-        if ($z !== '' && strcasecmp($z, 'UTC') !== 0) {
-            return $z;
+        if ($z !== '') {
+            $normalized = self::normalizeTimezone($z);
+            if (strcasecmp($normalized, 'UTC') !== 0) {
+                return $normalized;
+            }
+        }
+
+        return 'Europe/Berlin';
+    }
+
+    private static function configuredTimezone(): string {
+        if (!isset($GLOBALS['system_data']) || !is_object($GLOBALS['system_data'])) {
+            return '';
+        }
+        $systemData = $GLOBALS['system_data'];
+        if (!method_exists($systemData, 'getDynamicConfigParameter')) {
+            return '';
+        }
+        $raw = $systemData->getDynamicConfigParameter('calendar_timezone');
+        if (!is_scalar($raw)) {
+            return '';
+        }
+        return self::normalizeTimezone((string) $raw);
+    }
+
+    private static function normalizeTimezone(string $tz): string {
+        $tz = trim($tz);
+        if ($tz === '') {
+            return 'Europe/Berlin';
+        }
+
+        // Abbreviations like CET/CEST are fixed offsets and break DST handling.
+        if (strcasecmp($tz, 'CET') === 0 || strcasecmp($tz, 'CEST') === 0) {
+            return 'Europe/Berlin';
+        }
+
+        // Prefer canonical IANA names when available.
+        if (in_array($tz, DateTimeZone::listIdentifiers(), true)) {
+            return $tz;
         }
 
         return 'Europe/Berlin';
