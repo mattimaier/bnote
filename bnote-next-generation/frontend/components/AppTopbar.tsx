@@ -60,6 +60,10 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
   const searchAnchorRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const isDesktop = useMediaQuery("(min-width: 768px)");
+  const fullSearchPlaceholder = t("js.dashboard.searchPlaceholder");
+  const shortSearchPlaceholder =
+    t("js.table.searchPlaceholder") !== "js.table.searchPlaceholder" ? t("js.table.searchPlaceholder") : "Search…";
+  const searchPlaceholder = isDesktop ? fullSearchPlaceholder : shortSearchPlaceholder;
 
   useEffect(() => {
     initBugReportDiagnostics();
@@ -121,9 +125,9 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onFocus={() => setOverlayOpen(true)}
-                placeholder={t("js.dashboard.searchPlaceholder")}
+                placeholder={searchPlaceholder}
                 className="input input-sm h-10 md:h-8 w-full pl-9 pr-9"
-                aria-label={t("js.dashboard.searchPlaceholder")}
+                aria-label={searchPlaceholder}
                 aria-autocomplete="list"
                 aria-controls={query.trim().length >= 2 ? "search-autocomplete" : undefined}
                 id="topbar-search"
