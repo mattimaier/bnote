@@ -26,7 +26,7 @@ import { Clock } from "@/components/icons";
 import { getBadgeClassForBnoteType, getColorForBnoteType, getDotStyle } from "@/lib/entity-config";
 import { getIcon } from "@/components/icons";
 import { getEntityPath } from "@/lib/entities/paths";
-import { formatDateTimeShort } from "@/lib/date-time";
+import { formatDateShort, formatDateTimeShort } from "@/lib/date-time";
 import { PAGE_CONTENT_BASE_CLASS } from "@/lib/layout";
 import type { SortDirection } from "@/lib/table-sort";
 import { compareString } from "@/lib/table-sort";
@@ -35,6 +35,9 @@ import { notesToPlainText } from "@/lib/editorjs-notes";
 function formatEventDateRange(ev: CalendarEvent, lang: string): string {
   const start = ev.start ?? "";
   if (!start) return "";
+  if (ev.extendedProps?.bnoteType === "contact") {
+    return formatDateShort(start.slice(0, 10), lang) ?? "";
+  }
   return formatDateTimeShort(start.slice(0, 19).replace("T", " "), lang) ?? "";
 }
 

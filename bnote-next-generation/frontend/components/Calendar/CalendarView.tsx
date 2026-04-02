@@ -62,6 +62,7 @@ export function CalendarView({
     () =>
       events.map((ev) => {
         const bnoteType = ev.extendedProps?.bnoteType ?? "";
+        const isBirthday = bnoteType === "contact";
         const color = getColorForBnoteType(bnoteType) ?? ev.extendedProps?.color ?? null;
         const pillStyle = getPillStyle(color);
         return {
@@ -69,7 +70,7 @@ export function CalendarView({
           title: notesToPlainText(ev.title ?? ""),
           start: ev.start,
           end: ev.end,
-          allDay: ev.allDay ?? false,
+          allDay: isBirthday ? true : (ev.allDay ?? false),
           backgroundColor: pillStyle.backgroundColor,
           borderColor: pillStyle.borderColor,
           textColor: pillStyle.color,

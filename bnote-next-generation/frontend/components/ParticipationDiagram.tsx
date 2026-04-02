@@ -24,7 +24,7 @@ export const PARTICIPATION_SEGMENT_COLORS = {
   yes: "var(--color-success)",
   maybe: "var(--color-warning)",
   no: "var(--color-error)",
-  pending: "oklch(0.78 0.01 250)",
+  pending: "var(--participation-pending)",
 };
 
 export function ParticipationDiagram({ stats }: ParticipationDiagramProps) {

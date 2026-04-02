@@ -119,6 +119,11 @@
   --font-weight-medium: 500;
   --wrapped-rehearsal: #3399ff;
   --wrapped-concert: #e8a84d;
+  --participation-pending: oklch(0.78 0.01 250);
+  --bnote-logo-bg-start: #c2e0ff;
+  --bnote-logo-bg-end: #ebf5ff;
+  --bnote-logo-border: #d6ebff;
+  --bnote-logo-glyph: #3399ff;
 }
 
 .dark {
@@ -136,6 +141,11 @@
   --sidebar-foreground: oklch(0.95 0.01 250);
   --sidebar-accent: oklch(0.25 0.01 250);
   --sidebar-border: oklch(0.32 0.001 0);
+  --participation-pending: oklch(0.64 0.01 250);
+  --bnote-logo-bg-start: #0f172a;
+  --bnote-logo-bg-end: #1e293b;
+  --bnote-logo-border: #334155;
+  --bnote-logo-glyph: #3b82f6;
 }
 
 /* Root canvas: keep html/body in sync with theme tokens. */

@@ -6,6 +6,8 @@
 
 "use client";
 
+import { useEffect, useState } from "react";
+
 export type BNoteLogoSize = "sm" | "lg";
 
 /** Inner padding: "default" | "tight" (less space between container and logo). */
@@ -30,22 +32,59 @@ export interface BNoteLogoProps {
   /** Inner padding: "tight" = less space between blue box and logo. */
   padding?: BNoteLogoPadding;
   className?: string;
+  /** Force light palette regardless of current theme (used for share cards/images). */
+  forceLight?: boolean;
 }
 
 export function BNoteLogo({
   size = "sm",
   padding = "default",
   className = "",
+  forceLight = false,
 }: BNoteLogoProps) {
+  const [isDark, setIsDark] = useState(false);
   const { container, logo } = sizeClasses[size][padding];
+  const palette = forceLight
+    ? {
+        bgStart: "#c2e0ff",
+        bgEnd: "#ebf5ff",
+        border: "#d6ebff",
+        glyph: "#3399ff",
+      }
+    : isDark
+    ? {
+        bgStart: "#1e3a8a",
+        bgEnd: "#2563eb",
+        border: "#3b82f6",
+        glyph: "#bfdbfe",
+      }
+    : {
+        bgStart: "#c2e0ff",
+        bgEnd: "#ebf5ff",
+        border: "#d6ebff",
+        glyph: "#3399ff",
+      };
+
+  useEffect(() => {
+    if (forceLight) return;
+    const root = document.documentElement;
+    if (!root) return;
+
+    const syncTheme = () => setIsDark(root.classList.contains("dark"));
+    syncTheme();
+
+    const observer = new MutationObserver(syncTheme);
+    observer.observe(root, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, [forceLight]);
 
   return (
     <div className={`flex items-center justify-center ${container} ${className}`.trim()}>
       <svg viewBox="0 0 512 512" className={`${logo} object-contain`} role="img" aria-label="BNote">
         <defs>
           <linearGradient id="bnoteLogoBg" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stopColor="#c2e0ff" />
-            <stop offset="1" stopColor="#ebf5ff" />
+            <stop offset="0" stopColor={palette.bgStart} />
+            <stop offset="1" stopColor={palette.bgEnd} />
           </linearGradient>
         </defs>
         <rect x="0" y="0" width="512" height="512" rx="77" ry="77" fill="url(#bnoteLogoBg)" />
@@ -57,12 +96,12 @@ export function BNoteLogo({
           rx="70"
           ry="70"
           fill="none"
-          stroke="#d6ebff"
+          stroke={palette.border}
           strokeWidth="14"
         />
         <g transform="translate(87,87) scale(0.4225)">
           <path
-            fill="#3399ff"
+            fill={palette.glyph}
             fillRule="evenodd"
             d="m517.5 59c19.8-8.4 42.6 0.8 51 20.6l198.7 468c8.3 19.8-0.9 42.6-20.7 51l-463.7 196.8c-19.8 8.4-42.6-0.8-51-20.5l-198.7-468.1c-8.4-19.7 0.8-42.6 20.6-51l12.7-5.3c19.8-8.4 42.6 0.8 51 20.5l6.4 14.2c6.3 14.9 23.5 21.9 38.5 15.6 14.9-6.4 1.6-0.7 16.5-7.1 15-6.3 22-23.5 15.6-38.5l-6-14.3c-8.4-19.7 0.8-42.6 20.6-51l156.4-66.3c19.7-8.4 42.5 0.8 50.9 20.6l6.4 14.1c6.3 15 23.6 21.9 38.5 15.6 15-6.4 1.6-0.7 16.6-7.1 14.9-6.3 21.9-23.5 15.6-38.5l-6.1-14.3c-8.3-19.7 0.9-42.5 20.6-51zm-375.8 382.3l115.6 274c8.4 19.8 31.2 29 51 20.6l375.9-159.5c19.8-8.4 29-31.3 20.6-51l-116.2-273.8c-8.4-19.7-31.2-28.9-51-20.6l-375.3 159.4c-19.8 8.4-29 31.2-20.6 50.9zm334 64.4c4.3-5.2 9.1-9.6 14.1-13.4l-43-119.1-92.6 55.5 57.8 160.5q1.2 3.1 1.6 6.2c4 17-2.1 39.2-17.6 57.6-22.3 26.4-55.4 35-74 19.3-18.6-15.6-15.6-49.7 6.6-76.1 4.6-5.4 9.6-10 14.8-13.9l-56.4-156.4c-5-13.7 0.4-28.7 12.1-36.4q1.4-1.2 3.1-2.2l143.2-85.7q0.9-0.6 1.9-1.1 2.5-1.5 5.4-2.5c16.2-5.9 34 2.5 39.9 18.6l64.5 178.9c9.6 17.5 4.5 44.9-14.1 67-22.3 26.3-55.4 35-74 19.3-18.5-15.7-15.6-49.8 6.7-76.1zm-375.4-373.4c15.8-6.7 34.1 0.7 40.8 16.5l42.4 99.9c6.7 15.8-0.7 34.1-16.5 40.8-15.8 6.7-34.1-0.7-40.8-16.5l-42.4-99.9c-6.7-15.8 0.7-34.1 16.5-40.8zm298.7-126.7c15.8-6.8 34 0.6 40.8 16.4l42.4 99.9c6.7 15.8-0.7 34.1-16.5 40.8-15.9 6.7-34.1-0.7-40.8-16.5l-42.4-99.9c-6.7-15.8 0.6-34 16.5-40.7zm-345.3 250.3l463.8-196.9"
           />

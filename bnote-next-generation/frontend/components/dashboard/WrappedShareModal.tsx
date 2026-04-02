@@ -290,14 +290,11 @@ export function WrappedShareModal({
     const updatePreviewScale = () => {
       const viewport = previewViewportRef.current;
       if (!viewport) return;
+      // Scale by width only so desktop preview does not get locked to a tiny size
+      // when the container height is auto-sized from the already scaled content.
       const availableWidth = Math.max(220, viewport.clientWidth - 12);
-      const availableHeight = Math.max(240, viewport.clientHeight - 12);
-      const rawScale = Math.min(
-        1,
-        availableWidth / SHARE_CARD_WIDTH,
-        availableHeight / SHARE_CARD_HEIGHT
-      );
-      const scale = Math.min(1, rawScale * 0.97);
+      const rawScale = Math.min(1, availableWidth / SHARE_CARD_WIDTH);
+      const scale = Math.min(1, rawScale * 0.98);
       setPreviewScale(scale);
     };
 
@@ -377,7 +374,7 @@ export function WrappedShareModal({
             <p className="text-[10px] uppercase tracking-[0.24em] text-primary">{data?.year}</p>
             <p className="truncate text-sm font-semibold text-[#0f172a]">{data?.profile.bandName}</p>
           </div>
-          <BNoteLogo size="sm" />
+          <BNoteLogo size="sm" forceLight />
         </div>
 
         <div className="mt-5">
@@ -436,7 +433,7 @@ export function WrappedShareModal({
           <span className="truncate">#{data?.profile.bandName}</span>
           <div className="flex items-center gap-2">
             <span className="uppercase tracking-[0.2em]">BNote</span>
-            <BNoteLogo size="sm" className="scale-75" />
+            <BNoteLogo size="sm" className="scale-75" forceLight />
           </div>
         </div>
       </div>
@@ -448,7 +445,7 @@ export function WrappedShareModal({
       open={open}
       onClose={onClose}
       title={modalTitle}
-      dialogClassName="!max-w-3xl"
+      dialogClassName="!max-w-4xl lg:!max-w-5xl xl:!max-w-6xl"
       bodyClassName="max-h-[90dvh] p-0 pt-0"
     >
       <div className="flex max-h-[90dvh] flex-col">

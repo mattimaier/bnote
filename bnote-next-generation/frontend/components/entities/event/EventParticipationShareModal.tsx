@@ -416,7 +416,7 @@ export function EventParticipationShareModal({
                     {pending > 0 ? (
                       <div
                         style={{ width: `${pendingPct}%` }}
-                        className="flex items-center justify-center bg-[#9ca3af] text-[10px] font-semibold text-white"
+                        className="flex items-center justify-center bg-[var(--participation-pending)] text-[10px] font-semibold text-white"
                       >
                         {pending}
                       </div>
@@ -458,7 +458,7 @@ export function EventParticipationShareModal({
                           ) : null}
                           {section.pending > 0 ? (
                             <div
-                              className="flex items-center justify-center bg-[#9ca3af] text-[9px] font-semibold text-white"
+                              className="flex items-center justify-center bg-[var(--participation-pending)] text-[9px] font-semibold text-white"
                               style={{ width: `${(section.pending / section.total) * 100}%` }}
                             >
                               {section.pending}
