@@ -645,6 +645,68 @@ input[type="search"]::-webkit-search-results-decoration {
 }
 
 /* FullCalendar month view – allow multiline event titles, single border on inner content */
+.calendar-shell .fc {
+  --fc-page-bg-color: var(--color-base-100);
+  --fc-neutral-bg-color: color-mix(in oklch, var(--color-base-200) 72%, transparent);
+  --fc-border-color: var(--color-base-300);
+  --fc-neutral-text-color: color-mix(in oklch, var(--color-base-content) 70%, transparent);
+  --fc-list-event-hover-bg-color: var(--color-base-200);
+  --fc-now-indicator-color: var(--color-primary);
+  color: var(--color-base-content);
+}
+
+.calendar-shell .fc .fc-scrollgrid,
+.calendar-shell .fc .fc-daygrid-body,
+.calendar-shell .fc .fc-daygrid-day-frame,
+.calendar-shell .fc .fc-daygrid-day-bg,
+.calendar-shell .fc .fc-timegrid-body,
+.calendar-shell .fc .fc-timegrid-cols,
+.calendar-shell .fc .fc-timegrid-col,
+.calendar-shell .fc .fc-timegrid-col-frame,
+.calendar-shell .fc .fc-timegrid-col-bg,
+.calendar-shell .fc .fc-timegrid-slot-lane,
+.calendar-shell .fc .fc-list,
+.calendar-shell .fc .fc-list-table,
+.calendar-shell .fc .fc-list-empty,
+.calendar-shell .fc .fc-list-day > *,
+.calendar-shell .fc .fc-list-day-cushion,
+.calendar-shell .fc .fc-list-event td,
+.calendar-shell .fc .fc-popover,
+.calendar-shell .fc .fc-popover-header,
+.calendar-shell .fc .fc-popover-body {
+  background-color: var(--color-base-100) !important;
+  color: var(--color-base-content) !important;
+}
+
+.calendar-shell .fc .fc-scrollgrid-section-sticky > * {
+  background-color: var(--color-base-100) !important;
+}
+
+.calendar-shell .fc .fc-list-day > *,
+.calendar-shell .fc .fc-list-day-cushion {
+  background-color: color-mix(in oklch, var(--color-base-200) 72%, transparent) !important;
+}
+
+.calendar-shell .fc .fc-theme-standard td,
+.calendar-shell .fc .fc-theme-standard th,
+.calendar-shell .fc-theme-standard td,
+.calendar-shell .fc-theme-standard th {
+  border-color: var(--color-base-300) !important;
+}
+
+.calendar-shell .fc .fc-col-header-cell,
+.calendar-shell .fc .fc-daygrid-day,
+.calendar-shell .fc .fc-timegrid-slot,
+.calendar-shell .fc .fc-timegrid-axis {
+  background-color: var(--color-base-100) !important;
+}
+
+.calendar-shell .fc .fc-list-day-cushion,
+.calendar-shell .fc .fc-timegrid-slot-label,
+.calendar-shell .fc .fc-col-header-cell-cushion {
+  color: color-mix(in oklch, var(--color-base-content) 78%, transparent) !important;
+}
+
 .calendar-shell .fc-daygrid-event {
   overflow: visible !important;
   border: none !important;
@@ -676,6 +738,10 @@ input[type="search"]::-webkit-search-results-decoration {
 .calendar-shell .fc .fc-toolbar .fc-button:focus,
 .calendar-shell .fc .fc-button-primary:focus {
   box-shadow: 0 0 0 2px var(--color-ring) !important;
+}
+
+.calendar-shell .fc .fc-list-event:hover td {
+  background: var(--color-base-200) !important;
 }
 
 @media (max-width: 767px) {
