@@ -6,7 +6,7 @@
 
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type MouseEvent } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useI18n } from "@/contexts/I18nContext";
 import { useEditingBar } from "@/contexts/EditingBarContext";
@@ -106,6 +106,7 @@ export default function CalendarPage() {
   const [listSortKey, setListSortKey] = useState<"title" | "start" | "type">("start");
   const [listSortDir, setListSortDir] = useState<SortDirection>("asc");
   const [subscription, setSubscription] = useState<CalendarSubscriptionLink | null>(null);
+  const [isAndroid, setIsAndroid] = useState(false);
 
   const from = useMemo(() => {
     const d = new Date();
@@ -170,6 +171,11 @@ export default function CalendarPage() {
     loadEvents();
   }, [ready, loadEvents]);
 
+  useEffect(() => {
+    if (typeof navigator === "undefined") return;
+    setIsAndroid(/\bAndroid\b/i.test(navigator.userAgent));
+  }, []);
+
   const reservationId = searchParams.get("reservation");
   const appointmentId = searchParams.get("appointment");
   useEffect(() => {
@@ -227,6 +233,17 @@ export default function CalendarPage() {
   const subscriptionMissing = t("js.calendar.subscriptionMissing") !== "js.calendar.subscriptionMissing"
     ? t("js.calendar.subscriptionMissing")
     : "Calendar subscription link unavailable.";
+  const subscriptionDescription = isAndroid
+    ? (
+      t("js.calendar.subscriptionDescriptionAndroid") !== "js.calendar.subscriptionDescriptionAndroid"
+        ? t("js.calendar.subscriptionDescriptionAndroid")
+        : "On Android, direct calendar subscription may not open in the browser. Use the link below in your calendar app or add it via Google Calendar on the web."
+    )
+    : (
+      t("js.calendar.subscriptionDescription") !== "js.calendar.subscriptionDescription"
+        ? t("js.calendar.subscriptionDescription")
+        : "Use this personal link to subscribe in your calendar app. Regenerating invalidates the old link."
+    );
 
   const handleListSort = useCallback((key: string) => {
     const k = key as "title" | "start" | "type";
@@ -239,6 +256,33 @@ export default function CalendarPage() {
       return k;
     });
   }, []);
+
+  const handleSubscribeClick = useCallback((event: MouseEvent<HTMLAnchorElement>) => {
+    if (!subscription) return;
+    const webcalUrl = String(subscription.subscriptionUrl ?? "").trim();
+    const httpUrl = String(subscription.subscriptionHttpUrl ?? "").trim();
+    if (!webcalUrl && !httpUrl) return;
+
+    const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
+    const isAndroid = /\bAndroid\b/i.test(ua);
+    const fallbackUrl = httpUrl || webcalUrl;
+    if (!fallbackUrl) return;
+
+    event.preventDefault();
+
+    // Android browsers frequently ignore webcal:// with no user feedback.
+    if (isAndroid || !webcalUrl) {
+      window.location.assign(fallbackUrl);
+      return;
+    }
+
+    window.location.assign(webcalUrl);
+    window.setTimeout(() => {
+      if (document.visibilityState === "visible") {
+        window.location.assign(fallbackUrl);
+      }
+    }, 700);
+  }, [subscription]);
 
   const sortedEvents = useMemo(() => {
     const now = new Date();
@@ -325,9 +369,7 @@ export default function CalendarPage() {
             : "Calendar Subscription"}
         </h2>
         <p className="mt-1 text-xs text-base-content/70">
-          {t("js.calendar.subscriptionDescription") !== "js.calendar.subscriptionDescription"
-            ? t("js.calendar.subscriptionDescription")
-            : "Use this personal link to subscribe in your calendar app. Regenerating invalidates the old link."}
+          {subscriptionDescription}
         </p>
         {subscription?.subscriptionUrl ? (
           <div className="mt-3 grid gap-2 md:grid-cols-2">
@@ -335,16 +377,17 @@ export default function CalendarPage() {
               {subscription.subscriptionUrl}
             </div>
             <div className="flex flex-wrap gap-2">
-              <a className="btn btn-soft btn-sm" href={subscription.subscriptionHttpUrl} target="_blank" rel="noopener noreferrer">
-                {t("js.calendar.downloadIcs") !== "js.calendar.downloadIcs"
-                  ? t("js.calendar.downloadIcs")
-                  : "Download ICS"}
-              </a>
-              <a className="btn btn-primary btn-sm" href={subscription.subscriptionUrl}>
-                {t("js.calendar.subscribeWebcal") !== "js.calendar.subscribeWebcal"
-                  ? t("js.calendar.subscribeWebcal")
-                  : "Subscribe"}
-              </a>
+              {!isAndroid ? (
+                <a
+                  className="btn btn-primary btn-sm"
+                  href={subscription.subscriptionHttpUrl || subscription.subscriptionUrl}
+                  onClick={handleSubscribeClick}
+                >
+                  {t("js.calendar.subscribeWebcal") !== "js.calendar.subscribeWebcal"
+                    ? t("js.calendar.subscribeWebcal")
+                    : "Subscribe"}
+                </a>
+              ) : null}
             </div>
           </div>
         ) : (

@@ -28,6 +28,7 @@ BNote Next Generation is the modern UI/API layer for BNote (ensemble management)
 - Keep list/detail/edit behaviors consistent across modules (see `docs/UI_PATTERNS.md`).
 - Keep module UX consistent: similar operations (list, detail, edit, save/cancel, delete, status display) should behave the same across modules.
 - Do not add explicit Back buttons by default (strong preference). Use existing navigation unless product asks otherwise.
+- For bugfixes originating from the in-app email bug dialog, include the bug report ID (for example `BUG-...`) in the commit message.
 
 ## Multi-Step Task Workflow
 1. Inspect existing patterns in relevant module(s) before coding.
