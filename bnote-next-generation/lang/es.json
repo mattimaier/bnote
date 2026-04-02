@@ -94,6 +94,7 @@
   "js.common.saveFailed": "Error al guardar",
   "js.common.searchFailed": "Error en la búsqueda",
   "js.common.deleteFailed": "Error al eliminar",
+  "js.common.invalidId": "ID no válida",
   "js.common.save": "Guardar",
   "js.common.cancel": "Cancelar",
   "js.common.yes": "Sí",

@@ -94,6 +94,7 @@
   "js.common.saveFailed": "Save failed",
   "js.common.searchFailed": "Search failed",
   "js.common.deleteFailed": "Delete failed",
+  "js.common.invalidId": "Invalid ID",
   "js.common.save": "Save",
   "js.common.cancel": "Cancel",
   "js.common.yes": "Yes",

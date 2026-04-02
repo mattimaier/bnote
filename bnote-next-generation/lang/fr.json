@@ -94,6 +94,7 @@
   "js.common.saveFailed": "Échec de l'enregistrement",
   "js.common.searchFailed": "Échec de la recherche",
   "js.common.deleteFailed": "Échec de la suppression",
+  "js.common.invalidId": "ID invalide",
   "js.common.save": "Enregistrer",
   "js.common.cancel": "Annuler",
   "js.common.yes": "Oui",

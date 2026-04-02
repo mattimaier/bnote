@@ -574,7 +574,14 @@ export function EventDetail({
   saveEditRef.current = saveEdit;
 
   const deleteCurrentEvent = async () => {
-    if (isNew || Number.isNaN(numId) || numId <= 0) return;
+    if (isNew || Number.isNaN(numId) || numId <= 0) {
+      setSaveError(
+        t("js.common.invalidId") !== "js.common.invalidId"
+          ? t("js.common.invalidId")
+          : "Invalid ID"
+      );
+      return;
+    }
     try {
       if (type === "rehearsal") {
         await rehearsalsApi.delete(numId);
@@ -585,7 +592,6 @@ export function EventDetail({
       router.push(type === "rehearsal" ? "/rehearsals" : "/concerts");
     } catch (err) {
       setSaveError(getErrorMessage(err, t, "js.common.deleteFailed"));
-      throw err;
     }
   };
 

@@ -94,6 +94,7 @@
   "js.common.saveFailed": "Speichern fehlgeschlagen",
   "js.common.searchFailed": "Suche fehlgeschlagen",
   "js.common.deleteFailed": "Löschen fehlgeschlagen",
+  "js.common.invalidId": "Ungültige ID",
   "js.common.save": "Speichern",
   "js.common.cancel": "Abbrechen",
   "js.common.yes": "Ja",
