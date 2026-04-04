@@ -1,77 +1,50 @@
 {
-  "releaseId": "0.1.0@7e94449bd913",
-  "generatedAt": "2026-04-04T19:29:30.318Z",
+  "releaseId": "0.1.0@58e12fce41c6",
+  "generatedAt": "2026-04-04T19:48:50.394Z",
   "source": "hybrid",
   "build": {
     "version": "0.1.0",
-    "buildId": "7e94449bd913",
-    "commit": "7e94449bd913",
-    "fullCommit": "7e94449bd913951a344cf47b4abc57decd49b228",
-    "buildTime": "2026-04-04T19:29:30.317Z"
+    "buildId": "58e12fce41c6",
+    "commit": "58e12fce41c6",
+    "fullCommit": "58e12fce41c680b8a71dd4ad6db53db4b8a492ac",
+    "buildTime": "2026-04-04T19:48:50.394Z"
   },
   "entries": [
     {
-      "bugId": "BUG-20260403-143547-7D94",
+      "title": "Fix participation modal click-through on dashboard",
       "changeType": "fixed",
-      "title": "Status sync between Open Responses and Upcoming Events after participation update",
-      "subject": "chore(changelog): add release note mapping for dashboard response sync (BUG-20260403-143547-7d94)",
-      "commit": "7e94449bd913951a344cf47b4abc57decd49b228",
-      "shortCommit": "7e94449b",
-      "date": "2026-04-04T21:29:27+02:00"
+      "date": "2026-04-04T20:29:46+02:00",
+      "bugId": "BUG-20260403-143341-88FC"
     },
     {
-      "bugId": "BUG-20260403-143341-88FC",
-      "changeType": "fixed",
-      "title": "Participation modal click-through on dashboard",
-      "subject": "Fix participation modal click-through on dashboard (BUG-20260403-143341-88fc)",
-      "commit": "afd01d23e8ca6653b47a854109be4832382fcd84",
-      "shortCommit": "afd01d23",
-      "date": "2026-04-04T20:29:46+02:00"
-    },
-    {
-      "bugId": "BUG-20260403-143442-4BAE",
-      "changeType": "fixed",
       "title": "Enforce white text on destructive buttons",
-      "subject": "fix(ui): enforce white text on destructive buttons BUG-20260403-143442-4bae",
-      "commit": "a390bfe07a601e1b451d75f5535411f81dcb2e97",
-      "shortCommit": "a390bfe0",
-      "date": "2026-04-04T20:29:00+02:00"
+      "changeType": "fixed",
+      "date": "2026-04-04T20:29:00+02:00",
+      "bugId": "BUG-20260403-143442-4BAE"
     },
     {
-      "bugId": "BUG-20260402-204722-4446",
-      "changeType": "fixed",
       "title": "Shorten mobile search placeholder, keep long desktop",
-      "subject": "fix(topbar): shorten mobile search placeholder, keep long desktop (BUG-20260402-204722-4446)",
-      "commit": "00ec5f5683d1444aa8447da3fe9619d38e8d0833",
-      "shortCommit": "00ec5f56",
-      "date": "2026-04-02T22:49:30+02:00"
+      "changeType": "fixed",
+      "date": "2026-04-02T22:49:30+02:00",
+      "bugId": "BUG-20260402-204722-4446"
     },
     {
-      "bugId": "BUG-20260402-204126-5E98",
-      "changeType": "fixed",
       "title": "Dark mode white bars in FullCalendar",
-      "subject": "fix(calendar): dark mode white bars in FullCalendar (BUG-20260402-204126-5e98)",
-      "commit": "fe45fa06d2af6d6b1fc8e5dbac14775b77375082",
-      "shortCommit": "fe45fa06",
-      "date": "2026-04-02T22:45:28+02:00"
+      "changeType": "fixed",
+      "date": "2026-04-02T22:45:28+02:00",
+      "bugId": "BUG-20260402-204126-5E98"
     },
     {
-      "bugId": "BUG-20260402-183114-C206",
-      "changeType": "fixed",
       "title": "Simplify Android subscription UX",
-      "subject": "fix(calendar): simplify Android subscription UX (BUG-20260402-183114-c206)",
-      "commit": "fb5e520f853689064416dd2e91fc5b018bbccbc3",
-      "shortCommit": "fb5e520f",
-      "date": "2026-04-02T22:39:11+02:00"
+      "changeType": "fixed",
+      "date": "2026-04-02T22:39:11+02:00",
+      "bugId": "BUG-20260402-183114-C206"
     },
     {
-      "bugId": "BUG-20260402-170933-95EC",
-      "changeType": "fixed",
       "title": "Make delete confirmation fail visibly",
-      "subject": "fix(rehearsals): make delete confirmation fail visibly (BUG-20260402-170933-95ec)",
-      "commit": "3d99cb68cc7ad0c0d57310242d92d436b6081b4a",
-      "shortCommit": "3d99cb68",
-      "date": "2026-04-02T22:32:00+02:00"
+      "changeType": "fixed",
+      "date": "2026-04-02T22:32:00+02:00",
+      "bugId": "BUG-20260402-170933-95EC"
     }
   ]
 }

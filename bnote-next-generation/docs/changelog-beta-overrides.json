@@ -1,6 +1,0 @@
-{
-  "BUG-20260403-143547-7D94": {
-    "changeType": "fixed",
-    "title": "Status sync between Open Responses and Upcoming Events after participation update"
-  }
-}
