@@ -92,6 +92,8 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
   const fullName = [user?.name, user?.surname].filter(Boolean).join(" ") || t("js.common.user");
   const SettingsMenuIcon = getIcon("settings");
   const ConfigurationMenuIcon = getIcon("key");
+  const SystemInformationMenuIcon = getIcon("info");
+  const ChangelogMenuIcon = getIcon("confetti");
 
   async function handleLogout() {
     await logout();
@@ -203,6 +205,28 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
               >
                 <SettingsMenuIcon className="h-4 w-4" />
                 {t("js.profile.menuSettings") !== "js.profile.menuSettings" ? t("js.profile.menuSettings") : "Preferences"}
+              </Link>
+              {canConfigure ? (
+                <Link
+                  href="/system-information/"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-base-200 transition-colors text-base-content"
+                >
+                  <SystemInformationMenuIcon className="h-4 w-4" />
+                  {t("js.profile.menuSystemInformation") !== "js.profile.menuSystemInformation"
+                    ? t("js.profile.menuSystemInformation")
+                    : "System Information"}
+                </Link>
+              ) : null}
+              <Link
+                href="/changelog/"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-base-200 transition-colors text-base-content"
+              >
+                <ChangelogMenuIcon className="h-4 w-4" />
+                {t("js.profile.menuChangelog") !== "js.profile.menuChangelog"
+                  ? t("js.profile.menuChangelog")
+                  : "What's New in BNote"}
               </Link>
               {canConfigure ? (
                 <Link

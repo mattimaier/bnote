@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { AppPageHeader } from "@/components/AppPageHeader";
 import { PageContent } from "@/components/PageContent";
 import { useI18n } from "@/contexts/I18nContext";
 import { formatDateTimeShort } from "@/lib/date-time";
 import {
   systemInformationApi,
-  type SystemInformationChangelog,
   type SystemInformationOverview,
 } from "@/lib/system-information-api";
 
@@ -15,7 +14,6 @@ export default function SystemInformationPage() {
   const { t, lang } = useI18n();
   const label = (key: string, fallback: string) => (t(key) !== key ? t(key) : fallback);
   const [overview, setOverview] = useState<SystemInformationOverview | null>(null);
-  const [changelog, setChangelog] = useState<SystemInformationChangelog | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -25,13 +23,9 @@ export default function SystemInformationPage() {
       setLoading(true);
       setError("");
       try {
-        const [overviewData, changelogData] = await Promise.all([
-          systemInformationApi.getOverview(),
-          systemInformationApi.getChangelog(),
-        ]);
+        const overviewData = await systemInformationApi.getOverview();
         if (cancelled) return;
         setOverview(overviewData);
-        setChangelog(changelogData);
       } catch (err) {
         if (cancelled) return;
         setError(
@@ -50,8 +44,6 @@ export default function SystemInformationPage() {
     };
   }, [t]);
 
-  const changelogEntries = useMemo(() => changelog?.entries ?? [], [changelog]);
-
   return (
     <PageContent className="space-y-6">
       <AppPageHeader
@@ -61,7 +53,7 @@ export default function SystemInformationPage() {
         title={label("js.systemInformation.title", "System Information")}
         subtitle={label(
           "js.systemInformation.subtitle",
-          "Legacy core data, Next Generation build metadata, and recent bug fixes."
+          "Legacy core data and Next Generation build metadata."
         )}
       />
 
@@ -117,31 +109,6 @@ export default function SystemInformationPage() {
         </section>
       ) : null}
 
-      {!loading ? (
-        <section className="rounded-box border border-base-300 bg-base-100 p-4">
-          <h2 className="text-base font-semibold text-base-content">
-            {label("js.systemInformation.section.changelog", "Fixed Bugs / Changelog")}
-          </h2>
-          {changelogEntries.length > 0 ? (
-            <ul className="mt-3 space-y-4">
-              {changelogEntries.map((entry) => (
-                <li key={`${entry.bugId}-${entry.shortCommit}`} className="text-sm">
-                  <div className="text-base-content">- {entry.title}</div>
-                  <div className="mt-1 text-xs text-base-content/65 pl-4">
-                    {entry.bugId}
-                    {entry.date ? ` · ${formatDateTimeShort(entry.date, lang) ?? entry.date}` : ""}
-                    {entry.shortCommit ? ` · ${entry.shortCommit}` : ""}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="mt-3 text-sm text-base-content/70">
-              {label("js.systemInformation.changelogEmpty", "No changelog entries available yet.")}
-            </p>
-          )}
-        </section>
-      ) : null}
     </PageContent>
   );
 }

@@ -6,16 +6,84 @@
 
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { AppSidebar } from "@/components/AppSidebar";
 import { AppTopbar } from "@/components/AppTopbar";
 import { MobileNavDrawer } from "@/components/MobileNavDrawer";
 import { useEditingBar } from "@/contexts/EditingBarContext";
 import { EditingBar } from "@/components/EditingBar";
+import { checkSession } from "@/lib/auth";
+import { changelogApi, type ChangelogEntry } from "@/lib/changelog-api";
+import { ChangelogModal } from "@/components/changelog/ChangelogModal";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [changelogOpen, setChangelogOpen] = useState(false);
+  const [changelogReleaseId, setChangelogReleaseId] = useState("");
+  const [changelogEntries, setChangelogEntries] = useState<ChangelogEntry[]>([]);
+  const [changelogSeenKey, setChangelogSeenKey] = useState("");
   const { editingBar } = useEditingBar();
+  const router = useRouter();
+
+  useEffect(() => {
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+
+    (async () => {
+      try {
+        const session = await checkSession();
+        const userId = session?.user?.id ? String(session.user.id) : "";
+        if (!session?.authenticated || !userId || cancelled) return;
+
+        const seenKey = `bnote_changelog_seen::${userId}`;
+        const legacySeenKey = `bnote_whats_new_seen::${userId}`;
+        const seenValue = typeof window !== "undefined"
+          ? localStorage.getItem(seenKey) ?? localStorage.getItem(legacySeenKey) ?? ""
+          : "";
+        const changelog = await changelogApi.get();
+        if (cancelled) return;
+        const releaseId = String(changelog?.releaseId ?? "").trim();
+        const entries = Array.isArray(changelog?.entries) ? changelog.entries : [];
+        if (!releaseId || entries.length === 0 || seenValue === releaseId) return;
+
+        setChangelogSeenKey(seenKey);
+        setChangelogReleaseId(releaseId);
+        setChangelogEntries(entries);
+        timer = setTimeout(() => {
+          if (!cancelled) setChangelogOpen(true);
+        }, 1200);
+      } catch {
+        // Non-blocking: changelog modal must never break shell load.
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, []);
+
+  function markReleaseSeen() {
+    if (typeof window === "undefined") return;
+    if (!changelogSeenKey || !changelogReleaseId) return;
+    localStorage.setItem(changelogSeenKey, changelogReleaseId);
+  }
+
+  function handleLater() {
+    setChangelogOpen(false);
+  }
+
+  function handleDismiss() {
+    markReleaseSeen();
+    setChangelogOpen(false);
+  }
+
+  function handleViewDetails() {
+    markReleaseSeen();
+    setChangelogOpen(false);
+    router.push("/changelog/");
+  }
 
   return (
     <div data-bnote-capture-root="1" className="flex min-h-screen flex-col bg-base-100 md:h-screen md:flex-row md:overflow-hidden">
@@ -26,6 +94,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <main className="flex-1 px-2 pb-2 pt-2 md:min-h-0 md:overflow-y-auto md:px-3 md:py-3">{children}</main>
       </div>
       <MobileNavDrawer open={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />
+      <ChangelogModal
+        open={changelogOpen}
+        releaseId={changelogReleaseId}
+        entries={changelogEntries}
+        onClose={handleLater}
+        onDismiss={handleDismiss}
+        onViewDetails={handleViewDetails}
+      />
     </div>
   );
 }

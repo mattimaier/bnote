@@ -20,6 +20,7 @@ BNote Next Generation is the modern UI/API layer for BNote (ensemble management)
 - Authorization is mandatory: all read/write actions must respect role/module rights and server-side permission checks.
 - URL-driven edit mode conventions must stay consistent with shipped behavior and `docs/UI_PATTERNS.md`.
 - Date/time formatting must use shared helpers from `frontend/lib/date-time.ts`.
+- Changelog discipline is required: bugfixes and user-visible behavior changes must update changelog inputs in the same change.
 
 ## Coding Conventions Used in This Repo
 - Prefer small, localized edits over broad rewrites.
@@ -29,14 +30,20 @@ BNote Next Generation is the modern UI/API layer for BNote (ensemble management)
 - Keep module UX consistent: similar operations (list, detail, edit, save/cancel, delete, status display) should behave the same across modules.
 - Do not add explicit Back buttons by default (strong preference). Use existing navigation unless product asks otherwise.
 - For bugfixes originating from the in-app email bug dialog, include the bug report ID (for example `BUG-...`) in the commit message.
+- For bugfixes, include `BUG-...` in commit messages when available.
+- Prefer conventional commit prefixes for user-visible work (`feat:`, `fix:`, `refactor:`, `chore:`) so changelog type inference stays reliable.
+- If a change is user-visible or fixes user-facing behavior, update changelog source inputs (commit-derived entries plus optional curated override note).
+- Relevant change = bug fix or user-visible behavior/UI/API result change. Internal-only refactor/chore/test/docs-only changes are excluded.
+- Maintain changelog via hybrid flow: commit-derived entries (`BUG-...`) + optional curated note override for user-facing wording.
 
 ## Multi-Step Task Workflow
 1. Inspect existing patterns in relevant module(s) before coding.
 2. Reuse existing entity/module components and shared helpers first; do not create parallel UI patterns.
 3. Implement changes with mobile-first constraints (small viewport behavior first).
-4. Run required validation commands.
-5. Run route-level smoke checks (mobile + desktop) for touched flows.
-6. Update docs when behavior/contracts changed.
+4. Update changelog inputs for relevant changes (`BUG-...` commit and/or curated changelog note override).
+5. Run required validation commands.
+6. Run route-level smoke checks (mobile + desktop) for touched flows.
+7. Update docs when behavior/contracts changed.
 
 ## Verification Commands
 Run what applies to touched areas.
@@ -76,6 +83,12 @@ Validate at ~375px and ~430px widths, plus desktop.
 - Keep debug/dev-only behavior gated as documented (`NEXT_PUBLIC_ENABLE_DEVELOPER_TOOLS`).
 - If you find conflicting docs vs code, resolve or document the drift in the same change.
 
+## Changelog Source of Truth
+- Auto source: git commits containing `BUG-...` IDs.
+- Optional curated source: changelog override notes for clearer user-facing release wording.
+- Changelog entries are rendered with normalized change types (`Added`, `Fixed`, `Changed`, `Removed`) inferred from commits or override metadata.
+- Generated changelog artifact is consumed by System Information / What’s New surfaces.
+
 ## Definition of Done
 A task is done only when:
 - behavior is implemented and matches current architecture conventions,
@@ -85,6 +98,7 @@ A task is done only when:
 - no change weakens existing security controls; backend authorization remains enforced,
 - lint/build checks pass for affected areas,
 - related docs are updated when behavior/contracts changed,
+- for bugfixes and user-visible changes, changelog input has been updated and will be reflected in generated changelog output,
 - residual risks/open questions are explicitly noted.
 
 ## Deeper Docs

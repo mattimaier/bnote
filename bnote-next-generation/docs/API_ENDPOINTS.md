@@ -1639,6 +1639,40 @@ Authenticated beta bug report endpoint. Feature must be enabled via configuratio
 
 ---
 
+## System Information (Next Generation)
+
+### GET `api/index.php?module=systeminformation&action=getOverview`
+
+Admin/configuration-permission endpoint for system + build metadata used by the in-app System Information page.
+
+**Response (200):**
+- `company` (string)
+- `lang` (string)
+- `country` (string|null, ISO alpha-2 when available)
+- `demo_mode` (boolean)
+- `system_url` (string)
+- `modules_count` (number)
+- `wrapped_enabled` (boolean)
+- `nextgen` object: `version`, `buildId`, `commit`, `fullCommit`, `buildTime`
+- `changelog` object: `releaseId`, `generatedAt`, `entryCount`
+
+### GET `api/index.php?module=changelog&action=get`
+
+Authenticated endpoint for beta changelog entries used by changelog/What's New surfaces.
+
+**Response (200):**
+- `releaseId` (string)
+- `generatedAt` (ISO timestamp string)
+- `build` object: `version`, `buildId`, `commit`, `fullCommit`, `buildTime`
+- `entries[]`: `bugId`, `changeType` (`added|fixed|changed|removed`), `title`, `subject`, `commit`, `shortCommit`, `date`
+
+**Notes:**
+- Changelog source is hybrid: commit-derived `BUG-...` entries plus optional curated overrides.
+- Curated override entries may define `changeType` to force category labeling.
+- Endpoint returns an empty `entries` array if no generated artifact is available.
+
+---
+
 ## Other Modules
 
 ### Rehearsal Phases
@@ -1730,5 +1764,5 @@ All endpoints return errors in this format:
 ---
 
 **Document Status:** Complete  
-**Last Updated:** 2026-01-25  
+**Last Updated:** 2026-04-04  
 **Next:** See `JS_ARCHITECTURE.md` for JavaScript frontend architecture

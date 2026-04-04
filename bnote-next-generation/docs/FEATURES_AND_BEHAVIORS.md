@@ -10,7 +10,7 @@ Architecture-level permission decisions are documented in **[ARCHITECTURE_DECISI
 ## 1. Overview
 
 - **App:** Next.js UI (static export) in `frontend/`, PHP REST API in `api/`.
-- **Entry points:** `/` (redirects to `/dashboard` or `/login`), `/login`, `/register` (when `user_registration` is enabled), `/reset-password`, `/reset-password/confirm`, `/participation/respond`, `/dashboard`, `/users`, `/contacts`, `/contacts/integration`, `/search`, `/settings`, `/profile`, `/profile/edit`, legal routes under `/legal/*`, module pages under **`frontend/app/_modules/*`**, entity detail at **`/entity?type=…&id=…`** (and **`&edit=1`** in edit mode; see **[UI_PATTERNS.md](UI_PATTERNS.md)**).
+- **Entry points:** `/` (redirects to `/dashboard` or `/login`), `/login`, `/register` (when `user_registration` is enabled), `/reset-password`, `/reset-password/confirm`, `/participation/respond`, `/dashboard`, `/users`, `/contacts`, `/contacts/integration`, `/search`, `/settings`, `/profile`, `/profile/edit`, `/system-information`, `/changelog` (legacy alias: `/whats-new`), legal routes under `/legal/*`, module pages under **`frontend/app/_modules/*`**, entity detail at **`/entity?type=…&id=…`** (and **`&edit=1`** in edit mode; see **[UI_PATTERNS.md](UI_PATTERNS.md)**).
 - **Auth:** Session-based; API uses PHP session cookie. Unauthenticated users are redirected to `/login?redirect=…`.
 
 ---
@@ -31,6 +31,9 @@ Architecture-level permission decisions are documented in **[ARCHITECTURE_DECISI
 - **Sidebar (desktop):** BNote logo, nav links (Dashboard, Users, Contacts from API modules). Logo from `getBnoteLogoUrl()` in `lib/bnote-assets.ts` (BNote/style/images/BNote_Logo_white_transparent.svg); fallback “B” when URL missing.
 - **Top bar:** Global search input, theme toggle (sun/moon), user indicator.
 - **Beta bug report action (config-gated):** When `beta_bug_report_enabled` is `true` and user is authenticated, topbar and user menu show **Report bug**. The modal uses one required message field plus optional diagnostics toggles (screenshot, recent network requests, recent logs).
+- **System Information (admin-only):** User menu includes **System Information** route for users with admin/configuration rights, showing legacy core runtime details and Next Generation build metadata.
+- **Changelog (What's New in BNote):** User menu includes a dedicated changelog route with a plain recent-fixes list.
+- **Changelog modal:** After authenticated shell load, a release-notes modal is shown once per release id and user. Users can dismiss permanently for that release or open the full changelog.
 - **Mobile:** Sidebar hidden; hamburger opens full-screen nav drawer with same links and logo.
 - **Theme:** Dark/light via CSS variables; persisted (e.g. localStorage). Use semantic variables (e.g. `--background`, `--foreground`, `--primary`) in `frontend/app/globals.css`.
 
@@ -123,6 +126,8 @@ Architecture-level permission decisions are documented in **[ARCHITECTURE_DECISI
 - **Main endpoints used by UI:**  
   - Auth: login, session/me, logout, getPublicConfig, getRegistrationOptions, register, requestPasswordReset, completePasswordReset, participation token helpers as needed.  
   - Bug report: `bugreport.send` (single-message report with optional diagnostics payload).
+  - System information: `systeminformation.getOverview`.
+  - Changelog: `changelog.get`.
   - Calendar subscription: `auth.getCalendarSubscriptionLink` (stable token), `auth.regenerateCalendarSubscriptionLink` (token rotation).  
   - Dashboard: company, events, events needing response, admin/action summaries.  
   - Users: list, get, create, update, delete, activate, getPrivileges, updatePrivileges, getContacts.  
@@ -150,6 +155,9 @@ Architecture-level permission decisions are documented in **[ARCHITECTURE_DECISI
 - **Search:** Top-bar overlay; search results page with query in URL; filters; result list with type icon, date, tag, time, location.
 - **Entity detail:** Path-based view/edit; type title + icon + tag; metadata; map links; participation widget; overview bar; participants with group-by and status icons. Edit mode in URL; delete only in edit view (DetailDeleteSection + ConfirmModal).
 - **Shell:** Sidebar, mobile drawer, top bar (search, theme, user); logo everywhere.
+- **System information:** User menu opens `/system-information` with system/build sections.
+- **Changelog:** User menu opens `/changelog` (legacy `/whats-new` redirects) with plain changelog list.
+- **Changelog modal:** Shows once per release per user (post-login shell), with actions for dismiss/view changelog.
 - **Wrapped:** Module follows app theme (light/dark). The generated/shared Wrapped share card is intentionally rendered in light mode for consistent exported image colors.
 - **Bug reporting:** Report button visible only when feature flag is enabled; modal has single required message field; diagnostics counters populate after app activity; report send returns a `reportId` on success.
 - **Translations:** No “[module module]” or raw keys; company name in subtitle; all strings from lang/ or API.

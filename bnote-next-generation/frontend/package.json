@@ -3,11 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "generate:beta-changelog": "node scripts/generate-beta-changelog.mjs",
     "generate:logo": "node scripts/generate-logo-png.mjs",
     "sync:mail-design": "node scripts/sync-mail-design.mjs",
     "dev": "next dev",
     "dev:webpack": "next dev --webpack",
-    "build": "npm run generate:logo && npm run sync:mail-design && next build && node scripts/prune-dev-artifacts.mjs",
+    "build": "npm run generate:beta-changelog && npm run generate:logo && npm run sync:mail-design && next build && node scripts/prune-dev-artifacts.mjs",
     "start": "next start",
     "lint": "eslint"
   },
