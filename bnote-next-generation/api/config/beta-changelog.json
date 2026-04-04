@@ -1,15 +1,24 @@
 {
-  "releaseId": "0.1.0@afd01d23e8ca",
-  "generatedAt": "2026-04-04T19:26:27.715Z",
+  "releaseId": "0.1.0@7e94449bd913",
+  "generatedAt": "2026-04-04T19:29:30.318Z",
   "source": "hybrid",
   "build": {
     "version": "0.1.0",
-    "buildId": "afd01d23e8ca",
-    "commit": "afd01d23e8ca",
-    "fullCommit": "afd01d23e8ca6653b47a854109be4832382fcd84",
-    "buildTime": "2026-04-04T19:26:27.714Z"
+    "buildId": "7e94449bd913",
+    "commit": "7e94449bd913",
+    "fullCommit": "7e94449bd913951a344cf47b4abc57decd49b228",
+    "buildTime": "2026-04-04T19:29:30.317Z"
   },
   "entries": [
+    {
+      "bugId": "BUG-20260403-143547-7D94",
+      "changeType": "fixed",
+      "title": "Status sync between Open Responses and Upcoming Events after participation update",
+      "subject": "chore(changelog): add release note mapping for dashboard response sync (BUG-20260403-143547-7d94)",
+      "commit": "7e94449bd913951a344cf47b4abc57decd49b228",
+      "shortCommit": "7e94449b",
+      "date": "2026-04-04T21:29:27+02:00"
+    },
     {
       "bugId": "BUG-20260403-143341-88FC",
       "changeType": "fixed",
