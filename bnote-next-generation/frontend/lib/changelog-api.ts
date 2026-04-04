@@ -9,12 +9,9 @@ export interface ChangelogBuildInfo {
 }
 
 export interface ChangelogEntry {
-  bugId: string;
+  bugId: string | null;
   changeType: "added" | "fixed" | "changed" | "removed";
   title: string;
-  subject: string;
-  commit: string;
-  shortCommit: string;
   date: string;
 }
 

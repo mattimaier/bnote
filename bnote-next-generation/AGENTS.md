@@ -31,16 +31,16 @@ BNote Next Generation is the modern UI/API layer for BNote (ensemble management)
 - Do not add explicit Back buttons by default (strong preference). Use existing navigation unless product asks otherwise.
 - For bugfixes originating from the in-app email bug dialog, include the bug report ID (for example `BUG-...`) in the commit message.
 - For bugfixes, include `BUG-...` in commit messages when available.
-- Prefer conventional commit prefixes for user-visible work (`feat:`, `fix:`, `refactor:`, `chore:`) so changelog type inference stays reliable.
-- If a change is user-visible or fixes user-facing behavior, update changelog source inputs (commit-derived entries plus optional curated override note).
+- For non-bug user-visible changes, ask the user before committing whether to include a changelog note.
+- If the user confirms, guide them to add one concise final-result note in `docs/changelog-beta-overrides.json` and include it in the same change.
 - Relevant change = bug fix or user-visible behavior/UI/API result change. Internal-only refactor/chore/test/docs-only changes are excluded.
-- Maintain changelog via hybrid flow: commit-derived entries (`BUG-...`) + optional curated note override for user-facing wording.
+- Maintain changelog via hybrid flow: automatic BUG-fix entries + optional curated release notes for non-bug user-visible outcomes.
 
 ## Multi-Step Task Workflow
 1. Inspect existing patterns in relevant module(s) before coding.
 2. Reuse existing entity/module components and shared helpers first; do not create parallel UI patterns.
 3. Implement changes with mobile-first constraints (small viewport behavior first).
-4. Update changelog inputs for relevant changes (`BUG-...` commit and/or curated changelog note override).
+4. For bugfixes, ensure `BUG-...` commit message is present. For non-bug user-visible changes, ask user before commit whether to add a curated changelog note.
 5. Run required validation commands.
 6. Run route-level smoke checks (mobile + desktop) for touched flows.
 7. Update docs when behavior/contracts changed.
@@ -84,9 +84,9 @@ Validate at ~375px and ~430px widths, plus desktop.
 - If you find conflicting docs vs code, resolve or document the drift in the same change.
 
 ## Changelog Source of Truth
-- Auto source: git commits containing `BUG-...` IDs.
+- Auto source: git commits containing `BUG-...` IDs (bugfixes only).
 - Optional curated source: changelog override notes for clearer user-facing release wording.
-- Changelog entries are rendered with normalized change types (`Added`, `Fixed`, `Changed`, `Removed`) inferred from commits or override metadata.
+- Changelog entries use a simple model: `title`, `changeType`, optional `date`, optional `bugId`.
 - Generated changelog artifact is consumed by System Information / What’s New surfaces.
 
 ## Definition of Done

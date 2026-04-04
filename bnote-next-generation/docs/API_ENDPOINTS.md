@@ -1664,11 +1664,11 @@ Authenticated endpoint for beta changelog entries used by changelog/What's New s
 - `releaseId` (string)
 - `generatedAt` (ISO timestamp string)
 - `build` object: `version`, `buildId`, `commit`, `fullCommit`, `buildTime`
-- `entries[]`: `bugId`, `changeType` (`added|fixed|changed|removed`), `title`, `subject`, `commit`, `shortCommit`, `date`
+- `entries[]`: `bugId` (nullable), `changeType` (`added|fixed|changed|removed`), `title`, `date` (optional)
 
 **Notes:**
-- Changelog source is hybrid: commit-derived `BUG-...` entries plus optional curated overrides.
-- Curated override entries may define `changeType` to force category labeling.
+- Changelog source is hybrid: commit-derived `BUG-...` bugfix entries plus optional curated overrides.
+- Curated override entries are intended for non-bug user-visible release outcomes.
 - Endpoint returns an empty `entries` array if no generated artifact is available.
 
 ---

@@ -7,7 +7,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { AppSidebar } from "@/components/AppSidebar";
 import { AppTopbar } from "@/components/AppTopbar";
 import { MobileNavDrawer } from "@/components/MobileNavDrawer";
@@ -25,6 +25,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [changelogSeenKey, setChangelogSeenKey] = useState("");
   const { editingBar } = useEditingBar();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     let cancelled = false;
@@ -51,7 +52,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         setChangelogReleaseId(releaseId);
         setChangelogEntries(entries);
         timer = setTimeout(() => {
-          if (!cancelled) setChangelogOpen(true);
+          if (cancelled) return;
+          const path = String(pathname ?? "").toLowerCase();
+          if (path.startsWith("/changelog") || path.startsWith("/whats-new")) return;
+          setChangelogOpen(true);
         }, 1200);
       } catch {
         // Non-blocking: changelog modal must never break shell load.
@@ -62,7 +66,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       cancelled = true;
       if (timer) clearTimeout(timer);
     };
-  }, []);
+  }, [pathname]);
 
   function markReleaseSeen() {
     if (typeof window === "undefined") return;

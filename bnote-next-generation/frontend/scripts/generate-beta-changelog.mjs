@@ -10,6 +10,8 @@ const outputPath = resolve(repoRoot, "api/config/beta-changelog.json");
 const overridePath = resolve(repoRoot, "docs/changelog-beta-overrides.json");
 const packageJsonPath = resolve(frontendDir, "package.json");
 const maxEntries = Number.parseInt(process.env.BETA_CHANGELOG_MAX ?? "200", 10) || 200;
+const betaStartIso = String(process.env.BETA_CHANGELOG_SINCE ?? "2026-04-02T00:00:00+02:00").trim();
+const betaStartMs = Number.isNaN(Date.parse(betaStartIso)) ? 0 : Date.parse(betaStartIso);
 
 function safeExec(command) {
   try {
@@ -29,114 +31,72 @@ function readJsonFile(path, fallback) {
   }
 }
 
-function normalizeTitle(value) {
+function normalizeText(value) {
   const v = String(value ?? "").trim();
   if (!v) return "";
   return v.replace(/\s+/g, " ");
 }
 
-function normalizeChangeType(value) {
-  const raw = String(value ?? "").trim().toLowerCase();
-  if (raw === "added" || raw === "fixed" || raw === "changed" || raw === "removed") {
-    return raw;
-  }
-  return "";
-}
-
-function stripBugMarkers(subject) {
-  const s = normalizeTitle(subject);
-  if (!s) return "";
-  const removedParen = s.replace(/\(\s*BUG-\d{8}-\d{6}-[a-z0-9]+\s*\)/gi, "");
-  const removedStandalone = removedParen.replace(/\bBUG-\d{8}-\d{6}-[a-z0-9]+\b/gi, "");
-  return normalizeTitle(removedStandalone.replace(/\s+[|:-]\s*$/g, ""));
-}
-
-function resolveOverrideMeta(overrides, bugId) {
-  const candidate = overrides?.[bugId];
-  if (typeof candidate === "string") {
-    return {
-      title: normalizeTitle(candidate),
-      changeType: "",
-    };
-  }
-  if (candidate && typeof candidate === "object") {
-    const overrideType = normalizeChangeType(candidate.changeType ?? candidate.type);
-    if (typeof candidate.title === "string") {
-      return {
-        title: normalizeTitle(candidate.title),
-        changeType: overrideType,
-      };
-    }
-    if (candidate.title && typeof candidate.title === "object") {
-      const localized = candidate.title.en ?? candidate.title.de ?? candidate.title.es ?? candidate.title.fr;
-      if (typeof localized === "string") {
-        return {
-          title: normalizeTitle(localized),
-          changeType: overrideType,
-        };
-      }
-    }
-  }
-  return {
-    title: "",
-    changeType: "",
-  };
+function normalizeType(value) {
+  const v = normalizeText(value).toLowerCase();
+  if (v === "added" || v === "fixed" || v === "changed" || v === "removed") return v;
+  return "changed";
 }
 
 function extractConventionalCommit(subject) {
-  const s = normalizeTitle(subject);
+  const s = normalizeText(subject);
   if (!s) return { type: "", text: "" };
   const m = s.match(/^([a-z]+)(?:\([^)]+\))?!?:\s*(.+)$/i);
   if (!m) return { type: "", text: s };
   return {
     type: String(m[1] ?? "").toLowerCase(),
-    text: normalizeTitle(m[2] ?? ""),
+    text: normalizeText(m[2] ?? ""),
   };
 }
 
-function inferChangeType(subject, preferred = "") {
-  if (preferred) return preferred;
-  const { type, text } = extractConventionalCommit(subject);
-  const scan = `${type} ${text}`.toLowerCase();
-  if (type === "fix" || type === "hotfix" || /\b(fix|fixed|bug|bugfix)\b/.test(scan)) return "fixed";
-  if (type === "feat" || /\b(add|added|new|create|created|introduce|introduced)\b/.test(scan)) return "added";
-  if (/\b(remove|removed|delete|deleted|drop|dropped|deprecat|retire)\b/.test(scan)) return "removed";
-  return "changed";
-}
-
-function stripLeadingVerbByType(title, changeType) {
-  const t = normalizeTitle(title);
-  if (!t) return "";
-  if (changeType === "fixed") {
-    return normalizeTitle(t.replace(/^(fix|fixed|bugfix)\s+/i, ""));
-  }
-  if (changeType === "added") {
-    return normalizeTitle(t.replace(/^(add|added|new|introduce|introduced|create|created)\s+/i, ""));
-  }
-  if (changeType === "removed") {
-    return normalizeTitle(t.replace(/^(remove|removed|delete|deleted|drop|dropped)\s+/i, ""));
-  }
-  if (changeType === "changed") {
-    return normalizeTitle(t.replace(/^(change|changed|update|updated|improve|improved|refactor|refactored)\s+/i, ""));
-  }
-  return t;
-}
-
-function capitalizeFirst(value) {
-  const s = normalizeTitle(value);
+function stripBugMarkers(subject) {
+  const s = normalizeText(subject);
   if (!s) return "";
-  return `${s.charAt(0).toUpperCase()}${s.slice(1)}`;
+  const removedParen = s.replace(/\(\s*BUG-\d{8}-\d{6}-[a-z0-9]+\s*\)/gi, "");
+  const removedStandalone = removedParen.replace(/\bBUG-\d{8}-\d{6}-[a-z0-9]+\b/gi, "");
+  return normalizeText(removedStandalone.replace(/\s+[|:-]\s*$/g, ""));
 }
 
-function normalizeChangelogTitle(rawTitle, changeType) {
-  const stripped = stripLeadingVerbByType(rawTitle, changeType);
-  return capitalizeFirst(stripped || rawTitle);
+function cleanBugTitle(subject) {
+  const { text: conventionalText } = extractConventionalCommit(subject);
+  const cleaned = stripBugMarkers(conventionalText || subject);
+  const noFixPrefix = cleaned.replace(/^(fix|fixed|bugfix)\s+/i, "");
+  const n = normalizeText(noFixPrefix || cleaned || subject);
+  return n ? `${n.charAt(0).toUpperCase()}${n.slice(1)}` : "Update";
+}
+
+function normalizeCuratedEntries(input) {
+  if (!Array.isArray(input)) return [];
+  const out = [];
+  for (const row of input) {
+    if (!row || typeof row !== "object") continue;
+    const title = normalizeText(row.title);
+    if (!title) continue;
+    const bugIdRaw = normalizeText(row.bugId).toUpperCase();
+    out.push({
+      title,
+      changeType: normalizeType(row.changeType ?? row.type),
+      date: normalizeText(row.date),
+      bugId: bugIdRaw || null,
+    });
+  }
+  return out;
+}
+
+function parseDateMs(value) {
+  const ms = Date.parse(String(value ?? ""));
+  return Number.isNaN(ms) ? 0 : ms;
 }
 
 function readVersion() {
   try {
     const pkg = readJsonFile(packageJsonPath, {});
-    const v = String(pkg.version ?? "").trim();
+    const v = normalizeText(pkg.version);
     return v || "unknown";
   } catch {
     return "unknown";
@@ -144,44 +104,55 @@ function readVersion() {
 }
 
 const overrides = readJsonFile(overridePath, {});
-const fullCommit = safeExec(`git -C "${repoRoot}" rev-parse HEAD`) || "unknown";
-const shortCommit = safeExec(`git -C "${repoRoot}" rev-parse --short=12 HEAD`) || "unknown";
+const curatedEntries = normalizeCuratedEntries(overrides?.entries ?? []);
+
+const seenBugIds = new Set();
+const bugEntries = [];
 const gitLog = safeExec(
   `git -C "${repoRoot}" log --date=iso-strict --pretty=format:%H%x09%h%x09%cI%x09%s`
 );
-
-const entries = [];
-const seenBugIds = new Set();
 const lines = gitLog ? gitLog.split("\n") : [];
 for (const line of lines) {
-  if (entries.length >= maxEntries) break;
-  const [commit = "", short = "", date = "", ...subjectParts] = line.split("\t");
-  const subject = normalizeTitle(subjectParts.join("\t"));
+  const [, , date = "", ...subjectParts] = line.split("\t");
+  const subject = normalizeText(subjectParts.join("\t"));
   if (!subject) continue;
+  const commitDateMs = parseDateMs(date);
+  if (betaStartMs > 0 && commitDateMs > 0 && commitDateMs < betaStartMs) continue;
+
   const matches = subject.match(/BUG-\d{8}-\d{6}-[a-z0-9]+/gi);
   if (!matches || matches.length === 0) continue;
+
   for (const rawBugId of matches) {
-    if (entries.length >= maxEntries) break;
+    if (bugEntries.length >= maxEntries) break;
     const bugId = rawBugId.toUpperCase();
     if (seenBugIds.has(bugId)) continue;
     seenBugIds.add(bugId);
-    const overrideMeta = resolveOverrideMeta(overrides, bugId);
-    const { text: conventionalText } = extractConventionalCommit(subject);
-    const cleaned = stripBugMarkers(conventionalText || subject);
-    const changeType = inferChangeType(subject, overrideMeta.changeType);
-    const chosenRawTitle = overrideMeta.title || cleaned || subject;
-    entries.push({
+    bugEntries.push({
+      title: cleanBugTitle(subject),
+      changeType: "fixed",
+      date: normalizeText(date),
       bugId,
-      changeType,
-      title: normalizeChangelogTitle(chosenRawTitle, changeType),
-      subject,
-      commit: commit || "unknown",
-      shortCommit: short || "unknown",
-      date: date || null,
     });
   }
 }
 
+const dedupeKey = (entry) =>
+  `${entry.bugId ?? ""}::${entry.changeType}::${normalizeText(entry.title).toLowerCase()}::${entry.date ?? ""}`;
+
+const deduped = [];
+const seen = new Set();
+for (const entry of [...curatedEntries, ...bugEntries].sort((a, b) => parseDateMs(b.date) - parseDateMs(a.date))) {
+  const key = dedupeKey(entry);
+  if (seen.has(key)) continue;
+  seen.add(key);
+  deduped.push(entry);
+  if (deduped.length >= maxEntries) break;
+}
+
+const entries = deduped;
+
+const shortCommit = safeExec(`git -C "${repoRoot}" rev-parse --short=12 HEAD`) || "unknown";
+const fullCommit = safeExec(`git -C "${repoRoot}" rev-parse HEAD`) || "unknown";
 const buildVersion = String(process.env.NEXT_PUBLIC_APP_VERSION ?? "").trim() || readVersion();
 const buildId = String(process.env.NEXT_PUBLIC_APP_BUILD_ID ?? "").trim() || shortCommit;
 const buildCommit = String(process.env.NEXT_PUBLIC_APP_COMMIT ?? "").trim() || shortCommit;
@@ -205,6 +176,4 @@ const payload = {
 mkdirSync(resolve(repoRoot, "api/config"), { recursive: true });
 writeFileSync(outputPath, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
 
-console.log(
-  `generate-beta-changelog: wrote ${entries.length} entries to ${outputPath}`
-);
+console.log(`generate-beta-changelog: wrote ${entries.length} entries to ${outputPath}`);

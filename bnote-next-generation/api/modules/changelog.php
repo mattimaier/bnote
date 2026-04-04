@@ -29,9 +29,10 @@ class ChangelogModule {
         if (!empty($raw['entries']) && is_array($raw['entries'])) {
             foreach ($raw['entries'] as $row) {
                 if (!is_array($row)) continue;
-                $bugId = strtoupper(trim((string) ($row['bugId'] ?? '')));
+                $bugIdRaw = trim((string) ($row['bugId'] ?? ''));
+                $bugId = $bugIdRaw !== '' ? strtoupper($bugIdRaw) : null;
                 $title = trim((string) ($row['title'] ?? ''));
-                if ($bugId === '' || $title === '') continue;
+                if ($title === '') continue;
                 $changeType = strtolower(trim((string) ($row['changeType'] ?? 'changed')));
                 if (!in_array($changeType, ['added', 'fixed', 'changed', 'removed'], true)) {
                     $changeType = 'changed';
@@ -40,9 +41,6 @@ class ChangelogModule {
                     'bugId' => $bugId,
                     'changeType' => $changeType,
                     'title' => $title,
-                    'subject' => trim((string) ($row['subject'] ?? $title)),
-                    'commit' => trim((string) ($row['commit'] ?? '')),
-                    'shortCommit' => trim((string) ($row['shortCommit'] ?? '')),
                     'date' => trim((string) ($row['date'] ?? '')),
                 ];
             }

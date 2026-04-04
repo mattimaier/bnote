@@ -82,12 +82,15 @@ export default function ChangelogPage() {
           {entries.length > 0 ? (
             <ul className="space-y-4">
               {entries.map((entry) => (
-                <li key={`${entry.bugId}-${entry.shortCommit}`} className="text-sm">
+                <li key={`${entry.bugId ?? "note"}-${entry.title}-${entry.date}`} className="text-sm">
                   <div className="text-base-content">- {changeTypeLabel(entry.changeType)}: {entry.title}</div>
                   <div className="mt-1 pl-4 text-xs text-base-content/65">
-                    {entry.bugId}
-                    {entry.date ? ` · ${formatDateTimeShort(entry.date, lang) ?? entry.date}` : ""}
-                    {entry.shortCommit ? ` · ${entry.shortCommit}` : ""}
+                    {[
+                      entry.bugId ?? "",
+                      entry.date ? formatDateTimeShort(entry.date, lang) ?? entry.date : "",
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")}
                   </div>
                 </li>
               ))}
