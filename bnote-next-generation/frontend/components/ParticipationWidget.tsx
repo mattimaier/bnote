@@ -17,9 +17,16 @@ interface ParticipationWidgetProps {
   eventType: string;
   onStatusChange?: () => void;
   disabled?: boolean;
+  refreshToken?: number;
 }
 
-export function ParticipationWidget({ eventId, eventType, onStatusChange, disabled = false }: ParticipationWidgetProps) {
+export function ParticipationWidget({
+  eventId,
+  eventType,
+  onStatusChange,
+  disabled = false,
+  refreshToken = 0,
+}: ParticipationWidgetProps) {
   const { t } = useI18n();
   const { showToast } = useToast();
   const [status, setStatus] = useState<ParticipationStatus>("undecided");
@@ -45,7 +52,7 @@ export function ParticipationWidget({ eventId, eventType, onStatusChange, disabl
 
   useEffect(() => {
     fetchStatus();
-  }, [fetchStatus]);
+  }, [fetchStatus, refreshToken]);
 
   const updateStatus = useCallback(
     async (newStatus: ParticipationStatus, reason = "") => {

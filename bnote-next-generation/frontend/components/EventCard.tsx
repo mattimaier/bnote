@@ -58,6 +58,7 @@ interface EventCardProps {
   isLast?: boolean;
   onParticipationChange?: () => void;
   onTaskComplete?: () => void;
+  participationRefreshToken?: number;
 }
 
 function extractLocation(event: InboxEvent): string | null {
@@ -80,6 +81,7 @@ export function EventCard({
   isLast = false,
   onParticipationChange,
   onTaskComplete,
+  participationRefreshToken = 0,
 }: EventCardProps) {
   const [taskCompleting, setTaskCompleting] = useState(false);
   const eventType = mapOtypeToEventType(event.otype);
@@ -201,6 +203,7 @@ export function EventCard({
                 eventType={event.otype}
                 onStatusChange={onParticipationChange}
                 disabled={isCancelled}
+                refreshToken={participationRefreshToken}
               />
               ) : null}
             </div>
@@ -295,6 +298,7 @@ export function EventCard({
                 eventType={event.otype}
                 onStatusChange={onParticipationChange}
                 disabled={isCancelled}
+                refreshToken={participationRefreshToken}
               />
             )}
           </div>

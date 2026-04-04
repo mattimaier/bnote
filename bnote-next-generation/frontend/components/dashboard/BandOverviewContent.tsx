@@ -172,6 +172,7 @@ export function BandOverviewContent({
   const { t, lang } = useI18n();
   const [tileOrder, setTileOrder] = useTileOrder();
   const [instrumentSettingsOpen, setInstrumentSettingsOpen] = useState(false);
+  const [participationRefreshToken, setParticipationRefreshToken] = useState(0);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -206,6 +207,10 @@ export function BandOverviewContent({
     const evts = adminOverview?.upcoming_events?.events ?? dashboardData?.inbox ?? [];
     return (evts as InboxEvent[]).slice(0, 7);
   }, [adminOverview?.upcoming_events?.events, dashboardData?.inbox]);
+  const handleEventStateChange = useCallback(() => {
+    setParticipationRefreshToken((prev) => prev + 1);
+    void onReload();
+  }, [onReload]);
 
   if (loading && !dashboardData) {
     return (
@@ -304,8 +309,9 @@ export function BandOverviewContent({
                       t={t}
                       lang={lang}
                       showParticipation={true}
-                      onParticipationChange={onReload}
-                      onTaskComplete={onReload}
+                      onParticipationChange={handleEventStateChange}
+                      onTaskComplete={handleEventStateChange}
+                      participationRefreshToken={participationRefreshToken}
                     />
                   ))}
                 </div>
@@ -324,8 +330,9 @@ export function BandOverviewContent({
                       event={ev}
                       t={t}
                       lang={lang}
-                      onParticipationChange={onReload}
-                      onTaskComplete={onReload}
+                      onParticipationChange={handleEventStateChange}
+                      onTaskComplete={handleEventStateChange}
+                      participationRefreshToken={participationRefreshToken}
                     />
                   ))}
                 </div>

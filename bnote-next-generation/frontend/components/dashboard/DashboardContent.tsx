@@ -77,6 +77,7 @@ export default function DashboardContent({
     "events-needing-response": MAX_SHOW_DEFAULT,
     "events-timeline": MAX_SHOW_DEFAULT,
   });
+  const [participationRefreshToken, setParticipationRefreshToken] = useState(0);
   const [emptyNeedResponseKey] = useState(() => pickDashboardEmptyResponseVariantKey(10));
 
   useEffect(() => {
@@ -100,6 +101,10 @@ export default function DashboardContent({
   const clearFilters = useCallback((sectionId: SectionId) => {
     setFilters((prev) => ({ ...prev, [sectionId]: new Set() }));
   }, []);
+  const handleEventStateChange = useCallback(() => {
+    setParticipationRefreshToken((prev) => prev + 1);
+    void onReload();
+  }, [onReload]);
 
   const applyFilters = useCallback(
     (sectionId: SectionId, events: InboxEvent[]) => {
@@ -431,8 +436,9 @@ export default function DashboardContent({
                   lang={lang}
                   showParticipation
                   isLast={idx === showNeed.length - 1 && !hasMoreNeed}
-                  onParticipationChange={onReload}
-                  onTaskComplete={onReload}
+                  onParticipationChange={handleEventStateChange}
+                  onTaskComplete={handleEventStateChange}
+                  participationRefreshToken={participationRefreshToken}
                 />
               ))
             )}
@@ -479,8 +485,9 @@ export default function DashboardContent({
                   lang={lang}
                   showParticipation
                   isLast={idx === showTimeline.length - 1 && !hasMoreTimeline}
-                  onParticipationChange={onReload}
-                  onTaskComplete={onReload}
+                  onParticipationChange={handleEventStateChange}
+                  onTaskComplete={handleEventStateChange}
+                  participationRefreshToken={participationRefreshToken}
                 />
               ))
             )}
