@@ -1,0 +1,156 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { AppPageHeader } from "@/components/AppPageHeader";
+import { PageContent } from "@/components/PageContent";
+import { useI18n } from "@/contexts/I18nContext";
+import { formatDateTimeShort } from "@/lib/date-time";
+import {
+  systemInformationApi,
+  type SystemInformationChangelog,
+  type SystemInformationOverview,
+} from "@/lib/system-information-api";
+
+export default function SystemInformationPage() {
+  const { t, lang } = useI18n();
+  const label = (key: string, fallback: string) => (t(key) !== key ? t(key) : fallback);
+  const [overview, setOverview] = useState<SystemInformationOverview | null>(null);
+  const [changelog, setChangelog] = useState<SystemInformationChangelog | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      setError("");
+      try {
+        const [overviewData, changelogData] = await Promise.all([
+          systemInformationApi.getOverview(),
+          systemInformationApi.getChangelog(),
+        ]);
+        if (cancelled) return;
+        setOverview(overviewData);
+        setChangelog(changelogData);
+      } catch (err) {
+        if (cancelled) return;
+        setError(
+          err instanceof Error
+            ? err.message
+            : (t("js.common.loadFailed") !== "js.common.loadFailed"
+                ? t("js.common.loadFailed")
+                : "Failed to load data.")
+        );
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [t]);
+
+  const changelogEntries = useMemo(() => changelog?.entries ?? [], [changelog]);
+
+  return (
+    <PageContent className="space-y-6">
+      <AppPageHeader
+        moduleKey="system-information"
+        iconName="info"
+        iconColor="#0EA5E9"
+        title={label("js.systemInformation.title", "System Information")}
+        subtitle={label(
+          "js.systemInformation.subtitle",
+          "Legacy core data, Next Generation build metadata, and recent bug fixes."
+        )}
+      />
+
+      {error ? (
+        <div className="rounded-box border border-error/30 bg-error/10 px-4 py-3 text-sm text-error">
+          {error}
+        </div>
+      ) : null}
+
+      {loading ? (
+        <div className="rounded-box border border-base-300 bg-base-100 px-4 py-3 text-sm text-base-content/70">
+          {label("js.common.loading", "Loading...")}
+        </div>
+      ) : null}
+
+      {!loading && overview ? (
+        <section className="rounded-box border border-base-300 bg-base-100 p-4">
+          <h2 className="text-base font-semibold text-base-content">
+            {label("js.systemInformation.section.system", "System")}
+          </h2>
+          <dl className="mt-3 grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
+            <InfoRow label={label("js.systemInformation.company", "Company")} value={overview.company || "—"} />
+            <InfoRow
+              label={label("js.systemInformation.legacyVersion", "BNote legacy version")}
+              value={overview.bnote_version_legacy || "unknown"}
+            />
+            <InfoRow label={label("js.systemInformation.language", "Language")} value={overview.lang || "—"} />
+            <InfoRow label={label("js.systemInformation.country", "Country")} value={overview.country || "—"} />
+            <InfoRow
+              label={label("js.systemInformation.demoMode", "Demo mode")}
+              value={overview.demo_mode ? label("js.common.yes", "Yes") : label("js.common.no", "No")}
+            />
+            <InfoRow label={label("js.systemInformation.systemUrl", "System URL")} value={overview.system_url || "—"} />
+            <InfoRow label={label("js.systemInformation.modulesCount", "Modules")} value={String(overview.modules_count ?? 0)} />
+          </dl>
+        </section>
+      ) : null}
+
+      {!loading && overview ? (
+        <section className="rounded-box border border-base-300 bg-base-100 p-4">
+          <h2 className="text-base font-semibold text-base-content">
+            {label("js.systemInformation.section.build", "Next Generation Build")}
+          </h2>
+          <dl className="mt-3 grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
+            <InfoRow label={label("js.systemInformation.version", "Version")} value={overview.nextgen.version || "unknown"} />
+            <InfoRow label={label("js.systemInformation.buildId", "Build ID")} value={overview.nextgen.buildId || "unknown"} />
+            <InfoRow label={label("js.systemInformation.commit", "Commit")} value={overview.nextgen.commit || "unknown"} />
+            <InfoRow
+              label={label("js.systemInformation.buildTime", "Build time")}
+              value={formatDateTimeShort(overview.nextgen.buildTime, lang) ?? (overview.nextgen.buildTime || "unknown")}
+            />
+          </dl>
+        </section>
+      ) : null}
+
+      {!loading ? (
+        <section className="rounded-box border border-base-300 bg-base-100 p-4">
+          <h2 className="text-base font-semibold text-base-content">
+            {label("js.systemInformation.section.changelog", "Fixed Bugs / Changelog")}
+          </h2>
+          {changelogEntries.length > 0 ? (
+            <ul className="mt-3 space-y-4">
+              {changelogEntries.map((entry) => (
+                <li key={`${entry.bugId}-${entry.shortCommit}`} className="text-sm">
+                  <div className="text-base-content">- {entry.title}</div>
+                  <div className="mt-1 text-xs text-base-content/65 pl-4">
+                    {entry.bugId}
+                    {entry.date ? ` · ${formatDateTimeShort(entry.date, lang) ?? entry.date}` : ""}
+                    {entry.shortCommit ? ` · ${entry.shortCommit}` : ""}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-3 text-sm text-base-content/70">
+              {label("js.systemInformation.changelogEmpty", "No changelog entries available yet.")}
+            </p>
+          )}
+        </section>
+      ) : null}
+    </PageContent>
+  );
+}
+
+function InfoRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <dt className="text-xs uppercase tracking-wide text-base-content/60">{label}</dt>
+      <dd className="mt-0.5 text-sm text-base-content break-all">{value}</dd>
+    </div>
+  );
+}

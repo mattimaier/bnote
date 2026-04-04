@@ -53,7 +53,11 @@ const nextConfig: NextConfig = {
     async rewrites() {
       const base = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8888/Bnote/bnote-next-generation";
       const target = base.endsWith("/") ? base.slice(0, -1) : base;
-      return [{ source: "/api/:path*", destination: `${target}/api/:path*` }];
+      const apiSource = `${basePath || ""}/api/:path*` || "/api/:path*";
+      return [
+        // Match the URL exactly as served in dev (with configured basePath).
+        { source: apiSource, destination: `${target}/api/:path*`, basePath: false },
+      ];
     },
   }),
 };
