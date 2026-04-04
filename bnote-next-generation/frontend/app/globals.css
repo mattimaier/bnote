@@ -20,6 +20,7 @@
   --color-success: #25a65a;
   --color-warning: #ffaa1a;
   --color-error: #e52b3c;
+  --color-error-content: #ffffff;
   --radius-selector: 0.5rem;
   --radius-field: 0.5rem;
   --radius-box: 0.75rem;
@@ -42,6 +43,7 @@
   --color-success: #25a65a;
   --color-warning: #ffaa1a;
   --color-error: #e52b3c;
+  --color-error-content: #ffffff;
   --radius-selector: 0.5rem;
   --radius-field: 0.5rem;
   --radius-box: 0.75rem;
@@ -134,7 +136,7 @@
   --card-foreground: oklch(0.95 0.01 250);
   --muted: oklch(0.24 0.01 250);
   --muted-foreground: oklch(0.7 0.01 250);
-  --destructive-foreground: oklch(0.95 0.01 250);
+  --destructive-foreground: oklch(1 0 0);
   --border: oklch(0.32 0.001 0);
   --input: oklch(0.28 0.001 0);
   --sidebar: oklch(0.25 0.01 250);

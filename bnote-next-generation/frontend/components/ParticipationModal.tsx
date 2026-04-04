@@ -6,7 +6,8 @@
 
 "use client";
 
-import React, { useEffect, useId, useRef, useState } from "react";
+import React, { useEffect, useId, useRef } from "react";
+import { createPortal } from "react-dom";
 
 export type ParticipationModalStatus = "maybe" | "no";
 
@@ -33,14 +34,13 @@ export function ParticipationModal({
   cancelLabel,
   reasonForLabel,
 }: ParticipationModalProps) {
-  const [reason, setReason] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const id = useId().replace(/:/g, "-") || "participation-1";
   const modalId = `bn-participation-${id}`;
 
   useEffect(() => {
     if (open) {
-      setReason("");
+      if (textareaRef.current) textareaRef.current.value = "";
       setTimeout(() => textareaRef.current?.focus(), 100);
     }
   }, [open, status]);
@@ -61,7 +61,7 @@ export function ParticipationModal({
   const handleConfirm = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    onConfirm(reason.trim());
+    onConfirm((textareaRef.current?.value ?? "").trim());
   };
 
   const handleBackdropClick = (e: React.MouseEvent) => {
@@ -72,13 +72,17 @@ export function ParticipationModal({
 
   if (!open) return null;
 
-  return (
+  const modalContent = (
     <div
       id={modalId}
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby={`${modalId}-title`}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
     >
       <div
         className="absolute inset-0 bg-base-content/20"
@@ -97,8 +101,7 @@ export function ParticipationModal({
         <div className="mb-4">
           <textarea
             ref={textareaRef}
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
+            defaultValue=""
             placeholder={reasonPlaceholder}
             rows={4}
             className="textarea textarea-md w-full"
@@ -119,7 +122,7 @@ export function ParticipationModal({
           <button
             type="button"
             onClick={handleConfirm}
-            className={status === "maybe" ? "btn btn-warning btn-sm" : "btn btn-error btn-sm"}
+            className={status === "maybe" ? "btn btn-warning btn-sm" : "btn btn-error btn-sm text-white"}
           >
             {confirmLabel}
           </button>
@@ -127,4 +130,6 @@ export function ParticipationModal({
       </div>
     </div>
   );
+
+  return typeof document !== "undefined" ? createPortal(modalContent, document.body) : null;
 }
