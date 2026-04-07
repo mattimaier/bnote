@@ -44,6 +44,7 @@ interface SimpleEscalationPair {
   instrument_b_id: number;
   required_rehearsal: number;
   required_concert: number;
+  required?: number;
 }
 
 type CoverageMode = "instrument" | "section";
