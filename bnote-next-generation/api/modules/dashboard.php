@@ -40,6 +40,7 @@ require_once __DIR__ . '/../text_normalizer.php';
 require_once __DIR__ . '/../mail/ReminderInboxSource.php';
 
 class DashboardModule {
+    private const SIMPLE_ESCALATION_PAIR_PARAM = 'nextgen_simple_escalation_pair';
     private $data;
     private $voteData;
     private ReminderInboxSource $inboxSource;
@@ -1373,6 +1374,108 @@ class DashboardModule {
         return (string) ($system_data->getDynamicConfigParameter('beta_section_coverage_enabled') ?? '') === '1';
     }
 
+    /**
+     * @return list<array{instrument_a_id:int,instrument_b_id:int,required_rehearsal:int,required_concert:int}>
+     */
+    private function getSimpleEscalationPairsFromConfig(): array {
+        global $system_data;
+        $raw = (string) ($system_data->getDynamicConfigParameter(self::SIMPLE_ESCALATION_PAIR_PARAM) ?? '');
+        if ($raw === '') {
+            return [];
+        }
+        $decoded = json_decode($raw, true);
+        if (!is_array($decoded)) {
+            return [];
+        }
+        return $this->sanitizeSimpleEscalationPairs($decoded);
+    }
+
+    /**
+     * @param mixed $rawPair
+     * @return null|array{instrument_a_id:int,instrument_b_id:int,required_rehearsal:int,required_concert:int}
+     */
+    private function sanitizeSimpleEscalationPair($rawPair): ?array {
+        if (!is_array($rawPair)) {
+            return null;
+        }
+        $instrumentAId = (int) ($rawPair['instrument_a_id'] ?? 0);
+        $instrumentBId = (int) ($rawPair['instrument_b_id'] ?? 0);
+        $requiredFallback = max(1, (int) ($rawPair['required'] ?? 1));
+        $requiredRehearsal = max(1, (int) ($rawPair['required_rehearsal'] ?? $requiredFallback));
+        $requiredConcert = max(1, (int) ($rawPair['required_concert'] ?? $requiredFallback));
+        if ($instrumentAId < 1 || $instrumentBId < 1 || $instrumentAId === $instrumentBId) {
+            return null;
+        }
+        return [
+            'instrument_a_id' => $instrumentAId,
+            'instrument_b_id' => $instrumentBId,
+            'required_rehearsal' => $requiredRehearsal,
+            'required_concert' => $requiredConcert,
+        ];
+    }
+
+    /**
+     * @param mixed $rawPairs
+     * @return list<array{instrument_a_id:int,instrument_b_id:int,required_rehearsal:int,required_concert:int}>
+     */
+    private function sanitizeSimpleEscalationPairs($rawPairs): array {
+        $candidatePairs = [];
+        if (is_array($rawPairs) && isset($rawPairs['instrument_a_id'])) {
+            $candidatePairs[] = $rawPairs;
+        } elseif (is_array($rawPairs)) {
+            $candidatePairs = $rawPairs;
+        }
+        $out = [];
+        $usedInstruments = [];
+        $seenPairs = [];
+        foreach ($candidatePairs as $candidate) {
+            $pair = $this->sanitizeSimpleEscalationPair($candidate);
+            if ($pair === null) {
+                continue;
+            }
+            $a = (int) $pair['instrument_a_id'];
+            $b = (int) $pair['instrument_b_id'];
+            if (isset($usedInstruments[$a]) || isset($usedInstruments[$b])) {
+                continue;
+            }
+            $ordered = [$a, $b];
+            sort($ordered, SORT_NUMERIC);
+            $pairKey = $ordered[0] . ':' . $ordered[1];
+            if (isset($seenPairs[$pairKey])) {
+                continue;
+            }
+            $seenPairs[$pairKey] = true;
+            $usedInstruments[$a] = true;
+            $usedInstruments[$b] = true;
+            $out[] = $pair;
+        }
+        return $out;
+    }
+
+    /**
+     * @param list<array{instrument_a_id:int,instrument_b_id:int,required_rehearsal:int,required_concert:int}> $pairs
+     */
+    private function saveSimpleEscalationPairsToConfig(array $pairs): void {
+        global $system_data;
+        $json = count($pairs) > 0 ? json_encode(array_values($pairs)) : '';
+        $existing = $system_data->dbcon->colValue(
+            "SELECT value FROM configuration WHERE param = ?",
+            "value",
+            [['s', self::SIMPLE_ESCALATION_PAIR_PARAM]]
+        );
+        if ($existing !== null && $existing !== false) {
+            $system_data->dbcon->execute(
+                "UPDATE configuration SET value = ? WHERE param = ?",
+                [['s', $json], ['s', self::SIMPLE_ESCALATION_PAIR_PARAM]]
+            );
+            return;
+        }
+        $system_data->dbcon->prepStatement(
+            "INSERT INTO configuration (param, value, is_active) VALUES (?, ?, 1)",
+            [['s', self::SIMPLE_ESCALATION_PAIR_PARAM], ['s', $json]]
+        );
+    }
+
     private function getResolvedSectionsForCoverage() {
         $sections = $this->getInstrumentSections();
         $out = [];
@@ -1469,6 +1572,7 @@ class DashboardModule {
                 'rehearsal' => is_array($minimumsWithMode['rehearsal'] ?? null) ? $minimumsWithMode['rehearsal'] : [],
                 'concert' => is_array($minimumsWithMode['concert'] ?? null) ? $minimumsWithMode['concert'] : [],
             ],
+            'simplePairs' => $this->getSimpleEscalationPairsFromConfig(),
             'aliasPools' => [],
             'sections' => $this->getInstrumentSections(),
         ];
@@ -1507,6 +1611,9 @@ class DashboardModule {
             $legacy = $this->normalizeMinimumMap($minimums);
             $sanitized = ['mode' => 'instrument', 'rehearsal' => $legacy, 'concert' => $legacy];
         }
+        $simplePairs = $this->sanitizeSimpleEscalationPairs(
+            $data['simplePairs'] ?? ($data['simplePair'] ?? [])
+        );
         $json = json_encode($sanitized);
         $existing = $system_data->dbcon->colValue(
             "SELECT value FROM configuration WHERE param = ?",
@@ -1524,7 +1631,8 @@ class DashboardModule {
                 [['s', 'instrument_minimums'], ['s', $json]]
             );
         }
-        return ['success' => true, 'minimums' => $sanitized];
+        $this->saveSimpleEscalationPairsToConfig($simplePairs);
+        return ['success' => true, 'minimums' => $sanitized, 'simplePairs' => $simplePairs];
     }
 
     private function getInstrumentGapsForRehearsal($rid, $minimums, $mode = 'instrument') {

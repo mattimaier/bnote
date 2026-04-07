@@ -58,6 +58,10 @@ export function SelectPicker({
   const filtered = options.filter((opt) => (opt.name ?? "").toLowerCase().includes(query.toLowerCase()));
   const selected = options.find((opt) => opt.id === value);
   const useFullscreen = options.length > 5;
+  const closePicker = () => {
+    setOpen(false);
+    setQuery("");
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -79,7 +83,11 @@ export function SelectPicker({
     >
       <button
         type="button"
-        onClick={() => setOpen((prev) => !prev)}
+        onClick={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          setOpen((prev) => !prev);
+        }}
         className="btn btn-outline w-full justify-between"
       >
         <span className="flex items-center justify-between gap-2 w-full min-w-0">
@@ -121,9 +129,11 @@ export function SelectPicker({
               <button
                 key={opt.id}
                 type="button"
-                onClick={() => {
+                onClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
                   onChange(opt.id);
-                  setOpen(false);
+                  closePicker();
                 }}
                 className="w-full text-left px-3 py-3 text-sm border-b border-base-300 text-base-content hover:bg-base-200/60 active:bg-base-200"
               >
@@ -158,14 +168,22 @@ export function SelectPicker({
         <div className="fixed inset-0 z-50">
           <div
             className="absolute inset-0 bg-base-content/20"
-            onClick={() => setOpen(false)}
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              closePicker();
+            }}
           />
           <div className="absolute inset-0 flex h-full w-full flex-col rounded-none border border-base-300 bg-base-100 text-base-content shadow-xl md:left-1/2 md:top-1/2 md:h-[90vh] md:w-[min(98vw,980px)] md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-box">
             <div className="flex items-center justify-between border-b border-base-300 px-4 py-3">
               <div className="text-sm font-semibold">{labelSelect}</div>
               <button
                 type="button"
-                onClick={() => setOpen(false)}
+                onClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  closePicker();
+                }}
                 className="btn btn-outline btn-sm"
               >
                 {labelClose}
@@ -183,9 +201,11 @@ export function SelectPicker({
                 <button
                   key={opt.id}
                   type="button"
-                  onClick={() => {
+                  onClick={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
                     onChange(opt.id);
-                    setOpen(false);
+                    closePicker();
                   }}
                   className="w-full text-left px-3 py-3 text-sm border-b border-base-300 text-base-content hover:bg-base-200/60 active:bg-base-200"
                 >

@@ -13,6 +13,7 @@ require_once __DIR__ . '/MailI18n.php';
 require_once __DIR__ . '/builders/EscalationAlertMailBuilder.php';
 
 final class EscalationAlertService {
+    private const SIMPLE_ESCALATION_PAIR_PARAM = 'nextgen_simple_escalation_pair';
     /**
      * @param array{
      *   dryRun?:bool,
@@ -545,7 +546,9 @@ final class EscalationAlertService {
      * @return list<array{instrument_name:string,current:int,minimum:int}>
      */
     private static function instrumentGaps($system_data, object $db, string $otype, int $oid, array $minimums, string $mode = 'instrument'): array {
-        if (count($minimums) < 1) {
+        $simplePairs = self::loadSimpleEscalationPairs($system_data);
+        $pairActive = $mode === 'instrument' && count($simplePairs) > 0;
+        if (count($minimums) < 1 && !$pairActive) {
             return [];
         }
         $tblContact = $otype === 'R' ? 'rehearsal_contact' : 'concert_contact';
@@ -564,6 +567,13 @@ final class EscalationAlertService {
         $gaps = [];
         $attendingByInstrument = [];
         $instrumentNamesById = [];
+        $pairedInstrumentIds = [];
+        if ($pairActive) {
+            foreach ($simplePairs as $pair) {
+                $pairedInstrumentIds[(int) ($pair['instrument_a_id'] ?? 0)] = true;
+                $pairedInstrumentIds[(int) ($pair['instrument_b_id'] ?? 0)] = true;
+            }
+        }
         if (!is_array($sel)) {
             $sel = [];
         }
@@ -576,6 +586,9 @@ final class EscalationAlertService {
             $attending = (int) ($row['attending'] ?? 0);
             $attendingByInstrument[$instId] = $attending;
             $instrumentNamesById[$instId] = trim((string) ($row['instrument_name'] ?? ''));
+            if ($pairActive && isset($pairedInstrumentIds[$instId])) {
+                continue;
+            }
             $min = $minimums[(string) $instId] ?? 0;
             if ($min < 1) {
                 continue;
@@ -601,12 +614,49 @@ final class EscalationAlertService {
                 $missingNameIds[] = $iid;
             }
         }
+        if ($pairActive) {
+            foreach ($simplePairs as $pair) {
+                $pairA = (int) ($pair['instrument_a_id'] ?? 0);
+                $pairB = (int) ($pair['instrument_b_id'] ?? 0);
+                if ($pairA > 0 && (!isset($instrumentNamesById[$pairA]) || $instrumentNamesById[$pairA] === '')) {
+                    $missingNameIds[] = $pairA;
+                }
+                if ($pairB > 0 && (!isset($instrumentNamesById[$pairB]) || $instrumentNamesById[$pairB] === '')) {
+                    $missingNameIds[] = $pairB;
+                }
+            }
+        }
         if (count($missingNameIds) > 0) {
             $resolved = self::loadInstrumentNamesByIds($db, $missingNameIds);
             foreach ($resolved as $iid => $name) {
                 if ($iid > 0 && $name !== '') {
                     $instrumentNamesById[$iid] = $name;
                 }
+            }
+        }
+        if ($pairActive) {
+            foreach ($simplePairs as $pair) {
+                $pairA = (int) ($pair['instrument_a_id'] ?? 0);
+                $pairB = (int) ($pair['instrument_b_id'] ?? 0);
+                $requiredFallback = max(1, (int) ($pair['required'] ?? 1));
+                $pairRequired = strtoupper($otype) === 'C'
+                    ? max(1, (int) ($pair['required_concert'] ?? $requiredFallback))
+                    : max(1, (int) ($pair['required_rehearsal'] ?? $requiredFallback));
+                $pairCurrent = (int) ($attendingByInstrument[$pairA] ?? 0) + (int) ($attendingByInstrument[$pairB] ?? 0);
+                if ($pairCurrent >= $pairRequired) {
+                    continue;
+                }
+                $pairNameA = trim((string) ($instrumentNamesById[$pairA] ?? ''));
+                $pairNameB = trim((string) ($instrumentNamesById[$pairB] ?? ''));
+                $pairLabel = trim($pairNameA . ' / ' . $pairNameB, ' /');
+                if ($pairLabel === '') {
+                    $pairLabel = (string) $pairA . ' / ' . (string) $pairB;
+                }
+                $gaps[] = [
+                    'instrument_name' => $pairLabel,
+                    'current' => $pairCurrent,
+                    'minimum' => $pairRequired,
+                ];
             }
         }
         if ($mode === 'section') {
@@ -695,6 +745,9 @@ final class EscalationAlertService {
             if ($iid < 1) {
                 continue;
             }
+            if ($pairActive && isset($pairedInstrumentIds[$iid])) {
+                continue;
+            }
             $min = (int) $minRaw;
             if ($min < 1) {
                 continue;
@@ -712,6 +765,59 @@ final class EscalationAlertService {
             }
         }
         return $gaps;
+    }
+
+    /**
+     * @return list<array{instrument_a_id:int,instrument_b_id:int,required_rehearsal:int,required_concert:int}>
+     */
+    private static function loadSimpleEscalationPairs($system_data): array {
+        $raw = (string) ($system_data->getDynamicConfigParameter(self::SIMPLE_ESCALATION_PAIR_PARAM) ?? '');
+        if ($raw === '') {
+            return [];
+        }
+        $decoded = json_decode($raw, true);
+        if (!is_array($decoded)) {
+            return [];
+        }
+        $pairsRaw = isset($decoded['instrument_a_id']) ? [$decoded] : $decoded;
+        if (!is_array($pairsRaw)) {
+            return [];
+        }
+        $out = [];
+        $seenPairs = [];
+        $usedInstruments = [];
+        foreach ($pairsRaw as $pairRaw) {
+            if (!is_array($pairRaw)) {
+                continue;
+            }
+            $instrumentAId = (int) ($pairRaw['instrument_a_id'] ?? 0);
+            $instrumentBId = (int) ($pairRaw['instrument_b_id'] ?? 0);
+            $requiredFallback = max(1, (int) ($pairRaw['required'] ?? 1));
+            $requiredRehearsal = max(1, (int) ($pairRaw['required_rehearsal'] ?? $requiredFallback));
+            $requiredConcert = max(1, (int) ($pairRaw['required_concert'] ?? $requiredFallback));
+            if ($instrumentAId < 1 || $instrumentBId < 1 || $instrumentAId === $instrumentBId) {
+                continue;
+            }
+            if (isset($usedInstruments[$instrumentAId]) || isset($usedInstruments[$instrumentBId])) {
+                continue;
+            }
+            $ordered = [$instrumentAId, $instrumentBId];
+            sort($ordered, SORT_NUMERIC);
+            $pairKey = $ordered[0] . ':' . $ordered[1];
+            if (isset($seenPairs[$pairKey])) {
+                continue;
+            }
+            $seenPairs[$pairKey] = true;
+            $usedInstruments[$instrumentAId] = true;
+            $usedInstruments[$instrumentBId] = true;
+            $out[] = [
+                'instrument_a_id' => $instrumentAId,
+                'instrument_b_id' => $instrumentBId,
+                'required_rehearsal' => $requiredRehearsal,
+                'required_concert' => $requiredConcert,
+            ];
+        }
+        return $out;
     }
 
     /**
