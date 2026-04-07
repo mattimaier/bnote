@@ -75,6 +75,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   function handleLater() {
+    markReleaseSeen();
     setChangelogOpen(false);
   }
 
