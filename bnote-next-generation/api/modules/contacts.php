@@ -351,6 +351,7 @@ class ContactsModule {
         $errors = [];
         $successCount = 0;
         $addedEventsByContact = [];
+        $resolutionEventKeys = [];
         $rehearsalsById = $this->futureRehearsalsById();
         $concertsById = $this->futureConcertsById();
         
@@ -370,6 +371,10 @@ class ContactsModule {
                             intval($cid),
                             $this->buildIntegrationEventSummary('R', $rehearsalsById[intval($rid)])
                         );
+                    }
+                    $ridInt = intval($rid);
+                    if ($ridInt > 0) {
+                        $resolutionEventKeys['R:' . $ridInt] = ['otype' => 'R', 'oid' => $ridInt];
                     }
                 }
             }
@@ -400,6 +405,10 @@ class ContactsModule {
                             $this->buildIntegrationEventSummary('C', $concertsById[intval($conid)])
                         );
                     }
+                    $conIdInt = intval($conid);
+                    if ($conIdInt > 0) {
+                        $resolutionEventKeys['C:' . $conIdInt] = ['otype' => 'C', 'oid' => $conIdInt];
+                    }
                 }
             }
             
@@ -411,6 +420,19 @@ class ContactsModule {
                 } else if ($res > 0) {
                     $successCount++;
                 }
+            }
+        }
+        global $system_data;
+        foreach ($resolutionEventKeys as $eventRef) {
+            try {
+                EscalationAlertService::triggerImmediateResolutionCheck(
+                    $system_data,
+                    (string) ($eventRef['otype'] ?? ''),
+                    (int) ($eventRef['oid'] ?? 0),
+                    'contacts_integrate'
+                );
+            } catch (Throwable $e) {
+                error_log('ContactsModule integrate escalation resolution hook failed: ' . $e->getMessage());
             }
         }
         $mailStatus = $this->sendIntegrationUpcomingSummaryMails($addedEventsByContact);
@@ -764,6 +786,7 @@ class ContactsModule {
 
         $errors = [];
         $removedCount = 0;
+        $resolutionEventKeys = [];
         $affected = [
             'rehearsals' => 0,
             'rehearsalphases' => 0,
@@ -797,6 +820,7 @@ class ContactsModule {
                     } catch (Throwable $e) {
                         error_log('ContactsModule rehearsal escalation hook failed: ' . $e->getMessage());
                     }
+                    $resolutionEventKeys['R:' . $rid] = ['otype' => 'R', 'oid' => $rid];
                 }
             }
 
@@ -834,6 +858,7 @@ class ContactsModule {
                     } catch (Throwable $e) {
                         error_log('ContactsModule concert escalation hook failed: ' . $e->getMessage());
                     }
+                    $resolutionEventKeys['C:' . $conid] = ['otype' => 'C', 'oid' => $conid];
                 }
             }
 
@@ -847,6 +872,18 @@ class ContactsModule {
                     $removedCount += $res;
                     $affected['votes'] += $res;
                 }
+            }
+        }
+        foreach ($resolutionEventKeys as $eventRef) {
+            try {
+                EscalationAlertService::triggerImmediateResolutionCheck(
+                    $system_data,
+                    (string) ($eventRef['otype'] ?? ''),
+                    (int) ($eventRef['oid'] ?? 0),
+                    'contacts_bulk_remove'
+                );
+            } catch (Throwable $e) {
+                error_log('ContactsModule bulkRemove escalation resolution hook failed: ' . $e->getMessage());
             }
         }
 

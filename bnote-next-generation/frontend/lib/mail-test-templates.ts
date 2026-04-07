@@ -26,6 +26,7 @@ export const MAIL_TEST_TEMPLATES: readonly { id: string; label: string }[] = [
   { id: "escalation_deadline_pending", label: "Escalation alert (deadline pending)" },
   { id: "escalation_instrument_gap", label: "Escalation alert (instrument minimum gap)" },
   { id: "escalation_dropout_critical", label: "Escalation alert (late dropout, critical)" },
+  { id: "escalation_resolved", label: "Escalation resolved (requirements met)" },
   { id: "task_assigned", label: "Task assigned (create)" },
   { id: "task_updated", label: "Task updated" },
 ];

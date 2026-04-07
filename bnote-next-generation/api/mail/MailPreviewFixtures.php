@@ -565,4 +565,33 @@ final class MailPreviewFixtures {
             ],
         ];
     }
+
+    /**
+     * @return array{
+     *   eventTitle:string,
+     *   otype:string,
+     *   eventBegin:string,
+     *   eventEnd:string,
+     *   eventLocation:string,
+     *   eventUrl:string,
+     *   counts:array{invited_users:int,pending_users:int,yes:int,maybe:int,no:int}
+     * }
+     */
+    public static function escalationResolved(string $locale = 'en'): array {
+        return [
+            'eventTitle' => 'Moonlight Jam Session',
+            'otype' => 'C',
+            'eventBegin' => '2026-05-02 20:00',
+            'eventEnd' => '',
+            'eventLocation' => '',
+            'eventUrl' => 'https://example.org/bnote-next-generation/entity?type=concert&id=502',
+            'counts' => [
+                'invited_users' => 24,
+                'pending_users' => 1,
+                'yes' => 18,
+                'maybe' => 3,
+                'no' => 2,
+            ],
+        ];
+    }
 }

@@ -11,9 +11,12 @@ require_once __DIR__ . '/NextGenMailer.php';
 require_once __DIR__ . '/MailEnv.php';
 require_once __DIR__ . '/MailI18n.php';
 require_once __DIR__ . '/builders/EscalationAlertMailBuilder.php';
+require_once __DIR__ . '/builders/EscalationResolvedMailBuilder.php';
 
 final class EscalationAlertService {
     private const SIMPLE_ESCALATION_PAIR_PARAM = 'nextgen_simple_escalation_pair';
+    private const NOTIFICATION_TYPE_ALERT = 'alert';
+    private const NOTIFICATION_TYPE_RESOLVED = 'resolved';
     /**
      * @param array{
      *   dryRun?:bool,
@@ -66,7 +69,9 @@ final class EscalationAlertService {
             'dryRun' => $dryRun,
             'events_scanned' => count($events),
             'alerts_sent' => 0,
+            'resolved_sent' => 0,
             'details' => [],
+            'resolved_details' => [],
             'config' => $esc,
         ];
 
@@ -126,6 +131,7 @@ final class EscalationAlertService {
                 'is_test' => $isTest || count($overrideRecipients) > 0,
                 'trigger_kind' => $triggerKind,
                 'delivery_mode' => $mode,
+                'notification_type' => self::NOTIFICATION_TYPE_ALERT,
                 'otype' => (string) ($event['otype'] ?? ''),
                 'oid' => (int) ($event['oid'] ?? 0),
                 'event_title' => (string) ($event['title'] ?? ''),
@@ -139,6 +145,14 @@ final class EscalationAlertService {
             ]);
 
             $result['details'][] = $detail;
+        }
+
+        if (!$dryRun && $triggerKind === 'scheduled' && $onlyEvent === null) {
+            $resolved = self::runScheduledResolutionTransitions($system_data, $esc, $locale);
+            $result['resolved_sent'] = (int) ($resolved['resolved_sent'] ?? 0);
+            $result['resolved_details'] = isset($resolved['resolved_details']) && is_array($resolved['resolved_details'])
+                ? $resolved['resolved_details']
+                : [];
         }
 
         return $result;
@@ -188,6 +202,44 @@ final class EscalationAlertService {
     /**
      * @return array<string,mixed>
      */
+    public static function triggerImmediateResolutionCheck(
+        $system_data,
+        string $otype,
+        int $oid,
+        string $source = 'state_changed'
+    ): array {
+        $otype = strtoupper(trim($otype));
+        if (($otype !== 'R' && $otype !== 'C') || $oid < 1) {
+            return ['status' => 'invalid_event'];
+        }
+        $db = $system_data->dbcon;
+        if (!ReminderSchema::ensureTables($db)) {
+            return ['status' => 'reminder_schema_unavailable'];
+        }
+        if (!NextGenMailPolicy::shouldSendPublicMail($system_data)) {
+            return ['status' => 'mail_disabled'];
+        }
+        $cfg = ReminderConfig::get($db);
+        $esc = self::escalationCfg($cfg);
+        if (empty($esc['enabled'])) {
+            return ['status' => 'disabled'];
+        }
+        $locale = method_exists($system_data, 'getLang') ? (string) ($system_data->getLang() ?: 'en') : 'en';
+        return self::resolveTransitionForEvent(
+            $system_data,
+            $esc,
+            $locale,
+            $otype,
+            $oid,
+            'immediate_resolution',
+            'resolved_transition',
+            $source
+        );
+    }
+
+    /**
+     * @return array<string,mixed>
+     */
     public static function getEligibilityForEvent($system_data, string $otype, int $oid): array {
         $cfg = ReminderConfig::get($system_data->dbcon);
         $esc = self::escalationCfg($cfg);
@@ -225,6 +277,230 @@ final class EscalationAlertService {
             self::deadlineWindowsForType($esc, (string) ($event['otype'] ?? $otype))
         );
         return self::uiWarningPayload($event, $urgency);
+    }
+
+    /**
+     * @param array<string,mixed> $esc
+     * @return array<string,mixed>
+     */
+    private static function runScheduledResolutionTransitions($system_data, array $esc, string $locale): array {
+        $db = $system_data->dbcon;
+        $result = [
+            'resolved_sent' => 0,
+            'resolved_details' => [],
+        ];
+        foreach (self::eventsWithLatestRealAlert($db) as $eventRef) {
+            $otype = strtoupper((string) ($eventRef['otype'] ?? ''));
+            $oid = (int) ($eventRef['oid'] ?? 0);
+            if (($otype !== 'R' && $otype !== 'C') || $oid < 1) {
+                continue;
+            }
+            $detail = self::resolveTransitionForEvent(
+                $system_data,
+                $esc,
+                $locale,
+                $otype,
+                $oid,
+                'scheduled_resolution',
+                'resolved_transition',
+                'scheduled_scan'
+            );
+            $result['resolved_details'][] = $detail;
+            if ((string) ($detail['status'] ?? '') === 'sent') {
+                $result['resolved_sent'] += (int) ($detail['emails_sent'] ?? 0);
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * @param array<string,mixed> $esc
+     * @return array<string,mixed>
+     */
+    private static function resolveTransitionForEvent(
+        $system_data,
+        array $esc,
+        string $locale,
+        string $otype,
+        int $oid,
+        string $deliveryMode,
+        string $triggerKind,
+        string $source
+    ): array {
+        $otype = strtoupper(trim($otype));
+        $db = $system_data->dbcon;
+        $latestState = self::latestNotificationState($db, $otype, $oid);
+        if ($latestState !== self::NOTIFICATION_TYPE_ALERT) {
+            return [
+                'otype' => $otype,
+                'oid' => $oid,
+                'status' => 'no_prior_alert',
+            ];
+        }
+
+        $base = self::loadSingleEventBase($db, $otype, $oid);
+        if ($base === null) {
+            return [
+                'otype' => $otype,
+                'oid' => $oid,
+                'status' => 'event_not_found',
+            ];
+        }
+        $hoursToBegin = self::hoursUntil((string) ($base['begin'] ?? ''));
+        if ($hoursToBegin !== null && $hoursToBegin < 0) {
+            return [
+                'otype' => $otype,
+                'oid' => $oid,
+                'status' => 'event_in_past',
+            ];
+        }
+
+        $risk = self::buildRiskForEvent($system_data, $esc, $locale, $otype, $oid, $base);
+        if ($risk !== null) {
+            return [
+                'otype' => $otype,
+                'oid' => $oid,
+                'status' => 'still_at_risk',
+            ];
+        }
+
+        $event = self::buildResolvedEventPayload($db, $otype, $oid, $base);
+        $eligibility = self::resolveEligibleRecipients($system_data, $esc, $event);
+        $recipientEmails = self::normalizeEmails(array_values(array_unique(array_map(
+            static fn (array $r): string => (string) $r['email'],
+            $eligibility['included']
+        ))));
+
+        $detail = [
+            'event' => $event,
+            'eligibility' => $eligibility,
+            'recipient_count' => count($recipientEmails),
+            'status' => 'dry_run',
+            'source' => $source,
+        ];
+        if (count($recipientEmails) > 0) {
+            $messages = [];
+            foreach ($recipientEmails as $email) {
+                $messages[] = EscalationResolvedMailBuilder::build(
+                    $system_data,
+                    $locale,
+                    (string) ($event['title'] ?? ''),
+                    $otype,
+                    (string) ($event['begin'] ?? ''),
+                    '',
+                    '',
+                    (string) ($event['event_url'] ?? ''),
+                    [$email],
+                    [],
+                    isset($event['counts']) && is_array($event['counts']) ? $event['counts'] : null
+                );
+            }
+            $sent = NextGenMailer::sendBulk($messages);
+            $detail['status'] = $sent > 0 ? 'sent' : 'send_failed';
+            $detail['emails_sent'] = $sent;
+        } else {
+            $detail['status'] = 'no_recipients';
+        }
+
+        ReminderSchema::addEscalationAudit($db, [
+            'is_test' => false,
+            'trigger_kind' => $triggerKind,
+            'delivery_mode' => $deliveryMode,
+            'notification_type' => self::NOTIFICATION_TYPE_RESOLVED,
+            'otype' => (string) ($event['otype'] ?? ''),
+            'oid' => (int) ($event['oid'] ?? 0),
+            'event_title' => (string) ($event['title'] ?? ''),
+            'reason_summary' => 'resolved_transition',
+            'event' => $event,
+            'source' => $source,
+            'resolved_recipients' => $recipientEmails,
+            'eligibility' => $eligibility,
+            'result' => (string) ($detail['status'] ?? ''),
+        ]);
+
+        return $detail;
+    }
+
+    /**
+     * @return list<array{otype:string,oid:int}>
+     */
+    private static function eventsWithLatestRealAlert(object $db): array {
+        $rows = $db->getSelection(
+            'SELECT otype, oid, MAX(id) AS max_id
+             FROM nextgen_escalation_audit
+             WHERE is_test = 0 AND otype IN (\'R\', \'C\') AND oid > 0
+             GROUP BY otype, oid',
+            []
+        );
+        if (!is_array($rows) || count($rows) < 2) {
+            return [];
+        }
+        $out = [];
+        for ($i = 1; $i < count($rows); $i++) {
+            $otype = strtoupper((string) ($rows[$i]['otype'] ?? ''));
+            $oid = (int) ($rows[$i]['oid'] ?? 0);
+            if (($otype !== 'R' && $otype !== 'C') || $oid < 1) {
+                continue;
+            }
+            if (self::latestNotificationState($db, $otype, $oid) !== self::NOTIFICATION_TYPE_ALERT) {
+                continue;
+            }
+            $out[] = ['otype' => $otype, 'oid' => $oid];
+        }
+        return $out;
+    }
+
+    private static function latestNotificationState(object $db, string $otype, int $oid): ?string {
+        if (($otype !== 'R' && $otype !== 'C') || $oid < 1) {
+            return null;
+        }
+        $rows = $db->getSelection(
+            'SELECT payload_json
+             FROM nextgen_escalation_audit
+             WHERE is_test = 0 AND otype = ? AND oid = ?
+             ORDER BY id DESC
+             LIMIT 25',
+            [['s', $otype], ['i', $oid]]
+        );
+        if (!is_array($rows) || count($rows) < 2) {
+            return null;
+        }
+        for ($i = 1; $i < count($rows); $i++) {
+            $payloadRaw = (string) ($rows[$i]['payload_json'] ?? '');
+            $payload = json_decode($payloadRaw, true);
+            if (!is_array($payload)) {
+                continue;
+            }
+            $result = strtolower(trim((string) ($payload['result'] ?? '')));
+            if ($result !== 'sent') {
+                continue;
+            }
+            $notificationType = strtolower(trim((string) ($payload['notification_type'] ?? self::NOTIFICATION_TYPE_ALERT)));
+            if ($notificationType === self::NOTIFICATION_TYPE_RESOLVED) {
+                return self::NOTIFICATION_TYPE_RESOLVED;
+            }
+            return self::NOTIFICATION_TYPE_ALERT;
+        }
+        return null;
+    }
+
+    /**
+     * @param array<string,mixed> $base
+     * @return array<string,mixed>
+     */
+    private static function buildResolvedEventPayload(object $db, string $otype, int $oid, array $base): array {
+        return [
+            'otype' => $otype,
+            'oid' => $oid,
+            'title' => (string) ($base['title'] ?? ''),
+            'begin' => (string) ($base['begin'] ?? ''),
+            'approve_until' => self::effectiveDeadline(
+                (string) ($base['approve_until'] ?? ''),
+                (string) ($base['begin'] ?? '')
+            ),
+            'counts' => self::participationCounts($db, $otype, $oid),
+            'event_url' => self::eventAbsoluteUrl($otype, $oid),
+        ];
     }
 
     /**

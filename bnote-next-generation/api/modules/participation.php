@@ -262,6 +262,16 @@ class ParticipationModule {
                 error_log('ParticipationModule escalation hook failed: ' . $e->getMessage());
             }
         }
+        try {
+            EscalationAlertService::triggerImmediateResolutionCheck(
+                $system_data,
+                $eventType,
+                $eventId,
+                'participation_save'
+            );
+        } catch (Throwable $e) {
+            error_log('ParticipationModule escalation resolution hook failed: ' . $e->getMessage());
+        }
         
         return [
             'success' => true,

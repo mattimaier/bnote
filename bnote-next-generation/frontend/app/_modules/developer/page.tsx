@@ -456,6 +456,11 @@ function DeveloperModulePageContent() {
       href: getApiDebugScriptUrl("mail_preview.php?template=escalation_dropout_critical&locale=en"),
       label: "Concert example (dropout / critical)",
     },
+    {
+      key: "escPreviewResolved",
+      href: getApiDebugScriptUrl("mail_preview.php?template=escalation_resolved&locale=en"),
+      label: "Resolved example (requirements met)",
+    },
   ] as const;
 
   const tokensJson = JSON.stringify(mailDesignTokens, null, 2);

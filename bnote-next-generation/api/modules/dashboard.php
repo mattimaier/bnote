@@ -38,6 +38,7 @@ require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
 require_once __DIR__ . '/../text_normalizer.php';
 require_once __DIR__ . '/../mail/ReminderInboxSource.php';
+require_once __DIR__ . '/../mail/EscalationAlertService.php';
 
 class DashboardModule {
     private const SIMPLE_ESCALATION_PAIR_PARAM = 'nextgen_simple_escalation_pair';
@@ -655,6 +656,7 @@ class DashboardModule {
      * POST data: { otype: 'R'|'C', oid: int, attending: bool, reason: string }
      */
     private function respondToEvent() {
+        global $system_data;
         // Get user ID
         $userId = (int) Auth::getUserId();
         if (!$userId) {
@@ -705,6 +707,16 @@ class DashboardModule {
         // Save participation using StartData
         // Note: StartData::saveParticipation expects 'R' or 'C'
         $this->data->saveParticipation($otype, $userId, $eventId, $participate, $reason);
+        try {
+            EscalationAlertService::triggerImmediateResolutionCheck(
+                $system_data,
+                $otype,
+                $eventId,
+                'dashboard_participation_save'
+            );
+        } catch (Throwable $e) {
+            error_log('DashboardModule escalation resolution hook failed: ' . $e->getMessage());
+        }
         
         return [
             'success' => true,

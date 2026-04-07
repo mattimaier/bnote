@@ -11,6 +11,7 @@ require_once __DIR__ . '/builders/EventInfoMailBuilder.php';
 require_once __DIR__ . '/builders/TaskNotificationMailBuilder.php';
 require_once __DIR__ . '/builders/ReminderDigestMailBuilder.php';
 require_once __DIR__ . '/builders/EscalationAlertMailBuilder.php';
+require_once __DIR__ . '/builders/EscalationResolvedMailBuilder.php';
 require_once __DIR__ . '/builders/UserWelcomeMailBuilder.php';
 require_once __DIR__ . '/NextGenMailMessage.php';
 
@@ -36,6 +37,7 @@ final class MailPreviewRegistry {
             ['id' => 'escalation_deadline_pending', 'label' => 'Escalation alert (deadline pending)'],
             ['id' => 'escalation_instrument_gap', 'label' => 'Escalation alert (instrument minimum gap)'],
             ['id' => 'escalation_dropout_critical', 'label' => 'Escalation alert (late dropout, critical)'],
+            ['id' => 'escalation_resolved', 'label' => 'Escalation resolved (requirements met)'],
             ['id' => 'task_assigned', 'label' => 'Task assigned (create)'],
             ['id' => 'task_updated', 'label' => 'Task updated'],
         ];
@@ -250,6 +252,21 @@ final class MailPreviewRegistry {
                     [MailPreviewFixtures::previewToEmail()],
                     [],
                     $escDropout['counts']
+                );
+            case 'escalation_resolved':
+                $escResolved = MailPreviewFixtures::escalationResolved($locale);
+                return EscalationResolvedMailBuilder::build(
+                    $sd,
+                    $locale,
+                    $escResolved['eventTitle'],
+                    $escResolved['otype'],
+                    $escResolved['eventBegin'],
+                    $escResolved['eventEnd'],
+                    $escResolved['eventLocation'],
+                    $escResolved['eventUrl'],
+                    [MailPreviewFixtures::previewToEmail()],
+                    [],
+                    $escResolved['counts']
                 );
             case 'task_assigned':
                 return TaskNotificationMailBuilder::buildForPreview(

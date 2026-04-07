@@ -164,7 +164,7 @@ final class NextGenMailer {
             'generic_email_composer' => 'email',
             'password_reset', 'new_user_admin', 'user_welcome' => 'auth',
             'comment_discussion' => 'comments',
-            'reminder_digest', 'escalation_alert' => 'reminders',
+            'reminder_digest', 'escalation_alert', 'escalation_resolved' => 'reminders',
             'beta_bug_report' => 'bugreport',
             default => 'mailer',
         };
