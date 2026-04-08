@@ -65,6 +65,20 @@ CREATE TABLE IF NOT EXISTS `nextgen_escalation_audit` (
   KEY `idx_event` (`otype`,`oid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8
 SQL,
+            <<<SQL
+CREATE TABLE IF NOT EXISTS `nextgen_escalation_acceptance` (
+  `otype` char(1) NOT NULL,
+  `oid` int(10) unsigned NOT NULL,
+  `accepted_by_user_id` int(10) unsigned NOT NULL DEFAULT 0,
+  `accepted_by_name` varchar(255) NOT NULL DEFAULT '',
+  `accepted_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `accepted_risk_fingerprint` char(64) NOT NULL DEFAULT '',
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`otype`,`oid`),
+  KEY `idx_active` (`is_active`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+SQL,
         ];
 
         foreach ($statements as $sql) {
@@ -202,6 +216,97 @@ SQL,
             ];
         }
         return $out;
+    }
+
+    /**
+     * @return array<string,mixed>|null
+     */
+    public static function getEscalationAcceptance(object $db, string $otype, int $oid): ?array {
+        $otype = strtoupper(substr(trim($otype), 0, 1));
+        $oid = max(0, (int) $oid);
+        if (($otype !== 'R' && $otype !== 'C') || $oid < 1) {
+            return null;
+        }
+        $row = $db->fetchRow(
+            'SELECT otype, oid, accepted_by_user_id, accepted_by_name, accepted_at, accepted_risk_fingerprint, is_active, updated_at
+             FROM nextgen_escalation_acceptance
+             WHERE otype = ? AND oid = ?
+             LIMIT 1',
+            [['s', $otype], ['i', $oid]]
+        );
+        if (!is_array($row)) {
+            return null;
+        }
+        return [
+            'otype' => (string) ($row['otype'] ?? ''),
+            'oid' => (int) ($row['oid'] ?? 0),
+            'accepted_by_user_id' => (int) ($row['accepted_by_user_id'] ?? 0),
+            'accepted_by_name' => (string) ($row['accepted_by_name'] ?? ''),
+            'accepted_at' => (string) ($row['accepted_at'] ?? ''),
+            'accepted_risk_fingerprint' => (string) ($row['accepted_risk_fingerprint'] ?? ''),
+            'is_active' => ((int) ($row['is_active'] ?? 0) === 1),
+            'updated_at' => (string) ($row['updated_at'] ?? ''),
+        ];
+    }
+
+    public static function saveEscalationAcceptance(
+        object $db,
+        string $otype,
+        int $oid,
+        int $acceptedByUserId,
+        string $acceptedByName,
+        string $fingerprint
+    ): bool {
+        $otype = strtoupper(substr(trim($otype), 0, 1));
+        $oid = max(0, (int) $oid);
+        $acceptedByUserId = max(0, (int) $acceptedByUserId);
+        $acceptedByName = substr(trim($acceptedByName), 0, 255);
+        $fingerprint = substr(strtolower(trim($fingerprint)), 0, 64);
+        if (($otype !== 'R' && $otype !== 'C') || $oid < 1 || strlen($fingerprint) !== 64) {
+            return false;
+        }
+        try {
+            $db->execute(
+                'INSERT INTO nextgen_escalation_acceptance
+                    (otype, oid, accepted_by_user_id, accepted_by_name, accepted_at, accepted_risk_fingerprint, is_active)
+                 VALUES (?, ?, ?, ?, UTC_TIMESTAMP(), ?, 1)
+                 ON DUPLICATE KEY UPDATE
+                    accepted_by_user_id = VALUES(accepted_by_user_id),
+                    accepted_by_name = VALUES(accepted_by_name),
+                    accepted_at = VALUES(accepted_at),
+                    accepted_risk_fingerprint = VALUES(accepted_risk_fingerprint),
+                    is_active = 1',
+                [
+                    ['s', $otype],
+                    ['i', $oid],
+                    ['i', $acceptedByUserId],
+                    ['s', $acceptedByName],
+                    ['s', $fingerprint],
+                ]
+            );
+            return true;
+        } catch (Throwable $e) {
+            return false;
+        }
+    }
+
+    public static function deactivateEscalationAcceptance(object $db, string $otype, int $oid): bool {
+        $otype = strtoupper(substr(trim($otype), 0, 1));
+        $oid = max(0, (int) $oid);
+        if (($otype !== 'R' && $otype !== 'C') || $oid < 1) {
+            return false;
+        }
+        try {
+            $db->execute(
+                'UPDATE nextgen_escalation_acceptance
+                 SET is_active = 0
+                 WHERE otype = ? AND oid = ? AND is_active = 1',
+                [['s', $otype], ['i', $oid]]
+            );
+            return true;
+        } catch (Throwable $e) {
+            return false;
+        }
     }
 
     private static function mysqliFromDatabase(object $db): ?mysqli {

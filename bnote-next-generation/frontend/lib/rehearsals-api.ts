@@ -90,6 +90,11 @@ export interface UpdateRehearsalSeriesResult {
   totalRehearsals?: number;
 }
 
+export interface EscalationRiskActionResult {
+  status: string;
+  warning?: EscalationWarning | null;
+}
+
 export const rehearsalsApi = {
   list: () => api.get<RehearsalListItem[]>("rehearsals", "list"),
   meta: () => api.get<Record<string, unknown>>("rehearsals", "meta"),
@@ -106,6 +111,10 @@ export const rehearsalsApi = {
       "update_series",
       payload as unknown as Record<string, unknown>
     ),
+  acceptEscalationRisk: (id: number) =>
+    api.post<EscalationRiskActionResult>("rehearsals", "acceptEscalationRisk", { id }),
+  resetEscalationRisk: (id: number) =>
+    api.post<EscalationRiskActionResult>("rehearsals", "resetEscalationRisk", { id }),
   deleteSeries: (seriesId: number) =>
     api.post<DeleteRehearsalSeriesResult>("rehearsals", "delete_series", { seriesId }),
 };

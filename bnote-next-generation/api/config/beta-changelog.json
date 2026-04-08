@@ -1,17 +1,65 @@
 {
-  "releaseId": "0.1.0@58e12fce41c6",
-  "generatedAt": "2026-04-04T19:48:50.394Z",
+  "releaseId": "0.1.0@325c0b7a3ca5",
+  "generatedAt": "2026-04-08T19:35:32.116Z",
   "source": "hybrid",
   "build": {
     "version": "0.1.0",
-    "buildId": "58e12fce41c6",
-    "commit": "58e12fce41c6",
-    "fullCommit": "58e12fce41c680b8a71dd4ad6db53db4b8a492ac",
-    "buildTime": "2026-04-04T19:48:50.394Z"
+    "buildId": "325c0b7a3ca5",
+    "commit": "325c0b7a3ca5",
+    "fullCommit": "325c0b7a3ca5c19323b74e1e21bafefbfd1b87b7",
+    "buildTime": "2026-04-08T19:35:32.115Z"
   },
   "entries": [
     {
-      "title": "Fix participation modal click-through on dashboard",
+      "title": "Event detail action layout on narrow desktop widths",
+      "changeType": "fixed",
+      "date": "2026-04-08T18:09:53+02:00",
+      "bugId": "BUG-20260408-085533-67E4"
+    },
+    {
+      "title": "Share: add rename support for files and folders",
+      "changeType": "fixed",
+      "date": "2026-04-08T18:05:38+02:00",
+      "bugId": "BUG-20260408-150929-F00B"
+    },
+    {
+      "title": "Escalation cards on rehearsal and concert detail pages now let authorized users accept current risk (pausing escalation emails) and reset escalation, with automatic reset when risk profile changes.",
+      "changeType": "changed",
+      "date": "2026-04-08",
+      "bugId": null
+    },
+    {
+      "title": "Event detail actions now stack vertically on narrower desktop widths to prevent clipped controls in rehearsal and concert headers.",
+      "changeType": "fixed",
+      "date": "2026-04-08",
+      "bugId": "BUG-20260408-085533-67E4"
+    },
+    {
+      "title": "Vote results popover now uses the shared person/contact row layout, fixing broken voter list rendering and improving readability on smaller screens.",
+      "changeType": "fixed",
+      "date": "2026-04-08",
+      "bugId": null
+    },
+    {
+      "title": "Escalation minimums now support configurable combined instrument pairings with shared rehearsal and concert thresholds.",
+      "changeType": "changed",
+      "date": "2026-04-07",
+      "bugId": null
+    },
+    {
+      "title": "Escalation now sends a follow-up resolved email when an at-risk event returns to a healthy state, including immediate checks after participation or member assignment changes.",
+      "changeType": "changed",
+      "date": "2026-04-07",
+      "bugId": null
+    },
+    {
+      "title": "Regenerate beta changelog with",
+      "changeType": "fixed",
+      "date": "2026-04-04T21:29:37+02:00",
+      "bugId": "BUG-20260403-143547-7D94"
+    },
+    {
+      "title": "Participation modal click-through on dashboard",
       "changeType": "fixed",
       "date": "2026-04-04T20:29:46+02:00",
       "bugId": "BUG-20260403-143341-88FC"

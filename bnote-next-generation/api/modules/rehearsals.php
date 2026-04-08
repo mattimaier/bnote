@@ -106,6 +106,16 @@ class RehearsalsModule {
             return $this->normalizeResponse($this->emailInfoSend(), $action);
         }
 
+        if ($action === 'acceptEscalationRisk') {
+            $this->requireRehearsalsModulePermission();
+            return $this->normalizeResponse($this->acceptEscalationRisk(), $action);
+        }
+
+        if ($action === 'resetEscalationRisk') {
+            $this->requireRehearsalsModulePermission();
+            return $this->normalizeResponse($this->resetEscalationRisk(), $action);
+        }
+
         if ($action === 'list_series') {
             $this->requireRehearsalsModulePermission();
             return $this->normalizeResponse($this->listSeries(), $action);
@@ -610,6 +620,51 @@ class RehearsalsModule {
         }
     }
 
+    /**
+     * @return array<string,mixed>
+     */
+    private function acceptEscalationRisk(): array {
+        global $system_data;
+        $payload = $this->getRequestData();
+        $id = (int) ($payload['id'] ?? 0);
+        if ($id < 1) {
+            Response::error('Invalid rehearsal ID', 400);
+        }
+        $userId = Auth::getUserId();
+        if (!$this->userHasAccessToRehearsal($id, $userId)) {
+            Response::error('Access denied to this rehearsal', 403);
+        }
+        $user = Auth::getUserInfo();
+        $acceptedByName = trim((string) (($user['name'] ?? '') . ' ' . ($user['surname'] ?? '')));
+        if ($acceptedByName === '') {
+            $acceptedByName = (string) ($user['username'] ?? ('#' . (string) $userId));
+        }
+        return EscalationAlertService::acceptRiskForEvent(
+            $system_data,
+            'R',
+            $id,
+            (int) $userId,
+            $acceptedByName
+        );
+    }
+
+    /**
+     * @return array<string,mixed>
+     */
+    private function resetEscalationRisk(): array {
+        global $system_data;
+        $payload = $this->getRequestData();
+        $id = (int) ($payload['id'] ?? 0);
+        if ($id < 1) {
+            Response::error('Invalid rehearsal ID', 400);
+        }
+        $userId = Auth::getUserId();
+        if (!$this->userHasAccessToRehearsal($id, $userId)) {
+            Response::error('Access denied to this rehearsal', 403);
+        }
+        return EscalationAlertService::resetRiskAcceptanceForEvent($system_data, 'R', $id);
+    }
+
     private function getMeta() {
         global $system_data;
 
@@ -729,6 +784,8 @@ class RehearsalsModule {
             Response::error('Invalid rehearsal ID', 400);
         }
         $id = intval($id);
+        $before = $this->data->findByIdNoRef($id);
+        $beforeStatus = trim((string) ($before['status'] ?? ''));
 
         $userId = Auth::getUserId();
         if (!$this->userHasAccessToRehearsal($id, $userId)) {
@@ -757,6 +814,14 @@ class RehearsalsModule {
         $this->data->validate($values);
         $values['notes'] = $notesBackup;
         $this->data->update($id, $values);
+        $afterStatus = trim((string) ($values['status'] ?? ''));
+        if ($beforeStatus !== '' && $afterStatus !== '' && $beforeStatus !== $afterStatus) {
+            try {
+                EscalationAlertService::resetRiskAcceptanceForEvent($system_data, 'R', $id);
+            } catch (Throwable $e) {
+                error_log('RehearsalsModule escalation acceptance reset hook failed: ' . $e->getMessage());
+            }
+        }
 
         if (array_key_exists('groups', $payload)) {
             $groups = array_map('intval', $payload['groups'] ?? []);

@@ -1,6 +1,11 @@
 {
   "entries": [
     {
+      "title": "Escalation cards on rehearsal and concert detail pages now let authorized users accept current risk (pausing escalation emails) and reset escalation, with automatic reset when risk profile changes.",
+      "changeType": "changed",
+      "date": "2026-04-08"
+    },
+    {
       "title": "Event detail actions now stack vertically on narrower desktop widths to prevent clipped controls in rehearsal and concert headers.",
       "changeType": "fixed",
       "date": "2026-04-08",

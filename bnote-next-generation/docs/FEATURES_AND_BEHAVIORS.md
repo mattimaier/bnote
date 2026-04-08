@@ -99,6 +99,7 @@ Architecture-level permission decisions are documented in **[ARCHITECTURE_DECISI
 - **Participation widget:** Yes / Maybe / No with correct colors (green, orange, red). Submission via API.
 - **Participation overview:** Bar showing counts by status (e.g. 10 green, 2 red, 13 grey).
 - **Participants:** “Group by: Category | Instrument”. Group headers with summary bars; rows with initials, status icon (clock = pending, check = confirmed). Components: `ParticipationDiagram`, `ParticipantOverview`.
+- **Escalation risk handling (authorized users):** When an event is at risk, the escalation card on rehearsal/concert detail (view mode) lets users with event edit rights **Accept risk** (pauses escalation alert emails for the current risk profile) and **Reset escalation** (resumes alerts). The card shows acceptance with actor name + timestamp. Acceptance auto-resets when the event risk profile changes.
 - **Delete:** For entity types that support delete (e.g. location, equipment, outfit, song, vote), delete is only in the **edit view**: **DetailDeleteSection** at the bottom with a Delete button that opens **ConfirmModal** (confirm/cancel). Shown only when the user has delete rights (`canDelete`). See [UI_PATTERNS.md](UI_PATTERNS.md).
 
 ---
@@ -133,6 +134,7 @@ Architecture-level permission decisions are documented in **[ARCHITECTURE_DECISI
   - Users: list, get, create, update, delete, activate, getPrivileges, updatePrivileges, getContacts.  
   - Contacts: list, get, create, update, delete, getGroups, getIntegrationBundle, integrate.  
   - Rehearsals / concerts / calendar / appointments / reservations: per module.  
+  - Rehearsals / concerts also expose `acceptEscalationRisk` and `resetEscalationRisk` actions (same permission gate as event edit/manage rights).  
   - Tasks, votes, comments, news, share, wrapped: per module.  
   - Search: search (with filters).  
   - Participation: get participation, set participation.  

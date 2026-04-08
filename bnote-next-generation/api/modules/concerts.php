@@ -104,6 +104,16 @@ class ConcertsModule {
             return $this->normalizeResponse($this->emailInfoSend(), $action);
         }
 
+        if ($action === 'acceptEscalationRisk') {
+            $this->requireConcertsModulePermission();
+            return $this->normalizeResponse($this->acceptEscalationRisk(), $action);
+        }
+
+        if ($action === 'resetEscalationRisk') {
+            $this->requireConcertsModulePermission();
+            return $this->normalizeResponse($this->resetEscalationRisk(), $action);
+        }
+
         // Handle explicit actions if needed in the future
         if ($action) {
             Response::error('Unknown action: ' . $action, 400);
@@ -652,6 +662,51 @@ class ConcertsModule {
         }
     }
 
+    /**
+     * @return array<string,mixed>
+     */
+    private function acceptEscalationRisk(): array {
+        global $system_data;
+        $payload = $this->getRequestData();
+        $id = (int) ($payload['id'] ?? 0);
+        if ($id < 1) {
+            Response::error('Invalid concert ID', 400);
+        }
+        $userId = Auth::getUserId();
+        if (!$this->userHasAccessToConcert($id, $userId)) {
+            Response::error('Access denied to this concert', 403);
+        }
+        $user = Auth::getUserInfo();
+        $acceptedByName = trim((string) (($user['name'] ?? '') . ' ' . ($user['surname'] ?? '')));
+        if ($acceptedByName === '') {
+            $acceptedByName = (string) ($user['username'] ?? ('#' . (string) $userId));
+        }
+        return EscalationAlertService::acceptRiskForEvent(
+            $system_data,
+            'C',
+            $id,
+            (int) $userId,
+            $acceptedByName
+        );
+    }
+
+    /**
+     * @return array<string,mixed>
+     */
+    private function resetEscalationRisk(): array {
+        global $system_data;
+        $payload = $this->getRequestData();
+        $id = (int) ($payload['id'] ?? 0);
+        if ($id < 1) {
+            Response::error('Invalid concert ID', 400);
+        }
+        $userId = Auth::getUserId();
+        if (!$this->userHasAccessToConcert($id, $userId)) {
+            Response::error('Access denied to this concert', 403);
+        }
+        return EscalationAlertService::resetRiskAcceptanceForEvent($system_data, 'C', $id);
+    }
+
     private function getMeta() {
         global $system_data;
 
@@ -769,6 +824,8 @@ class ConcertsModule {
             Response::error('Invalid concert ID', 400);
         }
         $id = intval($id);
+        $before = $this->data->findByIdNoRef($id);
+        $beforeStatus = trim((string) ($before['status'] ?? ''));
 
         $userId = Auth::getUserId();
         if (!$this->userHasAccessToConcert($id, $userId)) {
@@ -815,6 +872,14 @@ class ConcertsModule {
         $values['notes'] = $notesBackup;
         $values['conditions'] = $conditionsBackup;
         $this->data->update($id, $values);
+        $afterStatus = trim((string) ($values['status'] ?? ''));
+        if ($beforeStatus !== '' && $afterStatus !== '' && $beforeStatus !== $afterStatus) {
+            try {
+                EscalationAlertService::resetRiskAcceptanceForEvent($system_data, 'C', $id);
+            } catch (Throwable $e) {
+                error_log('ConcertsModule escalation acceptance reset hook failed: ' . $e->getMessage());
+            }
+        }
 
         if (array_key_exists('groups', $payload)) {
             $groups = array_map('intval', $payload['groups'] ?? []);

@@ -76,6 +76,7 @@ final class EscalationAlertService {
         ];
 
         foreach ($events as $event) {
+            $acceptance = self::syncAcceptanceForCurrentRisk($db, $event);
             $eligibility = self::resolveEligibleRecipients($system_data, $esc, $event);
             $recipientEmails = $overrideRecipients;
             if (count($recipientEmails) < 1) {
@@ -97,9 +98,13 @@ final class EscalationAlertService {
                 'recipient_count' => count($recipientEmails),
                 'override_recipients' => count($overrideRecipients) > 0,
                 'status' => 'dry_run',
+                'acceptance' => $acceptance,
             ];
 
-            if (!$dryRun && count($recipientEmails) > 0) {
+            if (!$dryRun && !empty($acceptance['accepted'])) {
+                $detail['status'] = 'suppressed_accepted';
+                $detail['emails_sent'] = 0;
+            } elseif (!$dryRun && count($recipientEmails) > 0) {
                 $messages = [];
                 foreach ($recipientEmails as $email) {
                     $messages[] = EscalationAlertMailBuilder::build(
@@ -142,6 +147,7 @@ final class EscalationAlertService {
                 'resolved_recipients' => $recipientEmails,
                 'eligibility' => $eligibility,
                 'result' => $detail['status'],
+                'acceptance' => $acceptance,
             ]);
 
             $result['details'][] = $detail;
@@ -174,6 +180,7 @@ final class EscalationAlertService {
         if (($otype !== 'R' && $otype !== 'C') || $oid < 1) {
             return ['status' => 'invalid_event'];
         }
+        ReminderSchema::deactivateEscalationAcceptance($system_data->dbcon, $otype, $oid);
         $cfg = ReminderConfig::get($system_data->dbcon);
         $esc = self::escalationCfg($cfg);
         $locale = method_exists($system_data, 'getLang') ? (string) ($system_data->getLang() ?: 'en') : 'en';
@@ -266,17 +273,88 @@ final class EscalationAlertService {
         $locale = method_exists($system_data, 'getLang') ? (string) ($system_data->getLang() ?: 'en') : 'en';
         $event = self::buildRiskForEvent($system_data, $esc, $locale, strtoupper($otype), $oid);
         if ($event === null) {
+            ReminderSchema::deactivateEscalationAcceptance($system_data->dbcon, strtoupper($otype), $oid);
             return null;
         }
         $hoursToBegin = self::hoursUntil((string) ($event['begin'] ?? ''));
         if ($hoursToBegin === null || $hoursToBegin < 0) {
+            ReminderSchema::deactivateEscalationAcceptance($system_data->dbcon, strtoupper($otype), $oid);
             return null;
         }
+        $acceptance = self::syncAcceptanceForCurrentRisk($system_data->dbcon, $event);
         $urgency = self::urgencyForEvent(
             (string) ($event['begin'] ?? ''),
             self::deadlineWindowsForType($esc, (string) ($event['otype'] ?? $otype))
         );
-        return self::uiWarningPayload($event, $urgency);
+        return self::uiWarningPayload($event, $urgency, $acceptance);
+    }
+
+    /**
+     * @return array<string,mixed>
+     */
+    public static function acceptRiskForEvent(
+        $system_data,
+        string $otype,
+        int $oid,
+        int $acceptedByUserId,
+        string $acceptedByName
+    ): array {
+        $otype = strtoupper(trim($otype));
+        if (($otype !== 'R' && $otype !== 'C') || $oid < 1) {
+            return ['status' => 'invalid_event', 'warning' => null];
+        }
+        $db = $system_data->dbcon;
+        if (!ReminderSchema::ensureTables($db)) {
+            return ['status' => 'reminder_schema_unavailable', 'warning' => null];
+        }
+        $cfg = ReminderConfig::get($db);
+        $esc = self::escalationCfg($cfg);
+        $locale = method_exists($system_data, 'getLang') ? (string) ($system_data->getLang() ?: 'en') : 'en';
+        $event = self::buildRiskForEvent($system_data, $esc, $locale, $otype, $oid);
+        if ($event === null) {
+            ReminderSchema::deactivateEscalationAcceptance($db, $otype, $oid);
+            return ['status' => 'not_at_risk', 'warning' => null];
+        }
+        $fingerprint = self::riskFingerprint($event);
+        $ok = ReminderSchema::saveEscalationAcceptance(
+            $db,
+            $otype,
+            $oid,
+            max(0, $acceptedByUserId),
+            $acceptedByName,
+            $fingerprint
+        );
+        if (!$ok) {
+            return ['status' => 'save_failed', 'warning' => null];
+        }
+        $acceptance = self::syncAcceptanceForCurrentRisk($db, $event);
+        $urgency = self::urgencyForEvent(
+            (string) ($event['begin'] ?? ''),
+            self::deadlineWindowsForType($esc, (string) ($event['otype'] ?? $otype))
+        );
+        return [
+            'status' => 'accepted',
+            'warning' => self::uiWarningPayload($event, $urgency, $acceptance),
+        ];
+    }
+
+    /**
+     * @return array<string,mixed>
+     */
+    public static function resetRiskAcceptanceForEvent($system_data, string $otype, int $oid): array {
+        $otype = strtoupper(trim($otype));
+        if (($otype !== 'R' && $otype !== 'C') || $oid < 1) {
+            return ['status' => 'invalid_event', 'warning' => null];
+        }
+        $db = $system_data->dbcon;
+        if (!ReminderSchema::ensureTables($db)) {
+            return ['status' => 'reminder_schema_unavailable', 'warning' => null];
+        }
+        ReminderSchema::deactivateEscalationAcceptance($db, $otype, $oid);
+        return [
+            'status' => 'reset',
+            'warning' => self::getWarningForEvent($system_data, $otype, $oid),
+        ];
     }
 
     /**
@@ -1509,9 +1587,88 @@ final class EscalationAlertService {
 
     /**
      * @param array<string,mixed> $event
+     * @return string
+     */
+    private static function riskFingerprint(array $event): string {
+        $gaps = [];
+        foreach ((array) ($event['instrument_gaps'] ?? []) as $gap) {
+            if (!is_array($gap)) {
+                continue;
+            }
+            $gaps[] = [
+                'name' => trim((string) ($gap['instrument_name'] ?? '')),
+                'current' => (int) ($gap['current'] ?? 0),
+                'minimum' => (int) ($gap['minimum'] ?? 0),
+                'section_id' => trim((string) ($gap['section_id'] ?? '')),
+            ];
+        }
+        usort(
+            $gaps,
+            static fn (array $a, array $b): int => strcmp(
+                json_encode($a, JSON_UNESCAPED_SLASHES) ?: '',
+                json_encode($b, JSON_UNESCAPED_SLASHES) ?: ''
+            )
+        );
+
+        $countsRaw = is_array($event['counts'] ?? null) ? $event['counts'] : [];
+        $counts = [
+            'invited_users' => (int) ($countsRaw['invited_users'] ?? 0),
+            'pending_users' => (int) ($countsRaw['pending_users'] ?? 0),
+            'yes' => (int) ($countsRaw['yes'] ?? 0),
+            'maybe' => (int) ($countsRaw['maybe'] ?? 0),
+            'no' => (int) ($countsRaw['no'] ?? 0),
+        ];
+
+        $signature = [
+            'otype' => (string) ($event['otype'] ?? ''),
+            'oid' => (int) ($event['oid'] ?? 0),
+            'begin' => (string) ($event['begin'] ?? ''),
+            'approve_until' => (string) ($event['approve_until'] ?? ''),
+            'pending_threshold_percent' => (int) ($event['pending_threshold_percent'] ?? 0),
+            'pending_percent' => (int) ($event['pending_percent'] ?? 0),
+            'counts' => $counts,
+            'instrument_gaps' => $gaps,
+        ];
+        $encoded = json_encode($signature, JSON_UNESCAPED_SLASHES);
+        if (!is_string($encoded)) {
+            $encoded = '{}';
+        }
+        return hash('sha256', $encoded);
+    }
+
+    /**
+     * @param array<string,mixed> $event
      * @return array<string,mixed>
      */
-    private static function uiWarningPayload(array $event, string $urgency): array {
+    private static function syncAcceptanceForCurrentRisk(object $db, array $event): array {
+        $otype = strtoupper((string) ($event['otype'] ?? ''));
+        $oid = (int) ($event['oid'] ?? 0);
+        if (($otype !== 'R' && $otype !== 'C') || $oid < 1) {
+            return ['accepted' => false];
+        }
+        $row = ReminderSchema::getEscalationAcceptance($db, $otype, $oid);
+        if (!is_array($row) || empty($row['is_active'])) {
+            return ['accepted' => false];
+        }
+        $fingerprint = self::riskFingerprint($event);
+        $storedFingerprint = strtolower(trim((string) ($row['accepted_risk_fingerprint'] ?? '')));
+        return [
+            'accepted' => true,
+            'acceptedByUserId' => (int) ($row['accepted_by_user_id'] ?? 0),
+            'acceptedByName' => (string) ($row['accepted_by_name'] ?? ''),
+            'acceptedAt' => (string) ($row['accepted_at'] ?? ''),
+            'fingerprint' => $storedFingerprint,
+            'matchesCurrentRisk' => ($storedFingerprint === $fingerprint),
+        ];
+    }
+
+    /**
+     * @param array<string,mixed> $event
+     * @param array<string,mixed>|null $acceptance
+     * @return array<string,mixed>
+     */
+    private static function uiWarningPayload(array $event, string $urgency, ?array $acceptance = null): array {
+        $accepted = !empty($acceptance['accepted']);
         return [
             'severity' => $urgency === 'critical' ? 'critical' : 'soon',
             'urgency' => $urgency === 'critical' ? 'critical' : 'soon',
@@ -1523,6 +1680,9 @@ final class EscalationAlertService {
             'pending_percent' => isset($event['pending_percent']) ? (int) $event['pending_percent'] : 0,
             'pending_threshold_percent' => isset($event['pending_threshold_percent']) ? (int) $event['pending_threshold_percent'] : 0,
             'hours_to_deadline' => isset($event['hours_to_deadline']) ? (int) $event['hours_to_deadline'] : null,
+            'accepted' => $accepted,
+            'acceptedByName' => $accepted ? (string) ($acceptance['acceptedByName'] ?? '') : null,
+            'acceptedAt' => $accepted ? (string) ($acceptance['acceptedAt'] ?? '') : null,
             'event' => [
                 'otype' => (string) ($event['otype'] ?? ''),
                 'oid' => (int) ($event['oid'] ?? 0),

@@ -112,6 +112,7 @@ export function EventDetail({
   const [isEditing, setIsEditing] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [configuredBandName, setConfiguredBandName] = useState("");
+  const [escalationActionLoading, setEscalationActionLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
   const [form, setForm] = useState<EventDetailForm | null>(null);
@@ -159,8 +160,57 @@ export function EventDetail({
 
   const rehearsalMeta = type === "rehearsal" ? (meta as RehearsalMeta | null) : null;
   const concertMeta = type === "concert" ? (meta as ConcertMeta | null) : null;
+  const canManageEscalation = !isNew && canEdit;
   const shouldEdit = modeProp === "edit" || searchParams.get("edit") === "1";
   const emailComposerOpen = searchParams.get("emailInfo") === "1";
+
+  const onEscalationRiskAction = useCallback(
+    async (action: "accept" | "reset") => {
+      if (isNew || isNaN(numId) || escalationActionLoading) return;
+      setEscalationActionLoading(true);
+      try {
+        if (type === "rehearsal") {
+          if (action === "accept") {
+            await rehearsalsApi.acceptEscalationRisk(numId);
+          } else {
+            await rehearsalsApi.resetEscalationRisk(numId);
+          }
+        } else if (type === "concert") {
+          if (action === "accept") {
+            await concertsApi.acceptEscalationRisk(numId);
+          } else {
+            await concertsApi.resetEscalationRisk(numId);
+          }
+        }
+        await loadData();
+        if (action === "accept") {
+          showToast(
+            t("js.event.escalation.acceptSuccess") !== "js.event.escalation.acceptSuccess"
+              ? t("js.event.escalation.acceptSuccess")
+              : "Risk accepted."
+          );
+        } else {
+          showToast(
+            t("js.event.escalation.resetSuccess") !== "js.event.escalation.resetSuccess"
+              ? t("js.event.escalation.resetSuccess")
+              : "Escalation reset."
+          );
+        }
+      } catch (err) {
+        showToast(
+          getErrorMessage(
+            err,
+            t,
+            action === "accept" ? "js.event.escalation.acceptError" : "js.event.escalation.resetError"
+          ),
+          "error"
+        );
+      } finally {
+        setEscalationActionLoading(false);
+      }
+    },
+    [type, isNew, numId, escalationActionLoading, loadData, showToast, t]
+  );
 
   useEffect(() => {
     if (!ready || loading || error || !data) return;
@@ -775,6 +825,16 @@ export function EventDetail({
             const criticalInstruments = Array.isArray(escalationWarning.instrument_gaps)
               ? escalationWarning.instrument_gaps.filter((gap) => (gap.minimum ?? 0) > (gap.current ?? 0))
               : [];
+            const accepted = Boolean(escalationWarning.accepted);
+            const acceptedByName = (escalationWarning.acceptedByName ?? "").trim();
+            const acceptedAt = escalationWarning.acceptedAt ?? "";
+            const acceptedTemplate =
+              t("js.event.escalation.acceptedBy") !== "js.event.escalation.acceptedBy"
+                ? t("js.event.escalation.acceptedBy")
+                : "Risk accepted by {name}";
+            const acceptedLabel = acceptedTemplate.replace("{name}", acceptedByName || "—");
+            const acceptedAtLabel = acceptedAt ? formatDateTimeShort(acceptedAt, lang) : "";
+            const escalationActionClass = escalationWarning.severity === "critical" ? "btn-error" : "btn-warning";
             return (
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
@@ -813,6 +873,47 @@ export function EventDetail({
                         </li>
                       ))}
                     </ul>
+                  </div>
+                )}
+                {accepted && (
+                  <div className="rounded-md border border-success/60 bg-success/20 px-3 py-2">
+                    <p className="text-sm font-semibold text-base-content">
+                      {acceptedLabel}
+                    </p>
+                    {acceptedAtLabel && (
+                      <p className="text-xs text-base-content/80">
+                        {acceptedAtLabel}
+                      </p>
+                    )}
+                  </div>
+                )}
+                {canManageEscalation && !isEditing && (
+                  <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
+                    <button
+                      type="button"
+                      className={`btn btn-sm ${escalationActionClass}`}
+                      disabled={escalationActionLoading}
+                      onClick={() => void onEscalationRiskAction(accepted ? "reset" : "accept")}
+                    >
+                      {escalationActionLoading
+                        ? (t("js.common.saving") !== "js.common.saving" ? t("js.common.saving") : "Saving…")
+                        : accepted
+                          ? (t("js.event.escalation.resetRisk") !== "js.event.escalation.resetRisk"
+                            ? t("js.event.escalation.resetRisk")
+                            : "Reset escalation")
+                          : (t("js.event.escalation.acceptRisk") !== "js.event.escalation.acceptRisk"
+                            ? t("js.event.escalation.acceptRisk")
+                            : "Accept risk")}
+                    </button>
+                    <p className="text-xs text-base-content/70">
+                      {accepted
+                        ? (t("js.event.escalation.pausedHelp") !== "js.event.escalation.pausedHelp"
+                          ? t("js.event.escalation.pausedHelp")
+                          : "Escalation emails are currently paused. Reset escalation to send alerts again.")
+                        : (t("js.event.escalation.acceptHelp") !== "js.event.escalation.acceptHelp"
+                          ? t("js.event.escalation.acceptHelp")
+                          : "Accepting risk pauses escalation emails until risk changes or escalation is reset.")}
+                    </p>
                   </div>
                 )}
               </div>

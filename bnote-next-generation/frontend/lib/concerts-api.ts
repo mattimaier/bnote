@@ -28,7 +28,16 @@ export interface ConcertListItem {
   escalationWarning?: EscalationWarning | null;
 }
 
+export interface EscalationRiskActionResult {
+  status: string;
+  warning?: EscalationWarning | null;
+}
+
 export const concertsApi = {
   list: () => api.get<ConcertListItem[]>("concerts", "list"),
+  acceptEscalationRisk: (id: number) =>
+    api.post<EscalationRiskActionResult>("concerts", "acceptEscalationRisk", { id }),
+  resetEscalationRisk: (id: number) =>
+    api.post<EscalationRiskActionResult>("concerts", "resetEscalationRisk", { id }),
   delete: (id: number) => api.post<{ success: boolean }>("concerts", "delete", { id }),
 };

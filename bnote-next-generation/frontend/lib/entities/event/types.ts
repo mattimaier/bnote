@@ -104,6 +104,9 @@ export interface EscalationWarning {
   severity: "critical" | "soon";
   urgency?: "critical" | "soon";
   reasons: string[];
+  accepted?: boolean;
+  acceptedByName?: string | null;
+  acceptedAt?: string | null;
   instrument_gaps?: Array<{ instrument_name?: string; current?: number; minimum?: number }>;
   counts?: {
     invited_users?: number;
