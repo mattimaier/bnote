@@ -1,0 +1,22 @@
+Admin Walkthrough Voiceover (90s, English)
+
+[00:00-00:07]
+Welcome to BNote Next Generation, the modern control center for ensemble admins.
+
+[00:07-00:22]
+From the dashboard, you can immediately see what needs attention: pending responses, upcoming activity, and key admin signals in one place.
+
+[00:22-00:38]
+In Users, administration is fast and clear. Search, sort, check account status, and open privilege actions with minimal friction.
+
+[00:38-00:56]
+Contacts and Phase in workflows help you onboard members cleanly by assigning people to the right structures without extra complexity.
+
+[00:56-01:12]
+Across entities, detail and edit behavior stays consistent, so admins spend less time relearning and more time managing.
+
+[01:12-01:24]
+System Information and What’s New keep operations transparent, with environment visibility and release updates where you need them.
+
+[01:24-01:30]
+BNote Next Generation helps your organization move faster, with confidence.

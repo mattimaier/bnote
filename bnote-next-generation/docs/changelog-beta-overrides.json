@@ -1,6 +1,11 @@
 {
   "entries": [
     {
+      "title": "Vote results popover now uses the shared person/contact row layout, fixing broken voter list rendering and improving readability on smaller screens.",
+      "changeType": "fixed",
+      "date": "2026-04-08"
+    },
+    {
       "title": "Escalation minimums now support configurable combined instrument pairings with shared rehearsal and concert thresholds.",
       "changeType": "changed",
       "date": "2026-04-07"

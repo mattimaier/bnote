@@ -1,0 +1,27 @@
+1
+00:00:00,000 --> 00:00:07,000
+Built for modern ensemble administration.
+
+2
+00:00:07,000 --> 00:00:22,000
+See priorities instantly on one dashboard.
+
+3
+00:00:22,000 --> 00:00:38,000
+Manage users, status, and privileges quickly.
+
+4
+00:00:38,000 --> 00:00:56,000
+Phase in members with guided integration.
+
+5
+00:00:56,000 --> 00:01:12,000
+Consistent detail and edit flows across modules.
+
+6
+00:01:12,000 --> 00:01:24,000
+Track system status and recent improvements.
+
+7
+00:01:24,000 --> 00:01:30,000
+BNote Next Generation for confident operations.

@@ -1,0 +1,8 @@
+scene,start,end,duration_sec,route,action,caption
+1,00:00,00:07,7,/login/,"Show BNote branding for 2s, then enter credentials and submit login","Built for modern ensemble administration."
+2,00:07,00:22,15,/dashboard/,"Slow cursor pan: greeting, events needing response, admin overview tiles","See priorities instantly on one dashboard."
+3,00:22,00:38,16,/users/,"Open Users, demonstrate search/sort, highlight status and privilege entry action","Manage users, status, and privileges quickly."
+4,00:38,00:56,18,/contacts/ then /contacts/integration/,"Open Contacts, then Phase in flow and show member selection + assignment pattern","Phase in members with guided integration."
+5,00:56,01:12,16,"/entity?type=<type>&id=<id> then &edit=1","Open one entity detail, toggle edit mode, show save/cancel pattern","Consistent detail and edit flows across modules."
+6,01:12,01:24,12,/system-information/ then /changelog/,"Open System Information and What's New pages","Track system status and recent improvements."
+7,01:24,01:30,6,/dashboard/,"Return to dashboard and hold stable CTA frame","BNote Next Generation for confident operations."

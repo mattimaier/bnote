@@ -10,7 +10,7 @@ import { useState } from "react";
 import { useI18n } from "@/contexts/I18nContext";
 import { Modal } from "@/components/Modal";
 import { ParticipationDiagram, type ParticipationStats } from "@/components/ParticipationDiagram";
-import { Avatar } from "@/components/Avatar";
+import { PersonOptionRow } from "@/components/PersonOptionRow";
 import { formatDateShortDisplay } from "@/lib/date-time";
 import type { VoteOption } from "@/lib/votes-api";
 
@@ -18,6 +18,18 @@ import type { VoteOption } from "@/lib/votes-api";
 function parseVoters(voters: string): string[] {
   if (!voters?.trim()) return [];
   return voters.split(/,\s*/).map((s) => s.trim()).filter(Boolean);
+}
+
+function parseVoterDisplay(raw: string): { name: string; instrument?: string } {
+  const trimmed = raw.trim();
+  if (!trimmed) return { name: "—" };
+
+  const match = trimmed.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
+  if (!match) return { name: trimmed };
+
+  const parsedName = match[1]?.trim() || trimmed;
+  const parsedInstrument = match[2]?.trim() || undefined;
+  return { name: parsedName, instrument: parsedInstrument };
 }
 
 /** Result row from API (standard format) */
@@ -152,19 +164,20 @@ function VotersTable({ voters, noVotesText }: { voters: string; noVotesText: str
     return <p className="text-sm text-base-content/60">{noVotesText}</p>;
   }
   return (
-    <div className="overflow-x-auto">
-      <table className="table table-sm">
-        <tbody>
-          {names.map((name, i) => (
-            <tr key={i}>
-              <td className="w-10 align-middle">
-                <Avatar name={name} size={24} variant="soft" />
-              </td>
-              <td className="font-medium text-base-content align-middle">{name}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="rounded-field border border-base-300 divide-y divide-base-300 overflow-hidden">
+      {names.map((entry, i) => {
+        const { name, instrument } = parseVoterDisplay(entry);
+        return (
+          <div key={`${entry}-${i}`} className="px-3 py-2">
+            <PersonOptionRow
+              name={name}
+              instrument={instrument}
+              avatarSize={24}
+              compact
+            />
+          </div>
+        );
+      })}
     </div>
   );
 }
