@@ -20,7 +20,7 @@ import { useI18n } from "@/contexts/I18nContext";
 import { BNoteLogo } from "@/components/BNoteLogo";
 import { getEntityConfig } from "@/lib/entity-config";
 import { getIcon } from "@/components/icons";
-import { getSidebarModuleKey, isImprintNavActive, isPrivacyNavActive } from "@/lib/sidebar-active";
+import { getSidebarModuleKey } from "@/lib/sidebar-active";
 import { DEVELOPER_SIDEBAR_MODULE_ID, mergeDeveloperSidebarModule } from "@/lib/developer-tools";
 
 interface SidebarModule {
@@ -71,15 +71,6 @@ export function AppSidebar() {
   }, []);
 
   const activeModuleKey = getSidebarModuleKey(pathname);
-
-  const imprintEntity = getEntityConfig("imprint");
-  const privacyEntity = getEntityConfig("privacy");
-  const ImprintFooterIcon = getIcon(imprintEntity?.icon ?? "building");
-  const PrivacyFooterIcon = getIcon(privacyEntity?.icon ?? "shield-check");
-  const imprintIconColor = imprintEntity?.color;
-  const privacyIconColor = privacyEntity?.color;
-  const isImprintActive = isImprintNavActive(pathname);
-  const isPrivacyActive = isPrivacyNavActive(pathname);
 
   return (
     <aside className="hidden md:flex md:flex-col md:h-full md:w-64 md:shrink-0 border-r border-base-300 bg-base-200">
@@ -135,42 +126,6 @@ export function AppSidebar() {
           );
         })}
       </nav>
-      <div className="shrink-0 space-y-1.5 border-t border-base-300 p-3">
-        <Link
-          href="/imprint/"
-          prefetch={false}
-          className={`flex items-center gap-3 px-3 py-2.5 rounded-box transition-colors duration-200 ${
-            isImprintActive
-              ? "bg-primary/15 text-primary text-sm font-medium"
-              : "text-base-content/70 hover:text-base-content hover:bg-base-300/60 text-sm font-medium"
-          }`}
-        >
-          <span
-            className="flex shrink-0 items-center justify-center"
-            style={isImprintActive ? undefined : imprintIconColor ? { color: imprintIconColor } : undefined}
-          >
-            <ImprintFooterIcon className="h-5 w-5" />
-          </span>
-          <span className="flex-1 truncate">Impressum</span>
-        </Link>
-        <Link
-          href="/privacy/"
-          prefetch={false}
-          className={`flex items-center gap-3 px-3 py-2.5 rounded-box transition-colors duration-200 ${
-            isPrivacyActive
-              ? "bg-primary/15 text-primary text-sm font-medium"
-              : "text-base-content/70 hover:text-base-content hover:bg-base-300/60 text-sm font-medium"
-          }`}
-        >
-          <span
-            className="flex shrink-0 items-center justify-center"
-            style={isPrivacyActive ? undefined : privacyIconColor ? { color: privacyIconColor } : undefined}
-          >
-            <PrivacyFooterIcon className="h-5 w-5" />
-          </span>
-          <span className="flex-1 truncate">Datenschutz</span>
-        </Link>
-      </div>
     </aside>
   );
 }

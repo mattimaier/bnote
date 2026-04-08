@@ -25,3 +25,11 @@ export function isPrivacyNavActive(pathname: string | null | undefined): boolean
   if (seg[0]?.toLowerCase() === "legal" && seg[1]?.toLowerCase() === "privacy") return true;
   return false;
 }
+
+/** In-app /terms/ or public /legal/terms/. */
+export function isTermsNavActive(pathname: string | null | undefined): boolean {
+  const seg = pathname?.split("/").filter(Boolean) ?? [];
+  if (seg.length === 1 && seg[0]?.toLowerCase() === "terms") return true;
+  if (seg[0]?.toLowerCase() === "legal" && seg[1]?.toLowerCase() === "terms") return true;
+  return false;
+}

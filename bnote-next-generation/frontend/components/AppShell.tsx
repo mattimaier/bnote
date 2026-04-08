@@ -16,6 +16,7 @@ import { EditingBar } from "@/components/EditingBar";
 import { checkSession } from "@/lib/auth";
 import { changelogApi, type ChangelogEntry } from "@/lib/changelog-api";
 import { ChangelogModal } from "@/components/changelog/ChangelogModal";
+import { LegalFooter } from "@/components/auth/LegalFooter";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -96,7 +97,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className="app-shell-mobile-topbar-offset flex min-w-0 flex-1 flex-col md:min-h-0">
         <AppTopbar onOpenMobileNav={() => setMobileNavOpen(true)} />
         {editingBar != null && <EditingBar {...editingBar} />}
-        <main className="flex-1 px-2 pb-2 pt-2 md:min-h-0 md:overflow-y-auto md:px-3 md:py-3">{children}</main>
+        <main className="flex flex-1 flex-col px-2 pb-2 pt-2 md:min-h-0 md:overflow-y-auto md:px-3 md:py-3">
+          <div className="flex-1">{children}</div>
+          <div className="mt-8 px-2 py-6 sm:mt-10 sm:px-3 sm:py-8">
+            <LegalFooter routeMode="app" />
+          </div>
+        </main>
       </div>
       <MobileNavDrawer open={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />
       <ChangelogModal

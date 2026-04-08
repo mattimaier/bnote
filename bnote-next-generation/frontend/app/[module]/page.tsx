@@ -25,6 +25,7 @@ import CalendarPage from "@/app/_modules/calendar/page";
 import BandOverviewPage from "@/app/_modules/band-overview/page";
 import ImprintModulePage from "@/app/_modules/imprint/page";
 import PrivacyModulePage from "@/app/_modules/privacy/page";
+import TermsModulePage from "@/app/_modules/terms/page";
 import DeveloperModulePage from "@/app/_modules/developer/page";
 import EmailModulePage from "@/app/_modules/email/page";
 import StatsModulePage from "@/app/_modules/stats/page";
@@ -49,6 +50,7 @@ const MODULE_PAGES: Record<string, () => ReactNode> = {
   "band-overview": () => <BandOverviewPage />,
   imprint: () => <ImprintModulePage />,
   privacy: () => <PrivacyModulePage />,
+  terms: () => <TermsModulePage />,
   developer: () => <DeveloperModulePage />,
   email: () => <EmailModulePage />,
   stats: () => <StatsModulePage />,
