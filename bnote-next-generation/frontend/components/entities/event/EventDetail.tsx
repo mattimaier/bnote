@@ -702,7 +702,7 @@ export function EventDetail({
             )}
             {/* Top section only shows name + date/time (address in details card) */}
           </div>
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center md:justify-end">
+          <div className="flex flex-col gap-2 xl:flex-row xl:items-center xl:justify-end">
             {canEdit && !isEditing && <DetailEditButton onClick={startEdit} />}
             {canEdit && !isEditing && !isNew && (type === "rehearsal" || type === "concert") && (
               <button
@@ -733,7 +733,7 @@ export function EventDetail({
               </button>
             )}
             {!isEditing && (type === "rehearsal" || type === "concert") && (
-              <div className="sm:ml-auto">
+              <div className="xl:ml-auto">
                 <ParticipationWidget
                   eventId={numId}
                   eventType={eventType}

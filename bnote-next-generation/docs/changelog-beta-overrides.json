@@ -1,6 +1,12 @@
 {
   "entries": [
     {
+      "title": "Event detail actions now stack vertically on narrower desktop widths to prevent clipped controls in rehearsal and concert headers.",
+      "changeType": "fixed",
+      "date": "2026-04-08",
+      "bugId": "BUG-20260408-085533-67e4"
+    },
+    {
       "title": "Vote results popover now uses the shared person/contact row layout, fixing broken voter list rendering and improving readability on smaller screens.",
       "changeType": "fixed",
       "date": "2026-04-08"
