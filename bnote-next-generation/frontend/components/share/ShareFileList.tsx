@@ -12,7 +12,7 @@ import { useI18n } from "@/contexts/I18nContext";
 import { formatDateTimeShort } from "@/lib/date-time";
 import { getIcon } from "@/components/icons";
 import type { ShareItem, SharePermissions } from "@/lib/share-api";
-import { ArrowUp, ArrowDown, ArrowUpDown, Trash2 } from "@/components/icons";
+import { ArrowUp, ArrowDown, ArrowUpDown, Trash2, Pencil } from "@/components/icons";
 
 export type ShareSortKey = "name" | "size" | "modifiedAt";
 export type SortDirection = "asc" | "desc";
@@ -26,8 +26,33 @@ export interface ShareFileListProps {
   onSort: (key: ShareSortKey) => void;
   onNavigate: (path: string) => void;
   onDelete: (item: ShareItem) => void;
+  onRename: (item: ShareItem) => void;
   onDownload: (item: ShareItem) => void;
   onDownloadZip?: (path: string) => void;
+}
+
+interface SortThProps {
+  label: string;
+  columnKey: ShareSortKey;
+  activeSortKey: ShareSortKey | null;
+  sortDir: SortDirection;
+  onSort: (key: ShareSortKey) => void;
+}
+
+function SortTh({ label, columnKey, activeSortKey, sortDir, onSort }: SortThProps) {
+  const active = activeSortKey === columnKey;
+  const Icon = active ? (sortDir === "asc" ? ArrowUp : ArrowDown) : ArrowUpDown;
+  return (
+    <th
+      className="px-4 py-3 text-left text-sm font-medium cursor-pointer select-none hover:opacity-80 text-base-content"
+      onClick={() => onSort(columnKey)}
+    >
+      <span className="inline-flex items-center gap-1.5">
+        {label}
+        <Icon className="h-4 w-4 opacity-70" />
+      </span>
+    </th>
+  );
 }
 
 function formatSize(bytes: number): string {
@@ -45,8 +70,8 @@ export function ShareFileList({
   onSort,
   onNavigate,
   onDelete,
+  onRename,
   onDownload,
-  onDownloadZip,
 }: ShareFileListProps) {
   const { t, lang } = useI18n();
   const handleSort = useCallback(
@@ -56,37 +81,21 @@ export function ShareFileList({
     [onSort]
   );
 
-  const SortTh = ({
-    label,
-    columnKey,
-  }: {
-    label: string;
-    columnKey: ShareSortKey;
-  }) => {
-    const active = sortKey === columnKey;
-    const Icon = active ? (sortDir === "asc" ? ArrowUp : ArrowDown) : ArrowUpDown;
-    return (
-      <th
-        className="px-4 py-3 text-left text-sm font-medium cursor-pointer select-none hover:opacity-80 text-base-content"
-        onClick={() => handleSort(columnKey)}
-      >
-        <span className="inline-flex items-center gap-1.5">
-          {label}
-          <Icon className="h-4 w-4 opacity-70" />
-        </span>
-      </th>
-    );
-  };
-
   return (
     <div className="overflow-x-auto rounded-box border border-base-300 bg-base-100 text-base-content">
       <table className="w-full min-w-[32rem] text-sm">
         <thead>
           <tr className="border-b border-base-300 bg-base-200/50">
-            <SortTh label={t("js.share.name")} columnKey="name" />
-            <SortTh label={t("js.share.size")} columnKey="size" />
-            <SortTh label={t("js.share.modified")} columnKey="modifiedAt" />
-            <th className="px-4 py-3 w-12" />
+            <SortTh label={t("js.share.name")} columnKey="name" activeSortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
+            <SortTh label={t("js.share.size")} columnKey="size" activeSortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
+            <SortTh
+              label={t("js.share.modified")}
+              columnKey="modifiedAt"
+              activeSortKey={sortKey}
+              sortDir={sortDir}
+              onSort={handleSort}
+            />
+            <th className="px-4 py-3 w-20" />
           </tr>
         </thead>
         <tbody>
@@ -124,7 +133,18 @@ export function ShareFileList({
                   <td className="px-4 py-3 text-base-content/60 whitespace-nowrap" title={item.modifiedAt}>
                     {formatDateTimeShort(item.modifiedAt, lang) ?? "—"}
                   </td>
-                  <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
+                    {item.canRename && permissions.canWrite ? (
+                      <button
+                        type="button"
+                        onClick={() => onRename(item)}
+                        className="p-1.5 rounded hover:bg-base-300/60 text-base-content/60 hover:text-base-content"
+                        aria-label={t("js.share.renameAria")}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </button>
+                    ) : null}
                     {item.canDelete && permissions.canDelete ? (
                       <button
                         type="button"
@@ -135,6 +155,7 @@ export function ShareFileList({
                         <Trash2 className="h-4 w-4" />
                       </button>
                     ) : null}
+                    </div>
                   </td>
                 </tr>
               );

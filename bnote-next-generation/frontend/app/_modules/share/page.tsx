@@ -41,6 +41,8 @@ export default function SharePage() {
   const [deleteModal, setDeleteModal] = useState<ShareItem | null>(null);
   const [createFolderModal, setCreateFolderModal] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
+  const [renameModal, setRenameModal] = useState<ShareItem | null>(null);
+  const [renameName, setRenameName] = useState("");
 
   const pathFromUrl = searchParams.get("path");
   const effectivePath = pathFromUrl ?? "";
@@ -163,6 +165,29 @@ export default function SharePage() {
       }
     },
     [effectivePath, newFolderName, showToast, loadBrowse, t]
+  );
+
+  const handleOpenRenameModal = useCallback((item: ShareItem) => {
+    setRenameModal(item);
+    setRenameName(item.name);
+  }, []);
+
+  const handleRename = useCallback(
+    async () => {
+      if (!renameModal) return;
+      const nextName = renameName.trim();
+      if (!nextName) return;
+      try {
+        await shareApi.rename(renameModal.path, nextName);
+        showToast(t("js.share.renamed"), "success");
+        setRenameModal(null);
+        setRenameName("");
+        loadBrowse(effectivePath);
+      } catch (err) {
+        showToast(err instanceof Error ? err.message : t("js.share.renameFailed"), "error");
+      }
+    },
+    [effectivePath, loadBrowse, renameModal, renameName, showToast, t]
   );
 
   const title = t("js.share.title") !== "js.share.title" ? t("js.share.title") : "Share";
@@ -305,6 +330,7 @@ export default function SharePage() {
               onSort={handleSort}
               onNavigate={handleNavigate}
               onDelete={(item) => setDeleteModal(item)}
+              onRename={handleOpenRenameModal}
               onDownload={handleDownload}
               onDownloadZip={effectivePath ? handleDownloadZip : undefined}
             />
@@ -401,6 +427,69 @@ export default function SharePage() {
                 style={{ background: "var(--primary)" }}
               >
                 {t("js.share.create") !== "js.share.create" ? t("js.share.create") : "Create"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Rename modal */}
+      {renameModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+          onClick={() => {
+            setRenameModal(null);
+            setRenameName("");
+          }}
+        >
+          <div
+            className="w-full max-w-md rounded-lg border bg-[var(--card)] p-4 shadow-xl"
+            style={{ borderColor: "var(--border)", color: "var(--card-foreground)" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-semibold mb-3">
+              {t("js.share.rename") !== "js.share.rename" ? t("js.share.rename") : "Rename"}
+            </h3>
+            <input
+              type="text"
+              value={renameName}
+              onChange={(e) => setRenameName(e.target.value)}
+              placeholder={t("js.share.renamePlaceholder")}
+              className="w-full rounded-lg border px-3 py-2 text-sm mb-4"
+              style={{
+                borderColor: "var(--border)",
+                background: "var(--background)",
+                color: "var(--foreground)",
+              }}
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleRename();
+                if (e.key === "Escape") {
+                  setRenameModal(null);
+                  setRenameName("");
+                }
+              }}
+            />
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setRenameModal(null);
+                  setRenameName("");
+                }}
+                className="px-4 py-2 rounded-lg border text-sm font-medium"
+                style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
+              >
+                {t("js.common.cancel") !== "js.common.cancel" ? t("js.common.cancel") : "Cancel"}
+              </button>
+              <button
+                type="button"
+                onClick={handleRename}
+                disabled={!renameName.trim()}
+                className="px-4 py-2 rounded-lg text-sm font-medium text-white disabled:opacity-50"
+                style={{ background: "var(--primary)" }}
+              >
+                {t("js.common.save") !== "js.common.save" ? t("js.common.save") : "Save"}
               </button>
             </div>
           </div>

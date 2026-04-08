@@ -20,6 +20,7 @@ export interface ShareItem {
   mimeType: string;
   icon: string;
   canDelete: boolean;
+  canRename?: boolean;
   modifiedAt: string;
 }
 
@@ -149,6 +150,13 @@ export const shareApi = {
       "createFolder",
       {},
       { path, name }
+    ),
+
+  rename: (path: string, newName: string) =>
+    shareRequest<{ success: boolean; path: string; message: string }>(
+      "rename",
+      {},
+      { path, newName }
     ),
 
   getDownloadUrl: (path: string, inline = true): string => {

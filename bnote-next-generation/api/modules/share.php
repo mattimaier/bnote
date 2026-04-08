@@ -76,6 +76,8 @@ class ShareModule {
                 return $this->delete();
             case 'createFolder':
                 return $this->createFolder();
+            case 'rename':
+                return $this->rename();
             case 'download':
                 return $this->download();
             case 'downloadZip':
@@ -452,6 +454,8 @@ class ShareModule {
             if (is_file($entryFullPath) || (is_dir($entryFullPath) && !$this->isReservedDir($itemPath))) {
                 $canDelete = $secManager->userFilePermission(SecurityManager::$FILE_ACTION_DELETE, $itemRelPath);
             }
+            $canRename = !$this->isReservedDir($itemPath)
+                && $secManager->userFilePermission(SecurityManager::$FILE_ACTION_WRITE, $fullPath);
 
             $mimeType = '';
             $icon = 'file-earmark';
@@ -470,6 +474,7 @@ class ShareModule {
                 'mimeType' => $mimeType,
                 'icon' => $icon,
                 'canDelete' => $canDelete,
+                'canRename' => $canRename,
                 'modifiedAt' => date('c', filemtime($entryFullPath)),
             ];
         }
@@ -760,6 +765,81 @@ class ShareModule {
         }
 
         return ['success' => true, 'path' => $parentPath, 'message' => 'Folder created'];
+    }
+
+    private function rename() {
+        $rawInput = file_get_contents('php://input');
+        $data = $rawInput ? json_decode($rawInput, true) : null;
+        if (!$data) {
+            $data = $_POST;
+        }
+
+        $path = $this->normalizePath($data['path'] ?? $_GET['path'] ?? '');
+        $newName = trim($data['newName'] ?? $data['name'] ?? '');
+        if (!$path || !$this->isPathAllowed($path)) {
+            Response::error('Invalid path', 400);
+        }
+        if ($newName === '') {
+            Response::error('Invalid name', 400);
+        }
+        if (strpos($newName, '/') !== false || strpos($newName, '\\') !== false) {
+            Response::error('Invalid name', 400);
+        }
+        if ($newName[0] === '.') {
+            Response::error('Hidden names are not allowed', 400);
+        }
+        if (in_array($newName, $this->reservedPathSegments, true)) {
+            Response::error('Invalid name', 400);
+        }
+
+        $fullPath = $this->getFullPath($path);
+        if (!file_exists($fullPath)) {
+            Response::error('Not found', 404);
+        }
+
+        $secManager = $this->adp->getSecurityManager();
+        $sourceRelPath = is_dir($fullPath) ? $path . '/' : $path;
+        if (!$secManager->canUserAccessFile($sourceRelPath)) {
+            Response::error('Access denied', 403);
+        }
+
+        if (is_dir($fullPath) && $this->isReservedDir($path)) {
+            Response::error('Cannot rename reserved directory', 400);
+        }
+
+        $parentPath = dirname($path);
+        if ($parentPath === '.') {
+            $parentPath = '';
+        }
+        $parentFullPath = $this->getFullPath($parentPath);
+
+        if (!$secManager->userFilePermission(SecurityManager::$FILE_ACTION_WRITE, $parentFullPath)) {
+            Response::error('No write permission', 403);
+        }
+
+        if ($parentPath === '' && in_array($newName, $this->reservedRootFolderNames, true)) {
+            Response::error('Reserved folder name', 400);
+        }
+
+        $targetPath = $parentPath === '' ? $newName : $parentPath . '/' . $newName;
+        if (!$this->isPathAllowed($targetPath)) {
+            Response::error('Invalid path', 400);
+        }
+
+        if ($targetPath === $path) {
+            return ['success' => true, 'path' => $path, 'message' => 'Unchanged'];
+        }
+
+        $targetFullPath = $this->getFullPath($targetPath);
+        if (file_exists($targetFullPath)) {
+            Response::error('Name already exists', 400);
+        }
+
+        if (!rename($fullPath, $targetFullPath)) {
+            Response::error('Failed to rename', 500);
+        }
+
+        return ['success' => true, 'path' => $targetPath, 'message' => 'Renamed'];
     }
 
     private function download() {
