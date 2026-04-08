@@ -266,6 +266,11 @@ class UsersModule {
 
         // If password is not provided, bypass UserData password validation by performing a direct update.
         $hasPassword = isset($_POST['password']);
+        if ($hasPassword && !array_key_exists('isActive', $data)) {
+            // Legacy UserData->update() may coerce missing boolean fields to 0.
+            // Preserve current active state unless caller explicitly changes it.
+            $_POST['isActive'] = $wasActiveBefore ? 'on' : '';
+        }
         if (!$hasPassword) {
             $fields = [];
             $params = [];
