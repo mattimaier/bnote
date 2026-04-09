@@ -17,8 +17,8 @@ import { PAGE_CONTENT_CLASS } from "@/lib/layout";
 import { getEntityPath } from "@/lib/entities/paths";
 import { DetailCard } from "@/components/DetailCard";
 import { DetailEditButton, DetailPageHeader } from "@/components/DetailPageHeader";
-import { getColor, getPillStyle } from "@/lib/entity-config";
 import { NotesContent } from "@/components/NotesContent";
+import { PersonIdentityRow } from "@/components/PersonIdentityRow";
 import { isEmptyEditorJson } from "@/lib/editorjs-notes";
 import { getErrorMessage } from "@/lib/error-utils";
 import { Spinner } from "@/components/Spinner";
@@ -100,9 +100,6 @@ export function TaskDetail() {
     );
   }
 
-  const entityColor = getColor("task");
-  const pillStyle = getPillStyle(entityColor);
-
   return (
     <div className={PAGE_CONTENT_CLASS}>
       <DetailPageHeader
@@ -136,16 +133,14 @@ export function TaskDetail() {
               <span className="text-base-content/60 text-sm">
                 {t("js.tasks.assignedTo") !== "js.tasks.assignedTo" ? t("js.tasks.assignedTo") : "Assigned to"}:
               </span>{" "}
-              <span
-                className="badge badge-sm"
-                style={{
-                  backgroundColor: pillStyle.backgroundColor,
-                  color: pillStyle.color,
-                  borderColor: pillStyle.borderColor ?? "transparent",
-                }}
-              >
-                {item.assignee}
-              </span>
+              <PersonIdentityRow
+                name={item.assigneeName || item.assignee}
+                email={item.assigneeEmail}
+                avatarSize={24}
+                compact
+                className="inline-flex align-middle"
+                nameClassName="text-sm"
+              />
             </div>
           )}
 

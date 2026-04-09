@@ -16,6 +16,8 @@ export interface Task {
   completed_at?: string | null;
   assigned_to?: number | null;
   assignee?: string | null;
+  assigneeName?: string | null;
+  assigneeEmail?: string | null;
   creator?: string | null;
   tourIds?: number[];
 }

@@ -222,6 +222,8 @@ class TasksModule {
     }
 
     private function formatTaskRow($row) {
+        $assignedTo = isset($row['assigned_to']) ? (int) $row['assigned_to'] : null;
+        $assigneeIdentity = $assignedTo ? $this->getContactIdentity($assignedTo) : null;
         return [
             'id' => (int) $row['id'],
             'title' => $row['title'] ?? '',
@@ -230,9 +232,26 @@ class TasksModule {
             'due_at' => $row['due_at'] ?? null,
             'is_complete' => !empty($row['is_complete']),
             'completed_at' => $row['completed_at'] ?? null,
-            'assigned_to' => isset($row['assigned_to']) ? (int) $row['assigned_to'] : null,
+            'assigned_to' => $assignedTo,
             'assignee' => $row['assignee'] ?? null,
+            'assigneeName' => $assigneeIdentity['name'] ?? ($row['assignee'] ?? null),
+            'assigneeEmail' => $assigneeIdentity['email'] ?? null,
             'creator' => $row['creator'] ?? null,
+        ];
+    }
+
+    private function getContactIdentity(int $contactId): ?array {
+        if ($contactId < 1) return null;
+        global $system_data;
+        $row = $system_data->dbcon->fetchRow(
+            'SELECT name, surname, email FROM contact WHERE id = ?',
+            [['i', $contactId]]
+        );
+        if (!is_array($row)) return null;
+        $name = trim(($row['name'] ?? '') . ' ' . ($row['surname'] ?? ''));
+        return [
+            'name' => $name !== '' ? $name : null,
+            'email' => $row['email'] ?? null,
         ];
     }
 

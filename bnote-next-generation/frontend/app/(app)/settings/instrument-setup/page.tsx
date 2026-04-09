@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { DetailPageHeader } from "@/components/DetailPageHeader";
 import { DetailSection } from "@/components/DetailSection";
+import { ConfirmModal } from "@/components/ConfirmModal";
 import { Spinner } from "@/components/Spinner";
 import { useI18n } from "@/contexts/I18nContext";
 import { useToast } from "@/contexts/ToastContext";
@@ -47,6 +48,11 @@ export default function InstrumentSetupPage() {
   const [savingSections, setSavingSections] = useState(false);
   const [seedingDefaults, setSeedingDefaults] = useState(false);
   const [applyingBigBand, setApplyingBigBand] = useState(false);
+  const [pendingSectionDeleteId, setPendingSectionDeleteId] = useState<string | null>(null);
+  const [pendingConcertTargetDelete, setPendingConcertTargetDelete] = useState<{
+    sectionId: string;
+    index: number;
+  } | null>(null);
 
   const [instruments, setInstruments] = useState<Array<{ id: number; name: string; category_name?: string }>>([]);
   const [sections, setSections] = useState<InstrumentSectionConfig[]>([]);
@@ -143,6 +149,15 @@ export default function InstrumentSetupPage() {
   function deleteSection(id: string) {
     setSections((prev) => prev.filter((section) => section.id !== id));
     setSelectedSectionId((prev) => (prev === id ? null : prev));
+  }
+
+  function deleteConcertTarget(sectionId: string, index: number) {
+    const section = sections.find((entry) => entry.id === sectionId);
+    if (!section) return;
+    const nextTargets = (section.concert_instrument_targets ?? []).filter(
+      (_, targetIndex) => targetIndex !== index
+    );
+    updateSection(sectionId, { concert_instrument_targets: nextTargets });
   }
 
   async function saveSections() {
@@ -332,7 +347,7 @@ export default function InstrumentSetupPage() {
                   <button
                     type="button"
                     className="btn btn-outline btn-error btn-sm"
-                    onClick={() => deleteSection(selectedSection.id)}
+                    onClick={() => setPendingSectionDeleteId(selectedSection.id)}
                   >
                     {label("js.common.delete", "Delete")}
                   </button>
@@ -485,10 +500,12 @@ export default function InstrumentSetupPage() {
                               <button
                                 type="button"
                                 className="btn btn-outline btn-error btn-xs"
-                                onClick={() => {
-                                  const nextTargets = (selectedSection.concert_instrument_targets ?? []).filter((_, targetIndex) => targetIndex !== index);
-                                  updateSection(selectedSection.id, { concert_instrument_targets: nextTargets });
-                                }}
+                                onClick={() =>
+                                  setPendingConcertTargetDelete({
+                                    sectionId: selectedSection.id,
+                                    index,
+                                  })
+                                }
                               >
                                 {label("js.common.delete", "Delete")}
                               </button>
@@ -534,6 +551,39 @@ export default function InstrumentSetupPage() {
           )}
         </p>
       </DetailSection>
+
+      <ConfirmModal
+        open={pendingSectionDeleteId != null}
+        onClose={() => setPendingSectionDeleteId(null)}
+        title={label("js.common.confirmDeleteTitle", "Delete?")}
+        message={label("js.common.confirmDeleteMessage", "This cannot be undone.")}
+        confirmLabel={label("js.common.delete", "Delete")}
+        cancelLabel={label("js.common.cancel", "Cancel")}
+        onConfirm={() => {
+          if (!pendingSectionDeleteId) return;
+          deleteSection(pendingSectionDeleteId);
+          setPendingSectionDeleteId(null);
+        }}
+        variant="danger"
+      />
+
+      <ConfirmModal
+        open={pendingConcertTargetDelete != null}
+        onClose={() => setPendingConcertTargetDelete(null)}
+        title={label("js.common.confirmDeleteTitle", "Delete?")}
+        message={label("js.common.confirmDeleteMessage", "This cannot be undone.")}
+        confirmLabel={label("js.common.delete", "Delete")}
+        cancelLabel={label("js.common.cancel", "Cancel")}
+        onConfirm={() => {
+          if (!pendingConcertTargetDelete) return;
+          deleteConcertTarget(
+            pendingConcertTargetDelete.sectionId,
+            pendingConcertTargetDelete.index
+          );
+          setPendingConcertTargetDelete(null);
+        }}
+        variant="danger"
+      />
     </div>
   );
 }

@@ -16,6 +16,7 @@ import { Avatar } from "@/components/Avatar";
 import { SelectPicker } from "@/components/SelectPicker";
 import { CheckboxRow, CheckboxSelectAllRow } from "@/components/CheckboxRow";
 import { ConfirmModal } from "@/components/ConfirmModal";
+import { SearchField } from "@/components/SearchField";
 import { Clock, LayoutList, Save, Trash2, getIcon } from "@/components/icons";
 import { ResponsiveTable } from "@/components/ResponsiveTable";
 import { EntityListRow } from "@/components/EntityListRow";
@@ -127,29 +128,6 @@ function integrationMailFeedback(
     };
   }
   return null;
-}
-
-function SearchField({
-  value,
-  onChange,
-  placeholder,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-  placeholder: string;
-}) {
-  return (
-    <div className="flex w-full items-center gap-3 rounded-lg bg-base-200 px-3 py-2 mb-2">
-      <input
-        type="search"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        className="w-full bg-transparent px-0 py-1 text-sm outline-none text-base-content"
-        aria-label={placeholder}
-      />
-    </div>
-  );
 }
 
 export default function ContactsIntegrationPage() {
@@ -666,7 +644,7 @@ export default function ContactsIntegrationPage() {
                   ? t("js.contacts.integrationFutureEvents")
                   : "Future Events"}
               </h3>
-              <SearchField value={qEvents} onChange={setQEvents} placeholder={searchPh} />
+              <SearchField value={qEvents} onChange={setQEvents} placeholder={searchPh} className="mb-2" />
               <ResponsiveTable<RemoveEventRow, "title" | "begin" | "status">
                 rows={sortedRemoveEvents}
                 getRowKey={(row) => `${row.eventType}-${row.id}`}
@@ -795,7 +773,7 @@ export default function ContactsIntegrationPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <section className="rounded-lg border border-base-300 bg-base-100 p-3">
                 <h3 className="text-sm font-semibold mb-2">{t("js.contacts.integrationPhases")}</h3>
-                <SearchField value={qPhases} onChange={setQPhases} placeholder={searchPh} />
+                <SearchField value={qPhases} onChange={setQPhases} placeholder={searchPh} className="mb-2" />
                 <div className="-mx-3">
                   {filteredPhases.length > 0 && (
                     <CheckboxSelectAllRow
@@ -818,7 +796,7 @@ export default function ContactsIntegrationPage() {
 
               <section className="rounded-lg border border-base-300 bg-base-100 p-3">
                 <h3 className="text-sm font-semibold mb-2">{t("js.contacts.integrationVotes")}</h3>
-                <SearchField value={qVotes} onChange={setQVotes} placeholder={searchPh} />
+                <SearchField value={qVotes} onChange={setQVotes} placeholder={searchPh} className="mb-2" />
                 <div className="-mx-3">
                   {filteredVotes.length > 0 && (
                     <CheckboxSelectAllRow
@@ -852,7 +830,7 @@ export default function ContactsIntegrationPage() {
                 <p className="text-sm text-base-content/60">{t("js.common.loading")}</p>
               ) : (
                 <div className="rounded-lg border border-base-300 bg-base-100 p-3 max-h-[min(780px,78vh)] overflow-y-auto">
-                  <SearchField value={qMembers} onChange={setQMembers} placeholder={searchPh} />
+                  <SearchField value={qMembers} onChange={setQMembers} placeholder={searchPh} className="mb-2" />
                   <div className="-mx-3">
                     {filteredMembers.length > 0 && (
                       <CheckboxSelectAllRow
@@ -1009,7 +987,7 @@ function SimpleEventChecklist({
     <div>
       <h3 className="text-sm font-semibold mb-2">{title}</h3>
       <div className="rounded-lg border border-base-300 bg-base-100 p-3 max-h-[min(780px,78vh)] overflow-y-auto">
-        <SearchField value={searchValue} onChange={onSearch} placeholder={t("js.common.search")} />
+        <SearchField value={searchValue} onChange={onSearch} placeholder={t("js.common.search")} className="mb-2" />
         <div className="-mx-3">
           {rows.length > 0 && (
             <CheckboxSelectAllRow
@@ -1097,7 +1075,7 @@ function SimplePhaseChecklist({
     <div>
       <h3 className="text-sm font-semibold mb-2">{title}</h3>
       <div className="rounded-lg border border-base-300 bg-base-100 p-3 max-h-[min(780px,78vh)] overflow-y-auto">
-        <SearchField value={searchValue} onChange={onSearch} placeholder="Search…" />
+        <SearchField value={searchValue} onChange={onSearch} placeholder="Search…" className="mb-2" />
         <div className="-mx-3">
           {rows.length > 0 && (
             <CheckboxSelectAllRow
@@ -1154,7 +1132,7 @@ function SimpleVoteChecklist({
     <div>
       <h3 className="text-sm font-semibold mb-2">{title}</h3>
       <div className="rounded-lg border border-base-300 bg-base-100 p-3 max-h-[min(780px,78vh)] overflow-y-auto">
-        <SearchField value={searchValue} onChange={onSearch} placeholder="Search…" />
+        <SearchField value={searchValue} onChange={onSearch} placeholder="Search…" className="mb-2" />
         <div className="-mx-3">
           {rows.length > 0 && (
             <CheckboxSelectAllRow

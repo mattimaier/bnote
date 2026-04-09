@@ -15,6 +15,7 @@ import { ActionButton } from "@/components/ActionButton";
 import { Avatar } from "@/components/Avatar";
 import { CheckboxRow, CheckboxSelectAllRow } from "@/components/CheckboxRow";
 import { ConfirmModal } from "@/components/ConfirmModal";
+import { SearchField } from "@/components/SearchField";
 import { Spinner } from "@/components/Spinner";
 import { Plus, Trash2, Users } from "@/components/icons";
 
@@ -27,29 +28,6 @@ function isProtectedGroup(group: ContactGroupListItem | null): boolean {
     group.id === PROTECTED_GROUP_ID ||
     normalized === "games participants" ||
     normalized === "mitglieder"
-  );
-}
-
-function SearchField({
-  value,
-  onChange,
-  placeholder,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-  placeholder: string;
-}) {
-  return (
-    <div className="flex w-full items-center gap-3 rounded-lg bg-base-200 px-3 py-2 mb-2">
-      <input
-        type="search"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        className="w-full bg-transparent px-0 py-1 text-sm outline-none text-base-content"
-        aria-label={placeholder}
-      />
-    </div>
   );
 }
 
@@ -420,7 +398,7 @@ export default function ContactsGroupsPage() {
               {t("js.common.remove") !== "js.common.remove" ? t("js.common.remove") : "Remove"}
             </ActionButton>
           </div>
-          <SearchField value={qGroups} onChange={setQGroups} placeholder={searchPlaceholder} />
+          <SearchField value={qGroups} onChange={setQGroups} placeholder={searchPlaceholder} className="mb-2" />
           {groupsLoading ? (
             <div className="flex justify-center py-8">
               <Spinner />
@@ -486,7 +464,7 @@ export default function ContactsGroupsPage() {
                 : "Remove Selected"}
             </ActionButton>
           </div>
-          <SearchField value={qMembers} onChange={setQMembers} placeholder={searchPlaceholder} />
+          <SearchField value={qMembers} onChange={setQMembers} placeholder={searchPlaceholder} className="mb-2" />
           {membersLoading || contactsLoading ? (
             <div className="flex justify-center py-8">
               <Spinner />
@@ -547,7 +525,7 @@ export default function ContactsGroupsPage() {
                 : "Add Selected"}
             </ActionButton>
           </div>
-          <SearchField value={qAvailable} onChange={setQAvailable} placeholder={searchPlaceholder} />
+          <SearchField value={qAvailable} onChange={setQAvailable} placeholder={searchPlaceholder} className="mb-2" />
           {membersLoading || contactsLoading ? (
             <div className="flex justify-center py-8">
               <Spinner />

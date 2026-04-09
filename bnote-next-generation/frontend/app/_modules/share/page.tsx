@@ -23,6 +23,7 @@ import { getIcon } from "@/components/icons";
 import { ChevronRight, FolderPlus, Download } from "@/components/icons";
 import { Spinner } from "@/components/Spinner";
 import { AppPageHeader } from "@/components/AppPageHeader";
+import { ConfirmModal } from "@/components/ConfirmModal";
 import { getErrorMessage } from "@/lib/error-utils";
 import { PAGE_CONTENT_CLASS } from "@/lib/layout";
 import type { ShareSortKey, SortDirection } from "@/components/share/ShareFileList";
@@ -338,46 +339,24 @@ export default function SharePage() {
         </div>
       </div>
 
-      {/* Delete confirmation */}
-      {deleteModal && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
-          onClick={() => setDeleteModal(null)}
-        >
-          <div
-            className="w-full max-w-md rounded-lg border bg-[var(--card)] p-4 shadow-xl"
-            style={{ borderColor: "var(--border)", color: "var(--card-foreground)" }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="text-lg font-semibold mb-3">
-              {t("js.common.confirmDeleteTitle") !== "js.common.confirmDeleteTitle" ? t("js.common.confirmDeleteTitle") : "Delete?"}
-            </h3>
-            <p className="text-sm mb-4" style={{ color: "var(--muted-foreground)" }}>
-              {t("js.common.confirmDeleteMessageNamed") !== "js.common.confirmDeleteMessageNamed"
-                ? t("js.common.confirmDeleteMessageNamed").replace("%s", deleteModal.name)
-                : `Delete "${deleteModal.name}"? This cannot be undone.`}
-            </p>
-            <div className="flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setDeleteModal(null)}
-                className="px-4 py-2 rounded-lg border text-sm font-medium"
-                style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
-              >
-                {t("js.common.cancel") !== "js.common.cancel" ? t("js.common.cancel") : "Cancel"}
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDelete(deleteModal)}
-                className="px-4 py-2 rounded-lg text-sm font-medium text-white"
-                style={{ background: "var(--destructive)", color: "var(--destructive-foreground)" }}
-              >
-                {t("js.common.delete") !== "js.common.delete" ? t("js.common.delete") : "Delete"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmModal
+        open={Boolean(deleteModal)}
+        onClose={() => setDeleteModal(null)}
+        title={t("js.common.confirmDeleteTitle") !== "js.common.confirmDeleteTitle" ? t("js.common.confirmDeleteTitle") : "Delete?"}
+        message={
+          deleteModal
+            ? (t("js.common.confirmDeleteMessageNamed") !== "js.common.confirmDeleteMessageNamed"
+              ? t("js.common.confirmDeleteMessageNamed").replace("%s", deleteModal.name)
+              : `Delete "${deleteModal.name}"? This cannot be undone.`)
+            : ""
+        }
+        confirmLabel={t("js.common.delete") !== "js.common.delete" ? t("js.common.delete") : "Delete"}
+        cancelLabel={t("js.common.cancel") !== "js.common.cancel" ? t("js.common.cancel") : "Cancel"}
+        onConfirm={async () => {
+          if (deleteModal) await handleDelete(deleteModal);
+        }}
+        variant="danger"
+      />
 
       {/* Create folder modal */}
       {createFolderModal && (

@@ -15,6 +15,9 @@ export interface Reservation {
   locationname?: string | null;
   contact: number | null;
   contactname?: string;
+  contactFirstName?: string | null;
+  contactSurname?: string | null;
+  contactEmail?: string | null;
   notes: string;
 }
 

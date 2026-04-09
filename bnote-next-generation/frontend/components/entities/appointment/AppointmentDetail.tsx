@@ -18,6 +18,7 @@ import { DetailEditButton, DetailPageHeader } from "@/components/DetailPageHeade
 import { getEventTypeConfig } from "@/lib/entity-config";
 import { getIcon } from "@/components/icons";
 import { NotesContent } from "@/components/NotesContent";
+import { PersonIdentityRow } from "@/components/PersonIdentityRow";
 import { isEmptyEditorJson } from "@/lib/editorjs-notes";
 import { formatDateTimeShort } from "@/lib/date-time";
 import { getErrorMessage } from "@/lib/error-utils";
@@ -116,7 +117,13 @@ export function AppointmentDetail() {
           {item.contactname && (
             <div>
               <span className="text-base-content/60 text-sm">{t("js.calendar.contact") !== "js.calendar.contact" ? t("js.calendar.contact") : "Contact"}:</span>{" "}
-              {item.contactname}
+              <PersonIdentityRow
+                name={item.contactname}
+                email={item.contactEmail}
+                avatarSize={24}
+                compact
+                className="inline-flex align-middle"
+              />
             </div>
           )}
           {item.notes?.trim() && !isEmptyEditorJson(item.notes) && (

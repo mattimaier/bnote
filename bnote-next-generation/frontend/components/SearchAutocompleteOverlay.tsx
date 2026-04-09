@@ -233,7 +233,12 @@ export function SearchAutocompleteOverlay({ anchorRef, onSelect, isDesktop = tru
                                   (item.dueAt || item.assignee) ? (
                                     <>
                                       {item.dueAt && <span className="flex items-center gap-1"><Calendar className="h-3 w-3 opacity-70" />Due: {item.dueAt}</span>}
-                                      {item.assignee && <span className="flex items-center gap-1"><User className="h-3 w-3 opacity-70" />Assigned to: {item.assignee}</span>}
+                                      {(item.assigneeName ?? item.assignee) && (
+                                        <span className="flex items-center gap-1">
+                                          <User className="h-3 w-3 opacity-70" />
+                                          Assigned to: {item.assigneeName ?? item.assignee}
+                                        </span>
+                                      )}
                                     </>
                                   ) : undefined
                                 }

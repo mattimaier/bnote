@@ -7,7 +7,7 @@
 
 "use client";
 
-import { Avatar } from "@/components/Avatar";
+import { PersonIdentityRow } from "@/components/PersonIdentityRow";
 
 export interface PersonOptionRowProps {
   /** Display name */
@@ -31,48 +31,15 @@ export function PersonOptionRow({
   compact = false,
   className = "",
 }: PersonOptionRowProps) {
-  const displayName = name?.trim() || "—";
-  const displayInstrument = instrument?.trim() || null;
-
-  if (compact) {
-    return (
-      <span className={`flex items-center gap-2 min-w-0 ${className}`.trim()}>
-        <Avatar
-          email={email}
-          name={displayName}
-          size={avatarSize}
-          variant="soft"
-          className="shrink-0"
-        />
-        <span className="min-w-0 flex flex-col truncate">
-          <span className="truncate">{displayName}</span>
-          {displayInstrument && (
-            <span className="text-xs text-base-content/60 truncate">
-              {displayInstrument}
-            </span>
-          )}
-        </span>
-      </span>
-    );
-  }
-
   return (
-    <span className={`flex items-center gap-3 min-w-0 ${className}`.trim()}>
-      <Avatar
-        email={email}
-        name={displayName}
-        size={avatarSize}
-        variant="soft"
-        className="shrink-0"
-      />
-      <span className="flex flex-col min-w-0">
-        <span className="truncate font-medium">{displayName}</span>
-        {displayInstrument ? (
-          <span className="text-xs text-base-content/60 truncate">
-            {displayInstrument}
-          </span>
-        ) : null}
-      </span>
-    </span>
+    <PersonIdentityRow
+      name={name}
+      email={email}
+      subtitle={instrument}
+      avatarSize={avatarSize}
+      avatarVariant="soft"
+      compact={compact}
+      className={className}
+    />
   );
 }

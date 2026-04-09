@@ -14,15 +14,15 @@ import { usersApi, type User } from "@/lib/users-api";
 import { getEntityPath } from "@/lib/entities/paths";
 import { compareString, compareDate, type SortDirection } from "@/lib/table-sort";
 import { formatDateTimeShort } from "@/lib/date-time";
-import { getStatusPillStyle, getColor, getPillStyle, getDotStyle } from "@/lib/entity-config";
+import { getStatusPillStyle } from "@/lib/entity-config";
 import { ResponsiveTable } from "@/components/ResponsiveTable";
 import { EntityListRow } from "@/components/EntityListRow";
 import { Avatar } from "@/components/Avatar";
-import { getIcon } from "@/components/icons";
-import { Plus, ArrowUp, ArrowDown, ArrowUpDown } from "@/components/icons";
+import { Plus } from "@/components/icons";
 import { ActionButton } from "@/components/ActionButton";
 import { AppPageHeader } from "@/components/AppPageHeader";
 import { Spinner } from "@/components/Spinner";
+import { SortableTh } from "@/components/SortableTableHeader";
 import { getErrorMessage } from "@/lib/error-utils";
 import { PAGE_CONTENT_CLASS } from "@/lib/layout";
 
@@ -247,34 +247,5 @@ export default function UsersPage() {
         )}
       </div>
     </div>
-  );
-}
-
-function SortableTh({
-  label,
-  sortKey,
-  currentSortKey,
-  sortDir,
-  onSort,
-}: {
-  label: string;
-  sortKey: "login" | "firstName" | "lastName" | "status" | "lastLogin";
-  currentSortKey: "id" | "login" | "firstName" | "lastName" | "status" | "lastLogin" | null;
-  sortDir: SortDirection;
-  onSort: (key: typeof sortKey) => void;
-}) {
-  const active = currentSortKey === sortKey;
-  const Icon = active ? (sortDir === "asc" ? ArrowUp : ArrowDown) : ArrowUpDown;
-  return (
-    <th className="text-left p-3 font-semibold">
-      <button
-        type="button"
-        onClick={() => onSort(sortKey)}
-        className="inline-flex items-center gap-1.5 hover:opacity-80 transition-opacity text-base-content"
-      >
-        {label}
-        <Icon className="h-4 w-4 opacity-70" />
-      </button>
-    </th>
   );
 }

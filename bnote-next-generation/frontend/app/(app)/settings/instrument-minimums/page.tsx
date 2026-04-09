@@ -2,6 +2,7 @@
 
 import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import { DetailPageHeader } from "@/components/DetailPageHeader";
+import { ConfirmModal } from "@/components/ConfirmModal";
 import { DetailSection } from "@/components/DetailSection";
 import { SelectPicker } from "@/components/SelectPicker";
 import { Spinner } from "@/components/Spinner";
@@ -61,6 +62,7 @@ export default function InstrumentMinimumsPage() {
     concert: {},
   });
   const [simplePairs, setSimplePairs] = useState<SimpleEscalationPair[]>([]);
+  const [pendingSimplePairDeleteIndex, setPendingSimplePairDeleteIndex] = useState<number | null>(null);
   const [simplePairDraft, setSimplePairDraft] = useState<SimpleEscalationPair>({
     instrument_a_id: 0,
     instrument_b_id: 0,
@@ -578,7 +580,7 @@ export default function InstrumentMinimumsPage() {
                         <button
                           type="button"
                           className="btn btn-soft btn-square btn-sm text-error"
-                          onClick={() => removeSimplePair(index)}
+                          onClick={() => setPendingSimplePairDeleteIndex(index)}
                           aria-label={label("js.common.delete", "Delete")}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -596,6 +598,21 @@ export default function InstrumentMinimumsPage() {
           )}
         </div>
       </DetailSection>
+
+      <ConfirmModal
+        open={pendingSimplePairDeleteIndex != null}
+        onClose={() => setPendingSimplePairDeleteIndex(null)}
+        title={label("js.common.confirmDeleteTitle", "Delete?")}
+        message={label("js.common.confirmDeleteMessage", "This cannot be undone.")}
+        confirmLabel={label("js.common.delete", "Delete")}
+        cancelLabel={label("js.common.cancel", "Cancel")}
+        onConfirm={() => {
+          if (pendingSimplePairDeleteIndex == null) return;
+          removeSimplePair(pendingSimplePairDeleteIndex);
+          setPendingSimplePairDeleteIndex(null);
+        }}
+        variant="danger"
+      />
     </div>
   );
 }

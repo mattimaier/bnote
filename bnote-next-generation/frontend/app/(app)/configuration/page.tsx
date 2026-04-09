@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { DetailSection } from "@/components/DetailSection";
+import { ConfirmModal } from "@/components/ConfirmModal";
 import { Spinner } from "@/components/Spinner";
 import { useI18n } from "@/contexts/I18nContext";
 import { useToast } from "@/contexts/ToastContext";
@@ -68,6 +69,8 @@ export default function ConfigurationPage() {
   const [calendarTimezone, setCalendarTimezone] = useState("Europe/Berlin");
   const [instrumentCategories, setInstrumentCategories] = useState<InstrumentAdminCategory[]>([]);
   const [instrumentItems, setInstrumentItems] = useState<InstrumentAdminInstrument[]>([]);
+  const [pendingCategoryDelete, setPendingCategoryDelete] = useState<InstrumentAdminCategory | null>(null);
+  const [pendingInstrumentDelete, setPendingInstrumentDelete] = useState<InstrumentAdminInstrument | null>(null);
   const [sections, setSections] = useState<InstrumentSectionConfig[]>([]);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [newInstrumentName, setNewInstrumentName] = useState("");
@@ -986,7 +989,12 @@ export default function ConfigurationPage() {
               {instrumentCategories.map((category) => (
                 <div key={category.id} className="flex items-center justify-between gap-2 border-b border-base-300 px-3 py-2 text-sm">
                   <span>{category.name}</span>
-                  <button type="button" className="btn btn-xs btn-soft" disabled={savingInstrumentAdmin} onClick={() => void deleteCategory(category.id)}>
+                  <button
+                    type="button"
+                    className="btn btn-xs btn-soft"
+                    disabled={savingInstrumentAdmin}
+                    onClick={() => setPendingCategoryDelete(category)}
+                  >
                     {label("js.common.delete", "Delete")}
                   </button>
                 </div>
@@ -1033,7 +1041,12 @@ export default function ConfigurationPage() {
                     {instrument.name}
                     {instrument.category_name ? ` · ${instrument.category_name}` : ""}
                   </span>
-                  <button type="button" className="btn btn-xs btn-soft" disabled={savingInstrumentAdmin} onClick={() => void deleteInstrument(instrument.id)}>
+                  <button
+                    type="button"
+                    className="btn btn-xs btn-soft"
+                    disabled={savingInstrumentAdmin}
+                    onClick={() => setPendingInstrumentDelete(instrument)}
+                  >
                     {label("js.common.delete", "Delete")}
                   </button>
                 </div>
@@ -1108,6 +1121,50 @@ export default function ConfigurationPage() {
           </div>
         </DetailSection>
       ) : null}
+
+      <ConfirmModal
+        open={pendingCategoryDelete != null}
+        onClose={() => setPendingCategoryDelete(null)}
+        title={label("js.common.confirmDeleteTitle", "Delete?")}
+        message={
+          pendingCategoryDelete
+            ? (label("js.common.confirmDeleteMessageNamed", "Delete \"%s\"? This cannot be undone.").replace(
+              "%s",
+              pendingCategoryDelete.name
+            ))
+            : ""
+        }
+        confirmLabel={label("js.common.delete", "Delete")}
+        cancelLabel={label("js.common.cancel", "Cancel")}
+        onConfirm={async () => {
+          if (!pendingCategoryDelete) return;
+          await deleteCategory(pendingCategoryDelete.id);
+          setPendingCategoryDelete(null);
+        }}
+        variant="danger"
+      />
+
+      <ConfirmModal
+        open={pendingInstrumentDelete != null}
+        onClose={() => setPendingInstrumentDelete(null)}
+        title={label("js.common.confirmDeleteTitle", "Delete?")}
+        message={
+          pendingInstrumentDelete
+            ? (label("js.common.confirmDeleteMessageNamed", "Delete \"%s\"? This cannot be undone.").replace(
+              "%s",
+              pendingInstrumentDelete.name
+            ))
+            : ""
+        }
+        confirmLabel={label("js.common.delete", "Delete")}
+        cancelLabel={label("js.common.cancel", "Cancel")}
+        onConfirm={async () => {
+          if (!pendingInstrumentDelete) return;
+          await deleteInstrument(pendingInstrumentDelete.id);
+          setPendingInstrumentDelete(null);
+        }}
+        variant="danger"
+      />
     </div>
   );
 }

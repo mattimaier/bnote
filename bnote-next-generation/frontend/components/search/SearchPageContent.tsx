@@ -28,6 +28,7 @@ import { prefixPath } from "@/lib/path";
 import { formatMonthName } from "@/lib/date-time";
 import { Search as SearchIcon } from "@/components/icons";
 import { Spinner } from "@/components/Spinner";
+import { AppPageHeader } from "@/components/AppPageHeader";
 import { getErrorMessage } from "@/lib/error-utils";
 import { notesToPlainText } from "@/lib/editorjs-notes";
 
@@ -121,9 +122,9 @@ function SearchListItemRow({
             {[item.email, item.phone, item.mobile].filter(Boolean).join(" · ")}
           </p>
         )}
-        {category === "tasks" && item.assignee && (
+        {category === "tasks" && (item.assigneeName || item.assignee) && (
           <p className="text-xs mt-0.5" style={{ color: "var(--muted-foreground)" }}>
-            {item.assignee}
+            {item.assigneeName || item.assignee}
           </p>
         )}
         {!isPerson && item.instrument && (
@@ -216,9 +217,7 @@ export default function SearchPageContent() {
 
   return (
     <div className={PAGE_CONTENT_CLASS}>
-      <h1 className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>
-        {t("js.dashboard.searchPlaceholder")}
-      </h1>
+      <AppPageHeader title={t("js.dashboard.searchPlaceholder")} moduleKey="search" />
 
       <form action={prefixPath("/search/")} method="get" className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
         <input type="hidden" name="year" value={yearParam ?? ""} />

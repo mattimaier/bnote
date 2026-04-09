@@ -51,6 +51,8 @@ export interface SearchListItem {
   instrument?: string;
   dueAt?: string;
   assignee?: string;
+  assigneeName?: string;
+  assigneeEmail?: string;
   composer?: string;
   genre?: string;
   street?: string;

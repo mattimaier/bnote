@@ -107,9 +107,10 @@ class AppointmentsModule {
         }
         if ($contactId > 0) {
             global $system_data;
-            $con = $system_data->dbcon->fetchRow('SELECT name, surname FROM contact WHERE id = ?', [['i', $contactId]]);
+            $con = $system_data->dbcon->fetchRow('SELECT name, surname, email FROM contact WHERE id = ?', [['i', $contactId]]);
             $row['contactname'] = $con['name'] ?? '';
             $row['contactsurname'] = $con['surname'] ?? '';
+            $row['contactemail'] = $con['email'] ?? '';
         }
     }
 
@@ -140,6 +141,9 @@ class AppointmentsModule {
             'locationname' => $row['locationname'] ?? null,
             'contact' => isset($row['contact']) ? intval($row['contact']) : null,
             'contactname' => trim(($row['contactname'] ?? '') . ' ' . ($row['contactsurname'] ?? '')),
+            'contactFirstName' => $row['contactname'] ?? '',
+            'contactSurname' => $row['contactsurname'] ?? '',
+            'contactEmail' => $row['contactemail'] ?? '',
             'notes' => $row['notes'] ?? '',
             'groups' => [],
         ];

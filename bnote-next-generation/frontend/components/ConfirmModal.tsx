@@ -6,7 +6,7 @@
 
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { ActionButton } from "@/components/ActionButton";
 
@@ -17,7 +17,7 @@ export interface ConfirmModalProps {
   message: React.ReactNode;
   confirmLabel: string;
   cancelLabel?: string;
-  onConfirm: () => void;
+  onConfirm: () => void | Promise<void>;
   variant?: "danger" | "default";
 }
 
@@ -31,10 +31,12 @@ export function ConfirmModal({
   onConfirm,
   variant = "danger",
 }: ConfirmModalProps) {
+  const [confirming, setConfirming] = useState(false);
+
   useEffect(() => {
     if (!open) return;
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape" && !confirming) onClose();
     };
     document.addEventListener("keydown", handleEscape);
     document.body.style.overflow = "hidden";
@@ -42,15 +44,25 @@ export function ConfirmModal({
       document.removeEventListener("keydown", handleEscape);
       document.body.style.overflow = "";
     };
-  }, [open, onClose]);
+  }, [open, onClose, confirming]);
+
+  useEffect(() => {
+    if (!open) setConfirming(false);
+  }, [open]);
 
   const handleBackdropClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) onClose();
+    if (e.target === e.currentTarget && !confirming) onClose();
   };
 
   const handleConfirm = async () => {
-    await onConfirm();
-    onClose();
+    if (confirming) return;
+    setConfirming(true);
+    try {
+      await onConfirm();
+      onClose();
+    } finally {
+      setConfirming(false);
+    }
   };
 
   if (!open) return null;
@@ -78,12 +90,13 @@ export function ConfirmModal({
             <p className="text-sm text-base-content/70">{message}</p>
           </div>
           <div className="modal-footer flex gap-2 p-4 pt-0">
-            <ActionButton variant="outline" onClick={onClose}>
+            <ActionButton variant="outline" onClick={onClose} disabled={confirming}>
               {cancelLabel}
             </ActionButton>
             <ActionButton
               variant={variant === "danger" ? "danger" : "primary"}
               onClick={handleConfirm}
+              disabled={confirming}
             >
               {confirmLabel}
             </ActionButton>

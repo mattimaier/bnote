@@ -14,12 +14,13 @@ import { tasksApi, type Task } from "@/lib/tasks-api";
 import { getEntityPath } from "@/lib/entities/paths";
 import { compareDate, compareString, type SortDirection } from "@/lib/table-sort";
 import { ResizableTable, ResizableTh } from "@/components/ResizableTable";
+import { ResizableSortableTh } from "@/components/SortableTableHeader";
 import { ResponsiveTable } from "@/components/ResponsiveTable";
 import { EntityListRow } from "@/components/EntityListRow";
 import { getIcon } from "@/components/icons";
 import { getColor, getPillStyle, getDotStyle } from "@/lib/entity-config";
 import { formatDateTimeShort } from "@/lib/date-time";
-import { ArrowUp, ArrowDown, ArrowUpDown, Plus } from "@/components/icons";
+import { Plus } from "@/components/icons";
 import { ActionButton } from "@/components/ActionButton";
 import { AppPageHeader } from "@/components/AppPageHeader";
 import { Spinner } from "@/components/Spinner";
@@ -270,38 +271,6 @@ export default function TasksPage() {
   );
 }
 
-function SortableTh({
-  label,
-  columnId,
-  sortKey,
-  currentSortKey,
-  sortDir,
-  onSort,
-}: {
-  label: string;
-  columnId: string;
-  sortKey: SortKey;
-  currentSortKey: SortKey | null;
-  sortDir: SortDirection;
-  onSort: (k: SortKey) => void;
-}) {
-  const active = currentSortKey === sortKey;
-  const Icon = active ? (sortDir === "asc" ? ArrowUp : ArrowDown) : ArrowUpDown;
-  return (
-    <ResizableTh columnId={columnId}>
-      <button
-        type="button"
-        onClick={() => onSort(sortKey)}
-        className="inline-flex items-center gap-1.5 transition-opacity hover:opacity-80"
-        style={{ color: "var(--foreground)" }}
-      >
-        {label}
-        <Icon className="h-4 w-4 opacity-70" />
-      </button>
-    </ResizableTh>
-  );
-}
-
 function TasksTable({
   title,
   items,
@@ -376,7 +345,7 @@ function TasksTable({
               primary={notesToPlainText(row.title ?? "") || emptyText}
               secondary={
                 <span>
-                  {row.assignee && `${row.assignee}`}
+                  {(row.assigneeName ?? row.assignee) && `${row.assigneeName ?? row.assignee}`}
                   {(isCompleted ? row.completed_at ?? row.due_at : row.due_at) &&
                     ` · ${formatDateTimeShort(isCompleted ? (row.completed_at ?? row.due_at ?? "") : (row.due_at ?? ""), lang)}`}
                 </span>
@@ -408,7 +377,7 @@ function TasksTable({
                     <span className="sr-only">{t("js.tasks.complete")}</span>
                   </ResizableTh>
                 )}
-                <SortableTh
+                <ResizableSortableTh
                   columnId="title"
                   label={t("js.tasks.title") !== "js.tasks.title" ? t("js.tasks.title") : "Title"}
                   sortKey="title"
@@ -416,7 +385,7 @@ function TasksTable({
                   sortDir={sortDir}
                   onSort={onSort}
                 />
-                <SortableTh
+                <ResizableSortableTh
                   columnId="assignee"
                   label={t("js.tasks.assignee") !== "js.tasks.assignee" ? t("js.tasks.assignee") : "Assignee"}
                   sortKey="assignee"
@@ -424,7 +393,7 @@ function TasksTable({
                   sortDir={sortDir}
                   onSort={onSort}
                 />
-                <SortableTh
+                <ResizableSortableTh
                   columnId="due_at"
                   label={t("js.tasks.dueAt") !== "js.tasks.dueAt" ? t("js.tasks.dueAt") : "Due"}
                   sortKey="due_at"
@@ -464,7 +433,7 @@ function TasksTable({
                       </td>
                     )}
                     <td className="p-3 font-medium">{notesToPlainText(row.title ?? "") || emptyText}</td>
-                    <td className="p-3">{row.assignee ?? emptyText}</td>
+                    <td className="p-3">{row.assigneeName ?? row.assignee ?? emptyText}</td>
                     <td className="p-3">
                       {(isCompleted ? row.completed_at ?? row.due_at : row.due_at)
                         ? formatDateTimeShort(isCompleted ? (row.completed_at ?? row.due_at ?? "") : (row.due_at ?? ""), lang)

@@ -16,9 +16,10 @@ import { compareString, type SortDirection } from "@/lib/table-sort";
 import { ResponsiveTable } from "@/components/ResponsiveTable";
 import { EntityListRow } from "@/components/EntityListRow";
 import { Avatar } from "@/components/Avatar";
-import { Plus, Users, ArrowUp, ArrowDown, ArrowUpDown } from "@/components/icons";
+import { Plus, Users } from "@/components/icons";
 import { ActionButton } from "@/components/ActionButton";
 import { AppPageHeader } from "@/components/AppPageHeader";
+import { SortableTh } from "@/components/SortableTableHeader";
 import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/error-utils";
 import { PAGE_CONTENT_CLASS } from "@/lib/layout";
@@ -275,13 +276,13 @@ export default function ContactsPage() {
               <thead>
                 <tr className="border-b border-base-300 bg-base-200/50">
                   <th className="w-12 p-3" aria-hidden />
-                  <ContactsSortableTh label={t("js.contacts.firstName")} sortKey="name" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
-                  <ContactsSortableTh label={t("js.contacts.lastName")} sortKey="surname" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
-                  <ContactsSortableTh label={t("js.contacts.nickname")} sortKey="nickname" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
-                  <ContactsSortableTh label={t("js.contacts.instrument")} sortKey="instrument" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
-                  <ContactsSortableTh label={t("js.contacts.email")} sortKey="email" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
-                  <ContactsSortableTh label={t("js.contacts.phone")} sortKey="phone" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
-                  <ContactsSortableTh label={t("js.contacts.city")} sortKey="city" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
+                  <SortableTh label={t("js.contacts.firstName")} sortKey="name" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
+                  <SortableTh label={t("js.contacts.lastName")} sortKey="surname" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
+                  <SortableTh label={t("js.contacts.nickname")} sortKey="nickname" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
+                  <SortableTh label={t("js.contacts.instrument")} sortKey="instrument" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
+                  <SortableTh label={t("js.contacts.email")} sortKey="email" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
+                  <SortableTh label={t("js.contacts.phone")} sortKey="phone" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
+                  <SortableTh label={t("js.contacts.city")} sortKey="city" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
                 </tr>
               </thead>
               <tbody>
@@ -326,32 +327,3 @@ export default function ContactsPage() {
 }
 
 type ContactsSortKey = "name" | "surname" | "nickname" | "instrument" | "email" | "phone" | "city";
-
-function ContactsSortableTh({
-  label,
-  sortKey,
-  currentSortKey,
-  sortDir,
-  onSort,
-}: {
-  label: string;
-  sortKey: ContactsSortKey;
-  currentSortKey: ContactsSortKey | null;
-  sortDir: SortDirection;
-  onSort: (key: ContactsSortKey) => void;
-}) {
-  const active = currentSortKey === sortKey;
-  const Icon = active ? (sortDir === "asc" ? ArrowUp : ArrowDown) : ArrowUpDown;
-  return (
-    <th className="text-left p-3 font-semibold">
-      <button
-        type="button"
-        onClick={() => onSort(sortKey)}
-        className="inline-flex items-center gap-1.5 hover:opacity-80 transition-opacity text-base-content"
-      >
-        {label}
-        <Icon className="h-4 w-4 opacity-70" />
-      </button>
-    </th>
-  );
-}
