@@ -1,15 +1,27 @@
 {
-  "releaseId": "0.1.0@dccbab4e3aa3",
-  "generatedAt": "2026-04-09T07:58:52.120Z",
+  "releaseId": "0.1.0@fa1160ddbd9b",
+  "generatedAt": "2026-04-09T15:40:19.469Z",
   "source": "hybrid",
   "build": {
     "version": "0.1.0",
-    "buildId": "dccbab4e3aa3",
-    "commit": "dccbab4e3aa3",
-    "fullCommit": "dccbab4e3aa38e59885557d86f7d39ecc0f0c686",
-    "buildTime": "2026-04-09T07:58:52.120Z"
+    "buildId": "fa1160ddbd9b",
+    "commit": "fa1160ddbd9b",
+    "fullCommit": "fa1160ddbd9b12578a93048046898f9919ee4941",
+    "buildTime": "2026-04-09T15:40:19.468Z"
   },
   "entries": [
+    {
+      "title": "App and module header icons now use the refreshed squircle style with improved light/dark contrast, thicker app-icon border, and build-generated SVG/PNG/ICO assets.",
+      "changeType": "changed",
+      "date": "2026-04-09",
+      "bugId": null
+    },
+    {
+      "title": "Empty notes from the rich text editor are now saved as empty values instead of persisted EditorJS JSON placeholders.",
+      "changeType": "fixed",
+      "date": "2026-04-09",
+      "bugId": null
+    },
     {
       "title": "Next Generation now keeps users signed in with secure long-lived login tokens by default and rotates tokens after automatic session restore.",
       "changeType": "changed",

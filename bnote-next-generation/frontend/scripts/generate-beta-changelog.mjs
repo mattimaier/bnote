@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { execSync } from "node:child_process";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const frontendDir = process.cwd();
@@ -172,6 +172,16 @@ const payload = {
   },
   entries,
 };
+
+const shouldWrite =
+  String(process.env.BETA_CHANGELOG_WRITE ?? "").trim() === "1" ||
+  String(process.env.CI ?? "").trim().toLowerCase() === "true" ||
+  !existsSync(outputPath);
+
+if (!shouldWrite) {
+  console.log("generate-beta-changelog: local mode; keeping committed api/config/beta-changelog.json unchanged");
+  process.exit(0);
+}
 
 mkdirSync(resolve(repoRoot, "api/config"), { recursive: true });
 writeFileSync(outputPath, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
