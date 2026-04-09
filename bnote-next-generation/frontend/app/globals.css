@@ -606,8 +606,7 @@ input[type="search"]::-webkit-search-results-decoration {
   padding-block: 0.25rem;
   font-size: 0.75rem;
   font-weight: 500;
-  border-radius: 30%;
-  corner-shape: superellipse(100%);
+  border-radius: var(--radius-selector);
   border: 1px solid;
   transition:
     background-color 150ms ease,
@@ -795,8 +794,7 @@ input[type="search"]::-webkit-search-results-decoration {
   padding-block: 0.125rem;
   font-size: 0.75rem;
   font-weight: 500;
-  border-radius: 30%;
-  corner-shape: superellipse(100%);
+  border-radius: var(--radius-selector);
   border: 1px solid;
   border-color: color-mix(in oklch, var(--primary) 20%, transparent);
   background-color: color-mix(in oklch, var(--primary) 10%, transparent);
