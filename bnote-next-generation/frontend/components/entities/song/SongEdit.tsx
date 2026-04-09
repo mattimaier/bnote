@@ -20,6 +20,7 @@ import { SelectPicker } from "@/components/SelectPicker";
 import { StatusPicker } from "@/components/entities/event/StatusPicker";
 import { NotesEditor } from "@/components/NotesEditor";
 import { Spinner } from "@/components/Spinner";
+import { isEmptyEditorJson } from "@/lib/editorjs-notes";
 import { getErrorMessage } from "@/lib/error-utils";
 
 export function SongEdit() {
@@ -99,6 +100,7 @@ export function SongEdit() {
     setSaving(true);
     setError("");
     try {
+      const normalizedNotes = isEmptyEditorJson(notes) || !notes.trim() ? undefined : notes.trim();
       const payload = {
         title,
         length: length || undefined,
@@ -108,7 +110,7 @@ export function SongEdit() {
         composer: composer || undefined,
         status: status === "" ? undefined : parseInt(status, 10),
         setting: setting || undefined,
-        notes: notes || undefined,
+        notes: normalizedNotes,
         is_active: isActive,
       };
       if (isNew) {

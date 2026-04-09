@@ -18,6 +18,7 @@ import { ConfirmModal } from "@/components/ConfirmModal";
 import { SearchField } from "@/components/SearchField";
 import { Spinner } from "@/components/Spinner";
 import { Plus, Trash2, Users } from "@/components/icons";
+import { isEmptyEditorJson } from "@/lib/editorjs-notes";
 
 const PROTECTED_GROUP_ID = 2;
 
@@ -221,7 +222,7 @@ export default function ContactsGroupsPage() {
           business: detail.business,
           email: detail.email,
           web: detail.web,
-          notes: detail.notes,
+          notes: isEmptyEditorJson(detail.notes ?? "") ? "" : detail.notes,
           instrument: detail.instrument,
           is_conductor: detail.is_conductor,
           birthday: detail.birthday,

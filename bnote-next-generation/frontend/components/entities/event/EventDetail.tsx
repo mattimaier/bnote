@@ -67,6 +67,7 @@ import { EventInfoEmailComposerModal } from "@/components/entities/event/EventIn
 import { EventEntityHeader } from "@/components/entities/event/EventEntityHeader";
 import { DetailDeleteSection } from "@/components/DetailDeleteSection";
 import { normalizeCompany } from "@/lib/dashboard-utils";
+import { isEmptyEditorJson } from "@/lib/editorjs-notes";
 import {
   addMinutesToInputDateTime,
   deriveEventContacts,
@@ -535,6 +536,10 @@ export function EventDetail({
     setSaving(true);
     setSaveError("");
     try {
+      const normalizedEventNotes = isEmptyEditorJson(form.notes) ? "" : form.notes;
+      const normalizedSongs = type === "rehearsal"
+        ? form.songs.map((song) => ({ id: song.id, notes: isEmptyEditorJson(song.notes) ? "" : song.notes }))
+        : undefined;
       const baseFields =
         type === "concert"
           ? {
@@ -544,7 +549,7 @@ export function EventDetail({
               meetingtime: fromInputDateTime(form.meetingtime),
               approve_until: fromInputDateTime(form.approveUntil),
               status: form.status,
-              notes: form.notes,
+              notes: normalizedEventNotes,
               organizer: form.organizer,
               payment: form.payment,
               conditions: form.conditions,
@@ -559,7 +564,7 @@ export function EventDetail({
               end: fromInputDateTime(form.end),
               approve_until: fromInputDateTime(form.approveUntil),
               status: form.status,
-              notes: form.notes,
+              notes: normalizedEventNotes,
               location: form.locationId,
               conductor: form.conductorId,
             };
@@ -570,7 +575,7 @@ export function EventDetail({
           groups: form.groups,
           equipment: type === "concert" ? form.equipment : undefined,
           contacts: form.eventContacts,
-          songs: type === "rehearsal" ? form.songs.map((song) => ({ id: song.id, notes: song.notes })) : undefined,
+          songs: normalizedSongs,
           participants: canEditParticipation
             ? form.participants.map((participant) => ({
                 userId: participant.userId,
@@ -594,7 +599,7 @@ export function EventDetail({
           groups: form.groups,
           equipment: type === "concert" ? form.equipment : undefined,
           contacts: form.eventContacts,
-          songs: type === "rehearsal" ? form.songs.map((song) => ({ id: song.id, notes: song.notes })) : undefined,
+          songs: normalizedSongs,
           participants: canEditParticipation
             ? form.participants.map((participant) => ({
                 userId: participant.userId,

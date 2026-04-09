@@ -1,6 +1,11 @@
 {
   "entries": [
     {
+      "title": "Empty notes from the rich text editor are now saved as empty values instead of persisted EditorJS JSON placeholders.",
+      "changeType": "fixed",
+      "date": "2026-04-09"
+    },
+    {
       "title": "Next Generation now keeps users signed in with secure long-lived login tokens by default and rotates tokens after automatic session restore.",
       "changeType": "changed",
       "date": "2026-04-09"

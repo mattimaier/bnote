@@ -18,6 +18,7 @@ import { getEntityPath } from "@/lib/entities/paths";
 import { DetailDeleteSection } from "@/components/DetailDeleteSection";
 import { NotesEditor } from "@/components/NotesEditor";
 import { Spinner } from "@/components/Spinner";
+import { isEmptyEditorJson } from "@/lib/editorjs-notes";
 import { getErrorMessage } from "@/lib/error-utils";
 
 export function EquipmentEdit() {
@@ -75,6 +76,7 @@ export function EquipmentEdit() {
     setSaving(true);
     setError("");
     try {
+      const normalizedNotes = isEmptyEditorJson(notes) ? "" : notes;
       const payload = {
         name,
         make,
@@ -82,7 +84,7 @@ export function EquipmentEdit() {
         quantity: quantity === "" ? undefined : parseInt(quantity, 10),
         purchase_price: purchasePrice || undefined,
         current_value: currentValue || undefined,
-        notes,
+        notes: normalizedNotes,
       };
       if (isNew) {
         const res = await equipmentApi.create(payload);

@@ -22,6 +22,7 @@ import { SelectPicker } from "@/components/SelectPicker";
 import { MultiSelect } from "@/components/entities/event/MultiSelect";
 import { NotesEditor } from "@/components/NotesEditor";
 import { Spinner } from "@/components/Spinner";
+import { isEmptyEditorJson } from "@/lib/editorjs-notes";
 import { getErrorMessage } from "@/lib/error-utils";
 
 export function ContactEdit() {
@@ -126,6 +127,7 @@ export function ContactEdit() {
     setSaving(true);
     setError("");
     try {
+      const normalizedNotes = isEmptyEditorJson(notes) ? "" : notes;
       const payload = {
         name,
         surname,
@@ -141,7 +143,7 @@ export function ContactEdit() {
         street,
         zip,
         city,
-        notes,
+        notes: normalizedNotes,
         groups: selectedGroups,
         share_email: shareEmail,
         share_address: shareAddress,

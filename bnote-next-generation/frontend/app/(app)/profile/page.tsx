@@ -20,6 +20,7 @@ import { NotesContent } from "@/components/NotesContent";
 import { NotesEditor } from "@/components/NotesEditor";
 import { formatDateShortDisplay } from "@/lib/date-time";
 import { Spinner } from "@/components/Spinner";
+import { isEmptyEditorJson } from "@/lib/editorjs-notes";
 import { getErrorMessage } from "@/lib/error-utils";
 import { PAGE_CONTENT_BASE_CLASS, PAGE_CONTENT_CLASS } from "@/lib/layout";
 
@@ -87,6 +88,7 @@ export default function ProfilePage() {
     e.preventDefault();
     const form = e.currentTarget;
     const formData = new FormData(form);
+    const normalizedNotes = isEmptyEditorJson(profileNotes) ? "" : profileNotes;
     const data: Record<string, unknown> = {
       name: formData.get("name") ?? "",
       surname: formData.get("surname") ?? "",
@@ -101,7 +103,7 @@ export default function ProfilePage() {
       mobile: formData.get("mobile") ?? "",
       company: formData.get("company") ?? "",
       business: formData.get("business") ?? "",
-      notes: formData.get("notes") ?? "",
+      notes: normalizedNotes,
       share_email: formData.get("share_email") === "on",
       share_address: formData.get("share_address") === "on",
       share_phones: formData.get("share_phones") === "on",

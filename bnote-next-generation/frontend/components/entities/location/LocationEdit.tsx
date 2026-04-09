@@ -18,6 +18,7 @@ import { getEntityPath } from "@/lib/entities/paths";
 import { DetailDeleteSection } from "@/components/DetailDeleteSection";
 import { NotesEditor } from "@/components/NotesEditor";
 import { Spinner } from "@/components/Spinner";
+import { isEmptyEditorJson } from "@/lib/editorjs-notes";
 import { getErrorMessage } from "@/lib/error-utils";
 
 export function LocationEdit() {
@@ -71,7 +72,8 @@ export function LocationEdit() {
     setSaving(true);
     setError("");
     try {
-      const payload = { name, notes, street, zip, city, state, country };
+      const normalizedNotes = isEmptyEditorJson(notes) ? "" : notes;
+      const payload = { name, notes: normalizedNotes, street, zip, city, state, country };
       if (isNew) {
         const res = await locationsApi.create(payload);
         showToast(
