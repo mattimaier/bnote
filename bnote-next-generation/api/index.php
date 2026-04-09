@@ -109,6 +109,7 @@ require_once __DIR__ . '/bootstrap.php';
 require_once __DIR__ . '/response.php';
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/logger.php';
+require_once __DIR__ . '/nextgen_persistent_login.php';
 
 // Set JSON content type
 header('Content-Type: application/json; charset=utf-8');
@@ -153,8 +154,38 @@ require_once $moduleFile;
 // Check authentication (except for auth/translations and public share-card image fetch)
 $isPublicShareCard = ($module === 'share' && $action === 'shareCard');
 $isPublicBugReportSend = ($module === 'bugreport' && $action === 'send');
+if (!Auth::check()) {
+    try {
+        $db = new Database();
+        NextGenPersistentLogin::restoreSessionIfPossible($db);
+    } catch (Throwable $e) {
+        error_log('Persistent login restore failed: ' . $e->getMessage());
+    }
+}
 if ($module !== 'auth' && $module !== 'translations' && !$isPublicShareCard && !$isPublicBugReportSend && !Auth::check()) {
     Response::error('Authentication required', 403);
+}
+
+// Security hardening: rotate session id after successful credential login.
+if ($module === 'auth' && $action === 'login' && Auth::check() && session_status() === PHP_SESSION_ACTIVE) {
+    session_regenerate_id(true);
+}
+
+// Long-lived persistent login token flow (default-on, no remember-me toggle).
+if ($module === 'auth' && $action === 'logout') {
+    try {
+        $db = new Database();
+        NextGenPersistentLogin::revokeCurrentTokenAndClearCookie($db);
+    } catch (Throwable $e) {
+        error_log('Persistent login revoke failed: ' . $e->getMessage());
+    }
+} else if (Auth::check()) {
+    try {
+        $db = new Database();
+        NextGenPersistentLogin::issueAndSetCookie((int) Auth::getUserId(), $db);
+    } catch (Throwable $e) {
+        error_log('Persistent login issue failed: ' . $e->getMessage());
+    }
 }
 
 // Instantiate module handler and process request

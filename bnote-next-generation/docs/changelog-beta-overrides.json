@@ -1,6 +1,16 @@
 {
   "entries": [
     {
+      "title": "Next Generation now keeps users signed in with secure long-lived login tokens by default and rotates tokens after automatic session restore.",
+      "changeType": "changed",
+      "date": "2026-04-09"
+    },
+    {
+      "title": "Next Generation-only modules (starting with Wrapped) are now kept out of legacy app navigation while remaining available in Next Generation with normal permission checks.",
+      "changeType": "fixed",
+      "date": "2026-04-09"
+    },
+    {
       "title": "Escalation cards on rehearsal and concert detail pages now let authorized users accept current risk (pausing escalation emails) and reset escalation, with automatic reset when risk profile changes.",
       "changeType": "changed",
       "date": "2026-04-08"
