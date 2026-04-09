@@ -3,7 +3,7 @@
 import { Modal } from "@/components/Modal";
 import { useI18n } from "@/contexts/I18nContext";
 import type { ChangelogEntry } from "@/lib/changelog-api";
-import { formatDateTimeShort } from "@/lib/date-time";
+import { formatDateShortDisplay } from "@/lib/date-time";
 
 interface ChangelogModalProps {
   open: boolean;
@@ -51,7 +51,7 @@ export function ChangelogModal({
                   <div className="mt-1 text-xs text-base-content/65 pl-4">
                     {[
                       entry.bugId ?? "",
-                      entry.date ? formatDateTimeShort(entry.date, lang) ?? entry.date : "",
+                      entry.date ? formatDateShortDisplay(entry.date, lang) : "",
                     ]
                       .filter(Boolean)
                       .join(" · ")}

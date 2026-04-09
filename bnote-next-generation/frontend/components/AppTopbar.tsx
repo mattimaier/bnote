@@ -93,7 +93,7 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
   const SettingsMenuIcon = getIcon("settings");
   const ConfigurationMenuIcon = getIcon("key");
   const SystemInformationMenuIcon = getIcon("info");
-  const ChangelogMenuIcon = getIcon("confetti");
+  const ChangelogMenuIcon = getIcon("file-text");
 
   async function handleLogout() {
     await logout();

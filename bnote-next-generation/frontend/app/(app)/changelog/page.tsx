@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AppPageHeader } from "@/components/AppPageHeader";
 import { PageContent } from "@/components/PageContent";
 import { useI18n } from "@/contexts/I18nContext";
-import { formatDateTimeShort } from "@/lib/date-time";
+import { formatDateShortDisplay } from "@/lib/date-time";
 import { changelogApi, type ChangelogResponse } from "@/lib/changelog-api";
 
 export default function ChangelogPage() {
@@ -85,7 +85,7 @@ export default function ChangelogPage() {
                   <div className="mt-1 pl-4 text-xs text-base-content/65">
                     {[
                       entry.bugId ?? "",
-                      entry.date ? formatDateTimeShort(entry.date, lang) ?? entry.date : "",
+                      entry.date ? formatDateShortDisplay(entry.date, lang) : "",
                     ]
                       .filter(Boolean)
                       .join(" · ")}
