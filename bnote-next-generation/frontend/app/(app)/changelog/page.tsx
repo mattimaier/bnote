@@ -53,8 +53,6 @@ export default function ChangelogPage() {
     <PageContent className="space-y-6">
       <AppPageHeader
         moduleKey="changelog"
-        iconName="confetti"
-        iconColor="#0EA5E9"
         title={label("js.changelog.pageTitle", "What's New in BNote")}
         subtitle={label("js.changelog.pageSubtitle", "Product updates and fixes in BNote (not band news posts).")}
       />

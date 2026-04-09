@@ -161,6 +161,7 @@ export default function ContactsPage() {
   return (
     <div className={PAGE_CONTENT_CLASS}>
       <AppPageHeader
+        moduleKey="contact"
         title={t("js.contacts.title") !== "js.contacts.title" ? t("js.contacts.title") : "Contacts"}
         subtitle={t("js.contacts.subtitle") !== "js.contacts.subtitle" ? t("js.contacts.subtitle") : "Manage contacts and groups"}
         actions={(

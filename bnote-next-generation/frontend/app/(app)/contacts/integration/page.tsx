@@ -544,6 +544,7 @@ export default function ContactsIntegrationPage() {
   return (
     <div className={`${PAGE_CONTENT_CLASS} pb-24 md:pb-8`}>
       <AppPageHeader
+        moduleKey="contact"
         title={
           mode === "remove"
             ? (t("js.contacts.integrationRemoveTitle") !== "js.contacts.integrationRemoveTitle"

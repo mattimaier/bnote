@@ -4,17 +4,15 @@ import { useCallback, useEffect, useState } from "react";
 import { useI18n } from "@/contexts/I18nContext";
 import { useToast } from "@/contexts/ToastContext";
 import { kontaktdatenApi } from "@/lib/kontaktdaten-api";
-import { TablerIconByName } from "@/components/icons";
+import { AppPageHeader } from "@/components/AppPageHeader";
 import { DetailSection } from "@/components/DetailSection";
 import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/error-utils";
 import { PAGE_CONTENT_CLASS } from "@/lib/layout";
-import { getModuleHeadlineConfig } from "@/lib/module-headline-config";
 
 export default function SettingsPage() {
   const { t, ready } = useI18n();
   const { showToast } = useToast();
-  const moduleConfig = getModuleHeadlineConfig("settings");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [emailNotification, setEmailNotification] = useState(true);
@@ -61,25 +59,10 @@ export default function SettingsPage() {
 
   return (
     <div className={PAGE_CONTENT_CLASS}>
-      <div className="mb-4">
-        <h1 className="text-2xl font-bold break-words whitespace-normal leading-tight text-base-content">
-          <span className="inline-flex items-center gap-3">
-            {moduleConfig && (
-              <span
-                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border"
-                style={{
-                  color: moduleConfig.color,
-                  borderColor: `color-mix(in oklch, ${moduleConfig.color} 30%, transparent)`,
-                  background: `color-mix(in oklch, ${moduleConfig.color} 14%, transparent)`,
-                }}
-              >
-                <TablerIconByName name={moduleConfig.icon} className="h-5 w-5" />
-              </span>
-            )}
-            <span>{label("js.settings.title", "Preferences")}</span>
-          </span>
-        </h1>
-      </div>
+      <AppPageHeader
+        moduleKey="settings"
+        title={label("js.settings.title", "Preferences")}
+      />
       <DetailSection className="space-y-4">
         <div>
           <span className="text-xs font-medium text-base-content/60">

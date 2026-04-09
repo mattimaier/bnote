@@ -48,8 +48,6 @@ export default function SystemInformationPage() {
     <PageContent className="space-y-6">
       <AppPageHeader
         moduleKey="system-information"
-        iconName="info"
-        iconColor="#0EA5E9"
         title={label("js.systemInformation.title", "System Information")}
         subtitle={label(
           "js.systemInformation.subtitle",

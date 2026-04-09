@@ -329,6 +329,7 @@ export default function ContactsGroupsPage() {
   return (
     <div className={`${PAGE_CONTENT_CLASS} pb-10`}>
       <AppPageHeader
+        moduleKey="contact"
         title={
           t("js.contacts.groupsManager.title") !== "js.contacts.groupsManager.title"
             ? t("js.contacts.groupsManager.title")

@@ -129,6 +129,7 @@ export default function UsersPage() {
   return (
     <div className={PAGE_CONTENT_CLASS}>
       <AppPageHeader
+        moduleKey="user"
         title={t("js.users.title") !== "js.users.title" ? t("js.users.title") : "User Management"}
         subtitle={t("js.users.subtitle") !== "js.users.subtitle" ? t("js.users.subtitle") : "Manage users and permissions"}
         actions={(

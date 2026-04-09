@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { AppPageHeader } from "@/components/AppPageHeader";
 import { DetailSection } from "@/components/DetailSection";
 import { ConfirmModal } from "@/components/ConfirmModal";
 import { Spinner } from "@/components/Spinner";
@@ -20,7 +21,6 @@ import {
 import { remindersApi, type EscalationGroup, type ReminderConfig } from "@/lib/reminders-api";
 import { getEscalationWarningUiConfig } from "@/lib/entity-config";
 import { TablerIconByName } from "@/components/icons";
-import { getModuleHeadlineConfig } from "@/lib/module-headline-config";
 
 interface EscalationConfigDraft {
   enabled: boolean;
@@ -52,7 +52,6 @@ const LOCALE_COUNTRY_PARAM = "default_country";
 export default function ConfigurationPage() {
   const { t, ready } = useI18n();
   const { showToast } = useToast();
-  const moduleConfig = getModuleHeadlineConfig("configuration");
   const [loading, setLoading] = useState(true);
   const [savingConfig, setSavingConfig] = useState(false);
   const [savingReminderConfig, setSavingReminderConfig] = useState(false);
@@ -433,31 +432,15 @@ export default function ConfigurationPage() {
 
   return (
     <div className={`${PAGE_CONTENT_CLASS} space-y-6`}>
-      <div>
-        <h1 className="text-2xl font-bold break-words whitespace-normal leading-tight text-base-content">
-          <span className="inline-flex items-center gap-3">
-            {moduleConfig && (
-              <span
-                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border"
-                style={{
-                  color: moduleConfig.color,
-                  borderColor: `color-mix(in oklch, ${moduleConfig.color} 30%, transparent)`,
-                  background: `color-mix(in oklch, ${moduleConfig.color} 14%, transparent)`,
-                }}
-              >
-                <TablerIconByName name={moduleConfig.icon} className="h-5 w-5" />
-              </span>
-            )}
-            <span>{label("js.configuration.title", "Configuration")}</span>
-          </span>
-        </h1>
-      </div>
-
-      <div className="flex justify-end">
-        <button type="button" className="btn btn-soft btn-primary" disabled={savingConfig} onClick={() => void saveConfiguration()}>
-          {savingConfig ? label("js.common.saving", "Saving…") : label("js.common.save", "Save")}
-        </button>
-      </div>
+      <AppPageHeader
+        moduleKey="configuration"
+        title={label("js.configuration.title", "Configuration")}
+        actions={(
+          <button type="button" className="btn btn-soft btn-primary" disabled={savingConfig} onClick={() => void saveConfiguration()}>
+            {savingConfig ? label("js.common.saving", "Saving…") : label("js.common.save", "Save")}
+          </button>
+        )}
+      />
 
       <DetailSection className="space-y-4">
         <p className="text-sm text-base-content/70">

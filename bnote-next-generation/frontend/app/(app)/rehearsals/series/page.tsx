@@ -59,6 +59,7 @@ export default function RehearsalSeriesListPage() {
   return (
     <PageContent className="px-1 md:px-4">
       <AppPageHeader
+        moduleKey="rehearsal"
         title={t("js.rehearsals.series.listTitle") !== "js.rehearsals.series.listTitle" ? t("js.rehearsals.series.listTitle") : "Rehearsal series"}
         actions={(
           <ActionButton href="/rehearsals/series/detail?new=1&edit=1">

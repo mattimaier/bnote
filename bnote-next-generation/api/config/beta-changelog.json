@@ -1,25 +1,37 @@
 {
-  "releaseId": "0.1.0@325c0b7a3ca5",
-  "generatedAt": "2026-04-08T19:35:32.116Z",
+  "releaseId": "0.1.0@dccbab4e3aa3",
+  "generatedAt": "2026-04-09T07:58:52.120Z",
   "source": "hybrid",
   "build": {
     "version": "0.1.0",
-    "buildId": "325c0b7a3ca5",
-    "commit": "325c0b7a3ca5",
-    "fullCommit": "325c0b7a3ca5c19323b74e1e21bafefbfd1b87b7",
-    "buildTime": "2026-04-08T19:35:32.115Z"
+    "buildId": "dccbab4e3aa3",
+    "commit": "dccbab4e3aa3",
+    "fullCommit": "dccbab4e3aa38e59885557d86f7d39ecc0f0c686",
+    "buildTime": "2026-04-09T07:58:52.120Z"
   },
   "entries": [
     {
+      "title": "Next Generation now keeps users signed in with secure long-lived login tokens by default and rotates tokens after automatic session restore.",
+      "changeType": "changed",
+      "date": "2026-04-09",
+      "bugId": null
+    },
+    {
+      "title": "Next Generation-only modules (starting with Wrapped) are now kept out of legacy app navigation while remaining available in Next Generation with normal permission checks.",
+      "changeType": "fixed",
+      "date": "2026-04-09",
+      "bugId": null
+    },
+    {
       "title": "Event detail action layout on narrow desktop widths",
       "changeType": "fixed",
-      "date": "2026-04-08T18:09:53+02:00",
+      "date": "2026-04-08T21:26:07+02:00",
       "bugId": "BUG-20260408-085533-67E4"
     },
     {
       "title": "Share: add rename support for files and folders",
       "changeType": "fixed",
-      "date": "2026-04-08T18:05:38+02:00",
+      "date": "2026-04-08T21:24:02+02:00",
       "bugId": "BUG-20260408-150929-F00B"
     },
     {
