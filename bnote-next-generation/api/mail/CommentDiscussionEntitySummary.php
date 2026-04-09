@@ -78,6 +78,7 @@ final class CommentDiscussionEntitySummary {
 
         return [
             'icon_bg' => $acc['icon_bg'],
+            'icon_entity_key' => 'rehearsal',
             'icon_inner_html' => MailEntityIcons::inlineSvgForEntityKey('rehearsal'),
             'icon_char' => "\u{266B}",
             'title' => $title,
@@ -118,6 +119,7 @@ final class CommentDiscussionEntitySummary {
 
         return [
             'icon_bg' => $acc['icon_bg'],
+            'icon_entity_key' => 'concert',
             'icon_inner_html' => MailEntityIcons::inlineSvgForEntityKey('concert'),
             'icon_char' => "\u{266A}",
             'title' => $title,
@@ -151,6 +153,7 @@ final class CommentDiscussionEntitySummary {
 
         return [
             'icon_bg' => $acc['icon_bg'],
+            'icon_entity_key' => 'vote',
             'icon_inner_html' => MailEntityIcons::inlineSvgForEntityKey('vote'),
             'icon_char' => 'V',
             'title' => $name,

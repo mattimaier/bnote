@@ -32,6 +32,7 @@ import { formatDateShortDisplay, formatDateTimeShort } from "@/lib/date-time";
 import { Clock, MapPin } from "@/components/icons";
 import { getEntityPath } from "@/lib/entities/paths";
 import { formatHoursForDisplay } from "@/lib/duration-format";
+import { SquircleIconBadge } from "@/components/SquircleIconBadge";
 
 const CHART_COLORS = {
   rehearsal: "var(--primary)",
@@ -60,6 +61,7 @@ function StatCard({
   hint?: string;
   infoLabel: string;
 }) {
+  const StatIcon = getIcon(iconName);
   return (
     <div className="stats bg-base-100 md:stats-border shadow-none md:shadow rounded-none md:rounded-box overflow-hidden">
       <div className="stat px-4 py-3">
@@ -68,9 +70,7 @@ function StatCard({
           {hint ? (
             <CardIconHintPopover label={infoLabel} content={hint} iconName={iconName} iconColor={iconColor} />
           ) : (
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-base-200" style={{ color: iconColor }}>
-              <TablerIconByName name={iconName} className="h-4 w-4" />
-            </span>
+            <SquircleIconBadge Icon={StatIcon} color={iconColor} size="md" />
           )}
         </div>
         <div className="stat-value text-2xl md:text-3xl">{value}</div>
@@ -91,6 +91,7 @@ function CardIconHintPopover({
   iconName: string;
   iconColor: string;
 }) {
+  const HintIcon = getIcon(iconName);
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLSpanElement | null>(null);
   const panelId = useId();
@@ -116,8 +117,7 @@ function CardIconHintPopover({
     <span ref={rootRef} className="relative inline-flex">
       <button
         type="button"
-        className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-base-200 hover:bg-base-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-        style={{ color: iconColor }}
+        className="rounded-[30%] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
         aria-label={label}
         aria-expanded={open}
         aria-controls={panelId}
@@ -127,7 +127,7 @@ function CardIconHintPopover({
           setOpen((prev) => !prev);
         }}
       >
-        <TablerIconByName name={iconName} className="h-4 w-4" />
+        <SquircleIconBadge Icon={HintIcon} color={iconColor} size="md" />
       </button>
       {open ? (
         <span
@@ -370,12 +370,10 @@ export function StatsDashboardContent({
         <section className="bg-base-100 rounded-box border border-base-300 px-4 py-4 md:px-5 md:py-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex min-w-0 items-center gap-3">
-              <span
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-base-200"
-                style={statsEntity?.color ? { color: statsEntity.color } : undefined}
-              >
-                <TablerIconByName name={statsEntity?.icon ?? "chart-bar"} className="h-5 w-5" />
-              </span>
+              <SquircleIconBadge
+                Icon={getIcon(statsEntity?.icon ?? "chart-bar")}
+                color={statsEntity?.color ?? "var(--primary)"}
+              />
               <div className="min-w-0">
                 <h1 className="text-lg md:text-xl font-semibold truncate">{t("js.stats.title")}</h1>
                 <p className="text-sm text-base-content/70">{t("js.stats.subtitle")}</p>
@@ -996,6 +994,7 @@ export function StatsDashboardContent({
                 const eventType = event.type === "concert" ? "performance" : "rehearsal";
                 const typeConfig = getEventTypeConfig(eventType, t);
                 const Icon = getIcon(typeConfig.icon);
+                const markerColor = getEntityConfig(event.type)?.color ?? "var(--primary)";
                 const warningUi = getEscalationWarningUiConfig(event.severity);
                 const WarningIcon = getIcon(warningUi.iconName);
                 const begin = formatDateTimeShort(event.begin, lang) ?? formatDateShortDisplay(event.begin, lang);
@@ -1007,9 +1006,7 @@ export function StatsDashboardContent({
                   <EntityListRow
                     href={href}
                     icon={
-                      <span className={`rounded-full flex items-center justify-center w-6 h-6 text-white ${typeConfig.dotClass}`}>
-                        <Icon className="h-3 w-3" />
-                      </span>
+                      <SquircleIconBadge Icon={Icon} color={markerColor} size="sm" iconClassName="h-3 w-3" />
                     }
                     primary={begin}
                     badge={
@@ -1098,6 +1095,7 @@ export function StatsDashboardContent({
                       const eventType = event.type === "concert" ? "performance" : "rehearsal";
                       const typeConfig = getEventTypeConfig(eventType, t);
                       const Icon = getIcon(typeConfig.icon);
+                      const markerColor = getEntityConfig(event.type)?.color ?? "var(--primary)";
                       const warningUi = getEscalationWarningUiConfig(event.severity);
                       const WarningIcon = getIcon(warningUi.iconName);
                       const begin = formatDateTimeShort(event.begin, lang) ?? formatDateShortDisplay(event.begin, lang);
@@ -1111,9 +1109,13 @@ export function StatsDashboardContent({
                         >
                           <td className="p-3">
                             <div className="flex items-center gap-2">
-                              <div className={`h-7 w-7 shrink-0 rounded-full flex items-center justify-center text-white ring-2 ring-base-100 shadow-sm ${typeConfig.dotClass}`}>
-                                <Icon className="h-3.5 w-3.5" />
-                              </div>
+                              <SquircleIconBadge
+                                Icon={Icon}
+                                color={markerColor}
+                                size="sm"
+                                iconClassName="h-3.5 w-3.5"
+                                className="ring-2 ring-base-100 shadow-sm"
+                              />
                               <div className="min-w-0">
                                 <div className="truncate">{begin}</div>
                                 {title ? <div className="text-xs text-base-content/60 truncate">{title}</div> : null}

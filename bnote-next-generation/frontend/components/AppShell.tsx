@@ -80,11 +80,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     setChangelogOpen(false);
   }
 
-  function handleDismiss() {
-    markReleaseSeen();
-    setChangelogOpen(false);
-  }
-
   function handleViewDetails() {
     markReleaseSeen();
     setChangelogOpen(false);
@@ -110,7 +105,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         releaseId={changelogReleaseId}
         entries={changelogEntries}
         onClose={handleLater}
-        onDismiss={handleDismiss}
         onViewDetails={handleViewDetails}
       />
     </div>

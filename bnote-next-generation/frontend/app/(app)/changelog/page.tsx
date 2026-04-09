@@ -54,7 +54,7 @@ export default function ChangelogPage() {
       <AppPageHeader
         moduleKey="changelog"
         title={label("js.changelog.pageTitle", "What's New in BNote")}
-        subtitle={label("js.changelog.pageSubtitle", "Product updates and fixes in BNote (not band news posts).")}
+        subtitle={label("js.changelog.pageSubtitle", "Product updates and fixes in BNote.")}
       />
 
       {error ? (

@@ -6,6 +6,11 @@
 declare(strict_types=1);
 
 final class MailEntityIcons {
+    /** @var array<string, string> */
+    private static array $pngDataUriCache = [];
+    /** @var array<string, string> */
+    private static array $badgePngDataUriCache = [];
+
     /**
      * @return array{color:string, icon?:string}|null
      */
@@ -37,7 +42,73 @@ final class MailEntityIcons {
      * Trusted SVG fragment (no user input) for insertion inside the icon circle.
      */
     public static function inlineSvgForEntityKey(string $entityKey): string {
+        $png = self::inlinePngForEntityKey($entityKey);
+        if ($png !== null) {
+            return $png;
+        }
         return self::svgForIconName(self::iconNameForEntityKey($entityKey));
+    }
+
+    private static function inlinePngForEntityKey(string $entityKey): ?string {
+        $key = strtolower(trim($entityKey));
+        if ($key === '') {
+            return null;
+        }
+        if (array_key_exists($key, self::$pngDataUriCache)) {
+            $uri = self::$pngDataUriCache[$key];
+            return $uri !== '' ? self::pngImgTag($uri) : null;
+        }
+
+        $pngPath = __DIR__ . '/generated-icons/' . $key . '.png';
+        if (!is_readable($pngPath)) {
+            self::$pngDataUriCache[$key] = '';
+            return null;
+        }
+        $raw = file_get_contents($pngPath);
+        if (!is_string($raw) || $raw === '') {
+            self::$pngDataUriCache[$key] = '';
+            return null;
+        }
+        $uri = 'data:image/png;base64,' . base64_encode($raw);
+        self::$pngDataUriCache[$key] = $uri;
+        return self::pngImgTag($uri);
+    }
+
+    private static function pngImgTag(string $uri): string {
+        $src = htmlspecialchars($uri, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        return '<img src="' . $src . '" width="18" height="18" alt="" aria-hidden="true" '
+            . 'style="display:block;margin:0 auto;width:18px;height:18px;border:0;outline:none;text-decoration:none;" />';
+    }
+
+    public static function inlineBadgePngForEntityKey(string $entityKey): ?string {
+        $key = strtolower(trim($entityKey));
+        if ($key === '') {
+            return null;
+        }
+        if (array_key_exists($key, self::$badgePngDataUriCache)) {
+            $uri = self::$badgePngDataUriCache[$key];
+            return $uri !== '' ? self::badgeImgTag($uri) : null;
+        }
+
+        $pngPath = __DIR__ . '/generated-icons/' . $key . '-badge.png';
+        if (!is_readable($pngPath)) {
+            self::$badgePngDataUriCache[$key] = '';
+            return null;
+        }
+        $raw = file_get_contents($pngPath);
+        if (!is_string($raw) || $raw === '') {
+            self::$badgePngDataUriCache[$key] = '';
+            return null;
+        }
+        $uri = 'data:image/png;base64,' . base64_encode($raw);
+        self::$badgePngDataUriCache[$key] = $uri;
+        return self::badgeImgTag($uri);
+    }
+
+    private static function badgeImgTag(string $uri): string {
+        $src = htmlspecialchars($uri, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        return '<img src="' . $src . '" width="40" height="40" alt="" aria-hidden="true" '
+            . 'style="display:block;margin:0 auto;width:40px;height:40px;border:0;outline:none;text-decoration:none;" />';
     }
 
     public static function svgForIconName(string $iconName): string {

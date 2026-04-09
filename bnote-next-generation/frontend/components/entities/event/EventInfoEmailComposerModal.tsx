@@ -296,7 +296,7 @@ export function EventInfoEmailComposerModal({
             <EventEntityHeader
               title={title}
               iconName={eventIconName ?? "calendar"}
-              iconBgClassName={module === "rehearsals" ? "bg-primary" : "bg-accent"}
+              iconColor={module === "rehearsals" ? "var(--color-primary)" : "var(--color-accent)"}
               badgeLabel={eventBadgeLabel ?? ""}
               badgeClassName={eventBadgeClassName ?? ""}
               dateTimeLine={eventMetaLine ?? ""}

@@ -162,17 +162,6 @@ body {
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
-/* Module header icon shape: fallback rounded corner + native squircle when supported. */
-.module-header-icon-shape {
-  border-radius: 100%;
-}
-
-@supports (corner-shape: squircle) {
-  .module-header-icon-shape {
-    corner-shape: squircle;
-  }
-}
-
 /* Wrapped: expressive display type + festival background utilities */
 .wrapped-display {
   font-family: var(--font-wrapped-display), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -617,7 +606,8 @@ input[type="search"]::-webkit-search-results-decoration {
   padding-block: 0.25rem;
   font-size: 0.75rem;
   font-weight: 500;
-  border-radius: var(--radius-field);
+  border-radius: 30%;
+  corner-shape: superellipse(100%);
   border: 1px solid;
   transition:
     background-color 150ms ease,
@@ -805,7 +795,8 @@ input[type="search"]::-webkit-search-results-decoration {
   padding-block: 0.125rem;
   font-size: 0.75rem;
   font-weight: 500;
-  border-radius: var(--radius-field);
+  border-radius: 30%;
+  corner-shape: superellipse(100%);
   border: 1px solid;
   border-color: color-mix(in oklch, var(--primary) 20%, transparent);
   background-color: color-mix(in oklch, var(--primary) 10%, transparent);

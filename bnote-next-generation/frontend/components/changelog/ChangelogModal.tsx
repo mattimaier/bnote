@@ -10,7 +10,6 @@ interface ChangelogModalProps {
   releaseId: string;
   entries: ChangelogEntry[];
   onClose: () => void;
-  onDismiss: () => void;
   onViewDetails: () => void;
 }
 
@@ -19,7 +18,6 @@ export function ChangelogModal({
   releaseId,
   entries,
   onClose,
-  onDismiss,
   onViewDetails,
 }: ChangelogModalProps) {
   const { t, lang } = useI18n();
@@ -40,7 +38,7 @@ export function ChangelogModal({
     >
       <div className="space-y-4">
         <p className="text-sm text-base-content/70">
-          {label("js.changelog.subtitle", "Product updates and fixes in BNote (separate from band news posts).")}
+          {label("js.changelog.subtitle", "Product updates and fixes in BNote.")}
         </p>
         <div>
           {entries.length > 0 ? (
@@ -71,9 +69,6 @@ export function ChangelogModal({
           </p>
         ) : null}
         <div className="flex flex-wrap justify-end gap-2">
-          <button type="button" className="btn btn-soft" onClick={onDismiss}>
-            {label("js.changelog.dismiss", "Dismiss")}
-          </button>
           <button type="button" className="btn btn-primary" onClick={onViewDetails}>
             {label("js.changelog.viewDetails", "View changelog")}
           </button>

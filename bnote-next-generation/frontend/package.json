@@ -5,11 +5,12 @@
   "scripts": {
     "generate:beta-changelog": "node scripts/generate-beta-changelog.mjs",
     "generate:icons": "node scripts/generate-logo-png.mjs",
+    "generate:mail-icons": "node scripts/generate-mail-icon-pngs.mjs",
     "generate:logo": "npm run generate:icons",
     "sync:mail-design": "node scripts/sync-mail-design.mjs",
     "dev": "next dev",
     "dev:webpack": "next dev --webpack",
-    "build": "npm run generate:beta-changelog && npm run generate:icons && npm run sync:mail-design && next build && node scripts/prune-dev-artifacts.mjs",
+    "build": "npm run generate:beta-changelog && npm run generate:icons && npm run generate:mail-icons && npm run sync:mail-design && next build && node scripts/prune-dev-artifacts.mjs",
     "start": "next start",
     "lint": "eslint"
   },

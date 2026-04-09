@@ -2,11 +2,12 @@
 
 import type { ReactNode } from "react";
 import { getIcon } from "@/components/icons";
+import { SquircleIconBadge } from "@/components/SquircleIconBadge";
 
 interface EventEntityHeaderProps {
   title: ReactNode;
   iconName: string;
-  iconBgClassName: string;
+  iconColor: string;
   badgeLabel?: string;
   badgeClassName: string;
   dateTimeLine?: ReactNode;
@@ -16,7 +17,7 @@ interface EventEntityHeaderProps {
 export function EventEntityHeader({
   title,
   iconName,
-  iconBgClassName,
+  iconColor,
   badgeLabel,
   badgeClassName,
   dateTimeLine,
@@ -27,11 +28,7 @@ export function EventEntityHeader({
   return (
     <div className="flex-1 min-w-0">
       <div className="flex items-center gap-2">
-        <div
-          className={`module-header-icon-shape flex h-10 w-10 shrink-0 items-center justify-center text-white ${iconBgClassName}`}
-        >
-          <EventIcon className="h-5 w-5" />
-        </div>
+        <SquircleIconBadge Icon={EventIcon} color={iconColor} />
         <div className="flex flex-wrap items-center gap-2 min-w-0">
           <h1 className="text-2xl font-bold text-base-content break-words whitespace-normal leading-tight">
             {title}

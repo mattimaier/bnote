@@ -20,6 +20,7 @@ import { useNewsHtml, MAX_SHOW_DEFAULT } from "@/lib/dashboard-utils";
 import { pickDashboardEmptyResponseVariantKey, resolveDashboardEmptyResponseMessage } from "@/lib/dashboard-empty-state";
 import { Spinner } from "@/components/Spinner";
 import { PAGE_CONTENT_BASE_CLASS } from "@/lib/layout";
+import { SquircleIconBadge } from "@/components/SquircleIconBadge";
 
 export interface DashboardData {
   inbox: InboxEvent[];
@@ -398,9 +399,7 @@ export default function DashboardContent({
                   href={action.href}
                     className={`group flex flex-col items-center gap-2 p-3 md:gap-3 md:p-4 rounded-lg border border-border/20 md:border-border/40 transition-colors duration-200 hover:border-primary/30 hover:bg-primary/5 ${action.colorClass}`}
                 >
-                  <div className="p-2 rounded-lg bg-current/10 group-hover:bg-current/15 transition-colors">
-                    <Icon className="h-5 w-5" />
-                  </div>
+                  <SquircleIconBadge Icon={Icon} color="currentColor" size="md" />
                   <div className="text-center">
                     <p className="font-semibold text-sm leading-tight">{t(action.titleKey)}</p>
                     <p className="text-xs mt-1 text-muted-foreground/70 font-normal">{t(action.descKey)}</p>

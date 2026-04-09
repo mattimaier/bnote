@@ -65,6 +65,7 @@ import { useEventDetailData } from "@/lib/entities/event/useEventDetailData";
 import { EventParticipationShareModal } from "@/components/entities/event/EventParticipationShareModal";
 import { EventInfoEmailComposerModal } from "@/components/entities/event/EventInfoEmailComposerModal";
 import { EventEntityHeader } from "@/components/entities/event/EventEntityHeader";
+import { SquircleIconBadge } from "@/components/SquircleIconBadge";
 import { DetailDeleteSection } from "@/components/DetailDeleteSection";
 import { normalizeCompany } from "@/lib/dashboard-utils";
 import { isEmptyEditorJson } from "@/lib/editorjs-notes";
@@ -717,9 +718,7 @@ export function EventDetail({
           <div className="flex-1 min-w-0">
             {isEditing && form && type === "concert" ? (
               <div className="flex items-center gap-2">
-                <div className="module-header-icon-shape flex h-10 w-10 shrink-0 items-center justify-center bg-accent text-white">
-                  <HeaderIcon className="h-5 w-5" />
-                </div>
+                <SquircleIconBadge Icon={HeaderIcon} color="var(--color-accent)" />
                 <div className="flex flex-wrap items-center gap-2 min-w-0">
                   <input
                     type="text"
@@ -734,7 +733,7 @@ export function EventDetail({
               <EventEntityHeader
                 title={title}
                 iconName={eventTypeConfig.icon}
-                iconBgClassName={type === "rehearsal" ? "bg-primary" : "bg-accent"}
+                iconColor={type === "rehearsal" ? "var(--color-primary)" : "var(--color-accent)"}
                 badgeLabel={eventTypeConfig.label}
                 badgeClassName={eventTypeConfig.badgeClass}
                 dateTimeLine={`${dateStr} · ${timeStr}${endTimeStr ? ` - ${endTimeStr}` : ""}`}

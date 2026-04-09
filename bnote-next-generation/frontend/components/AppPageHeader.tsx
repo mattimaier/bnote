@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { getIcon } from "@/components/icons";
 import { getModuleHeadlineConfig } from "@/lib/module-headline-config";
+import { SquircleIconBadge } from "@/components/SquircleIconBadge";
 
 export interface AppPageHeaderProps {
   title: ReactNode;
@@ -34,16 +35,7 @@ export function AppPageHeader({
         >
           <span className="inline-flex items-center gap-3">
             {Icon && (
-              <span
-                className="module-header-icon-shape inline-flex h-10 w-10 shrink-0 items-center justify-center border leading-none"
-                style={{
-                  color: resolvedIconColor ?? "var(--foreground)",
-                  borderColor: `color-mix(in oklch, ${resolvedIconColor ?? "var(--foreground)"} 24%, transparent)`,
-                  background: `color-mix(in oklch, ${resolvedIconColor ?? "var(--foreground)"} 14%, transparent)`,
-                }}
-              >
-                <Icon className="block h-5 w-5" />
-              </span>
+              <SquircleIconBadge Icon={Icon} color={resolvedIconColor ?? "var(--foreground)"} />
             )}
             <span className="min-w-0 break-words whitespace-normal">{title}</span>
           </span>

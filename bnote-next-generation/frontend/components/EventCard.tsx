@@ -19,10 +19,11 @@ import { ParticipationWidget } from "./ParticipationWidget";
 import { getIcon } from "@/components/icons";
 import { MapPin, Clock } from "@/components/icons";
 import { AddressLink } from "@/components/AddressLink";
-import { getStatusPillStyle } from "@/lib/entity-config";
+import { getEntityConfig, getStatusPillStyle } from "@/lib/entity-config";
 import { DashboardVoteWidget } from "@/components/dashboard/DashboardVoteWidget";
 import { tasksApi } from "@/lib/tasks-api";
 import { notesToPlainText } from "@/lib/editorjs-notes";
+import { SquircleIconBadge } from "@/components/SquircleIconBadge";
 
 export interface VoteOption {
   id: number;
@@ -134,6 +135,7 @@ export function EventCard({
   const status = String(event.status ?? "").toLowerCase();
   const isCancelled = status === "cancelled" || status === "canceled" || status === "abgesagt";
   const DotIcon = getIcon(typeConfig.icon);
+  const markerColor = getEntityConfig(entityType)?.color ?? "var(--primary)";
 
   /* Desktop: timeline + card. Mobile: compact list item without timeline */
   const desktopContent = (
@@ -142,9 +144,15 @@ export function EventCard({
         <div className="absolute left-[15px] top-9 h-[calc(100%-12px)] w-0.5 timeline-connector" />
       )}
       <div
-        className={`relative z-10 mt-0.5 h-7 w-7 shrink-0 rounded-full ring-2 ring-base-100 shadow-sm flex items-center justify-center text-white ${typeConfig.dotClass}`}
+        className="relative z-10 mt-0.5"
       >
-        <DotIcon className="h-3 w-3" />
+        <SquircleIconBadge
+          Icon={DotIcon}
+          color={markerColor}
+          size="sm"
+          iconClassName="h-3 w-3"
+          className="ring-2 ring-base-100 shadow-sm"
+        />
       </div>
       <div className="flex-1 rounded-box border border-base-300/60 bg-gradient-to-br from-base-200/50 to-transparent p-3 transition-colors duration-200 hover:border-primary/30 group">
         <div className="flex items-start gap-3 mb-2">

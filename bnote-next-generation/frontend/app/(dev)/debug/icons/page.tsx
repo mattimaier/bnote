@@ -29,6 +29,14 @@ const RASTER_PREVIEWS = [
   { key: "ico", src: prefixPath("/favicon.ico"), label: "Generated favicon ICO", path: "frontend/app/favicon.ico" },
 ] as const;
 
+const MAIL_ICON_PREVIEWS = [
+  { key: "rehearsal", label: "Rehearsal", icon: "rehearsal.png", badge: "rehearsal-badge.png" },
+  { key: "concert", label: "Concert", icon: "concert.png", badge: "concert-badge.png" },
+  { key: "vote", label: "Vote", icon: "vote.png", badge: "vote-badge.png" },
+  { key: "task", label: "Task", icon: "task.png", badge: "task-badge.png" },
+  { key: "reservation", label: "Reservation", icon: "reservation.png", badge: "reservation-badge.png" },
+] as const;
+
 export default function DebugIconsPage() {
   const cacheBust = useMemo(() => Date.now().toString(), []);
 
@@ -105,6 +113,40 @@ export default function DebugIconsPage() {
                   </div>
                 ))}
               </div>
+            </div>
+          ))}
+        </div>
+      </DebugSection>
+
+      <DebugSection
+        title="Mail icon assets"
+        description="Generated PNGs used in email templates (glyph + full badge variants)."
+      >
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {MAIL_ICON_PREVIEWS.map((asset) => (
+            <div key={asset.key} className="rounded-box border border-base-300 bg-base-100 p-3">
+              <p className="text-sm font-medium text-base-content">{asset.label}</p>
+              <div className="mt-2 flex items-center gap-4 rounded-box bg-base-200/40 p-3">
+                <div className="text-center">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={`${prefixPath(`/generated-mail-icons/${asset.icon}`)}?v=${cacheBust}`}
+                    alt={`${asset.label} mail glyph`}
+                    className="mx-auto h-[18px] w-[18px] object-contain"
+                  />
+                  <p className="mt-1 text-[11px] text-base-content/70">18px glyph</p>
+                </div>
+                <div className="text-center">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={`${prefixPath(`/generated-mail-icons/${asset.badge}`)}?v=${cacheBust}`}
+                    alt={`${asset.label} mail badge`}
+                    className="mx-auto h-10 w-10 object-contain"
+                  />
+                  <p className="mt-1 text-[11px] text-base-content/70">40px badge</p>
+                </div>
+              </div>
+              <p className="mt-2 text-xs text-base-content/70 font-mono">frontend/public/generated-mail-icons/{asset.badge}</p>
             </div>
           ))}
         </div>

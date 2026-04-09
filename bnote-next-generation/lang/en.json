@@ -1503,7 +1503,7 @@
   "js.systemInformation.buildTime": "Build time",
   "js.systemInformation.changelogEmpty": "No changelog entries available yet.",
   "js.changelog.title": "What's New in BNote",
-  "js.changelog.subtitle": "Product updates and fixes in BNote (separate from band news posts).",
+  "js.changelog.subtitle": "Product updates and fixes in BNote.",
   "js.changelog.empty": "No release notes available yet.",
   "js.changelog.releaseId": "Release",
   "js.changelog.remindLater": "Remind me later",

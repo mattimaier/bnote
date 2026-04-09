@@ -1450,7 +1450,7 @@
   "js.systemInformation.buildTime": "Date du build",
   "js.systemInformation.changelogEmpty": "Aucune entrée de changelog disponible pour le moment.",
   "js.changelog.title": "Nouveautés BNote",
-  "js.changelog.subtitle": "Mises à jour produit et correctifs dans BNote (séparés des actualités publiées par le responsable).",
+  "js.changelog.subtitle": "Mises à jour produit et correctifs dans BNote.",
   "js.changelog.empty": "Aucune note de version disponible pour le moment.",
   "js.changelog.releaseId": "Version",
   "js.changelog.remindLater": "Me le rappeler plus tard",

@@ -90,6 +90,7 @@ final class EscalationAlertMailBuilder {
         $entityHeader = MailEntityCard::entityHeaderHtml(
             [
                 'icon_bg' => MailEntityColors::solidHex($entityKey),
+                'icon_entity_key' => $entityKey,
                 'icon_inner_html' => MailEntityIcons::inlineSvgForEntityKey($entityKey),
                 'icon_char' => $otypeNorm === 'C' ? "\u{266A}" : "\u{266B}",
                 'title' => $displayEventTitle,

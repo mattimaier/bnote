@@ -80,6 +80,7 @@ final class MailPreviewFixtures {
             'entityTitle' => 'Rehearsal 02.04.2026',
             'authorLine' => 'River P.',
             'entityCard' => array_merge($acc, [
+                'icon_entity_key' => 'rehearsal',
                 'icon_inner_html' => MailEntityIcons::inlineSvgForEntityKey('rehearsal'),
                 'icon_char' => "\u{266B}",
                 'title' => 'The Brass Bunker',
@@ -118,6 +119,7 @@ final class MailPreviewFixtures {
             'entityTitle' => 'Rehearsal 15.04.2026',
             'authorLine' => 'Member 14',
             'entityCard' => array_merge($acc, [
+                'icon_entity_key' => 'rehearsal',
                 'icon_inner_html' => MailEntityIcons::inlineSvgForEntityKey('rehearsal'),
                 'icon_char' => "\u{266B}",
                 'title' => 'The Metronome Lab',
@@ -143,6 +145,7 @@ final class MailPreviewFixtures {
             'entityTitle' => 'Concert 20.05.2026',
             'authorLine' => 'Jordan W.',
             'entityCard' => array_merge($acc, [
+                'icon_entity_key' => 'concert',
                 'icon_inner_html' => MailEntityIcons::inlineSvgForEntityKey('concert'),
                 'icon_char' => "\u{266A}",
                 'title' => 'Funk in the Sun Festival',
@@ -170,6 +173,7 @@ final class MailPreviewFixtures {
             'entityTitle' => 'Vote: Spring concert program',
             'authorLine' => 'Casey L.',
             'entityCard' => array_merge($acc, [
+                'icon_entity_key' => 'vote',
                 'icon_inner_html' => MailEntityIcons::inlineSvgForEntityKey('vote'),
                 'icon_char' => 'V',
                 'title' => 'Spring concert program',
@@ -197,6 +201,7 @@ final class MailPreviewFixtures {
             'entityTitle' => 'Concert 12.04.2026',
             'authorLine' => 'Taylor N.',
             'entityCard' => array_merge($acc, [
+                'icon_entity_key' => 'concert',
                 'icon_inner_html' => MailEntityIcons::inlineSvgForEntityKey('concert'),
                 'icon_char' => "\u{266A}",
                 'title' => 'Battle of the Basses',

@@ -11,7 +11,7 @@ import React from "react";
 import Link from "next/link";
 
 export interface EntityListRowProps {
-  /** Left: colored circle with icon inside (full block, e.g. div with dotClass + getIcon) */
+  /** Left: colored icon chip (recommended: SquircleIconBadge). */
   icon: React.ReactNode;
   /** Main line (bold or primary color) */
   primary: React.ReactNode;
@@ -42,9 +42,17 @@ export function EntityListRow({
   onClick,
   className = "",
 }: EntityListRowProps) {
+  const iconShellStyle = {
+    borderRadius: "30%",
+    cornerShape: "superellipse(100%)",
+  } as React.CSSProperties;
+
   const content = (
     <>
-      <div className="mt-0.5 h-6 w-6 shrink-0 flex items-center justify-center rounded-full overflow-hidden">
+      <div
+        className="mt-0.5 h-6 w-6 shrink-0 flex items-center justify-center overflow-hidden"
+        style={iconShellStyle}
+      >
         {icon}
       </div>
       <div className="min-w-0 flex-1 space-y-1">
