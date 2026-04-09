@@ -35,16 +35,14 @@ export function AppPageHeader({
           <span className="inline-flex items-center gap-3">
             {Icon && (
               <span
-                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border leading-none"
+                className="module-header-icon-shape inline-flex h-10 w-10 shrink-0 items-center justify-center border leading-none"
                 style={{
                   color: resolvedIconColor ?? "var(--foreground)",
-                  borderColor: `color-mix(in oklch, ${resolvedIconColor ?? "var(--foreground)"} 30%, transparent)`,
+                  borderColor: `color-mix(in oklch, ${resolvedIconColor ?? "var(--foreground)"} 24%, transparent)`,
                   background: `color-mix(in oklch, ${resolvedIconColor ?? "var(--foreground)"} 14%, transparent)`,
                 }}
               >
-                <span className="block">
-                  <Icon className="block h-5 w-5" />
-                </span>
+                <Icon className="block h-5 w-5" />
               </span>
             )}
             <span className="min-w-0 break-words whitespace-normal">{title}</span>

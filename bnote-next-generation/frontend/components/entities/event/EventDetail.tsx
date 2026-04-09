@@ -717,7 +717,7 @@ export function EventDetail({
           <div className="flex-1 min-w-0">
             {isEditing && form && type === "concert" ? (
               <div className="flex items-center gap-2">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent text-white">
+                <div className="module-header-icon-shape flex h-10 w-10 shrink-0 items-center justify-center bg-accent text-white">
                   <HeaderIcon className="h-5 w-5" />
                 </div>
                 <div className="flex flex-wrap items-center gap-2 min-w-0">

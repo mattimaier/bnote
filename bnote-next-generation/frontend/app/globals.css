@@ -162,6 +162,17 @@ body {
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
+/* Module header icon shape: fallback rounded corner + native squircle when supported. */
+.module-header-icon-shape {
+  border-radius: 100%;
+}
+
+@supports (corner-shape: squircle) {
+  .module-header-icon-shape {
+    corner-shape: squircle;
+  }
+}
+
 /* Wrapped: expressive display type + festival background utilities */
 .wrapped-display {
   font-family: var(--font-wrapped-display), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;

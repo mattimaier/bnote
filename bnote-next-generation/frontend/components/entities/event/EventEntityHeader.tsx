@@ -28,7 +28,7 @@ export function EventEntityHeader({
     <div className="flex-1 min-w-0">
       <div className="flex items-center gap-2">
         <div
-          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white ${iconBgClassName}`}
+          className={`module-header-icon-shape flex h-10 w-10 shrink-0 items-center justify-center text-white ${iconBgClassName}`}
         >
           <EventIcon className="h-5 w-5" />
         </div>

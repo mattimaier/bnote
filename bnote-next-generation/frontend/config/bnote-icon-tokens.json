@@ -1,0 +1,25 @@
+{
+  "geometry": {
+    "canvasSize": 512,
+    "squircleExponent": 4.8,
+    "pathSteps": 128,
+    "borderInset": 8,
+    "borderWidth": 12,
+    "glyphTranslate": 87,
+    "glyphScale": 0.4225
+  },
+  "palette": {
+    "light": {
+      "glyph": "#3399ff",
+      "bgStartMixWhite": 0.73,
+      "bgEndMixWhite": 0.68,
+      "borderMixWhite": 0.36
+    },
+    "dark": {
+      "bgStart": "#0f2f66",
+      "bgEnd": "#18478f",
+      "border": "#73b8ff",
+      "glyph": "#9fd0ff"
+    }
+  }
+}

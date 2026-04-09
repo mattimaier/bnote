@@ -416,6 +416,7 @@ function DeveloperModulePageContent() {
   const nextItems = [
     { key: "debugMain", href: "/debug/", icon: "file-code", title: "API & debug home", desc: "API tester, entity shortcuts, and icon grid." },
     { key: "debugEntity", href: "/debug/entity/", icon: "layout-list", title: "Entity debug views", desc: "Mock view and edit flows for all entity types." },
+    { key: "debugIcons", href: "/debug/icons/", icon: "brush", title: "Icon previews", desc: "BNote icon variants and generated favicon/app icon outputs." },
   ] as const;
 
   const localMailItems = [

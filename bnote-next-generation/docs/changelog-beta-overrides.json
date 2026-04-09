@@ -1,6 +1,11 @@
 {
   "entries": [
     {
+      "title": "App and module header icons now use the refreshed squircle style with improved light/dark contrast, thicker app-icon border, and build-generated SVG/PNG/ICO assets.",
+      "changeType": "changed",
+      "date": "2026-04-09"
+    },
+    {
       "title": "Empty notes from the rich text editor are now saved as empty values instead of persisted EditorJS JSON placeholders.",
       "changeType": "fixed",
       "date": "2026-04-09"

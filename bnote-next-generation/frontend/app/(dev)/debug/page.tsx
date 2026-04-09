@@ -116,6 +116,9 @@ export default function DebugPage() {
           <Link href="/debug/entity/concert/" className="btn btn-soft btn-sm" prefetch={false}>
             Concert
           </Link>
+          <Link href="/debug/icons/" className="btn btn-soft btn-sm" prefetch={false}>
+            Icon previews
+          </Link>
         </div>
       </DebugSection>
 
