@@ -49,7 +49,7 @@ class WrappedModule {
             Response::error('Wrapped module is disabled', 403);
         }
 
-        $moduleId = ModuleProvisioning::ensureModuleExists('Wrapped', 'cake', 'main');
+        $moduleId = ModuleProvisioning::ensureNextGenOnlyModuleExists('Wrapped', 'cake');
         if ($moduleId <= 0 || !$system_data->userHasPermission($moduleId)) {
             Response::error('Access denied to Wrapped', 403);
         }

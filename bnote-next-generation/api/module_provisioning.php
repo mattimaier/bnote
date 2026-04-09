@@ -8,12 +8,14 @@
  */
 
 class ModuleProvisioning {
+    private const NEXTGEN_ONLY_CATEGORY = 'nextgen';
+
     /**
      * Ensure a module exists and return its ID.
      *
      * @return int Module ID (0 on failure)
      */
-    public static function ensureModuleExists(string $name, string $icon, string $category): int {
+    public static function ensureModuleExists(string $name, string $icon, string $category, bool $migrateExistingCategory = false): int {
         global $system_data;
         if (!isset($system_data)) {
             return 0;
@@ -21,6 +23,9 @@ class ModuleProvisioning {
 
         $moduleId = intval($system_data->getModuleId($name));
         if ($moduleId > 0) {
+            if ($migrateExistingCategory) {
+                self::migrateModuleCategory($moduleId, $category);
+            }
             return $moduleId;
         }
 
@@ -38,8 +43,44 @@ class ModuleProvisioning {
             return 0;
         }
 
+        if ($migrateExistingCategory) {
+            self::migrateModuleCategory($moduleId, $category);
+        }
         self::grantModuleToSuperUsers($moduleId);
         return $moduleId;
+    }
+
+    /**
+     * Ensure a Next Generation only module exists and is hidden from legacy
+     * navigation by assigning it to a dedicated category.
+     */
+    public static function ensureNextGenOnlyModuleExists(string $name, string $icon): int {
+        return self::ensureModuleExists($name, $icon, self::NEXTGEN_ONLY_CATEGORY, true);
+    }
+
+    private static function migrateModuleCategory(int $moduleId, string $category): void {
+        global $system_data;
+        if ($moduleId <= 0 || !isset($system_data)) {
+            return;
+        }
+
+        $currentCategory = (string) $system_data->dbcon->colValue(
+            "SELECT category FROM module WHERE id = ? LIMIT 1",
+            "category",
+            [['i', $moduleId]]
+        );
+        if (trim($currentCategory) === trim($category)) {
+            return;
+        }
+
+        try {
+            $system_data->dbcon->execute(
+                "UPDATE module SET category = ? WHERE id = ?",
+                [['s', $category], ['i', $moduleId]]
+            );
+        } catch (Exception $e) {
+            // Ignore DB errors and keep runtime behavior unchanged.
+        }
     }
 
     private static function grantModuleToSuperUsers(int $moduleId): void {

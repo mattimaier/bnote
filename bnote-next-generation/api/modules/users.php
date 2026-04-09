@@ -502,8 +502,8 @@ class UsersModule {
             Response::error('Access denied', 403);
         }
 
-        // Lazy provisioning: ensure Wrapped module exists when privilege matrix is opened.
-        ModuleProvisioning::ensureModuleExists('Wrapped', 'cake', 'main');
+        // Lazy provisioning: ensure Wrapped module exists as Next Gen only.
+        ModuleProvisioning::ensureNextGenOnlyModuleExists('Wrapped', 'cake');
         
         $privileges = $this->data->getPrivileges($id);
         

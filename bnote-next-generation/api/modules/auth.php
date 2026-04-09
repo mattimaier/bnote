@@ -248,7 +248,7 @@ class AuthModule {
         // Lazy provisioning: create Wrapped module row when feature is enabled.
         $wrappedEnabled = strval($system_data->getDynamicConfigParameter('wrapped_module_enabled')) === '1';
         if ($wrappedEnabled) {
-            ModuleProvisioning::ensureModuleExists('Wrapped', 'cake', 'main');
+            ModuleProvisioning::ensureNextGenOnlyModuleExists('Wrapped', 'cake');
         }
         
         // Read all modules across categories. Some installations place
