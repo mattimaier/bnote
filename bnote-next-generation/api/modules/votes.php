@@ -75,6 +75,29 @@ class VotesModule {
         return Auth::getUserId();
     }
 
+    private function canManageVotes($userId) {
+        global $system_data;
+        $uid = intval($userId);
+        if ($uid <= 0) {
+            return false;
+        }
+        $moduleId = $system_data->getModuleId('Abstimmung');
+        $hasVotesModulePermission = $moduleId ? $system_data->userHasPermission($moduleId) : false;
+        return $system_data->isUserSuperUser($uid)
+            || $system_data->isUserMemberGroup(1, $uid)
+            || $hasVotesModulePermission;
+    }
+
+    private function requireVoteEditPermission($voteId) {
+        $uid = $this->getUserId();
+        if (!$this->canManageVotes($uid)) {
+            Response::error('Access denied: missing vote edit permission', 403);
+        }
+        if (!$voteId || !is_numeric($voteId)) {
+            Response::error('Vote ID required', 400);
+        }
+    }
+
     /**
      * Get user's choices for a vote (optionId => "yes"|"no"|"maybe").
      * Implemented in API only (never modify BNote). Uses global dbcon.
@@ -233,6 +256,7 @@ class VotesModule {
             'is_finished' => !empty($vote['is_finished']),
             'author' => isset($vote['author']) ? intval($vote['author']) : null,
             'is_author' => $this->data->isUserAuthorOfVote($uid, $id),
+            'can_edit' => $this->canManageVotes($uid),
             'is_active' => $this->data->isVoteActive($id),
             'options' => $optionsList,
             'result' => $result,
@@ -278,10 +302,7 @@ class VotesModule {
         if (!$id || !is_numeric($id)) {
             Response::error('Vote ID required', 400);
         }
-        $uid = $this->getUserId();
-        if (!$this->data->isUserAuthorOfVote($uid, $id)) {
-            Response::error('Only the author can update this vote', 403);
-        }
+        $this->requireVoteEditPermission($id);
         try {
             $hasNameOrEnd = array_key_exists('name', $data) || array_key_exists('end', $data);
             if ($hasNameOrEnd) {
@@ -321,10 +342,7 @@ class VotesModule {
         if (!$id || !is_numeric($id)) {
             Response::error('Vote ID required', 400);
         }
-        $uid = $this->getUserId();
-        if (!$this->data->isUserAuthorOfVote($uid, $id)) {
-            Response::error('Only the author can delete this vote', 403);
-        }
+        $this->requireVoteEditPermission($id);
         try {
             $this->data->delete($id);
             return ['success' => true, 'message' => 'Vote deleted'];
@@ -363,10 +381,7 @@ class VotesModule {
         if (!$vid || !is_numeric($vid)) {
             Response::error('Vote ID required', 400);
         }
-        $uid = $this->getUserId();
-        if (!$this->data->isUserAuthorOfVote($uid, $vid)) {
-            Response::error('Only the author can add options', 403);
-        }
+        $this->requireVoteEditPermission($vid);
         $_POST['vote_id'] = $vid;
         $_POST['name'] = $data['name'] ?? '';
         $_POST['odate'] = $data['odate'] ?? '';
@@ -389,6 +404,16 @@ class VotesModule {
             Response::error('Option ID required', 400);
         }
         try {
+            global $system_data;
+            $sel = $system_data->dbcon->getSelection(
+                'SELECT vote FROM vote_option WHERE id = ?',
+                [['i', (int) $oid]]
+            );
+            $voteId = (is_array($sel) && isset($sel[1]['vote'])) ? intval($sel[1]['vote']) : 0;
+            if ($voteId <= 0) {
+                Response::error('Option not found', 404);
+            }
+            $this->requireVoteEditPermission($voteId);
             $this->data->deleteOption($oid);
             return ['success' => true, 'message' => 'Option removed'];
         } catch (BNoteError $e) {
@@ -406,10 +431,7 @@ class VotesModule {
         if (!$id || !is_numeric($id)) {
             Response::error('Vote ID required', 400);
         }
-        $uid = $this->getUserId();
-        if (!$this->data->isUserAuthorOfVote($uid, $id)) {
-            Response::error('Only the author can finish this vote', 403);
-        }
+        $this->requireVoteEditPermission($id);
         $this->data->finish($id);
         return ['success' => true, 'message' => 'Vote finished'];
     }

@@ -24,6 +24,7 @@ export interface Vote {
 export interface VoteDetail extends Vote {
   author?: number | null;
   is_author: boolean;
+  can_edit?: boolean;
   is_active: boolean;
   options: VoteOption[];
   result?: unknown;

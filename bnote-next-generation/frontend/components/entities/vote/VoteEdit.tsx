@@ -1,5 +1,5 @@
 /**
- * BNote Next Generation - Vote edit/create form (author)
+ * BNote Next Generation - Vote edit/create form
  *
  * Copyright (C) 2026 BNote Contributors
  */
@@ -288,6 +288,7 @@ export function VoteEdit() {
     ? (t("js.votes.addVote") !== "js.votes.addVote" ? t("js.votes.addVote") : "Add Vote")
     : (item?.name ?? (t("js.common.edit") !== "js.common.edit" ? t("js.common.edit") : "Edit"));
   const pageSubtitle = t("js.votes.subtitle") !== "js.votes.subtitle" ? t("js.votes.subtitle") : "Polls and voting";
+  const canEditVote = isNew || Boolean(item?.can_edit ?? item?.is_author);
 
   return (
     <div className={PAGE_CONTENT_CLASS}>
@@ -410,7 +411,7 @@ export function VoteEdit() {
                 : item!.options.map((opt) => (
                     <li key={opt.id} className="list-group-item flex items-center justify-between gap-2 py-2">
                       <span>{opt.odate ? formatDateShortDisplay(opt.odate, lang) : (opt.name ?? emptyText)}</span>
-                      {!item!.is_finished && item!.is_author && (
+                      {!item!.is_finished && canEditVote && (
                         <RemoveOptionButton
                           onClick={() => handleRemoveOption(opt.id)}
                           ariaLabel={t("js.common.remove") !== "js.common.remove" ? t("js.common.remove") : "Remove"}
@@ -419,7 +420,7 @@ export function VoteEdit() {
                     </li>
                   ))}
             </ul>
-            {((isNew && !item) || (item && !item.is_finished && item.is_author)) && (
+            {((isNew && !item) || (item && !item.is_finished && canEditVote)) && (
               <div className="mt-4 space-y-3">
                 {(isNew ? isDate : item!.is_date) ? (
                   <DatePicker
@@ -451,7 +452,11 @@ export function VoteEdit() {
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
                           e.preventDefault();
-                          isNew ? addPendingOption() : handleAddOption();
+                          if (isNew) {
+                            addPendingOption();
+                          } else {
+                            handleAddOption();
+                          }
                         }
                       }}
                       placeholder={t("js.votes.optionName") !== "js.votes.optionName" ? t("js.votes.optionName") : "Option"}

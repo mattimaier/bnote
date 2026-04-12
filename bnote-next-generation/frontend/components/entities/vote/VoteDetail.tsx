@@ -113,13 +113,14 @@ export function VoteDetail({ renderAfterContent }: VoteDetailProps = {}) {
 
   const optionLabel = (opt: { name?: string; odate?: string | null }) =>
     opt.odate ? formatDateShortDisplay(opt.odate, lang) : (opt.name ?? emptyText);
+  const canEditVote = Boolean(item.can_edit ?? item.is_author);
 
   return (
     <div className={PAGE_CONTENT_CLASS}>
       <DetailPageHeader
         title={item.name || emptyText}
         right={
-          item.is_author ? (
+          canEditVote ? (
             <DetailEditButton onClick={() => router.push(getEntityPath("vote", item.id, "edit"))} />
           ) : undefined
         }
@@ -137,7 +138,7 @@ export function VoteDetail({ renderAfterContent }: VoteDetailProps = {}) {
             <span className="text-base-content/60">
               {t("js.event.detail.status") !== "js.event.detail.status" ? t("js.event.detail.status") : "Status"}:
             </span>{" "}
-            {item.is_author ? (
+            {canEditVote ? (
               <span className="ml-0.5 inline-flex align-middle">
                 <StatusPicker
                   options={["active", "finished"]}
