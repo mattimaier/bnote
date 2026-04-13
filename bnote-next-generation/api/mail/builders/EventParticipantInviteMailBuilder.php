@@ -207,7 +207,7 @@ final class EventParticipantInviteMailBuilder {
             $cells[] = '<td style="padding:0 ' . $pr . 'px 0 ' . $pl . 'px;vertical-align:middle;">'
                 . '<a href="' . $href . '" title="' . $labelEsc . '" aria-label="' . $labelEsc . '" '
                 . 'style="display:inline-block;width:' . $sz . 'px;height:' . $sz . 'px;'
-                . 'border-radius:12px;border-width:1px;border-style:solid;border-color:' . $bd . ';'
+                . 'border-radius:50%;border-width:1px;border-style:solid;border-color:' . $bd . ';'
                 . 'background-color:' . $bg . ';text-decoration:none;vertical-align:middle;box-sizing:border-box;overflow:hidden;">'
                 . $iconWrap . '</a></td>';
         }

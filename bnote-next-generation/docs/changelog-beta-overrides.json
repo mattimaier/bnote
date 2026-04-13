@@ -1,6 +1,11 @@
 {
   "entries": [
     {
+      "title": "Participation traffic-light icons in event invite and reminder emails now render consistently as circular controls across mail clients.",
+      "changeType": "fixed",
+      "date": "2026-04-13"
+    },
+    {
       "title": "Next Generation now adds global keyboard shortcuts (edit/help/navigation), a dedicated Help page in the profile menu, and improved Escape behavior for closing overlays and leaving edit mode.",
       "changeType": "changed",
       "date": "2026-04-13"

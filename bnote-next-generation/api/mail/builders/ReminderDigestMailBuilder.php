@@ -396,28 +396,40 @@ final class ReminderDigestMailBuilder {
         $specs = self::trafficSpecs();
         $size = self::trafficButtonSizePx();
         $iconSize = max(18, (int) round($size * 0.45));
+        $sizeStr = (string) $size;
 
         $cells = [];
         $choices = $allowMaybe ? ['yes', 'maybe', 'no'] : ['yes', 'no'];
-        foreach ($choices as $choice) {
+        $count = count($choices);
+        foreach ($choices as $index => $choice) {
             $active = !$isPending && $states[$choice];
             $sp = $specs[$choice];
             $bg = $active ? $sp['strong'] : $sp['bgMuted'];
             $border = $active ? $sp['strong'] : $sp['borderMuted'];
             $stroke = $active ? '#ffffff' : $sp['strong'];
-            $dot = '<div style="width:' . $size . 'px;height:' . $size . 'px;border-radius:50%;border:1px solid ' . htmlspecialchars($border, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . ';'
-                . 'background:' . htmlspecialchars($bg, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . ';display:flex;align-items:center;justify-content:center;">'
-                . self::trafficIcon($choice, $stroke, $iconSize)
-                . '</div>';
             $href = isset($urls[$choice]) ? trim((string) $urls[$choice]) : '';
+            $iconWrap = '<table role="presentation" width="' . $sizeStr . '" height="' . $sizeStr . '" cellpadding="0" cellspacing="0" border="0" '
+                . 'style="width:' . $sizeStr . 'px;height:' . $sizeStr . 'px;border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;">'
+                . '<tr><td align="center" valign="middle" width="' . $sizeStr . '" height="' . $sizeStr . '" '
+                . 'style="width:' . $sizeStr . 'px;height:' . $sizeStr . 'px;padding:0;line-height:0;font-size:0;mso-line-height-rule:exactly;">'
+                . self::trafficIcon($choice, $stroke, $iconSize)
+                . '</td></tr></table>';
+            $dotInner = '<span style="display:inline-block;width:' . $sizeStr . 'px;height:' . $sizeStr . 'px;border-radius:50%;border:1px solid '
+                . htmlspecialchars($border, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
+                . ';background-color:' . htmlspecialchars($bg, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
+                . ';text-decoration:none;vertical-align:middle;box-sizing:border-box;overflow:hidden;">'
+                . $iconWrap
+                . '</span>';
+            $dot = $dotInner;
             if ($href !== '') {
                 $dot = '<a href="' . htmlspecialchars($href, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '" '
                     . 'style="display:inline-block;text-decoration:none;line-height:0;" '
                     . 'aria-label="' . htmlspecialchars($choice, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '">'
-                    . $dot
+                    . $dotInner
                     . '</a>';
             }
-            $cells[] = '<td style="padding-right:10px;">'
+            $isLast = $index === ($count - 1);
+            $cells[] = '<td style="padding:0' . ($isLast ? '' : ' 10px 0 0') . ';">'
                 . $dot
                 . '</td>';
         }
@@ -455,7 +467,7 @@ final class ReminderDigestMailBuilder {
             default => '',
         };
         return '<svg xmlns="http://www.w3.org/2000/svg" width="' . $sizePx . '" height="' . $sizePx . '" viewBox="0 0 24 24" fill="none" stroke="'
-            . htmlspecialchars($stroke, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '" aria-hidden="true">' . $inner . '</svg>';
+            . htmlspecialchars($stroke, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '" aria-hidden="true" style="display:block;margin:0 auto;">' . $inner . '</svg>';
     }
 
     /**
