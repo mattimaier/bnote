@@ -377,8 +377,10 @@ final class ReminderDigestMailBuilder {
             default => 'rehearsal',
         };
         $acc = MailEntityColors::commentDiscussionCardAccents($entityKey);
-        $iconInner = MailEntityIcons::inlineSvgForEntityKey($entityKey);
-        return '<div style="width:36px;height:36px;border-radius:11px;background:'
+        // Use inline SVG for digest rows (not data-uri PNG) so icon rendering is reliable across mail clients.
+        $iconInner = MailEntityIcons::svgForIconName(MailEntityIcons::iconNameForEntityKey($entityKey));
+        $bubbleRadius = $entityKey === 'rehearsal' ? '11px' : '50%';
+        return '<div style="width:36px;height:36px;border-radius:' . $bubbleRadius . ';background:'
             . htmlspecialchars((string) ($acc['icon_bg'] ?? MailDesignTokens::get('primary')), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
             . ';color:#ffffff;display:flex;align-items:center;justify-content:center;line-height:1;">'
             . $iconInner
@@ -403,7 +405,7 @@ final class ReminderDigestMailBuilder {
             $bg = $active ? $sp['strong'] : $sp['bgMuted'];
             $border = $active ? $sp['strong'] : $sp['borderMuted'];
             $stroke = $active ? '#ffffff' : $sp['strong'];
-            $dot = '<div style="width:' . $size . 'px;height:' . $size . 'px;border-radius:12px;border:1px solid ' . htmlspecialchars($border, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . ';'
+            $dot = '<div style="width:' . $size . 'px;height:' . $size . 'px;border-radius:50%;border:1px solid ' . htmlspecialchars($border, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . ';'
                 . 'background:' . htmlspecialchars($bg, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . ';display:flex;align-items:center;justify-content:center;">'
                 . self::trafficIcon($choice, $stroke, $iconSize)
                 . '</div>';

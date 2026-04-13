@@ -1,6 +1,11 @@
 {
   "entries": [
     {
+      "title": "Weekly reminder emails now render the rehearsal icon again and use the intended squircle event icon with round participation traffic lights.",
+      "changeType": "fixed",
+      "date": "2026-04-13"
+    },
+    {
       "title": "App and module header icons now use the refreshed squircle style with improved light/dark contrast, thicker app-icon border, and build-generated SVG/PNG/ICO assets.",
       "changeType": "changed",
       "date": "2026-04-09"
