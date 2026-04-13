@@ -54,7 +54,7 @@ export function DetailEditButton({
   const { t } = useI18n();
   const text = label ?? (t("js.common.edit") !== "js.common.edit" ? t("js.common.edit") : "Bearbeiten");
   return (
-    <ActionButton onClick={onClick}>
+    <ActionButton onClick={onClick} data-bnote-hotkey-action="edit">
       <Pencil className="h-4 w-4" />
       {text}
     </ActionButton>

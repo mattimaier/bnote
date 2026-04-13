@@ -53,6 +53,7 @@ export function DetailDeleteSection({ canDelete, onDelete, entityTitle }: Detail
           <ActionButton
             variant="outline-error"
             onClick={() => setConfirmOpen(true)}
+            data-bnote-hotkey-action="delete"
           >
             <Trash2 className="h-4 w-4" />
             {confirmLabel}

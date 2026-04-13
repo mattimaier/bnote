@@ -7,7 +7,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { AppSidebar } from "@/components/AppSidebar";
 import { AppTopbar } from "@/components/AppTopbar";
 import { MobileNavDrawer } from "@/components/MobileNavDrawer";
@@ -27,6 +27,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const { editingBar } = useEditingBar();
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     let cancelled = false;
@@ -85,6 +86,149 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     setChangelogOpen(false);
     router.push("/changelog/");
   }
+
+  function isTypingContext(target: EventTarget | null): boolean {
+    const node = target instanceof HTMLElement ? target : null;
+    if (!node) return false;
+    if (node.isContentEditable) return true;
+    const tag = node.tagName.toLowerCase();
+    if (tag === "input" || tag === "textarea" || tag === "select") return true;
+    return Boolean(node.closest("input, textarea, select, [contenteditable=''], [contenteditable='true']"));
+  }
+
+  function isActionElementDisabled(element: HTMLElement): boolean {
+    if (element instanceof HTMLButtonElement) return element.disabled;
+    if (element instanceof HTMLInputElement) return element.disabled;
+    if (element instanceof HTMLSelectElement) return element.disabled;
+    if (element instanceof HTMLTextAreaElement) return element.disabled;
+    return element.getAttribute("aria-disabled") === "true";
+  }
+
+  function isActionElementVisible(element: HTMLElement): boolean {
+    if (element.getAttribute("aria-hidden") === "true") return false;
+    if (isActionElementDisabled(element)) return false;
+    const style = window.getComputedStyle(element);
+    if (style.display === "none" || style.visibility === "hidden") return false;
+    return element.getClientRects().length > 0;
+  }
+
+  function findVisibleActionTarget(actionName: "edit" | "delete"): HTMLElement | null {
+    const allTargets = Array.from(
+      document.querySelectorAll<HTMLElement>(`[data-bnote-hotkey-action="${actionName}"]`)
+    );
+    for (const target of allTargets) {
+      if (isActionElementVisible(target)) return target;
+    }
+    return null;
+  }
+
+  function hasOpenOverlay(): boolean {
+    return Boolean(document.querySelector("[role='dialog'][aria-modal='true']"));
+  }
+
+  function closeOrExitEditMode(): boolean {
+    const path = String(pathname ?? "");
+    if (path.startsWith("/profile/edit")) {
+      router.replace("/profile/");
+      return true;
+    }
+    if (path.startsWith("/entity")) {
+      const params = new URLSearchParams(searchParams?.toString() ?? "");
+      if (params.get("edit") === "1") {
+        params.delete("edit");
+        const query = params.toString();
+        router.replace(query ? `/entity?${query}` : "/entity");
+        return true;
+      }
+    }
+    if (path.startsWith("/rehearsals/series/detail")) {
+      const params = new URLSearchParams(searchParams?.toString() ?? "");
+      if (params.get("edit") === "1") {
+        params.delete("edit");
+        const query = params.toString();
+        router.replace(query ? `/rehearsals/series/detail?${query}` : "/rehearsals/series/detail");
+        return true;
+      }
+    }
+    return false;
+  }
+
+  useEffect(() => {
+    let goChordActive = false;
+    let goChordTimer: ReturnType<typeof setTimeout> | null = null;
+    const setGoChord = () => {
+      goChordActive = true;
+      if (goChordTimer) clearTimeout(goChordTimer);
+      goChordTimer = setTimeout(() => {
+        goChordActive = false;
+        goChordTimer = null;
+      }, 1200);
+    };
+    const clearGoChord = () => {
+      goChordActive = false;
+      if (goChordTimer) {
+        clearTimeout(goChordTimer);
+        goChordTimer = null;
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const key = event.key;
+      const lowered = key.toLowerCase();
+      if (isTypingContext(event.target)) return;
+
+      if (goChordActive) {
+        clearGoChord();
+        if (lowered === "d") {
+          event.preventDefault();
+          router.push("/dashboard/");
+        } else if (lowered === "p") {
+          event.preventDefault();
+          router.push("/profile/");
+        } else if (lowered === "s") {
+          event.preventDefault();
+          router.push("/settings/");
+        } else if (lowered === "h") {
+          event.preventDefault();
+          router.push("/help/");
+        }
+        return;
+      }
+
+      if (!event.altKey && !event.metaKey && !event.ctrlKey && !event.shiftKey && lowered === "g") {
+        setGoChord();
+        return;
+      }
+
+      if (!event.altKey && !event.metaKey && !event.ctrlKey && key === "?") {
+        event.preventDefault();
+        router.push("/help/");
+        return;
+      }
+
+      if (!event.altKey && !event.metaKey && !event.ctrlKey && !event.shiftKey && lowered === "e") {
+        const editTarget = findVisibleActionTarget("edit");
+        if (editTarget) {
+          event.preventDefault();
+          editTarget.click();
+        }
+        return;
+      }
+
+      if (key === "Escape") {
+        if (hasOpenOverlay()) return;
+        if (closeOrExitEditMode()) {
+          event.preventDefault();
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      clearGoChord();
+    };
+  }, [pathname, router, searchParams]);
 
   return (
     <div data-bnote-capture-root="1" className="flex min-h-screen flex-col bg-base-100 md:h-screen md:flex-row md:overflow-hidden">

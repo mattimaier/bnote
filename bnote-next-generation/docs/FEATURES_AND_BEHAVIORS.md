@@ -10,7 +10,7 @@ Architecture-level permission decisions are documented in **[ARCHITECTURE_DECISI
 ## 1. Overview
 
 - **App:** Next.js UI (static export) in `frontend/`, PHP REST API in `api/`.
-- **Entry points:** `/` (redirects to `/dashboard` or `/login`), `/login`, `/register` (when `user_registration` is enabled), `/reset-password`, `/reset-password/confirm`, `/participation/respond`, `/dashboard`, `/users`, `/contacts`, `/contacts/integration`, `/search`, `/settings`, `/profile`, `/profile/edit`, `/system-information`, `/changelog` (legacy alias: `/whats-new`), legal routes under `/legal/*`, module pages under **`frontend/app/_modules/*`**, entity detail at **`/entity?type=…&id=…`** (and **`&edit=1`** in edit mode; see **[UI_PATTERNS.md](UI_PATTERNS.md)**).
+- **Entry points:** `/` (redirects to `/dashboard` or `/login`), `/login`, `/register` (when `user_registration` is enabled), `/reset-password`, `/reset-password/confirm`, `/participation/respond`, `/dashboard`, `/users`, `/contacts`, `/contacts/integration`, `/search`, `/settings`, `/profile`, `/profile/edit`, `/help`, `/system-information`, `/changelog` (legacy alias: `/whats-new`), legal routes under `/legal/*`, module pages under **`frontend/app/_modules/*`**, entity detail at **`/entity?type=…&id=…`** (and **`&edit=1`** in edit mode; see **[UI_PATTERNS.md](UI_PATTERNS.md)**).
 - **Auth:** Session-based; API uses PHP session cookie. Unauthenticated users are redirected to `/login?redirect=…`.
 
 ---
@@ -32,8 +32,10 @@ Architecture-level permission decisions are documented in **[ARCHITECTURE_DECISI
 - **Top bar:** Global search input, theme toggle (sun/moon), user indicator.
 - **Beta bug report action (config-gated):** When `beta_bug_report_enabled` is `true` and user is authenticated, topbar and user menu show **Report bug**. The modal uses one required message field plus optional diagnostics toggles (screenshot, recent network requests, recent logs).
 - **System Information (admin-only):** User menu includes **System Information** route for users with admin/configuration rights, showing legacy core runtime details and Next Generation build metadata.
+- **Help:** User menu includes **Help** for all authenticated users (legacy `mod=10` access semantics).
 - **Changelog (What's New in BNote):** User menu includes a dedicated changelog route with a plain recent-fixes list.
 - **Changelog modal:** After authenticated shell load, a release-notes modal is shown once per release id and user. Users can dismiss permanently for that release or open the full changelog.
+- **Keyboard shortcuts:** Global shortcuts are available in app shell (when not typing): `e` (edit when available), `Esc` (close modal / exit edit), `?` (help), `g` then `d/p/s/h` (go to dashboard/profile/settings/help).
 - **Mobile:** Sidebar hidden; hamburger opens full-screen nav drawer with same links and logo.
 - **Theme:** Dark/light via CSS variables; persisted (e.g. localStorage). Use semantic variables (e.g. `--background`, `--foreground`, `--primary`) in `frontend/app/globals.css`.
 
@@ -158,6 +160,7 @@ Architecture-level permission decisions are documented in **[ARCHITECTURE_DECISI
 - **Entity detail:** Path-based view/edit; type title + icon + tag; metadata; map links; participation widget; overview bar; participants with group-by and status icons. Edit mode in URL; delete only in edit view (DetailDeleteSection + ConfirmModal).
 - **Shell:** Sidebar, mobile drawer, top bar (search, theme, user); logo everywhere.
 - **System information:** User menu opens `/system-information` with system/build sections.
+- **Help:** User menu opens `/help` and documents keyboard shortcuts.
 - **Changelog:** User menu opens `/changelog` (legacy `/whats-new` redirects) with plain changelog list.
 - **Changelog modal:** Shows once per release per user (post-login shell), with actions for dismiss/view changelog.
 - **Wrapped:** Module follows app theme (light/dark). The generated/shared Wrapped share card is intentionally rendered in light mode for consistent exported image colors.

@@ -23,16 +23,18 @@ import { useSearch } from "@/contexts/SearchContext";
 import { SearchAutocompleteOverlay } from "@/components/SearchAutocompleteOverlay";
 import { useEffect, useRef, useState } from "react";
 import { checkSession, type SessionUser } from "@/lib/auth";
-import { Search, Menu, X, LogOut, User, getIcon } from "@/components/icons";
+import { Search, Menu, X, LogOut, User } from "@/components/icons";
 import { Avatar } from "@/components/Avatar";
 import { BugReportModal } from "@/components/bug-report/BugReportModal";
 import { initBugReportDiagnostics } from "@/lib/bug-report-diagnostics";
 
 function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState(false);
+  const [matches, setMatches] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia(query).matches;
+  });
   useEffect(() => {
     const m = window.matchMedia(query);
-    setMatches(m.matches);
     const handler = (e: MediaQueryListEvent) => setMatches(e.matches);
     m.addEventListener("change", handler);
     return () => m.removeEventListener("change", handler);
@@ -90,11 +92,6 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
   }, [menuOpen]);
 
   const fullName = [user?.name, user?.surname].filter(Boolean).join(" ") || t("js.common.user");
-  const SettingsMenuIcon = getIcon("settings");
-  const ConfigurationMenuIcon = getIcon("key");
-  const SystemInformationMenuIcon = getIcon("info");
-  const ChangelogMenuIcon = getIcon("file-text");
-
   async function handleLogout() {
     await logout();
     router.replace("/login");
@@ -203,7 +200,7 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
                 onClick={() => setMenuOpen(false)}
                 className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-base-200 transition-colors text-base-content"
               >
-                <SettingsMenuIcon className="h-4 w-4" />
+                <span className="icon-[tabler--settings] h-4 w-4" aria-hidden />
                 {t("js.profile.menuSettings") !== "js.profile.menuSettings" ? t("js.profile.menuSettings") : "Preferences"}
               </Link>
               {canConfigure ? (
@@ -212,18 +209,26 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
                   onClick={() => setMenuOpen(false)}
                   className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-base-200 transition-colors text-base-content"
                 >
-                  <SystemInformationMenuIcon className="h-4 w-4" />
+                  <span className="icon-[tabler--info-circle] h-4 w-4" aria-hidden />
                   {t("js.profile.menuSystemInformation") !== "js.profile.menuSystemInformation"
                     ? t("js.profile.menuSystemInformation")
                     : "System Information"}
                 </Link>
               ) : null}
               <Link
+                href="/help/"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-base-200 transition-colors text-base-content"
+              >
+                <span className="icon-[tabler--help-circle] h-4 w-4" aria-hidden />
+                {t("js.profile.menuHelp") !== "js.profile.menuHelp" ? t("js.profile.menuHelp") : "Help"}
+              </Link>
+              <Link
                 href="/changelog/"
                 onClick={() => setMenuOpen(false)}
                 className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-base-200 transition-colors text-base-content"
               >
-                <ChangelogMenuIcon className="h-4 w-4" />
+                <span className="icon-[tabler--file-text] h-4 w-4" aria-hidden />
                 {t("js.profile.menuChangelog") !== "js.profile.menuChangelog"
                   ? t("js.profile.menuChangelog")
                   : "What's New in BNote"}
@@ -234,7 +239,7 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
                   onClick={() => setMenuOpen(false)}
                   className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-base-200 transition-colors text-base-content"
                 >
-                  <ConfigurationMenuIcon className="h-4 w-4" />
+                  <span className="icon-[tabler--key] h-4 w-4" aria-hidden />
                   {t("js.profile.menuConfiguration") !== "js.profile.menuConfiguration" ? t("js.profile.menuConfiguration") : "Configuration"}
                 </Link>
               ) : null}

@@ -1,6 +1,11 @@
 {
   "entries": [
     {
+      "title": "Next Generation now adds global keyboard shortcuts (edit/help/navigation), a dedicated Help page in the profile menu, and improved Escape behavior for closing overlays and leaving edit mode.",
+      "changeType": "changed",
+      "date": "2026-04-13"
+    },
+    {
       "title": "Public concerts feed now supports secure tokenized sharing with CORS access, date-range filtering, and per-concert visible/private feed visibility.",
       "changeType": "changed",
       "date": "2026-04-13"

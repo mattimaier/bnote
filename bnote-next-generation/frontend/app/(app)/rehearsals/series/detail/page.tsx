@@ -296,12 +296,17 @@ export default function RehearsalSeriesDetailPage() {
         </h1>
         <div className="flex items-center gap-2">
           {!isEditing && (
-            <ActionButton onClick={() => router.push(toSeriesDetailPath(true))}>
+            <ActionButton onClick={() => router.push(toSeriesDetailPath(true))} data-bnote-hotkey-action="edit">
               {t("js.common.edit") !== "js.common.edit" ? t("js.common.edit") : "Edit"}
             </ActionButton>
           )}
           {isEditing && !isNew && (
-            <ActionButton variant="danger" onClick={() => setShowDeleteConfirm(true)} disabled={deleting}>
+            <ActionButton
+              variant="danger"
+              onClick={() => setShowDeleteConfirm(true)}
+              disabled={deleting}
+              data-bnote-hotkey-action="delete"
+            >
               {t("js.rehearsals.series.deleteButton") !== "js.rehearsals.series.deleteButton" ? t("js.rehearsals.series.deleteButton") : "Delete series"}
             </ActionButton>
           )}
