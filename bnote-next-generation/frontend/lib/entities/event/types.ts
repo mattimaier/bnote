@@ -148,6 +148,7 @@ export interface EventDetailForm {
   approveUntil: string;
   meetingtime: string;
   status: string;
+  isPublished: boolean;
   notes: string;
   organizer: string;
   payment: string;

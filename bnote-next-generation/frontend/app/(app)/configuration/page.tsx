@@ -11,6 +11,7 @@ import { useToast } from "@/contexts/ToastContext";
 import { getErrorMessage } from "@/lib/error-utils";
 import { PAGE_CONTENT_CLASS } from "@/lib/layout";
 import { checkSession } from "@/lib/auth";
+import { getApiPhpDirectoryUrl } from "@/lib/api";
 import {
   configurationApi,
   type ConfigurationResponse,
@@ -39,6 +40,7 @@ const SECTION_LABELS: Record<string, string> = {
   display: "Display options",
   system: "System options",
   feature_flags: "Feature flags",
+  public_concerts_feed: "Public concerts feed",
 };
 
 const PARAM_HELP_FALLBACK: Record<string, string> = {
@@ -75,6 +77,8 @@ export default function ConfigurationPage() {
   const [newInstrumentName, setNewInstrumentName] = useState("");
   const [newInstrumentCategoryId, setNewInstrumentCategoryId] = useState(0);
   const [savingInstrumentAdmin, setSavingInstrumentAdmin] = useState(false);
+  const [regeneratingPublicConcertsToken, setRegeneratingPublicConcertsToken] = useState(false);
+  const [confirmRegeneratePublicConcertsToken, setConfirmRegeneratePublicConcertsToken] = useState(false);
 
   const label = (key: string, fallback: string) => (t(key) !== key ? t(key) : fallback);
 
@@ -271,6 +275,20 @@ export default function ConfigurationPage() {
     }
   }
 
+  async function regeneratePublicConcertsFeedToken() {
+    setRegeneratingPublicConcertsToken(true);
+    try {
+      const next = await configurationApi.regeneratePublicConcertsFeedToken();
+      setConfig(next);
+      setConfigDraft(next.values);
+      showToast(label("js.configuration.publicConcerts.rotateSuccess", "Public concerts feed token rotated."), "success");
+    } catch (err) {
+      showToast(getErrorMessage(err, t, "js.common.saveFailed"), "error");
+    } finally {
+      setRegeneratingPublicConcertsToken(false);
+    }
+  }
+
   async function runReminderNow(dryRun: boolean) {
     setRunningReminder(true);
     setRunOutput(null);
@@ -421,6 +439,24 @@ export default function ConfigurationPage() {
   const sectionCoverageEnabled = configDraft.beta_section_coverage_enabled === true
     || configDraft.beta_section_coverage_enabled === 1
     || configDraft.beta_section_coverage_enabled === "1";
+  const publicConcertsFeedEnabled = configDraft.public_gigs_feed_enabled === true
+    || configDraft.public_gigs_feed_enabled === 1
+    || configDraft.public_gigs_feed_enabled === "1";
+  const derivedPublicConcertsFeedUrl = String(config?.derived?.publicConcertsFeedUrl ?? config?.derived?.publicGigsFeedUrl ?? "").trim();
+  const publicConcertsFeedUrl = derivedPublicConcertsFeedUrl !== ""
+    ? derivedPublicConcertsFeedUrl
+    : `${getApiPhpDirectoryUrl()}/public-concerts.json.php`;
+  const derivedPublicConcertsFeedTokenizedUrl = String(
+    config?.derived?.publicConcertsFeedTokenizedUrl
+    ?? config?.derived?.publicGigsFeedTokenizedUrl
+    ?? ""
+  ).trim();
+  const publicConcertsFeedTokenizedUrl = derivedPublicConcertsFeedTokenizedUrl !== ""
+    ? derivedPublicConcertsFeedTokenizedUrl
+    : publicConcertsFeedUrl;
+  const publicConcertsFeedRangeExampleUrl = `${publicConcertsFeedTokenizedUrl}${
+    publicConcertsFeedTokenizedUrl.includes("?") ? "&" : "?"
+  }from=2026-01-01&to=2026-12-31`;
 
   if (!ready || loading) {
     return (
@@ -587,6 +623,93 @@ export default function ConfigurationPage() {
                 </label>
               );
             })}
+            {section === "public_concerts_feed" ? (
+              <div className="rounded-box border border-base-300 p-3 space-y-2">
+                <p className="text-sm font-medium text-base-content">
+                  {label("js.configuration.publicConcerts.feedUrl", "Public concerts feed URL")}
+                </p>
+                <input
+                  type="text"
+                  className="input input-bordered w-full font-mono text-xs"
+                  value={publicConcertsFeedTokenizedUrl}
+                  readOnly
+                />
+                <p className="text-xs text-base-content/60">
+                  {publicConcertsFeedEnabled
+                    ? label(
+                      "js.configuration.publicConcerts.feedHintEnabled",
+                      "Feed is enabled. Only requests with a valid tokenized URL can read it."
+                    )
+                    : label(
+                      "js.configuration.publicConcerts.feedHintDisabled",
+                      "Feed is disabled and returns access denied until enabled."
+                    )}
+                </p>
+                <div className="rounded-box bg-base-200/40 p-3">
+                  <p className="text-xs font-semibold text-base-content">
+                    {label("js.configuration.publicConcerts.paramsTitle", "Optional URL parameters")}
+                  </p>
+                  <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-base-content/70">
+                    <li>
+                      <code>from=YYYY-MM-DD</code>
+                      {" "}
+                      {label(
+                        "js.configuration.publicConcerts.paramsFromHelp",
+                        "Include concerts that end on or after this day."
+                      )}
+                    </li>
+                    <li>
+                      <code>to=YYYY-MM-DD</code>
+                      {" "}
+                      {label(
+                        "js.configuration.publicConcerts.paramsToHelp",
+                        "Include concerts that start on or before this day."
+                      )}
+                    </li>
+                    <li>
+                      {label(
+                        "js.configuration.publicConcerts.paramsRangeHelp",
+                        "Using both returns concerts overlapping the date range."
+                      )}
+                    </li>
+                  </ul>
+                  <p className="mt-2 text-xs text-base-content/70">
+                    {label("js.configuration.publicConcerts.paramsExample", "Example:")}
+                    {" "}
+                    <code>{publicConcertsFeedRangeExampleUrl}</code>
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    className="btn btn-soft btn-sm"
+                    onClick={async () => {
+                      try {
+                        await navigator.clipboard.writeText(publicConcertsFeedTokenizedUrl);
+                        showToast(label("js.configuration.publicConcerts.copySuccess", "Public concerts feed URL copied."), "success");
+                      } catch {
+                        showToast(label("js.configuration.publicConcerts.copyFailed", "Copy failed"), "error");
+                      }
+                    }}
+                  >
+                    {label("js.configuration.publicConcerts.copyUrl", "Copy URL")}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-soft btn-sm"
+                    disabled={regeneratingPublicConcertsToken}
+                    onClick={() => setConfirmRegeneratePublicConcertsToken(true)}
+                  >
+                    {regeneratingPublicConcertsToken
+                      ? label("js.common.saving", "Saving…")
+                      : label("js.configuration.publicConcerts.rotateToken", "Regenerate token")}
+                  </button>
+                  <Link href="/settings/public-concerts-preview" className="btn btn-soft btn-sm">
+                    {label("js.configuration.publicConcerts.previewTitle", "Public concerts preview")}
+                  </Link>
+                </div>
+              </div>
+            ) : null}
           </div>
         </DetailSection>
       ))}
@@ -1104,6 +1227,23 @@ export default function ConfigurationPage() {
           </div>
         </DetailSection>
       ) : null}
+
+      <ConfirmModal
+        open={confirmRegeneratePublicConcertsToken}
+        onClose={() => setConfirmRegeneratePublicConcertsToken(false)}
+        title={label("js.configuration.publicConcerts.rotateConfirmTitle", "Regenerate feed token?")}
+        message={label(
+          "js.configuration.publicConcerts.rotateConfirmMessage",
+          "The old feed URL will stop working immediately. Continue?"
+        )}
+        confirmLabel={label("js.configuration.publicConcerts.rotateToken", "Regenerate token")}
+        cancelLabel={label("js.common.cancel", "Cancel")}
+        onConfirm={async () => {
+          setConfirmRegeneratePublicConcertsToken(false);
+          await regeneratePublicConcertsFeedToken();
+        }}
+        variant="danger"
+      />
 
       <ConfirmModal
         open={pendingCategoryDelete != null}

@@ -6,6 +6,8 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../response.php';
 require_once __DIR__ . '/../auth.php';
+require_once __DIR__ . '/../nextgen_public_feed_url.php';
+require_once __DIR__ . '/../nextgen_public_concerts_feed_token.php';
 
 class ConfigurationModule {
     private const INSTRUMENT_ALIAS_POOLS_PARAM = 'nextgen_instrument_alias_pools';
@@ -43,6 +45,7 @@ class ConfigurationModule {
         'beta_bug_report_enabled' => ['type' => 'boolean', 'section' => 'feature_flags', 'caption' => 'Enable beta bug reporting', 'used_in_nextgen' => true],
         'beta_bug_report_email' => ['type' => 'char', 'section' => 'feature_flags', 'caption' => 'Beta bug report inbox', 'used_in_nextgen' => true],
         'beta_section_coverage_enabled' => ['type' => 'boolean', 'section' => 'feature_flags', 'caption' => 'Section-based instrument coverage (beta)', 'used_in_nextgen' => true],
+        'public_gigs_feed_enabled' => ['type' => 'boolean', 'section' => 'public_concerts_feed', 'caption' => 'Enable public concerts feed sharing', 'used_in_nextgen' => true],
     ];
 
     public function __construct() {
@@ -64,6 +67,8 @@ class ConfigurationModule {
                 return $this->getConfig();
             case 'updateConfig':
                 return $this->updateConfig();
+            case 'regeneratePublicConcertsFeedToken':
+                return $this->regeneratePublicConcertsFeedToken();
             case 'getInstrumentAdminData':
                 return $this->getInstrumentAdminData();
             case 'createCategory':
@@ -123,6 +128,8 @@ class ConfigurationModule {
             ];
         }
 
+        $publicFeedDerived = $this->buildPublicConcertsFeedDerived($system_data->dbcon);
+
         return [
             'parameters' => $parameters,
             'values' => $values,
@@ -130,6 +137,7 @@ class ConfigurationModule {
                 'groups' => $this->getGroupOptions($system_data),
                 'conductors' => $this->getConductorOptions($system_data),
             ],
+            'derived' => $publicFeedDerived,
         ];
     }
 
@@ -164,6 +172,12 @@ class ConfigurationModule {
         return $this->getConfig();
     }
 
+    private function regeneratePublicConcertsFeedToken(): array {
+        global $system_data;
+        NextGenPublicConcertsFeedToken::regenerate($system_data->dbcon);
+        return $this->getConfig();
+    }
+
     private function hasConfigurationPermission($system_data): bool {
         $moduleNames = ['Konfiguration', 'Configuration'];
         foreach ($moduleNames as $name) {
@@ -173,6 +187,28 @@ class ConfigurationModule {
             }
         }
         return false;
+    }
+
+    /**
+     * @return array<string,string>
+     */
+    private function buildPublicConcertsFeedDerived(object $db): array {
+        $baseUrl = NextGenPublicFeedUrl::publicConcertsFeedUrl();
+        $tokenizedUrl = $baseUrl;
+        try {
+            $tokenInfo = NextGenPublicConcertsFeedToken::getOrCreate($db);
+            $tokenizedUrl = NextGenPublicFeedUrl::publicConcertsFeedTokenizedUrl((string) $tokenInfo['plainToken']);
+        } catch (Throwable $e) {
+            // Keep configuration usable even if token setup fails temporarily.
+        }
+
+        return [
+            'publicConcertsFeedUrl' => $baseUrl,
+            'publicConcertsFeedTokenizedUrl' => $tokenizedUrl,
+            // Backward-compat aliases during rollout.
+            'publicGigsFeedUrl' => $baseUrl,
+            'publicGigsFeedTokenizedUrl' => $tokenizedUrl,
+        ];
     }
 
     private function getInstrumentAdminData(): array {

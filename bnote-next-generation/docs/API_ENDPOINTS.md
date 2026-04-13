@@ -813,6 +813,40 @@ Behavior:
 
 ---
 
+### GET `api/public-concerts.json.php?token=<token>[&from=YYYY-MM-DD][&to=YYYY-MM-DD]`
+
+Public JSON feed endpoint for website integrations.
+
+Behavior:
+- Requires `token` query parameter (64-char hex). Missing/invalid token returns **403** with `error: public_concerts_feed_token_invalid`.
+- Feed can be disabled via configuration (`public_gigs_feed_enabled`); disabled returns **403** with `error: public_concerts_feed_disabled`.
+- Includes CORS headers for browser integrations:
+  - `Access-Control-Allow-Origin: *`
+  - `Access-Control-Allow-Methods: GET, OPTIONS`
+  - `Access-Control-Allow-Headers: Content-Type`
+- `OPTIONS` preflight returns **204**.
+- Per-IP rate limit is applied; excessive requests return **429** with `error: public_concerts_feed_rate_limited`.
+- Returns only concerts with status `confirmed`.
+- Excludes concerts with status `cancelled` or `hidden`.
+- Optional range filters:
+  - `from` (`YYYY-MM-DD`)
+  - `to` (`YYYY-MM-DD`)
+- Range matching uses overlap semantics:
+  - `begin <= to_end_of_day` and `COALESCE(end, begin) >= from_start_of_day`
+- Invalid date input or `from > to` returns **400** with `error: invalid_date_range`.
+- Output is intentionally minimal:
+  - `generatedAt` (ISO timestamp)
+  - `items[]`: `id`, `title`, `begin`, `end`, `locationName`, `locationAddress` (`street`, `zip`, `city`, `state`, `country`)
+- Concert visibility sidecar is respected:
+  - default (no sidecar row) => public details are shown.
+  - `isPublished = 0` => feed still includes the timeslot, but `title` is replaced by localized “Private event”, `locationName` is blank, and `locationAddress` fields are empty.
+- Example:
+  - `api/public-concerts.json.php?token=<token>&from=2026-01-01&to=2026-12-31`
+- Security note:
+  - The tokenized URL is a bearer secret. If leaked, rotate it via `configuration.regeneratePublicConcertsFeedToken`.
+
+---
+
 ## Tasks
 
 ### GET /api/v1/tasks
@@ -1577,6 +1611,14 @@ Get configuration.
 ```
 
 ---
+
+For Next Gen `api/index.php?module=configuration&action=getConfig`, response also includes:
+- `derived.publicConcertsFeedUrl` (absolute URL for `api/public-concerts.json.php`)
+- `derived.publicConcertsFeedTokenizedUrl` (absolute URL including `?token=...`)
+
+### POST `api/index.php?module=configuration&action=regeneratePublicConcertsFeedToken`
+
+Authenticated configuration action. Rotates the public concerts feed token immediately and returns updated `getConfig` payload (including new derived tokenized URL).
 
 ### PUT /api/v1/config
 

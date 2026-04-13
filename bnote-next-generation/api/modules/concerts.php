@@ -40,6 +40,7 @@ require_once __DIR__ . '/../text_normalizer.php';
 require_once __DIR__ . '/../mail/EventParticipantNotifier.php';
 require_once __DIR__ . '/../mail/EventInfoMailService.php';
 require_once __DIR__ . '/../mail/EscalationAlertService.php';
+require_once __DIR__ . '/../nextgen_public_event_visibility.php';
 
 class ConcertsModule {
     private $data;
@@ -618,6 +619,7 @@ class ConcertsModule {
             'meetingtime' => $concert['meetingtime'] ?? null,
             'approve_until' => $concert['approve_until'] ?? null,
             'status' => $concert['status'] ?? 'planned',
+            'isPublished' => NextGenPublicEventVisibility::isPublished($system_data->dbcon, 'C', $id),
             'notes' => $concert['notes'] ?? null,
             'organizer' => $concert['organizer'] ?? null,
             'payment' => $concert['payment'] ?? null ? floatval($concert['payment']) : null,
@@ -981,6 +983,16 @@ class ConcertsModule {
             }
         }
 
+        if (array_key_exists('isPublished', $fields)) {
+            NextGenPublicEventVisibility::setPublished(
+                $system_data->dbcon,
+                'C',
+                $id,
+                $this->toBoolean($fields['isPublished'] ?? false),
+                Auth::getUserId()
+            );
+        }
+
         return ['success' => true];
     }
 
@@ -1115,6 +1127,16 @@ class ConcertsModule {
             }
         }
 
+        if (array_key_exists('isPublished', $fields)) {
+            NextGenPublicEventVisibility::setPublished(
+                $system_data->dbcon,
+                'C',
+                $newId,
+                $this->toBoolean($fields['isPublished'] ?? false),
+                Auth::getUserId()
+            );
+        }
+
         EventParticipantNotifier::sendSafe($system_data, new StartData(), 'C', $newId, null);
 
         return ['id' => $newId];
@@ -1156,8 +1178,20 @@ class ConcertsModule {
         $system_data->dbcon->execute("DELETE FROM concert_equipment WHERE concert = ?", [['i', $id]]);
         $system_data->dbcon->execute("DELETE FROM concert_user WHERE concert = ?", [['i', $id]]);
         $system_data->dbcon->execute("DELETE FROM concert WHERE id = ?", [['i', $id]]);
+        NextGenPublicEventVisibility::deleteForEvent($system_data->dbcon, 'C', $id);
 
         return ['success' => true];
+    }
+
+    private function toBoolean($value): bool {
+        if (is_bool($value)) {
+            return $value;
+        }
+        if (is_numeric($value)) {
+            return intval($value) !== 0;
+        }
+        $normalized = strtolower(trim((string) $value));
+        return $normalized === '1' || $normalized === 'true' || $normalized === 'yes' || $normalized === 'on';
     }
 
     private function getRequestData() {

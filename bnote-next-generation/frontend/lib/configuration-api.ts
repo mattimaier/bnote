@@ -28,6 +28,13 @@ export interface ConfigurationResponse {
     groups: ConfigurationOption[];
     conductors: ConfigurationOption[];
   };
+  derived?: {
+    publicConcertsFeedUrl?: string;
+    publicConcertsFeedTokenizedUrl?: string;
+    // Backward compatibility during rollout.
+    publicGigsFeedUrl?: string;
+    publicGigsFeedTokenizedUrl?: string;
+  };
 }
 
 export interface InstrumentAdminCategory {
@@ -75,6 +82,8 @@ export const configurationApi = {
   getConfig: () => api.get<ConfigurationResponse>("configuration", "getConfig"),
   updateConfig: (values: Record<string, unknown>) =>
     api.post<ConfigurationResponse>("configuration", "updateConfig", { values }),
+  regeneratePublicConcertsFeedToken: () =>
+    api.post<ConfigurationResponse>("configuration", "regeneratePublicConcertsFeedToken", {}),
   getInstrumentAdminData: () =>
     api.get<InstrumentAdminDataResponse>("configuration", "getInstrumentAdminData"),
   createCategory: (name: string) =>

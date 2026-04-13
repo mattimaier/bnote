@@ -55,7 +55,7 @@ import { StatusPicker } from "@/components/entities/event/StatusPicker";
 import { getEventViewActions } from "@/lib/entities/event/actions";
 import { useEditingBar } from "@/contexts/EditingBarContext";
 import { DetailEditButton } from "@/components/DetailPageHeader";
-import { LayoutList, Trash2 } from "@/components/icons";
+import { Trash2 } from "@/components/icons";
 import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/error-utils";
 import { DETAIL_SECTION_CLASS } from "@/components/DetailSection";
@@ -376,6 +376,7 @@ export function EventDetail({
   const timeStr = formatTimeShort(currentBegin, lang) ?? tba;
   const endTimeStr = currentEnd ? formatTimeShort(currentEnd, lang) ?? tba : null;
   const status = (data.status as string) ?? "planned";
+  const isPublished = Boolean(data.isPublished);
   const approveUntil = data.approve_until as string | undefined;
   const notes = data.notes as string | undefined;
   const organizer = data.organizer as string | undefined;
@@ -471,6 +472,7 @@ export function EventDetail({
       approveUntil: toInputDateTime(approveUntil),
       meetingtime: toInputDateTime(meetingtime),
       status,
+      isPublished,
       notes: notes ?? "",
       organizer: organizer ?? "",
       payment: payment != null ? String(payment) : "",
@@ -550,6 +552,7 @@ export function EventDetail({
               meetingtime: fromInputDateTime(form.meetingtime),
               approve_until: fromInputDateTime(form.approveUntil),
               status: form.status,
+              isPublished: form.isPublished,
               notes: normalizedEventNotes,
               organizer: form.organizer,
               payment: form.payment,
@@ -1070,6 +1073,45 @@ export function EventDetail({
               </span>
             )}
           </div>
+          {type === "concert" && (
+            <div>
+              <span className="text-xs font-medium text-base-content/60">
+                {t("js.event.detail.publicFeedVisibility") !== "js.event.detail.publicFeedVisibility"
+                  ? t("js.event.detail.publicFeedVisibility")
+                  : "In public feed"}
+                :
+              </span>
+              {isEditing && form ? (
+                <label className="ml-2 inline-flex cursor-pointer items-center gap-2 align-middle">
+                  <input
+                    type="checkbox"
+                    className="checkbox checkbox-primary checkbox-sm"
+                    checked={!Boolean(form.isPublished)}
+                    onChange={(event) => setForm({ ...form, isPublished: !event.target.checked })}
+                  />
+                  <span className="text-xs text-base-content/80">
+                    {t("js.event.detail.hideFromPublicFeed") !== "js.event.detail.hideFromPublicFeed"
+                      ? t("js.event.detail.hideFromPublicFeed")
+                      : "Show as private"}
+                  </span>
+                </label>
+              ) : (
+                <span
+                  className={`ml-2 inline-flex rounded-full px-2 py-0.5 text-xs font-medium border align-middle ${
+                    isPublished ? "border-success/50 bg-success/15 text-success" : "border-base-300 bg-base-200/60 text-base-content/70"
+                  }`}
+                >
+                  {isPublished
+                    ? (t("js.configuration.publicConcerts.state.published") !== "js.configuration.publicConcerts.state.published"
+                      ? t("js.configuration.publicConcerts.state.published")
+                      : "Public details")
+                    : (t("js.configuration.publicConcerts.state.unpublished") !== "js.configuration.publicConcerts.state.unpublished"
+                      ? t("js.configuration.publicConcerts.state.unpublished")
+                      : "Private event")}
+                </span>
+              )}
+            </div>
+          )}
           {(approveUntil || isEditing) && (
             <div>
               <span className="text-xs font-medium text-base-content/60">

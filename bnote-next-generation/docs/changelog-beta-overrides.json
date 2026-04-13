@@ -1,6 +1,11 @@
 {
   "entries": [
     {
+      "title": "Public concerts feed now supports secure tokenized sharing with CORS access, date-range filtering, and per-concert visible/private feed visibility.",
+      "changeType": "changed",
+      "date": "2026-04-13"
+    },
+    {
       "title": "Weekly reminder emails now render the rehearsal icon again and use the intended squircle event icon with round participation traffic lights.",
       "changeType": "fixed",
       "date": "2026-04-13"
