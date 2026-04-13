@@ -14,6 +14,7 @@ import { getErrorMessage } from "@/lib/error-utils";
 import { PAGE_CONTENT_CLASS } from "@/lib/layout";
 import { api } from "@/lib/api";
 import { configurationApi } from "@/lib/configuration-api";
+import { useSectionAutosave } from "@/lib/use-section-autosave";
 
 interface Instrument {
   id: number;
@@ -54,7 +55,6 @@ export default function InstrumentMinimumsPage() {
   const { t, ready } = useI18n();
   const { showToast } = useToast();
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [instruments, setInstruments] = useState<Instrument[]>([]);
   const [sections, setSections] = useState<SectionConfig[]>([]);
   const [minimumsByType, setMinimumsByType] = useState<MinimumsByType>({
@@ -70,8 +70,14 @@ export default function InstrumentMinimumsPage() {
     required_concert: 1,
   });
   const [coverageMode, setCoverageMode] = useState<CoverageMode>("instrument");
+  const [confirmedCoverageMode, setConfirmedCoverageMode] = useState<CoverageMode>("instrument");
   const [sectionCoverageEnabled, setSectionCoverageEnabled] = useState(false);
   const [filter, setFilter] = useState("");
+  const [confirmedMinimumsByType, setConfirmedMinimumsByType] = useState<MinimumsByType>({
+    rehearsal: {},
+    concert: {},
+  });
+  const [confirmedSimplePairs, setConfirmedSimplePairs] = useState<SimpleEscalationPair[]>([]);
 
   const label = (key: string, fallback: string) => (t(key) !== key ? t(key) : fallback);
 
@@ -104,7 +110,9 @@ export default function InstrumentMinimumsPage() {
 
       setInstruments(Array.isArray(instrumentsRes?.instruments) ? instrumentsRes.instruments : []);
       setSections(featureEnabled && Array.isArray(minimumsRes?.sections) ? minimumsRes.sections : []);
-      setCoverageMode(featureEnabled && minimumsRes?.mode === "section" ? "section" : "instrument");
+      const nextMode = featureEnabled && minimumsRes?.mode === "section" ? "section" : "instrument";
+      setCoverageMode(nextMode);
+      setConfirmedCoverageMode(nextMode);
       const rawSimplePairs = Array.isArray(minimumsRes?.simplePairs)
         ? minimumsRes.simplePairs
         : (minimumsRes?.simplePair ? [minimumsRes.simplePair] : []);
@@ -117,6 +125,7 @@ export default function InstrumentMinimumsPage() {
         }))
         .filter((item) => item.instrument_a_id > 0 && item.instrument_b_id > 0 && item.instrument_a_id !== item.instrument_b_id);
       setSimplePairs(nextSimplePairs);
+      setConfirmedSimplePairs(nextSimplePairs);
       setSimplePairDraft({
         instrument_a_id: 0,
         instrument_b_id: 0,
@@ -149,9 +158,14 @@ export default function InstrumentMinimumsPage() {
           rehearsal,
           concert: Object.keys(concertRaw).length > 0 ? concertRaw : rehearsal,
         });
+        setConfirmedMinimumsByType({
+          rehearsal,
+          concert: Object.keys(concertRaw).length > 0 ? concertRaw : rehearsal,
+        });
       } else {
         const legacy = normalize(rawMinimums ?? {});
         setMinimumsByType({ rehearsal: legacy, concert: legacy });
+        setConfirmedMinimumsByType({ rehearsal: legacy, concert: legacy });
       }
     } catch (err) {
       showToast(getErrorMessage(err, t, "js.common.failedToLoad"), "error");
@@ -165,9 +179,10 @@ export default function InstrumentMinimumsPage() {
     void load();
   }, [ready, load]);
 
-  async function save() {
-    setSaving(true);
-    try {
+  const minimumsAutosave = useSectionAutosave({
+    value: { coverageMode, minimumsByType, simplePairs, sectionCoverageEnabled },
+    enabled: !loading,
+    save: async (nextState) => {
       const sanitize = (input: Record<string, number>) => {
         const out: Record<string, number> = {};
         Object.entries(input).forEach(([id, value]) => {
@@ -178,21 +193,25 @@ export default function InstrumentMinimumsPage() {
         return out;
       };
       const payload = {
-        rehearsal: sanitize(minimumsByType.rehearsal),
-        concert: sanitize(minimumsByType.concert),
+        rehearsal: sanitize(nextState.minimumsByType.rehearsal),
+        concert: sanitize(nextState.minimumsByType.concert),
       };
       await api.post("dashboard", "setInstrumentMinimums", {
-        mode: sectionCoverageEnabled ? coverageMode : "instrument",
+        mode: nextState.sectionCoverageEnabled ? nextState.coverageMode : "instrument",
         minimums: payload,
-        simplePairs,
+        simplePairs: nextState.simplePairs,
       });
-      showToast(label("js.settings.saved", "Saved"), "success");
-    } catch (err) {
+      setConfirmedCoverageMode(nextState.coverageMode);
+      setConfirmedSimplePairs(nextState.simplePairs);
+      setConfirmedMinimumsByType(nextState.minimumsByType);
+    },
+    onError: (err) => {
       showToast(getErrorMessage(err, t, "js.common.saveFailed"), "error");
-    } finally {
-      setSaving(false);
-    }
-  }
+      setCoverageMode(confirmedCoverageMode);
+      setSimplePairs(confirmedSimplePairs);
+      setMinimumsByType(confirmedMinimumsByType);
+    },
+  });
 
   const sectionAssignedInstrumentIds = useMemo(() => {
     const ids = new Set<number>();
@@ -311,20 +330,19 @@ export default function InstrumentMinimumsPage() {
       <DetailPageHeader title={label("js.settings.minimums.title", "Instrument minimums")} />
 
       <DetailSection className="space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
           <p className="text-sm text-base-content/70">
             {label("js.settings.minimums.help", "Configure minimum required players per instrument for escalation checks.")}
           </p>
-          <button
-            type="button"
-            className="btn btn-soft btn-primary"
-            disabled={saving}
-            onClick={() => {
-              void save();
-            }}
-          >
-            {saving ? label("js.common.saving", "Saving…") : label("js.common.save", "Save")}
-          </button>
+          <p className="text-xs text-base-content/60 mt-1">
+            {minimumsAutosave.status === "saving"
+              ? label("js.configuration.autosave.saving", "Saving...")
+              : minimumsAutosave.status === "error"
+                ? label("js.configuration.autosave.error", "Error")
+                : minimumsAutosave.status === "saved"
+                  ? label("js.configuration.autosave.saved", "Saved")
+                  : label("js.configuration.autosave.ready", "Live")}
+          </p>
         </div>
 
         {sectionCoverageEnabled ? (
@@ -419,6 +437,7 @@ export default function InstrumentMinimumsPage() {
                               rehearsal: { ...prev.rehearsal, [row.key]: next },
                             }));
                           }}
+                          onBlur={() => void minimumsAutosave.flush()}
                         />
                       </td>
                       <td>
@@ -434,6 +453,7 @@ export default function InstrumentMinimumsPage() {
                               concert: { ...prev.concert, [row.key]: next },
                             }));
                           }}
+                          onBlur={() => void minimumsAutosave.flush()}
                         />
                       </td>
                     </tr>
@@ -536,6 +556,7 @@ export default function InstrumentMinimumsPage() {
                           required_rehearsal: nextRequired,
                         }));
                       }}
+                      onBlur={() => void minimumsAutosave.flush()}
                     />
                   </td>
                   <td>
@@ -551,6 +572,7 @@ export default function InstrumentMinimumsPage() {
                           required_concert: nextRequired,
                         }));
                       }}
+                      onBlur={() => void minimumsAutosave.flush()}
                     />
                   </td>
                 </tr>

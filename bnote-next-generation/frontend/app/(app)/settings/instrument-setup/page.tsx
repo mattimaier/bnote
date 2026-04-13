@@ -14,6 +14,7 @@ import {
 } from "@/lib/configuration-api";
 import { getErrorMessage } from "@/lib/error-utils";
 import { PAGE_CONTENT_CLASS } from "@/lib/layout";
+import { useSectionAutosave } from "@/lib/use-section-autosave";
 
 function createTemporaryId(index: number): string {
   return `tmp_${Date.now()}_${index}`;
@@ -45,7 +46,6 @@ export default function InstrumentSetupPage() {
   const { t, ready } = useI18n();
   const { showToast } = useToast();
   const [loading, setLoading] = useState(true);
-  const [savingSections, setSavingSections] = useState(false);
   const [seedingDefaults, setSeedingDefaults] = useState(false);
   const [applyingBigBand, setApplyingBigBand] = useState(false);
   const [pendingSectionDeleteId, setPendingSectionDeleteId] = useState<string | null>(null);
@@ -56,6 +56,7 @@ export default function InstrumentSetupPage() {
 
   const [instruments, setInstruments] = useState<Array<{ id: number; name: string; category_name?: string }>>([]);
   const [sections, setSections] = useState<InstrumentSectionConfig[]>([]);
+  const [confirmedSections, setConfirmedSections] = useState<InstrumentSectionConfig[]>([]);
 
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
 
@@ -99,6 +100,7 @@ export default function InstrumentSetupPage() {
       }));
       setInstruments(nextInstruments);
       setSections(nextSections);
+      setConfirmedSections(nextSections);
       setSelectedSectionId((prev) => (prev && nextSections.some((section) => section.id === prev) ? prev : (nextSections[0]?.id ?? null)));
     } catch (err) {
       showToast(getErrorMessage(err, t, "js.common.failedToLoad"), "error");
@@ -160,10 +162,11 @@ export default function InstrumentSetupPage() {
     updateSection(sectionId, { concert_instrument_targets: nextTargets });
   }
 
-  async function saveSections() {
-    setSavingSections(true);
-    try {
-      const sanitized = sections
+  const sectionsAutosave = useSectionAutosave({
+    value: sections,
+    enabled: !loading,
+    save: async (nextSectionsInput) => {
+      const sanitized = nextSectionsInput
         .map((section) => ({
           id: String(section.id ?? "").trim().startsWith("tmp_") ? "" : String(section.id ?? "").trim(),
           name: String(section.name ?? "").trim(),
@@ -181,14 +184,14 @@ export default function InstrumentSetupPage() {
       const res = await configurationApi.saveInstrumentSections(sanitized);
       const nextSections = Array.isArray(res?.sections) ? res.sections : sanitized;
       setSections(nextSections);
+      setConfirmedSections(nextSections);
       setSelectedSectionId((prev) => (prev && nextSections.some((section) => section.id === prev) ? prev : (nextSections[0]?.id ?? null)));
-      showToast(label("js.settings.saved", "Saved"), "success");
-    } catch (err) {
+    },
+    onError: (err) => {
       showToast(getErrorMessage(err, t, "js.common.saveFailed"), "error");
-    } finally {
-      setSavingSections(false);
-    }
-  }
+      setSections(confirmedSections);
+    },
+  });
 
   async function importDefaults() {
     setSeedingDefaults(true);
@@ -287,20 +290,19 @@ export default function InstrumentSetupPage() {
                 "Rehearsal checks use section totals. Concert checks use section totals and optional fixed required seats per instrument."
               )}
             </p>
+            <p className="text-xs text-base-content/60 mt-1">
+              {sectionsAutosave.status === "saving"
+                ? label("js.configuration.autosave.saving", "Saving...")
+                : sectionsAutosave.status === "error"
+                  ? label("js.configuration.autosave.error", "Error")
+                  : sectionsAutosave.status === "saved"
+                    ? label("js.configuration.autosave.saved", "Saved")
+                    : label("js.configuration.autosave.ready", "Live")}
+            </p>
           </div>
           <div className="flex flex-wrap gap-2">
             <button type="button" className="btn btn-soft" onClick={addSection}>
               {label("js.configuration.instruments.addSection", "Add section")}
-            </button>
-            <button
-              type="button"
-              className="btn btn-soft btn-primary"
-              disabled={savingSections}
-              onClick={() => {
-                void saveSections();
-              }}
-            >
-              {savingSections ? label("js.common.saving", "Saving…") : label("js.common.save", "Save")}
             </button>
           </div>
         </div>
@@ -342,6 +344,7 @@ export default function InstrumentSetupPage() {
                       className="input input-bordered"
                       value={selectedSection.name}
                       onChange={(event) => updateSection(selectedSection.id, { name: event.target.value })}
+                      onBlur={() => void sectionsAutosave.flush()}
                     />
                   </label>
                   <button
@@ -367,6 +370,7 @@ export default function InstrumentSetupPage() {
                         const next = Math.max(0, Math.floor(Number(event.target.value) || 0));
                         updateSection(selectedSection.id, { rehearsal_min_total: next });
                       }}
+                      onBlur={() => void sectionsAutosave.flush()}
                     />
                   </label>
                   <label className="form-control">
@@ -382,6 +386,7 @@ export default function InstrumentSetupPage() {
                         const next = Math.max(0, Math.floor(Number(event.target.value) || 0));
                         updateSection(selectedSection.id, { concert_min_total: next });
                       }}
+                      onBlur={() => void sectionsAutosave.flush()}
                     />
                   </label>
                 </div>
@@ -426,6 +431,7 @@ export default function InstrumentSetupPage() {
                                     else nextMap.set(instrument.id, nextCount);
                                     updateSection(selectedSection.id, { instrument_ids: expandInstrumentCounts(nextMap) });
                                   }}
+                                  onBlur={() => void sectionsAutosave.flush()}
                                 />
                               </td>
                             </tr>
@@ -470,6 +476,7 @@ export default function InstrumentSetupPage() {
                                     concert_instrument_targets: nextTargets.filter((item) => item.instrument_id > 0 && item.required > 0),
                                   });
                                 }}
+                                onBlur={() => void sectionsAutosave.flush()}
                               >
                                 <option value={0}>{label("js.configuration.instruments.selectInstrument", "Select instrument")}</option>
                                 {instrumentOptions.map((instrument) => (
@@ -494,6 +501,7 @@ export default function InstrumentSetupPage() {
                                   };
                                   updateSection(selectedSection.id, { concert_instrument_targets: nextTargets });
                                 }}
+                                onBlur={() => void sectionsAutosave.flush()}
                               />
                             </td>
                             <td>
