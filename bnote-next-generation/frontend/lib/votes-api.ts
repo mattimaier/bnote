@@ -12,6 +12,11 @@ export interface VoteOption {
   odate?: string | null;
 }
 
+export interface VoteAssignableVoter {
+  id: number;
+  name: string;
+}
+
 export interface Vote {
   id: number;
   name: string;
@@ -90,4 +95,26 @@ export const votesApi = {
       vote_id: voteId,
       ...data,
     } as Record<string, unknown>),
+  getAssignableVoters: (id: number) =>
+    api.get<VoteAssignableVoter[]>("votes", "getAssignableVoters", { id: String(id) }),
+  getAssignedVoters: (id: number) =>
+    api.get<VoteAssignableVoter[]>("votes", "getAssignedVoters", { id: String(id) }),
+  addVoters: (voteId: number, userIds: number[]) =>
+    api.post<{ success: boolean; message: string; added: number }>(
+      "votes",
+      "addVoters",
+      { id: voteId, user_ids: userIds } as Record<string, unknown>
+    ),
+  removeVoters: (voteId: number, userIds: number[]) =>
+    api.post<{ success: boolean; message: string; removed: number }>(
+      "votes",
+      "removeVoters",
+      { id: voteId, user_ids: userIds } as Record<string, unknown>
+    ),
+  setVoters: (voteId: number, userIds: number[]) =>
+    api.post<{ success: boolean; message: string; added: number; removed: number }>(
+      "votes",
+      "setVoters",
+      { id: voteId, user_ids: userIds } as Record<string, unknown>
+    ),
 };

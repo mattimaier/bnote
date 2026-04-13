@@ -316,26 +316,31 @@ export function VoteResults({ result, options, isDate, isMulti, lang }: VoteResu
             {Array.from(optionRows.entries()).map(([optId, row]) => (
               <div key={optId} className="border-b border-base-300 pb-4 last:border-0">
                 <p className="mb-2 font-medium text-base-content">{row.label}</p>
-                <div className="grid gap-3 sm:grid-cols-3">
-                  {row.yes.voters && (
-                    <div>
-                      <p className="mb-1 text-xs font-medium text-base-content/60">{yesLabel}</p>
-                      <VotersTable voters={row.yes.voters} noVotesText="" />
+                {(() => {
+                  const sections = [
+                    row.yes.voters ? { key: "yes", label: yesLabel, voters: row.yes.voters } : null,
+                    row.no.voters ? { key: "no", label: noLabel, voters: row.no.voters } : null,
+                    row.maybe.voters ? { key: "maybe", label: maybeLabel, voters: row.maybe.voters } : null,
+                  ].filter((section): section is { key: string; label: string; voters: string } => Boolean(section));
+
+                  const gridClass =
+                    sections.length <= 1
+                      ? "grid gap-3 grid-cols-1"
+                      : sections.length === 2
+                        ? "grid gap-3 grid-cols-1 sm:grid-cols-2"
+                        : "grid gap-3 grid-cols-1 sm:grid-cols-3";
+
+                  return (
+                    <div className={gridClass}>
+                      {sections.map((section) => (
+                        <div key={section.key}>
+                          <p className="mb-1 text-xs font-medium text-base-content/60">{section.label}</p>
+                          <VotersTable voters={section.voters} noVotesText="" />
+                        </div>
+                      ))}
                     </div>
-                  )}
-                  {row.no.voters && (
-                    <div>
-                      <p className="mb-1 text-xs font-medium text-base-content/60">{noLabel}</p>
-                      <VotersTable voters={row.no.voters} noVotesText="" />
-                    </div>
-                  )}
-                  {row.maybe.voters && (
-                    <div>
-                      <p className="mb-1 text-xs font-medium text-base-content/60">{maybeLabel}</p>
-                      <VotersTable voters={row.maybe.voters} noVotesText="" />
-                    </div>
-                  )}
-                </div>
+                  );
+                })()}
               </div>
             ))}
           </div>

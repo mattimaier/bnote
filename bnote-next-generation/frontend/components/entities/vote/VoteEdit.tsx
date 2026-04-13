@@ -12,7 +12,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useI18n } from "@/contexts/I18nContext";
 import { useToast } from "@/contexts/ToastContext";
 import { useEditingBar } from "@/contexts/EditingBarContext";
-import { votesApi, type VoteDetail } from "@/lib/votes-api";
+import { votesApi, type VoteAssignableVoter, type VoteDetail } from "@/lib/votes-api";
 import { contactsApi, type ContactGroup } from "@/lib/contacts-api";
 import { formatDateShortDisplay } from "@/lib/date-time";
 import { PAGE_CONTENT_CLASS } from "@/lib/layout";
@@ -45,6 +45,9 @@ export function VoteEdit() {
   const [error, setError] = useState("");
   const [groups, setGroups] = useState<ContactGroup[]>([]);
   const [selectedGroups, setSelectedGroups] = useState<number[]>([]);
+  const [allVoters, setAllVoters] = useState<VoteAssignableVoter[]>([]);
+  const [voterUserIds, setVoterUserIds] = useState<number[]>([]);
+  const [voterQuery, setVoterQuery] = useState("");
   /** Pending options for new vote (before save) */
   const [pendingOptions, setPendingOptions] = useState<Array<{ id: string; name?: string; odate?: string }>>([]);
   const loadVote = useCallback(() => {
@@ -70,10 +73,35 @@ export function VoteEdit() {
       .finally(() => setLoading(false));
   }, [id, isNew]);
 
+  const loadVoterEditorData = useCallback(async () => {
+    if (isNew || !id) return;
+    const numId = parseInt(id, 10);
+    if (Number.isNaN(numId)) return;
+    try {
+      const [assignable, assigned] = await Promise.all([
+        votesApi.getAssignableVoters(numId),
+        votesApi.getAssignedVoters(numId),
+      ]);
+      const byId = new Map<number, VoteAssignableVoter>();
+      (assignable ?? []).forEach((u) => byId.set(u.id, u));
+      (assigned ?? []).forEach((u) => byId.set(u.id, u));
+      setAllVoters(Array.from(byId.values()).sort((a, b) => a.name.localeCompare(b.name)));
+      setVoterUserIds((assigned ?? []).map((u) => u.id));
+    } catch {
+      setAllVoters([]);
+      setVoterUserIds([]);
+    }
+  }, [id, isNew]);
+
   useEffect(() => {
     if (!ready) return;
     loadVote();
   }, [ready, loadVote]);
+
+  useEffect(() => {
+    if (!ready || isNew) return;
+    loadVoterEditorData();
+  }, [ready, isNew, loadVoterEditorData]);
 
   useEffect(() => {
     if (!ready || !isNew) return;
@@ -156,8 +184,12 @@ export function VoteEdit() {
         );
         router.replace(getEntityPath("vote", res.id, "view"));
       } else {
+        const voteId = parseInt(id, 10);
         const endForApi = end ? end.replace(" ", "T") : "";
-        await votesApi.update(parseInt(id, 10), { name, end: endForApi });
+        await votesApi.update(voteId, { name, end: endForApi });
+        if (canEditVote) {
+          await votesApi.setVoters(voteId, voterUserIds);
+        }
         showToast(
           t("js.common.saved") !== "js.common.saved"
             ? t("js.common.saved")
@@ -289,6 +321,18 @@ export function VoteEdit() {
     : (item?.name ?? (t("js.common.edit") !== "js.common.edit" ? t("js.common.edit") : "Edit"));
   const pageSubtitle = t("js.votes.subtitle") !== "js.votes.subtitle" ? t("js.votes.subtitle") : "Polls and voting";
   const canEditVote = isNew || Boolean(item?.can_edit ?? item?.is_author);
+  const selectedCountLabel = (count: number) => {
+    const template = t("js.common.selectedCount");
+    if (template && template !== "js.common.selectedCount") {
+      return template.replace("{count}", String(count));
+    }
+    return `${count} selected`;
+  };
+  const voterMap = new Map<number, VoteAssignableVoter>(allVoters.map((u) => [u.id, u]));
+  const voterRows = voterUserIds
+    .map((uid) => voterMap.get(uid))
+    .filter((u): u is VoteAssignableVoter => Boolean(u))
+    .filter((u) => `${u.name}`.toLowerCase().includes(voterQuery.trim().toLowerCase()));
 
   return (
     <div className={PAGE_CONTENT_CLASS}>
@@ -475,6 +519,68 @@ export function VoteEdit() {
                 )}
               </div>
             )}
+          </div>
+        )}
+
+        {!isNew && canEditVote && (
+          <div className="rounded-none border-0 shadow-none p-4 md:rounded-box md:border md:border-base-300 md:shadow-sm md:p-6 bg-base-100 md:bg-base-100 text-base-content">
+            <div className="flex flex-wrap items-baseline justify-between gap-3">
+              <h2 className="text-lg font-semibold text-base-content">
+                {t("js.event.detail.participants") !== "js.event.detail.participants"
+                  ? t("js.event.detail.participants")
+                  : "Participants"}
+              </h2>
+              <div className="w-[min(100%,260px)]">
+                <MultiSelect
+                  options={allVoters.map((u) => ({ id: u.id, name: u.name }))}
+                  selected={voterUserIds}
+                  onChange={setVoterUserIds}
+                  placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
+                  showChips={false}
+                  labelSelect={t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Select…"}
+                  labelSelectedCount={selectedCountLabel}
+                  labelNoSelection={t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "No selection"}
+                  labelNoMatches={t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"}
+                  labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close"}
+                  labelRemove={t("js.common.remove") !== "js.common.remove" ? t("js.common.remove") : "Remove"}
+                />
+              </div>
+            </div>
+            <div className="mt-4 space-y-4">
+              <input
+                type="search"
+                value={voterQuery}
+                onChange={(e) => setVoterQuery(e.target.value)}
+                placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
+                className="input input-sm w-full text-base-content"
+              />
+              <div className="space-y-3 text-sm">
+                {voterRows.map((voter) => (
+                  <div
+                    key={voter.id}
+                    className="flex items-center justify-between gap-3 rounded-field border border-base-300 px-3 py-2"
+                  >
+                    <div className="font-medium">{voter.name || emptyText}</div>
+                    <RemoveOptionButton
+                      onClick={() => setVoterUserIds((prev) => prev.filter((uid) => uid !== voter.id))}
+                      ariaLabel={t("js.common.remove") !== "js.common.remove" ? t("js.common.remove") : "Remove"}
+                    />
+                  </div>
+                ))}
+                {voterUserIds.length === 0 && (
+                  <div className="text-sm text-base-content/60">
+                    {t("js.event.detail.noParticipants") !== "js.event.detail.noParticipants"
+                      ? t("js.event.detail.noParticipants")
+                      : "No participants available."}
+                  </div>
+                )}
+                {voterUserIds.length > 0 && voterRows.length === 0 && (
+                  <div className="text-sm text-base-content/60">
+                    {t("js.common.noResults") !== "js.common.noResults" ? t("js.common.noResults") : "No results"}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         )}
       </form>

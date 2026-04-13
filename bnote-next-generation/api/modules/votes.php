@@ -48,12 +48,22 @@ class VotesModule {
                 return $this->listVotes();
             case 'get':
                 return $this->getVote();
+            case 'getAssignableVoters':
+                return $this->getAssignableVoters();
+            case 'getAssignedVoters':
+                return $this->getAssignedVoters();
             case 'create':
                 return $this->createVote();
             case 'update':
                 return $this->updateVote();
             case 'delete':
                 return $this->deleteVote();
+            case 'addVoters':
+                return $this->addVoters();
+            case 'removeVoters':
+                return $this->removeVoters();
+            case 'setVoters':
+                return $this->setVoters();
             case 'getOptions':
                 return $this->getOptions();
             case 'addOption':
@@ -391,6 +401,218 @@ class VotesModule {
         } catch (BNoteError $e) {
             Response::error($e->getMessage(), 400);
         }
+    }
+
+    private function getAssignableVoters() {
+        $id = $_GET['id'] ?? $_POST['id'] ?? null;
+        if (!$id || !is_numeric($id)) {
+            Response::error('Vote ID required', 400);
+        }
+        $this->requireVoteEditPermission($id);
+
+        $assigned = $this->data->getGroup($id);
+        $assignedMap = [];
+        if (is_array($assigned)) {
+            for ($i = 1; $i < count($assigned); $i++) {
+                $uid = intval($assigned[$i]['id'] ?? 0);
+                if ($uid > 0) {
+                    $assignedMap[$uid] = true;
+                }
+            }
+        }
+
+        $users = $this->data->getUsers();
+        $result = [];
+        if (is_array($users)) {
+            for ($i = 1; $i < count($users); $i++) {
+                $row = $users[$i];
+                $uid = intval($row['id'] ?? 0);
+                if ($uid <= 0 || isset($assignedMap[$uid])) {
+                    continue;
+                }
+                $name = trim(($row['name'] ?? '') . ' ' . ($row['surname'] ?? ''));
+                $result[] = [
+                    'id' => $uid,
+                    'name' => $name,
+                ];
+            }
+        }
+        return $result;
+    }
+
+    private function getAssignedVoters() {
+        $id = $_GET['id'] ?? $_POST['id'] ?? null;
+        if (!$id || !is_numeric($id)) {
+            Response::error('Vote ID required', 400);
+        }
+        $this->requireVoteEditPermission($id);
+
+        $assigned = $this->data->getGroup($id);
+        $result = [];
+        if (is_array($assigned)) {
+            for ($i = 1; $i < count($assigned); $i++) {
+                $row = $assigned[$i];
+                $uid = intval($row['id'] ?? 0);
+                if ($uid <= 0) {
+                    continue;
+                }
+                $name = trim(($row['name'] ?? '') . ' ' . ($row['surname'] ?? ''));
+                $result[] = [
+                    'id' => $uid,
+                    'name' => $name,
+                ];
+            }
+        }
+        return $result;
+    }
+
+    private function addVoters() {
+        $rawInput = file_get_contents('php://input');
+        $data = json_decode($rawInput, true);
+        if (!$data) {
+            $data = $_POST;
+        }
+        $id = $data['id'] ?? $data['vote_id'] ?? $data['voteId'] ?? $_GET['id'] ?? null;
+        if (!$id || !is_numeric($id)) {
+            Response::error('Vote ID required', 400);
+        }
+        $this->requireVoteEditPermission($id);
+
+        $rawUserIds = $data['user_ids'] ?? $data['userIds'] ?? [];
+        if (!is_array($rawUserIds) || count($rawUserIds) === 0) {
+            Response::error('At least one user ID is required', 400);
+        }
+
+        $assigned = $this->data->getGroup($id);
+        $assignedMap = [];
+        if (is_array($assigned)) {
+            for ($i = 1; $i < count($assigned); $i++) {
+                $uid = intval($assigned[$i]['id'] ?? 0);
+                if ($uid > 0) {
+                    $assignedMap[$uid] = true;
+                }
+            }
+        }
+
+        $added = 0;
+        foreach ($rawUserIds as $rawUid) {
+            $uid = intval($rawUid);
+            if ($uid <= 0 || isset($assignedMap[$uid])) {
+                continue;
+            }
+            $this->data->addToGroup($id, $uid);
+            $assignedMap[$uid] = true;
+            $added++;
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Voters added',
+            'added' => $added,
+        ];
+    }
+
+    private function removeVoters() {
+        $rawInput = file_get_contents('php://input');
+        $data = json_decode($rawInput, true);
+        if (!$data) {
+            $data = $_POST;
+        }
+        $id = $data['id'] ?? $data['vote_id'] ?? $data['voteId'] ?? $_GET['id'] ?? null;
+        if (!$id || !is_numeric($id)) {
+            Response::error('Vote ID required', 400);
+        }
+        $this->requireVoteEditPermission($id);
+
+        $rawUserIds = $data['user_ids'] ?? $data['userIds'] ?? [];
+        if (!is_array($rawUserIds) || count($rawUserIds) === 0) {
+            Response::error('At least one user ID is required', 400);
+        }
+
+        $removed = 0;
+        global $system_data;
+        foreach ($rawUserIds as $rawUid) {
+            $uid = intval($rawUid);
+            if ($uid <= 0) {
+                continue;
+            }
+            $this->data->deleteFromGroup($id, $uid);
+            $system_data->dbcon->execute(
+                'DELETE vou FROM vote_option_user vou JOIN vote_option vo ON vou.vote_option = vo.id WHERE vo.vote = ? AND vou.user = ?',
+                [['i', (int) $id], ['i', (int) $uid]]
+            );
+            $removed++;
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Voters removed',
+            'removed' => $removed,
+        ];
+    }
+
+    private function setVoters() {
+        $rawInput = file_get_contents('php://input');
+        $data = json_decode($rawInput, true);
+        if (!$data) {
+            $data = $_POST;
+        }
+        $id = $data['id'] ?? $data['vote_id'] ?? $data['voteId'] ?? $_GET['id'] ?? null;
+        if (!$id || !is_numeric($id)) {
+            Response::error('Vote ID required', 400);
+        }
+        $this->requireVoteEditPermission($id);
+
+        $rawUserIds = $data['user_ids'] ?? $data['userIds'] ?? [];
+        if (!is_array($rawUserIds)) {
+            Response::error('user_ids must be an array', 400);
+        }
+
+        $targetMap = [];
+        foreach ($rawUserIds as $rawUid) {
+            $uid = intval($rawUid);
+            if ($uid > 0) {
+                $targetMap[$uid] = true;
+            }
+        }
+        $targetIds = array_keys($targetMap);
+
+        $assigned = $this->data->getGroup($id);
+        $currentMap = [];
+        if (is_array($assigned)) {
+            for ($i = 1; $i < count($assigned); $i++) {
+                $uid = intval($assigned[$i]['id'] ?? 0);
+                if ($uid > 0) {
+                    $currentMap[$uid] = true;
+                }
+            }
+        }
+        $currentIds = array_keys($currentMap);
+
+        $toAdd = array_values(array_diff($targetIds, $currentIds));
+        $toRemove = array_values(array_diff($currentIds, $targetIds));
+
+        foreach ($toAdd as $uid) {
+            $this->data->addToGroup($id, $uid);
+        }
+
+        if (count($toRemove) > 0) {
+            global $system_data;
+            foreach ($toRemove as $uid) {
+                $this->data->deleteFromGroup($id, $uid);
+                $system_data->dbcon->execute(
+                    'DELETE vou FROM vote_option_user vou JOIN vote_option vo ON vou.vote_option = vo.id WHERE vo.vote = ? AND vou.user = ?',
+                    [['i', (int) $id], ['i', (int) $uid]]
+                );
+            }
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Voters updated',
+            'added' => count($toAdd),
+            'removed' => count($toRemove),
+        ];
     }
 
     private function removeOption() {
