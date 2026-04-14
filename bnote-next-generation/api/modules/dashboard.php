@@ -1585,7 +1585,6 @@ class DashboardModule {
                 'concert' => is_array($minimumsWithMode['concert'] ?? null) ? $minimumsWithMode['concert'] : [],
             ],
             'simplePairs' => $this->getSimpleEscalationPairsFromConfig(),
-            'aliasPools' => [],
             'sections' => $this->getInstrumentSections(),
         ];
     }

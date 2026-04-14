@@ -10,7 +10,7 @@ Architecture-level permission decisions are documented in **[ARCHITECTURE_DECISI
 ## 1. Overview
 
 - **App:** Next.js UI (static export) in `frontend/`, PHP REST API in `api/`.
-- **Entry points:** `/` (redirects to `/dashboard` or `/login`), `/login`, `/register` (when `user_registration` is enabled), `/reset-password`, `/reset-password/confirm`, `/participation/respond`, `/dashboard`, `/users`, `/contacts`, `/contacts/integration`, `/search`, `/settings`, `/profile`, `/profile/edit`, `/help`, `/system-information`, `/changelog` (legacy alias: `/whats-new`), legal routes under `/legal/*`, module pages under **`frontend/app/_modules/*`**, entity detail at **`/entity?type=…&id=…`** (and **`&edit=1`** in edit mode; see **[UI_PATTERNS.md](UI_PATTERNS.md)**).
+- **Entry points:** `/` (redirects to `/dashboard` or `/login`), `/login`, `/register` (when `user_registration` is enabled), `/reset-password`, `/reset-password/confirm`, `/participation/respond`, `/dashboard`, `/users`, `/contacts`, `/contacts/integration`, `/search`, `/settings`, `/profile`, `/profile/edit`, `/help`, `/system-information`, `/changelog`, legal routes under `/legal/*`, module pages under **`frontend/app/_modules/*`**, entity detail at **`/entity?type=…&id=…`** (and **`&edit=1`** in edit mode; see **[UI_PATTERNS.md](UI_PATTERNS.md)**).
 - **Auth:** Session-based; API uses PHP session cookie. Unauthenticated users are redirected to `/login?redirect=…`.
 
 ---
@@ -214,7 +214,7 @@ Status model:
 - **Shell:** Sidebar, mobile drawer, top bar (search, theme, user); logo everywhere.
 - **System information:** User menu opens `/system-information` with system/build sections.
 - **Help:** User menu opens `/help` and documents keyboard shortcuts.
-- **Changelog:** User menu opens `/changelog` (legacy `/whats-new` redirects) with plain changelog list.
+- **Changelog:** User menu opens `/changelog` with plain changelog list.
 - **Changelog modal:** Shows once per release per user (post-login shell), with actions for dismiss/view changelog.
 - **Wrapped:** Module follows app theme (light/dark). The generated/shared Wrapped share card is intentionally rendered in light mode for consistent exported image colors.
 - **Bug reporting:** Report button visible only when feature flag is enabled; modal has single required message field; diagnostics counters populate after app activity; report send returns a `reportId` on success.

@@ -83,8 +83,6 @@ class ConfigurationModule {
                 return $this->updateInstrument();
             case 'deleteInstrument':
                 return $this->deleteInstrument();
-            case 'saveInstrumentAliasPools':
-                return $this->saveInstrumentAliasPools();
             case 'saveInstrumentSections':
                 return $this->saveInstrumentSections();
             case 'seedInstrumentDefaults':
@@ -205,9 +203,6 @@ class ConfigurationModule {
         return [
             'publicConcertsFeedUrl' => $baseUrl,
             'publicConcertsFeedTokenizedUrl' => $tokenizedUrl,
-            // Backward-compat aliases during rollout.
-            'publicGigsFeedUrl' => $baseUrl,
-            'publicGigsFeedTokenizedUrl' => $tokenizedUrl,
         ];
     }
 
@@ -258,7 +253,6 @@ class ConfigurationModule {
         return [
             'categories' => $categories,
             'instruments' => $instruments,
-            'aliasPools' => [],
             'sections' => $this->readJsonConfigParam(self::INSTRUMENT_SECTIONS_PARAM, []),
         ];
     }
@@ -381,12 +375,6 @@ class ConfigurationModule {
         }
         $system_data->dbcon->execute("DELETE FROM instrument WHERE id = ?", [['i', $id]]);
         return ['success' => true];
-    }
-
-    private function saveInstrumentAliasPools(): array {
-        // Pools are intentionally inactive in escalation runtime.
-        // Keep endpoint as compatibility no-op to avoid client breakage.
-        return ['success' => true, 'aliasPools' => []];
     }
 
     private function saveInstrumentSections(): array {

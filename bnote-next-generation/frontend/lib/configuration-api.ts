@@ -31,9 +31,6 @@ export interface ConfigurationResponse {
   derived?: {
     publicConcertsFeedUrl?: string;
     publicConcertsFeedTokenizedUrl?: string;
-    // Backward compatibility during rollout.
-    publicGigsFeedUrl?: string;
-    publicGigsFeedTokenizedUrl?: string;
   };
 }
 
@@ -48,12 +45,6 @@ export interface InstrumentAdminInstrument {
   category_id: number;
   category_name?: string;
   rank?: number;
-}
-
-export interface InstrumentAliasPoolConfig {
-  id: string;
-  name: string;
-  instrument_ids: number[];
 }
 
 export interface SectionInstrumentTarget {
@@ -73,7 +64,6 @@ export interface InstrumentSectionConfig {
 export interface InstrumentAdminDataResponse {
   categories: InstrumentAdminCategory[];
   instruments: InstrumentAdminInstrument[];
-  aliasPools: InstrumentAliasPoolConfig[];
   sections: InstrumentSectionConfig[];
 }
 
@@ -100,8 +90,6 @@ export const configurationApi = {
     api.post<{ success: boolean }>("configuration", "deleteInstrument", { id }),
   applyBigBandPresetMerge: () =>
     api.post<{ success: boolean; sections?: InstrumentSectionConfig[] }>("configuration", "applyBigBandPresetMerge", {}),
-  saveInstrumentAliasPools: (aliasPools: InstrumentAliasPoolConfig[]) =>
-    api.post<{ success: boolean; aliasPools: InstrumentAliasPoolConfig[] }>("configuration", "saveInstrumentAliasPools", { aliasPools }),
   saveInstrumentSections: (sections: InstrumentSectionConfig[]) =>
     api.post<{ success: boolean; sections: InstrumentSectionConfig[] }>("configuration", "saveInstrumentSections", { sections }),
   seedInstrumentDefaults: () =>

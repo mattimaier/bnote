@@ -11,6 +11,7 @@ BNote Next Generation is the modern UI/API layer for BNote (ensemble management)
 
 ## Non-Negotiable Invariants
 - Scope boundary: modify only `bnote-next-generation/`; legacy `../BNote/` is read-only unless explicitly requested.
+- Development cleanup policy: while BNote Next Generation is not shipped yet, do not add new legacy fallbacks, compatibility aliases, migration shims, or dual-path behavior unless explicitly requested.
 - i18n required: no hardcoded user-facing text in app flows; add keys to all 4 locales.
 - Mobile quality is required: every UI change must be verified for phone + desktop before done.
 - Dark mode compatibility: use semantic theme variables/classes; avoid hardcoded color-only solutions.
@@ -75,6 +76,7 @@ Validate at ~375px and ~430px widths, plus desktop.
 
 ## Change Safety Rules
 - Do not silently change API contracts without frontend alignment (and vice versa).
+- Do not introduce new fallback paths for old field names, old routes, legacy payload shapes, or migration-era behavior; prefer a single Next Generation path.
 - Preserve and verify permission checks; avoid UI-only authorization assumptions.
 - Avoid introducing parallel implementations of the same UI behavior.
 - Before adding a new UI component, verify an existing shared component cannot satisfy the requirement.

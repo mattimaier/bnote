@@ -46,9 +46,7 @@ export default function PublicConcertsPreviewPage() {
       const cfg = await configurationApi.getConfig();
       const configuredUrl = String(
         cfg?.derived?.publicConcertsFeedTokenizedUrl
-        ?? cfg?.derived?.publicGigsFeedTokenizedUrl
         ?? cfg?.derived?.publicConcertsFeedUrl
-        ?? cfg?.derived?.publicGigsFeedUrl
         ?? ""
       ).trim();
       const effectiveUrl = configuredUrl !== "" ? configuredUrl : `${getApiPhpDirectoryUrl()}/public-concerts.json.php`;

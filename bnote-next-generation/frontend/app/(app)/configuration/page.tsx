@@ -637,13 +637,12 @@ export default function ConfigurationPage() {
   const publicConcertsFeedEnabled = configDraft.public_gigs_feed_enabled === true
     || configDraft.public_gigs_feed_enabled === 1
     || configDraft.public_gigs_feed_enabled === "1";
-  const derivedPublicConcertsFeedUrl = String(config?.derived?.publicConcertsFeedUrl ?? config?.derived?.publicGigsFeedUrl ?? "").trim();
+  const derivedPublicConcertsFeedUrl = String(config?.derived?.publicConcertsFeedUrl ?? "").trim();
   const publicConcertsFeedUrl = derivedPublicConcertsFeedUrl !== ""
     ? derivedPublicConcertsFeedUrl
     : `${getApiPhpDirectoryUrl()}/public-concerts.json.php`;
   const derivedPublicConcertsFeedTokenizedUrl = String(
     config?.derived?.publicConcertsFeedTokenizedUrl
-    ?? config?.derived?.publicGigsFeedTokenizedUrl
     ?? ""
   ).trim();
   const publicConcertsFeedTokenizedUrl = derivedPublicConcertsFeedTokenizedUrl !== ""

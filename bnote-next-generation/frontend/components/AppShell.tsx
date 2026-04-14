@@ -40,9 +40,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         if (!session?.authenticated || !userId || cancelled) return;
 
         const seenKey = `bnote_changelog_seen::${userId}`;
-        const legacySeenKey = `bnote_whats_new_seen::${userId}`;
         const seenValue = typeof window !== "undefined"
-          ? localStorage.getItem(seenKey) ?? localStorage.getItem(legacySeenKey) ?? ""
+          ? localStorage.getItem(seenKey) ?? ""
           : "";
         const changelog = await changelogApi.get();
         if (cancelled) return;
@@ -56,7 +55,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         timer = setTimeout(() => {
           if (cancelled) return;
           const path = String(pathname ?? "").toLowerCase();
-          if (path.startsWith("/changelog") || path.startsWith("/whats-new")) return;
+          if (path.startsWith("/changelog")) return;
           setChangelogOpen(true);
         }, 1200);
       } catch {
