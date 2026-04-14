@@ -89,30 +89,38 @@ bnote-next-generation/api/
 ├── mail/                      # Next Gen outbound mail (PHPMailer, builders, notifiers)
 ├── debug/   # loopback-only mail previews & diagnostics (see MAIL.md); omitted from default build.sh
 └── modules/
+    ├── appointments.php
     ├── auth.php
-    ├── dashboard.php
-    ├── users.php
+    ├── bugreport.php
+    ├── calendar.php
+    ├── changelog.php
+    ├── comments.php
+    ├── concerts.php
+    ├── configuration.php
     ├── contacts.php           # dispatches to contacts/ContactsCRUD.php where needed
     ├── contacts/
     │   └── ContactsCRUD.php
-    ├── rehearsals.php
-    ├── concerts.php
-    ├── participation.php
-    ├── translations.php
-    ├── search.php
-    ├── tasks.php
-    ├── comments.php
-    ├── votes.php
-    ├── news.php
-    ├── share.php
-    ├── calendar.php
-    ├── appointments.php
-    ├── reservations.php
-    ├── repertoire.php
+    ├── dashboard.php
+    ├── email.php
     ├── equipment.php
-    ├── outfits.php
+    ├── kontaktdaten.php
     ├── locations.php
-    └── kontaktdaten.php
+    ├── news.php
+    ├── outfits.php
+    ├── participation.php
+    ├── rehearsals.php
+    ├── reminders.php
+    ├── repertoire.php
+    ├── reservations.php
+    ├── search.php
+    ├── share.php
+    ├── stats.php
+    ├── systeminformation.php
+    ├── tasks.php
+    ├── translations.php
+    ├── users.php
+    ├── votes.php
+    └── wrapped.php
 ```
 
 **Authoritative list:** `ls api/modules/*.php` (new modules should add a file and register routing in `index.php` if required).
@@ -145,29 +153,35 @@ Each module implements a `{Module}Module` class with a `handle()` method that pr
 | Module | Role |
 |--------|------|
 | `auth` | Login, session, registration, password reset, participation token, public config |
-| `dashboard` | Dashboard aggregates, events needing response |
-| `users` | User CRUD, privileges, activation |
-| `contacts` | Contacts, groups, integration / phase-in |
-| `kontaktdaten` | Contact field data helpers |
-| `rehearsals` | Rehearsals (incl. series-related actions) |
-| `concerts` | Concerts |
-| `participation` | Participation save/load |
+| `bugreport` | Bug report submission (beta diagnostics pipeline) |
 | `calendar` | Calendar views |
-| `appointments` | Appointments |
-| `reservations` | Reservations |
-| `email` | Generic module mail composer (Kommunikation, module 7) |
-| `reminders` | Reminder and escalation admin controls/triggers |
-| `tasks` | Tasks |
+| `changelog` | Changelog / What’s New feed |
 | `comments` | Entity discussion threads |
-| `votes` | Votes / polls |
-| `news` | News |
-| `share` | File sharing |
-| `search` | Global search |
-| `repertoire` | Repertoire / songs |
+| `configuration` | App/system configuration endpoints |
+| `contacts` | Contacts, groups, integration / phase-in |
+| `concerts` | Concerts |
+| `dashboard` | Dashboard aggregates, events needing response |
+| `email` | Generic module mail composer (Kommunikation, module 7) |
 | `equipment` | Equipment |
-| `outfits` | Outfits |
+| `kontaktdaten` | Contact field data helpers |
 | `locations` | Locations |
+| `news` | News |
+| `outfits` | Outfits |
+| `participation` | Participation save/load |
+| `rehearsals` | Rehearsals (incl. series-related actions) |
+| `reminders` | Reminder and escalation admin controls/triggers |
+| `repertoire` | Repertoire / songs |
+| `reservations` | Reservations |
+| `search` | Global search |
+| `share` | File sharing |
+| `stats` | Statistics and admin dashboard aggregates |
+| `systeminformation` | Runtime/system metadata for admin surfaces |
+| `tasks` | Tasks |
 | `translations` | i18n strings |
+| `users` | User CRUD, privileges, activation |
+| `appointments` | Appointments |
+| `votes` | Votes / polls |
+| `wrapped` | Wrapped summary endpoints |
 
 **Action Names:**
 - `list` - List resources
@@ -263,7 +277,7 @@ Response: {
 
 **Module Permissions:**
 - Checked via `SystemData->userHasPermission($moduleId)`
-- Middleware: `middleware/permissions.php`
+- Enforced in module handlers and shared auth/permission helpers under `api/`
 - Returns 403 if user lacks permission
 
 **Permission Check:**

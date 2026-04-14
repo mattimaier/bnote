@@ -25,7 +25,7 @@ Applies to: Users, Contacts, Locations, Equipment, Outfits, Repertoire (songs), 
 - **View (shipped app):** `/entity?type={type}&id={id}` — e.g. `/entity?type=location&id=5`. **Edit:** same with **`&edit=1`** (see **`(app)/entity/page.tsx`**).
 - Use **`getEntityPath(type, id, "view" | "edit")`** from `lib/entities/paths.ts`; it builds these query URLs (do not hand-roll query strings).
 - The detail component reads **`type`**, **`id`**, and **`edit`** from the URL (see **`useEntityParams`**). Use **`router.push` / `router.replace`** when toggling edit or after save/cancel.
-- **Debug only:** Path-shaped URLs exist under **`/debug/entity/[type]/[id]`** for development (source: **`app/(dev)/debug/`**). The **`/developer`** hub and **`/debug/*`** are available only to **admin** users (`session.isAdmin`) when developer tools are build-enabled (`next dev` or **`NEXT_PUBLIC_ENABLE_DEVELOPER_TOOLS=1`**). That hub is **English-only** (no `lang/*.json` keys). A future path-based **`/entity/[type]/[id]`** app route is described in **[entity-view-edit-plan.md](entity-view-edit-plan.md)** but is not the production entry yet.
+- **Debug only:** Path-shaped URLs exist under **`/debug/entity/[type]/[id]`** for development (source: **`app/(dev)/debug/`**). The **`/developer`** hub and **`/debug/*`** are available only to **admin** users (`session.isAdmin`) when developer tools are build-enabled (`next dev` or **`NEXT_PUBLIC_ENABLE_DEVELOPER_TOOLS=1`**). That hub is **English-only** (no `lang/*.json` keys). Production entry remains query-based via `/entity`.
 
 ### Profile (my contact data)
 

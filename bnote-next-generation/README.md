@@ -245,7 +245,6 @@ Legacy-only or not exposed as first-class Next Gen features may still exist in B
 - **[docs/API_ARCHITECTURE.md](docs/API_ARCHITECTURE.md)** – PHP API structure and patterns.
 - **[docs/API_ENDPOINTS.md](docs/API_ENDPOINTS.md)** – Endpoint reference.
 - **[docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md)** – Known backend/UI issues (legacy + mitigations).
-- **[docs/entity-view-edit-plan.md](docs/entity-view-edit-plan.md)** – Entity view/edit refactor notes.
 
 ## License
 

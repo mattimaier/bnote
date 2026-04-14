@@ -1807,4 +1807,4 @@ All endpoints return errors in this format:
 
 **Document Status:** Complete  
 **Last Updated:** 2026-04-04  
-**Next:** See `JS_ARCHITECTURE.md` for JavaScript frontend architecture
+**Next:** See `frontend/README.md` and `docs/FEATURES_AND_BEHAVIORS.md` for JavaScript frontend architecture and shipped behavior
