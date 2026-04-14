@@ -44,3 +44,6 @@ next-env.d.ts
 # Next.js frontend (static export and build cache)
 frontend/out/
 frontend/.next/
+
+# local recordings
+/.playwright-recordings/
