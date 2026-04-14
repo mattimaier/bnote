@@ -243,6 +243,7 @@ Legacy-only or not exposed as first-class Next Gen features may still exist in B
 
 - **[docs/MAIL.md](docs/MAIL.md)** – SMTP, subsystem map, transactional mail, password reset.
 - **[docs/FEATURES_AND_BEHAVIORS.md](docs/FEATURES_AND_BEHAVIORS.md)** – Feature and behavior reference for regression checks.
+- **Migration status:** `docs/FEATURES_AND_BEHAVIORS.md` → **Legacy Migration Status Overview** contains the full old-BNote-to-Next-Gen module matrix.
 - **[docs/UI_PATTERNS.md](docs/UI_PATTERNS.md)** – Lists, entity edit URLs, delete patterns.
 - **[docs/API_ARCHITECTURE.md](docs/API_ARCHITECTURE.md)** – PHP API structure and patterns.
 - **[docs/API_ENDPOINTS.md](docs/API_ENDPOINTS.md)** – Endpoint reference.

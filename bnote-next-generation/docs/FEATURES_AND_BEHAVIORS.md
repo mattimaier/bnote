@@ -15,6 +15,59 @@ Architecture-level permission decisions are documented in **[ARCHITECTURE_DECISI
 
 ---
 
+## 1.5 Legacy Migration Status Overview
+
+This section tracks migration status from legacy BNote modules to Next Generation using **code-first runtime evidence**:
+- Legacy inventory source: `../BNote/src/presentation/modules/*view.php`
+- Next Gen mapping source: `api/modules/auth.php` (`getModules` route mapping)
+- Next Gen implementation sources: `api/modules/*.php` + `frontend/app/_modules/*` and core app routes
+
+Status model:
+- **Supported:** clear functional replacement exists in Next Gen
+- **Partially Supported:** module exists but legacy capabilities are still incomplete
+- **Backend-Only:** backend/data support exists without equivalent first-class module UI
+- **Not Yet Available:** no practical Next Gen module replacement path yet
+
+| Legacy Module (old BNote) | Next Gen Mapping (route/API) | Status | Supported in Next Gen | Still Missing / Remaining Work |
+|---|---|---|---|---|
+| `abstimmung` | `/votes`, `api/modules/votes.php` | Supported | Vote module UI + API available in Next Gen. | Keep parity checks for edge workflows and permissions. |
+| `accommodation` | No module route; concert payload includes accommodation fields (`api/modules/concerts.php`) | Backend-Only | Accommodation data is surfaced in concert detail payloads. | Add dedicated accommodation module UI/API parity if legacy standalone workflows are required. |
+| `admin` | `/band-overview`, `/system-information`, `/configuration`, `api/modules/configuration.php` | Partially Supported | Core admin visibility/configuration surfaces exist in Next Gen. | Legacy admin-module breadth is not fully mirrored as one dedicated Next Gen admin module. |
+| `appointment` | `/calendar`, `api/modules/appointments.php` | Partially Supported | Appointment backend and calendar integration exist. | No dedicated standalone Appointment module route equivalent to legacy module shape. |
+| `aufgaben` | `/tasks`, `api/modules/tasks.php` | Supported | Tasks module is available in UI and API. | Keep behavior parity checks with legacy workflows. |
+| `calendar` | `/calendar`, `api/modules/calendar.php` | Supported | Calendar module route and API are implemented. | Continue parity checks for all legacy calendar subflows. |
+| `customfields` | No dedicated module mapping in Next Gen | Not Yet Available | No first-class custom-fields module implementation in Next Gen. | Add dedicated custom-fields API and UI module if needed. |
+| `equipment` | `/equipment`, `api/modules/equipment.php` | Supported | Equipment module route and API are implemented. | Continue parity checks for advanced legacy operations. |
+| `finance` | No dedicated module mapping in Next Gen | Not Yet Available | No first-class finance module in current Next Gen app. | Add finance API + UI module to reach legacy parity. |
+| `genre` | No dedicated route; repertoire data uses genre fields | Backend-Only | Genre participates as backend data in repertoire flows. | Add standalone genre management module UI/API if legacy parity is needed. |
+| `gruppen` | `/contacts/groups` + contacts integration endpoints | Partially Supported | Group-related management exists via contacts flows. | No fully separate Gruppen module equivalent as in legacy. |
+| `hilfe` | `/help` | Supported | Help page exists in authenticated shell. | Expand legacy help-page breadth only if requested. |
+| `instrumente` | Settings instrument pages + registration options (`auth.getRegistrationOptions`) | Partially Supported | Instrument setup/minimums are present in settings-related flows. | Legacy dedicated instrument-module parity is not fully represented as a standalone module. |
+| `kommunikation` | `/email`, `api/modules/email.php` | Partially Supported | Next Gen email composer module exists with draft/preview/send flows. | Keep parity checks for all legacy Kommunikation variants and edge templates. |
+| `konfiguration` | `/configuration`, `/settings`, `api/modules/configuration.php` | Partially Supported | Configuration surfaces and API are implemented. | Legacy full configuration surface is not yet fully mirrored in one-to-one module form. |
+| `kontaktdaten` | `/profile`, `/profile/edit`, `api/modules/kontaktdaten.php` | Supported | Personal/contact-data management is available in Next Gen profile flows. | Keep parity checks for legacy-only detail fields. |
+| `kontakte` | `/contacts`, `api/modules/contacts.php` | Supported | Contacts list/detail/edit + integration flow implemented. | Continue parity checks for specialized legacy contact operations. |
+| `konzerte` | `/concerts`, `api/modules/concerts.php` | Supported | Concert module route + API + entity flows are implemented. | Continue parity checks for all legacy edge behaviors. |
+| `locations` | `/locations`, `api/modules/locations.php` | Supported | Locations module route and API are implemented. | Continue parity checks for advanced legacy location usage. |
+| `login` | `/login`, `api/modules/auth.php` | Supported | Login/session/logout and related auth flows are implemented. | Continue parity checks for auth edge cases and host config differences. |
+| `mitspieler` | Merged into `/contacts` (see architecture decision AD-2026-03-31) | Supported | Members-only access profile exists on contacts route with backend readonly enforcement. | Preserve merged-model guardrails; do not reintroduce duplicate module behavior inadvertently. |
+| `nachrichten` | `/news`, `api/modules/news.php` | Supported | News module route and API are implemented. | Keep parity checks for legacy message/news nuances. |
+| `outfits` | `/outfits`, `api/modules/outfits.php` | Supported | Outfits module route and API are implemented. | Continue parity checks for legacy edge workflows. |
+| `proben` | `/rehearsals`, `api/modules/rehearsals.php` | Supported | Rehearsals module route + API + entity flows are implemented. | Continue parity checks for advanced legacy operations. |
+| `probenphasen` | No dedicated route; phase data participates in access/integration logic | Backend-Only | Phase relations are used by backend logic (visibility/integration paths). | Add first-class Probenphasen module route/API if standalone module parity is required. |
+| `program` | No dedicated route; concert payload includes `program` relation | Backend-Only | Program linkage exists in concert data model and payloads. | Add dedicated Program module UI/API for legacy parity. |
+| `recpay` | No dedicated module mapping in Next Gen | Not Yet Available | No first-class recurring-payments module is currently exposed in Next Gen. | Add recpay API and module UI if needed. |
+| `repertoire` | `/repertoire`, `api/modules/repertoire.php` | Partially Supported | Repertoire module route and API are present. | Legacy backend save/update defects are still tracked in `docs/KNOWN_ISSUES.md`; full stability parity pending. |
+| `share` | `/share`, `api/modules/share.php` | Supported | Share module route and API are implemented. | Continue parity checks for legacy share behavior and permissions. |
+| `start` | `/dashboard`, `api/modules/dashboard.php` | Supported | Legacy start/dashboard responsibilities are represented in Next Gen dashboard. | Keep parity checks for dashboard aggregate nuances. |
+| `stats` | `/stats`, `api/modules/stats.php` | Supported | Stats module route and API are implemented in Next Gen. | Continue parity checks for legacy report scope/details. |
+| `tour` | No dedicated module mapping in Next Gen | Not Yet Available | No first-class tour module route/API in current Next Gen app. | Add tour module backend+frontend to reach legacy parity. |
+| `travel` | No dedicated module mapping in Next Gen | Not Yet Available | No first-class travel module route/API in current Next Gen app. | Add travel module backend+frontend to reach legacy parity. |
+| `user` | `/users`, `api/modules/users.php` | Supported | Users module route and API are implemented. | Continue parity checks for legacy admin/user edge paths. |
+| `website` | No dedicated module mapping in Next Gen | Not Yet Available | No first-class website module in current Next Gen app. | Add website module replacement if this legacy capability is still required. |
+
+---
+
 ## 2. Authentication
 
 - **Login flow:** User submits username and password on `/login`. API `POST /api/v1/auth/login` creates session. On success, redirect to `redirect` query param or `/dashboard`.
