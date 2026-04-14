@@ -3,6 +3,9 @@
 **Date:** 2026-01-25  
 **Base URL:** `/api/v1/`
 
+> Note: This file is a reference-oriented endpoint catalog and still uses `/api/v1/*` style examples.
+> Current BNote Next Generation runtime routes requests via `api/index.php?module={module}&action={action}` (see `api/index.php`, `frontend/lib/api.ts`, and `docs/API_ARCHITECTURE.md`).
+
 ---
 
 ## Table of Contents

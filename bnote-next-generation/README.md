@@ -4,6 +4,8 @@
 
 BNote Next Generation is a modern UI for BNote, an open-source ensemble management system for bands, orchestras, and choirs. The **only** UI is the Next.js app in `frontend/`. It talks to a PHP REST API in `api/` and keeps full compatibility with the existing BNote backend.
 
+For the architectural runtime boundary between Next Gen and legacy BNote (bootstrapping, permissions/data ownership, and deployment coexistence), see **`docs/API_ARCHITECTURE.md` → "Connection to Legacy BNote"**.
+
 ## Goals
 
 - **Single UI:** Next.js (React) with static export; no other frontend in this repo.

@@ -22,16 +22,106 @@
 
 ## 1. Overview
 
-### 1.1 Goals
+### 1.1 Connection to Legacy BNote
+
+BNote Next Generation is an additive UI/API layer on top of the legacy BNote application; it does not replace the legacy core runtime.
+
+- **Frontend boundary:** The only UI in this repository is the Next.js app in `frontend/`.
+- **Backend bootstrap boundary:** The Next Gen API router `api/index.php` loads `api/paths.php` (`BNOTE_ROOT`), then boots legacy runtime files like `dirs.php` and `src/logic/init.php`.
+- **Data/auth/permissions source of truth:** Sessions, permission checks, and data access still come from legacy BNote classes/tables. Next Gen module handlers expose those capabilities as JSON endpoints.
+- **Additive Next Gen services:** Next Gen-specific pieces (for example `api/mail/*`, `api/reminders_run.php`, and debug tooling) extend behavior but must not weaken existing legacy security or authorization constraints.
+- **Deployment coexistence:** Static frontend export + PHP API are served from `bnote-next-generation/`, while legacy BNote remains the upstream system of record. Do not modify `../BNote/` from this repo unless explicitly requested.
+
+#### Architecture Boundary Diagram
+
+```mermaid
+flowchart LR
+    User["Browser User"]
+
+    subgraph NextGen["New BNote Next Generation (this repo)"]
+        FE["Next.js Frontend (frontend/)"]
+        API["PHP API Router (api/index.php + modules/*)"]
+        NGX["Next Gen Services (mail, reminders, debug tooling)"]
+    end
+
+    subgraph Legacy["Old BNote (../BNote, system of record)"]
+        Core["Legacy Core Runtime (dirs.php, src/logic/init.php)"]
+        Data["Legacy Data, Session, Permission Model"]
+    end
+
+    User --> FE
+    FE -->|"same-origin /api requests"| API
+    API -->|"JSON responses"| FE
+    API -->|"bootstrap via paths.php (BNOTE_ROOT)"| Core
+    API -->|"read/write via legacy classes/tables"| Data
+    Core --> Data
+    API --> NGX
+```
+
+#### Component Diagram
+
+```mermaid
+classDiagram
+    direction LR
+
+    class BrowserClient {
+      +Renders UI
+      +Sends same-origin API requests
+    }
+
+    class NextGenFrontend {
+      +Next.js static app
+      +App routes and UI components
+    }
+
+    class NextGenApiRouter {
+      +api/index.php
+      +Module action dispatch
+      +JSON response envelope
+    }
+
+    class NextGenModules {
+      +api/modules/*.php
+      +Feature handlers (users, contacts, rehearsals, ...)
+    }
+
+    class NextGenServices {
+      +api/mail/*
+      +api/reminders_run.php
+      +api/debug/*
+    }
+
+    class LegacyBootstrap {
+      +api/paths.php (BNOTE_ROOT)
+      +dirs.php
+      +src/logic/init.php
+    }
+
+    class LegacyCore {
+      +Domain/data classes
+      +Session/auth state
+      +Permission model
+      +Database tables
+    }
+
+    BrowserClient --> NextGenFrontend : uses
+    NextGenFrontend --> NextGenApiRouter : /api/index.php?module&action
+    NextGenApiRouter --> NextGenModules : dispatches
+    NextGenModules --> LegacyBootstrap : boots legacy runtime
+    LegacyBootstrap --> LegacyCore : initializes
+    NextGenModules --> LegacyCore : reads/writes data
+    NextGenModules --> NextGenServices : invokes (mail/reminders/debug)
+```
+
+### 1.2 Goals
 
 - **RESTful Design:** Standard HTTP methods, resource-based URLs
 - **JSON Only:** All requests/responses in JSON format
 - **Backward Compatible:** Preserve existing PHP data/logic layers
 - **Session Compatible:** Work with existing PHP sessions
-- **Mobile Ready:** Support future KMP mobile app
 - **Secure:** Maintain existing security standards
 
-### 1.2 Base URL
+### 1.3 Base URL
 
 The PHP API is served under the bnote-next-generation document root. The Next.js frontend proxies `/api/*` to this backend in development.
 
@@ -50,7 +140,7 @@ The PHP API is served under the bnote-next-generation document root. The Next.js
 - `POST …/api/index.php?module=users&action=create`
 - `POST …/api/index.php?module=participation&action=save`
 
-### 1.3 HTTP Methods
+### 1.4 HTTP Methods
 
 | Method | Usage | Idempotent |
 |--------|-------|------------|
