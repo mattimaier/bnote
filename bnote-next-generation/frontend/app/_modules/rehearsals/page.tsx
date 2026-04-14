@@ -6,10 +6,10 @@
 
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/contexts/I18nContext";
-import { rehearsalsApi, type RehearsalListItem } from "@/lib/rehearsals-api";
+import { type RehearsalListItem } from "@/lib/rehearsals-api";
 import { getEntityPath } from "@/lib/entities/paths";
 import { type SortDirection } from "@/lib/table-sort";
 import { CalendarDays, Plus } from "@/components/icons";
@@ -19,14 +19,19 @@ import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/error-utils";
 import { PageContent } from "@/components/PageContent";
 import { RehearsalsTable } from "@/components/rehearsals/RehearsalsTable";
+import { useRehearsalsListQuery } from "@/lib/query/hooks/use-list-query";
+
+const EMPTY_REHEARSALS: RehearsalListItem[] = [];
 
 export default function RehearsalsPage() {
   const router = useRouter();
   const { t, ready, formatDateTime, lang } = useI18n();
   const emptyText = t("js.common.empty") !== "js.common.empty" ? t("js.common.empty") : "";
-  const [items, setItems] = useState<RehearsalListItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const { data, isPending, error } = useRehearsalsListQuery(ready);
+  const items = data ?? EMPTY_REHEARSALS;
+  const [nowTs] = useState(() => Date.now());
+  const loading = isPending && !data;
+  const errorMessage = error ? getErrorMessage(error, t, "js.common.failedToLoad") : "";
   const [search, setSearch] = useState("");
   const [upcomingSortKey, setUpcomingSortKey] = useState<
     "begin" | "status" | "location" | "notes" | null
@@ -35,24 +40,6 @@ export default function RehearsalsPage() {
   const [pastSortState, setPastSortState] = useState<
     Record<number, { key: "begin" | "status" | "location" | "notes" | null; dir: SortDirection }>
   >({});
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const list = await rehearsalsApi.list();
-      setItems(list ?? []);
-      setError("");
-    } catch (err) {
-      setError(getErrorMessage(err, t, "js.common.failedToLoad"));
-    } finally {
-      setLoading(false);
-    }
-  }, [t]);
-
-  useEffect(() => {
-    if (!ready) return;
-    load();
-  }, [ready, load]);
 
   const handleUpcomingSort = (key: "begin" | "status" | "location" | "notes") => {
     if (upcomingSortKey === key) {
@@ -94,7 +81,7 @@ export default function RehearsalsPage() {
   }, [items, search]);
 
   const { upcomingItems, pastItems } = useMemo(() => {
-    const now = Date.now();
+    const now = nowTs;
     const upcoming: RehearsalListItem[] = [];
     const past: RehearsalListItem[] = [];
     filteredItems.forEach((item) => {
@@ -107,7 +94,7 @@ export default function RehearsalsPage() {
       }
     });
     return { upcomingItems: upcoming, pastItems: past };
-  }, [filteredItems]);
+  }, [filteredItems, nowTs]);
 
   const pastByYear = useMemo(() => {
     const groups = new Map<number, RehearsalListItem[]>();
@@ -155,7 +142,7 @@ export default function RehearsalsPage() {
         )}
       />
 
-      {error && (
+      {errorMessage && (
         <div
           className="rounded-lg border px-4 py-3 text-sm"
           style={{
@@ -164,7 +151,7 @@ export default function RehearsalsPage() {
             color: "var(--destructive-foreground)",
           }}
         >
-          {error}
+          {errorMessage}
         </div>
       )}
       <div className="flex items-center gap-3 rounded-lg px-3 py-2" style={{ background: "var(--muted)" }}>

@@ -13,15 +13,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
-import { api } from "@/lib/api";
-import { checkSession } from "@/lib/auth";
+import { useMemo } from "react";
 import { useI18n } from "@/contexts/I18nContext";
 import { BNoteLogo } from "@/components/BNoteLogo";
 import { getEntityConfig } from "@/lib/entity-config";
 import { getIcon } from "@/components/icons";
 import { getSidebarModuleKey } from "@/lib/sidebar-active";
 import { DEVELOPER_SIDEBAR_MODULE_ID, mergeDeveloperSidebarModule } from "@/lib/developer-tools";
+import { useModulesQuery } from "@/lib/query/hooks/use-modules-query";
+import { useSessionQuery } from "@/lib/query/hooks/use-session-query";
 
 interface SidebarModule {
   id: number;
@@ -34,41 +34,30 @@ interface SidebarModule {
 export function AppSidebar() {
   const pathname = usePathname();
   const { t } = useI18n();
-  const [modules, setModules] = useState<SidebarModule[]>([]);
+  const { data: modulesData, error: modulesError } = useModulesQuery();
+  const { data: session } = useSessionQuery();
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      const session = await checkSession();
-      if (cancelled) return;
-      const isAdminUser = Boolean(session.isAdmin);
-      try {
-        const res = await api.get<SidebarModule[] | { modules: SidebarModule[] }>("auth", "getModules");
-        if (cancelled) return;
-        const list = Array.isArray(res) ? res : (res as { modules: SidebarModule[] }).modules ?? [];
-        const normalized = list.map((m) => ({
-          ...m,
-          route: (m.route ?? "").replace(".html", "") || m.name.toLowerCase(),
-        }));
-        setModules(mergeDeveloperSidebarModule(normalized, isAdminUser));
-      } catch {
-        if (cancelled) return;
-        setModules(
-          mergeDeveloperSidebarModule(
-            [
-              { id: 1, name: "Start", route: "dashboard", icon: "layout-dashboard", i18n: "js.sidebar.dashboard" },
-              { id: 3, name: "Kontakte", route: "contacts", icon: "users", i18n: "js.sidebar.contacts" },
-              { id: 4, name: "Benutzer", route: "users", icon: "user", i18n: "js.sidebar.users" },
-            ],
-            isAdminUser
-          )
-        );
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const modules = useMemo(() => {
+    const isAdminUser = Boolean(session?.isAdmin);
+    if (modulesData && modulesData.length > 0) {
+      const normalized = modulesData.map((m) => ({
+        ...m,
+        route: (m.route ?? "").replace(".html", "") || m.name.toLowerCase(),
+      }));
+      return mergeDeveloperSidebarModule(normalized as SidebarModule[], isAdminUser);
+    }
+    if (modulesError) {
+      return mergeDeveloperSidebarModule(
+        [
+          { id: 1, name: "Start", route: "dashboard", icon: "layout-dashboard", i18n: "js.sidebar.dashboard" },
+          { id: 3, name: "Kontakte", route: "contacts", icon: "users", i18n: "js.sidebar.contacts" },
+          { id: 4, name: "Benutzer", route: "users", icon: "user", i18n: "js.sidebar.users" },
+        ],
+        isAdminUser
+      );
+    }
+    return [] as SidebarModule[];
+  }, [modulesData, modulesError, session?.isAdmin]);
 
   const activeModuleKey = getSidebarModuleKey(pathname);
 

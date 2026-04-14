@@ -8,7 +8,6 @@
 
 "use client";
 
-import Link from "next/link";
 import {
   DndContext,
   closestCenter,
@@ -26,7 +25,7 @@ import {
   rectSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useI18n } from "@/contexts/I18nContext";
 import { getIcon } from "@/components/icons";
 import { type Session } from "@/lib/auth";
@@ -36,6 +35,7 @@ import { Spinner } from "@/components/Spinner";
 import { PAGE_CONTENT_BASE_CLASS } from "@/lib/layout";
 import { InstrumentCoverageSettingsModal } from "@/components/dashboard/InstrumentCoverageSettingsModal";
 import { formatDateTimeShort, formatDateShortDisplay } from "@/lib/date-time";
+import { usePrefetchParticipationBatch, type ParticipationEventRef } from "@/lib/query/hooks/use-participation-query";
 
 const TILE_ORDER_KEY = "band-overview-tile-order";
 
@@ -172,7 +172,6 @@ export function BandOverviewContent({
   const { t, lang } = useI18n();
   const [tileOrder, setTileOrder] = useTileOrder();
   const [instrumentSettingsOpen, setInstrumentSettingsOpen] = useState(false);
-  const [participationRefreshToken, setParticipationRefreshToken] = useState(0);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -193,11 +192,6 @@ export function BandOverviewContent({
     [setTileOrder]
   );
 
-  const inboxEvents = useMemo(() => {
-    const raw = dashboardData?.inbox ?? [];
-    return raw as InboxEvent[];
-  }, [dashboardData?.inbox]);
-
   const needResponseEvents = useMemo(
     () => (eventsNeedingResponse as InboxEvent[]).filter(Boolean),
     [eventsNeedingResponse]
@@ -207,8 +201,16 @@ export function BandOverviewContent({
     const evts = adminOverview?.upcoming_events?.events ?? dashboardData?.inbox ?? [];
     return (evts as InboxEvent[]).slice(0, 7);
   }, [adminOverview?.upcoming_events?.events, dashboardData?.inbox]);
+  const visibleParticipationEvents = useMemo<ParticipationEventRef[]>(
+    () =>
+      needResponseEvents
+        .filter((ev) => ev.otype === "R" || ev.otype === "C")
+        .slice(0, 10)
+        .map((ev) => ({ eventId: ev.oid, eventType: ev.otype as "R" | "C" })),
+    [needResponseEvents]
+  );
+  usePrefetchParticipationBatch(visibleParticipationEvents, true);
   const handleEventStateChange = useCallback(() => {
-    setParticipationRefreshToken((prev) => prev + 1);
     void onReload();
   }, [onReload]);
 
@@ -311,7 +313,6 @@ export function BandOverviewContent({
                       showParticipation={true}
                       onParticipationChange={handleEventStateChange}
                       onTaskComplete={handleEventStateChange}
-                      participationRefreshToken={participationRefreshToken}
                     />
                   ))}
                 </div>
@@ -332,7 +333,6 @@ export function BandOverviewContent({
                       lang={lang}
                       onParticipationChange={handleEventStateChange}
                       onTaskComplete={handleEventStateChange}
-                      participationRefreshToken={participationRefreshToken}
                     />
                   ))}
                 </div>

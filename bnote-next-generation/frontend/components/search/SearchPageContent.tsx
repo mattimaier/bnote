@@ -13,7 +13,7 @@ import { useI18n } from "@/contexts/I18nContext";
 import { PAGE_CONTENT_CLASS } from "@/lib/layout";
 import { performSearch, getSearchYears, type SearchResults, type SearchFilters, type SearchEventItem, type SearchListItem } from "@/lib/search";
 import { EventCard, type InboxEvent } from "@/components/EventCard";
-import { getIcon } from "@/components/icons";
+import { TablerIconByName } from "@/components/icons";
 import { AddressLink } from "@/components/AddressLink";
 import {
   getEntityTypeForSearchCategory,
@@ -80,7 +80,6 @@ function SearchListItemRow({
   const entityType = getEntityTypeForSearchCategory(category);
   const entityColor = getColor(entityType);
   const iconName = getIconName(entityType);
-  const Icon = getIcon(iconName);
   const pillStyle = getPillStyle(entityColor);
   const dotStyle = getDotStyle(entityColor);
 
@@ -99,7 +98,7 @@ function SearchListItemRow({
           className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full"
           style={dotStyle}
         >
-          <Icon className="h-4 w-4" />
+          <TablerIconByName name={iconName} className="h-4 w-4" />
         </div>
       )}
       <div className="min-w-0 flex-1">
@@ -164,7 +163,7 @@ export default function SearchPageContent() {
     return f;
   }, [yearParam, monthParam, typeParam]);
 
-  const search = useCallback(async () => {
+  const search = useCallback(async (signal?: AbortSignal) => {
     if (!ready || q.trim().length < 2) {
       setResults(null);
       return;
@@ -172,9 +171,10 @@ export default function SearchPageContent() {
     setLoading(true);
     setError("");
     try {
-      const data = await performSearch(q.trim(), filters, 50);
+      const data = await performSearch(q.trim(), filters, 50, signal);
       setResults(data);
     } catch (err) {
+      if ((err as { name?: string } | null)?.name === "AbortError") return;
       setError(getErrorMessage(err, t, "js.common.searchFailed"));
       setResults(null);
     } finally {
@@ -183,7 +183,9 @@ export default function SearchPageContent() {
   }, [ready, q, filters, t]);
 
   useEffect(() => {
-    getSearchYears().then(setYears).catch(() => setYears([]));
+    const controller = new AbortController();
+    getSearchYears(controller.signal).then(setYears).catch(() => setYears([]));
+    return () => controller.abort();
   }, []);
 
   useEffect(() => {
@@ -193,7 +195,9 @@ export default function SearchPageContent() {
       setLoading(false);
       return;
     }
-    search();
+    const controller = new AbortController();
+    void search(controller.signal);
+    return () => controller.abort();
   }, [ready, q, search]);
 
   const buildSearchUrl = useCallback(

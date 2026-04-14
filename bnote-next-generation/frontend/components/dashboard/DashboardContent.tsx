@@ -21,6 +21,7 @@ import { pickDashboardEmptyResponseVariantKey, resolveDashboardEmptyResponseMess
 import { Spinner } from "@/components/Spinner";
 import { PAGE_CONTENT_BASE_CLASS } from "@/lib/layout";
 import { SquircleIconBadge } from "@/components/SquircleIconBadge";
+import { usePrefetchParticipationBatch, type ParticipationEventRef } from "@/lib/query/hooks/use-participation-query";
 
 export interface DashboardData {
   inbox: InboxEvent[];
@@ -78,7 +79,6 @@ export default function DashboardContent({
     "events-needing-response": MAX_SHOW_DEFAULT,
     "events-timeline": MAX_SHOW_DEFAULT,
   });
-  const [participationRefreshToken, setParticipationRefreshToken] = useState(0);
   const [emptyNeedResponseKey] = useState(() => pickDashboardEmptyResponseVariantKey(10));
 
   useEffect(() => {
@@ -103,7 +103,6 @@ export default function DashboardContent({
     setFilters((prev) => ({ ...prev, [sectionId]: new Set() }));
   }, []);
   const handleEventStateChange = useCallback(() => {
-    setParticipationRefreshToken((prev) => prev + 1);
     void onReload();
   }, [onReload]);
 
@@ -139,11 +138,11 @@ export default function DashboardContent({
 
   const needResponseFiltered = useMemo(
     () => applyFilters("events-needing-response", needResponse?.events ?? []),
-    [needResponse?.events, applyFilters, filters["events-needing-response"]]
+    [needResponse?.events, applyFilters, filters]
   );
   const timelineFiltered = useMemo(
     () => applyFilters("events-timeline", timelineEvents),
-    [timelineEvents, applyFilters, filters["events-timeline"]]
+    [timelineEvents, applyFilters, filters]
   );
   const allEvents = useMemo(() => {
     const source = [...(dashboard?.inbox ?? []), ...(needResponse?.events ?? [])];
@@ -163,6 +162,18 @@ export default function DashboardContent({
   const showTimeline = timelineFiltered.slice(0, displayedTimeline);
   const hasMoreNeed = needResponseFiltered.length > displayedNeed;
   const hasMoreTimeline = timelineFiltered.length > displayedTimeline;
+  const visibleParticipationEvents = useMemo<ParticipationEventRef[]>(() => {
+    const refs: ParticipationEventRef[] = [];
+    const addIfEvent = (ev: InboxEvent) => {
+      if (ev.otype === "R" || ev.otype === "C") {
+        refs.push({ eventId: ev.oid, eventType: ev.otype });
+      }
+    };
+    showNeed.forEach(addIfEvent);
+    showTimeline.forEach(addIfEvent);
+    return refs;
+  }, [showNeed, showTimeline]);
+  usePrefetchParticipationBatch(visibleParticipationEvents, ready);
 
   const loadMore = useCallback((sectionId: SectionId) => {
     const max = sectionId === "events-needing-response" ? maxNeed : maxTimeline;
@@ -437,7 +448,6 @@ export default function DashboardContent({
                   isLast={idx === showNeed.length - 1 && !hasMoreNeed}
                   onParticipationChange={handleEventStateChange}
                   onTaskComplete={handleEventStateChange}
-                  participationRefreshToken={participationRefreshToken}
                 />
               ))
             )}
@@ -486,7 +496,6 @@ export default function DashboardContent({
                   isLast={idx === showTimeline.length - 1 && !hasMoreTimeline}
                   onParticipationChange={handleEventStateChange}
                   onTaskComplete={handleEventStateChange}
-                  participationRefreshToken={participationRefreshToken}
                 />
               ))
             )}

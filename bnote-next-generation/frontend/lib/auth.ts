@@ -29,9 +29,9 @@ export function isAdmin(session: Session | null): boolean {
   return Boolean(session?.isAdmin);
 }
 
-export async function checkSession(): Promise<Session> {
+export async function checkSession(signal?: AbortSignal): Promise<Session> {
   try {
-    const data = await api.get<Session>("auth", "session");
+    const data = await api.get<Session>("auth", "session", undefined, { signal });
     return data ?? { authenticated: false, user: null };
   } catch {
     return { authenticated: false, user: null };

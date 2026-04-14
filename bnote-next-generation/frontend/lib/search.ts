@@ -137,7 +137,8 @@ function sanitizeSearchResults(results: SearchResults): SearchResults {
 export async function performSearch(
   q: string,
   filters: SearchFilters = {},
-  limit = 50
+  limit = 50,
+  signal?: AbortSignal
 ): Promise<SearchResults> {
   if (q.trim().length < 2) {
     return {
@@ -157,10 +158,10 @@ export async function performSearch(
     };
   }
   const params = buildParams(q, filters, limit);
-  const results = await api.get<SearchResults>("search", "", params);
+  const results = await api.get<SearchResults>("search", "", params, { signal });
   return sanitizeSearchResults(results);
 }
 
-export async function getSearchYears(): Promise<number[]> {
-  return api.get<number[]>("search", "years");
+export async function getSearchYears(signal?: AbortSignal): Promise<number[]> {
+  return api.get<number[]>("search", "years", undefined, { signal });
 }

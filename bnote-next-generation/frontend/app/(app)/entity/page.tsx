@@ -7,8 +7,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
-import { checkSession } from "@/lib/auth";
+import { Suspense, useEffect, useMemo } from "react";
 import { getRedirectPath } from "@/lib/entities/paths";
 import { useEntityParams } from "@/lib/entities/use-entity-params";
 import { EventDetail } from "@/components/entities/event/EventDetail";
@@ -35,6 +34,7 @@ import { AppointmentEdit } from "@/components/entities/appointment/AppointmentEd
 import { ContactEdit } from "@/components/entities/contact/ContactEdit";
 import { UserEdit } from "@/components/entities/user/UserEdit";
 import { Spinner } from "@/components/Spinner";
+import { useSessionQuery } from "@/lib/query/hooks/use-session-query";
 
 const ENTITY_TYPES_WITH_VIEW: Record<string, boolean> = {
   rehearsal: true,
@@ -76,13 +76,8 @@ const CHAT_ENTITY_TYPES: Record<string, boolean> = {
 function EntityContent() {
   const router = useRouter();
   const { type, id, edit } = useEntityParams();
-  const [currentUserId, setCurrentUserId] = useState<number>(0);
-
-  useEffect(() => {
-    checkSession().then((s) => {
-      if (s.user?.id != null) setCurrentUserId(Number(s.user.id));
-    });
-  }, []);
+  const { data: session } = useSessionQuery();
+  const currentUserId = useMemo(() => Number(session?.user?.id ?? 0), [session?.user?.id]);
 
   useEffect(() => {
     if (!type || !id) {

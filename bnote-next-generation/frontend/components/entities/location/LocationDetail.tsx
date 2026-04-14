@@ -8,11 +8,11 @@
 
 import { useRouter } from "next/navigation";
 import { useEntityParams } from "@/lib/entities/use-entity-params";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useI18n } from "@/contexts/I18nContext";
 import {
   locationsApi,
-  type LocationDetail as LocationDetailType,
   type LocationEventItem,
 } from "@/lib/locations-api";
 import { PAGE_CONTENT_CLASS } from "@/lib/layout";
@@ -33,6 +33,8 @@ import { ArrowDown, ArrowUp, ArrowUpDown, Clock } from "@/components/icons";
 import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/error-utils";
 import { DETAIL_SECTION_CLASS } from "@/components/DetailSection";
+import { queryKeys } from "@/lib/query/keys";
+import { QUERY_STALE_TIMES } from "@/lib/query/stale-times";
 
 export function LocationDetail() {
   const { id } = useEntityParams();
@@ -47,14 +49,35 @@ export function LocationDetail() {
     if (value === "planned") return t("js.event.status.planned");
     return value;
   };
-  const [location, setLocation] = useState<LocationDetailType | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [events, setEvents] = useState<LocationEventItem[]>([]);
-  const [eventsLoading, setEventsLoading] = useState(false);
+  const numId = id ? parseInt(id, 10) : NaN;
+  const isValidId = Boolean(id && id !== "new" && !Number.isNaN(numId));
+  const {
+    data: location,
+    error: locationError,
+    isPending: isLocationPending,
+  } = useQuery({
+    queryKey: queryKeys.entities.locationDetail(numId),
+    queryFn: ({ signal }) => locationsApi.get(numId, signal),
+    enabled: ready && isValidId,
+    staleTime: QUERY_STALE_TIMES.entityDetailMs,
+    placeholderData: keepPreviousData,
+  });
+  const {
+    data: events = [],
+    isPending: isEventsPending,
+  } = useQuery({
+    queryKey: queryKeys.entities.locationEvents(numId),
+    queryFn: ({ signal }) => locationsApi.getEvents(numId, signal),
+    enabled: ready && Boolean(location?.id),
+    staleTime: QUERY_STALE_TIMES.entityDetailMs,
+    placeholderData: keepPreviousData,
+  });
   const [sortStateByYear, setSortStateByYear] = useState<
     Record<number, { key: "title" | "begin" | "status"; dir: SortDirection }>
   >({});
+  const loading = isLocationPending && !location;
+  const error = locationError ? getErrorMessage(locationError, t, "js.common.failedToLoad") : "";
+  const eventsLoading = isEventsPending && events.length === 0;
 
   const eventsByYear = useMemo(() => {
     const groups = new Map<number, LocationEventItem[]>();
@@ -77,31 +100,6 @@ export function LocationDetail() {
       return { ...prev, [year]: { key, dir: key === "begin" ? "desc" : "asc" } };
     });
   };
-
-  useEffect(() => {
-    if (!id || id === "new" || !ready) return;
-    const numId = parseInt(id, 10);
-    if (Number.isNaN(numId)) {
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    locationsApi
-      .get(numId)
-      .then(setLocation)
-      .catch((err) => setError(getErrorMessage(err, t, "js.common.failedToLoad")))
-      .finally(() => setLoading(false));
-  }, [id, ready]);
-
-  useEffect(() => {
-    if (!location?.id || !ready) return;
-    setEventsLoading(true);
-    locationsApi
-      .getEvents(location.id)
-      .then(setEvents)
-      .catch(() => setEvents([]))
-      .finally(() => setEventsLoading(false));
-  }, [location?.id, ready]);
 
   if (!ready) {
     return (

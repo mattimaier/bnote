@@ -19,7 +19,7 @@ export interface Location {
   country?: string;
 }
 
-export interface LocationDetail extends Location {}
+export type LocationDetail = Location;
 
 export interface ParticipationStats {
   yes?: number;
@@ -42,10 +42,10 @@ export interface LocationEventItem {
 
 export const locationsApi = {
   list: () => api.get<Location[]>("locations", "list"),
-  get: (id: number) =>
-    api.get<LocationDetail>("locations", "get", { id: String(id) }),
-  getEvents: (id: number) =>
-    api.get<LocationEventItem[]>("locations", "events", { id: String(id) }),
+  get: (id: number, signal?: AbortSignal) =>
+    api.get<LocationDetail>("locations", "get", { id: String(id) }, { signal }),
+  getEvents: (id: number, signal?: AbortSignal) =>
+    api.get<LocationEventItem[]>("locations", "events", { id: String(id) }, { signal }),
   create: (data: Partial<LocationDetail>) =>
     api.post<{ success: boolean; id: number; message: string }>(
       "locations",

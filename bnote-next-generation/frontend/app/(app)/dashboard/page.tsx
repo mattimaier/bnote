@@ -6,75 +6,45 @@
 
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { api } from "@/lib/api";
+import { useCallback } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/contexts/I18nContext";
-import { checkSession, type Session } from "@/lib/auth";
-import { type InboxEvent } from "@/components/EventCard";
 import { getErrorMessage } from "@/lib/error-utils";
 import DashboardContent from "@/components/dashboard/DashboardContent";
-import type { DashboardData, EventsNeedingResponse } from "@/components/dashboard/DashboardContent";
+import { useSessionQuery } from "@/lib/query/hooks/use-session-query";
+import { useDashboardHomeQuery } from "@/lib/query/hooks/use-dashboard-query";
+import { queryKeys } from "@/lib/query/keys";
 
 export default function DashboardPage() {
   const { t, ready } = useI18n();
-  const [session, setSession] = useState<Session | null>(null);
-  const [dashboard, setDashboard] = useState<DashboardData | null>(null);
-  const [eventsNeedingResponse, setEventsNeedingResponse] = useState<InboxEvent[]>([]);
-  const [needResponseConfig, setNeedResponseConfig] = useState<{ max_show?: number }>({});
-  const [needResponseCounts, setNeedResponseCounts] = useState<{ rehearsal: number; performance: number; meeting: number; vote: number; task?: number }>({
-    rehearsal: 0,
-    performance: 0,
-    meeting: 0,
-    vote: 0,
-    task: 0,
-  });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    checkSession().then((s) => setSession(s));
-  }, []);
+  const queryClient = useQueryClient();
+  const { data: session } = useSessionQuery();
+  const {
+    data,
+    isPending,
+    error,
+  } = useDashboardHomeQuery(ready);
 
   const loadDashboard = useCallback(async () => {
-    try {
-      const [dash, needResp] = await Promise.all([
-        api.get<DashboardData>("dashboard", "dashboard"),
-        api.get<EventsNeedingResponse>("dashboard", "eventsNeedingResponse"),
-      ]);
-      setDashboard(dash);
-      setEventsNeedingResponse(needResp?.events ?? []);
-      setNeedResponseConfig(needResp?.config ?? {});
-      const c = needResp?.counts;
-      setNeedResponseCounts({
-        rehearsal: c?.rehearsal ?? 0,
-        performance: c?.performance ?? 0,
-        meeting: c?.meeting ?? 0,
-        vote: c?.vote ?? 0,
-        task: c?.task ?? 0,
-      });
-    } catch (err) {
-      setError(getErrorMessage(err, t, "js.dashboard.loadError"));
-    } finally {
-      setLoading(false);
-    }
-  }, [t]);
-
-  useEffect(() => {
-    if (!ready) return;
-    loadDashboard();
-  }, [ready, loadDashboard]);
+    await queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.home });
+  }, [queryClient]);
 
   return (
     <DashboardContent
-      session={session}
-      dashboard={dashboard}
+      session={session ?? null}
+      dashboard={data?.dashboard ?? null}
       needResponse={{
-        events: eventsNeedingResponse,
-        config: needResponseConfig,
-        counts: needResponseCounts,
+        events: data?.needResponse?.events ?? [],
+        config: data?.needResponse?.config ?? {},
+        counts: {
+          rehearsal: data?.needResponse?.counts?.rehearsal ?? 0,
+          performance: data?.needResponse?.counts?.performance ?? 0,
+          meeting: data?.needResponse?.counts?.meeting ?? 0,
+          vote: data?.needResponse?.counts?.vote ?? 0,
+        },
       }}
-      loading={loading}
-      error={error}
+      loading={isPending && !data}
+      error={error ? getErrorMessage(error, t, "js.dashboard.loadError") : ""}
       onReload={loadDashboard}
       filterHiddenEvents={false}
     />

@@ -65,6 +65,8 @@ class DashboardModule {
         switch ($action) {
             case 'dashboard':
                 return $this->getDashboard();
+            case 'bundle':
+                return $this->getDashboardBundle();
             case 'inbox':
                 return $this->getInbox();
             case 'news':
@@ -79,6 +81,8 @@ class DashboardModule {
                 return $this->getAdminOverview();
             case 'getActivityFeed':
                 return $this->getActivityFeed();
+            case 'bandOverviewBundle':
+                return $this->getBandOverviewBundle();
             case 'getInstruments':
                 return $this->getInstruments();
             case 'getInstrumentMinimums':
@@ -186,6 +190,31 @@ class DashboardModule {
                 'upcoming_rehearsals' => max(0, count($futureRehearsals) - 1),
                 'upcoming_concerts' => max(0, count($futureConcerts) - 1)
             ]
+        ];
+    }
+
+    /**
+     * Dashboard + events-needing-response in one request to cut route bootstrap chatter.
+     */
+    private function getDashboardBundle() {
+        return [
+            'dashboard' => $this->getDashboard(),
+            'needResponse' => $this->getEventsNeedingResponse(),
+        ];
+    }
+
+    /**
+     * Band overview bootstrap bundle for admin/user variants.
+     */
+    private function getBandOverviewBundle() {
+        global $system_data;
+        $uid = Auth::getUserId();
+        $isAdmin = $uid && ($system_data->isUserSuperUser($uid) || $system_data->isUserMemberGroup(1, $uid));
+        return [
+            'dashboardData' => $this->getDashboard(),
+            'needResponse' => $this->getEventsNeedingResponse(),
+            'adminOverview' => $isAdmin ? $this->getAdminOverview() : null,
+            'activityFeed' => $this->getActivityFeed(),
         ];
     }
     

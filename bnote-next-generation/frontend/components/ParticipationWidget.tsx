@@ -7,17 +7,20 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
-import { participationApi, type ParticipationStatus } from "@/lib/participation";
+import { participationApi, type ParticipationState, type ParticipationStatus } from "@/lib/participation";
 import { useToast } from "@/contexts/ToastContext";
 import { ParticipationModal, type ParticipationModalStatus } from "./ParticipationModal";
 import { useI18n } from "@/contexts/I18nContext";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/lib/query/keys";
+import { useParticipationStatusQuery } from "@/lib/query/hooks/use-participation-query";
 
 interface ParticipationWidgetProps {
   eventId: number;
   eventType: string;
   onStatusChange?: () => void;
   disabled?: boolean;
-  refreshToken?: number;
+  initialState?: ParticipationState;
 }
 
 export function ParticipationWidget({
@@ -25,41 +28,62 @@ export function ParticipationWidget({
   eventType,
   onStatusChange,
   disabled = false,
-  refreshToken = 0,
+  initialState,
 }: ParticipationWidgetProps) {
   const { t } = useI18n();
   const { showToast } = useToast();
-  const [status, setStatus] = useState<ParticipationStatus>("undecided");
-  const [allowMaybe, setAllowMaybe] = useState(false);
-  const [isLocked, setIsLocked] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const type = eventType === "R" || eventType === "C" ? eventType : null;
+  const { data, isPending } = useParticipationStatusQuery(
+    eventId,
+    (type ?? "R"),
+    Boolean(type),
+    initialState
+  );
+  const [status, setStatus] = useState<ParticipationStatus>(data?.status ?? "undecided");
+  const [allowMaybe, setAllowMaybe] = useState(Boolean(data?.allow_maybe));
+  const [isLocked, setIsLocked] = useState(Boolean(data?.is_locked));
   const [saving, setSaving] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalStatus, setModalStatus] = useState<ParticipationModalStatus | null>(null);
 
-  const fetchStatus = useCallback(async () => {
-    try {
-      const data = await participationApi.getStatus(eventId, eventType);
-      setStatus((data?.status as ParticipationStatus) ?? "undecided");
-      setAllowMaybe(data?.allow_maybe ?? false);
-      setIsLocked(data?.is_locked ?? false);
-    } catch {
-      // keep defaults
-    } finally {
-      setLoading(false);
-    }
-  }, [eventId, eventType]);
-
   useEffect(() => {
-    fetchStatus();
-  }, [fetchStatus, refreshToken]);
+    if (!data) return;
+    setStatus((data.status as ParticipationStatus) ?? "undecided");
+    setAllowMaybe(data.allow_maybe ?? false);
+    setIsLocked(data.is_locked ?? false);
+  }, [data]);
+
+  const saveMutation = useMutation({
+    mutationFn: async (payload: { newStatus: ParticipationStatus; reason: string }) =>
+      participationApi.saveStatus(eventId, type ?? eventType, payload.newStatus, payload.reason),
+    onSuccess: (_res, vars) => {
+      if (!type) return;
+      queryClient.setQueryData(queryKeys.participation.status(type, eventId), (prev: unknown) => {
+        const previous = (prev ?? {}) as {
+          status?: ParticipationStatus;
+          allow_maybe?: boolean;
+          is_locked?: boolean;
+          reason?: string | null;
+        };
+        return {
+          ...previous,
+          status: vars.newStatus,
+          reason: vars.reason || null,
+        };
+      });
+      void queryClient.invalidateQueries({ queryKey: ["participation", "batch"] });
+      void queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      void queryClient.invalidateQueries({ queryKey: ["list"] });
+    },
+  });
 
   const updateStatus = useCallback(
     async (newStatus: ParticipationStatus, reason = "") => {
-      if (saving) return;
+      if (saving || saveMutation.isPending) return;
       setSaving(true);
       try {
-        await participationApi.saveStatus(eventId, eventType, newStatus, reason);
+        await saveMutation.mutateAsync({ newStatus, reason });
         setStatus(newStatus);
         const messages: Record<string, string> = {
           yes: t("js.participation.confirmed"),
@@ -75,13 +99,14 @@ export function ParticipationWidget({
         setSaving(false);
       }
     },
-    [eventId, eventType, saving, t, showToast, onStatusChange]
+    [onStatusChange, saveMutation, saving, showToast, t]
   );
 
   const handleClick = useCallback(
     (event: React.MouseEvent<HTMLButtonElement>, clicked: ParticipationStatus) => {
       event.preventDefault();
       event.stopPropagation();
+      const loading = isPending && !data;
       if (isLocked || loading || disabled) return;
       if (clicked === status && status !== "undecided") {
         updateStatus("undecided", "");
@@ -94,7 +119,7 @@ export function ParticipationWidget({
         setModalOpen(true);
       }
     },
-    [status, isLocked, loading, disabled, updateStatus]
+    [data, disabled, isLocked, isPending, status, updateStatus]
   );
 
   const handleModalConfirm = useCallback(
@@ -111,6 +136,7 @@ export function ParticipationWidget({
     setModalStatus(null);
   }, []);
 
+  const loading = isPending && !data;
   if (loading) {
     return (
       <div className="flex flex-col gap-2 items-end">

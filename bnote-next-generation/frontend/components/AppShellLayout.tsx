@@ -15,6 +15,7 @@ import { SearchProvider } from "@/contexts/SearchContext";
 import { EditingBarProvider } from "@/contexts/EditingBarContext";
 import { AppShell } from "@/components/AppShell";
 import { ToastContainer } from "@/components/ToastContainer";
+import { AppQueryProvider } from "@/components/query/AppQueryProvider";
 
 const PUBLIC_PATHS = [
   "/",
@@ -46,17 +47,19 @@ export default function AppShellLayout({
   }
 
   return (
-    <I18nProvider>
-      <ToastProvider>
-        <SearchProvider>
-          <EditingBarProvider>
-            <AuthGuard>
-              <AppShell>{children}</AppShell>
-              <ToastContainer />
-            </AuthGuard>
-          </EditingBarProvider>
-        </SearchProvider>
-      </ToastProvider>
-    </I18nProvider>
+    <AppQueryProvider>
+      <I18nProvider>
+        <ToastProvider>
+          <SearchProvider>
+            <EditingBarProvider>
+              <AuthGuard>
+                <AppShell>{children}</AppShell>
+                <ToastContainer />
+              </AuthGuard>
+            </EditingBarProvider>
+          </SearchProvider>
+        </ToastProvider>
+      </I18nProvider>
+    </AppQueryProvider>
   );
 }

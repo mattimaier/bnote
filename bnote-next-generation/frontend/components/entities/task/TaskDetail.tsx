@@ -8,10 +8,11 @@
 
 import { useRouter } from "next/navigation";
 import { useEntityParams } from "@/lib/entities/use-entity-params";
-import { useEffect, useState } from "react";
+import { useCallback } from "react";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useI18n } from "@/contexts/I18nContext";
 import { useToast } from "@/contexts/ToastContext";
-import { tasksApi, type Task } from "@/lib/tasks-api";
+import { tasksApi } from "@/lib/tasks-api";
 import { formatDateTimeShort } from "@/lib/date-time";
 import { PAGE_CONTENT_CLASS } from "@/lib/layout";
 import { getEntityPath } from "@/lib/entities/paths";
@@ -22,6 +23,8 @@ import { PersonIdentityRow } from "@/components/PersonIdentityRow";
 import { isEmptyEditorJson } from "@/lib/editorjs-notes";
 import { getErrorMessage } from "@/lib/error-utils";
 import { Spinner } from "@/components/Spinner";
+import { queryKeys } from "@/lib/query/keys";
+import { QUERY_STALE_TIMES } from "@/lib/query/stale-times";
 
 export function TaskDetail() {
   const { id } = useEntityParams();
@@ -29,33 +32,30 @@ export function TaskDetail() {
   const { t, ready, lang } = useI18n();
   const emptyText = t("js.common.empty") !== "js.common.empty" ? t("js.common.empty") : "";
   const { showToast } = useToast();
-  const [item, setItem] = useState<Task | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-
-  const loadTask = () => {
-    if (!id || id === "new" || !ready) return;
-    const numId = parseInt(id, 10);
-    if (Number.isNaN(numId)) {
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    tasksApi
-      .get(numId)
-      .then(setItem)
-      .catch((err) => setError(getErrorMessage(err, t, "js.common.failedToLoad")))
-      .finally(() => setLoading(false));
-  };
-
-  useEffect(() => {
-    loadTask();
-  }, [id, ready]);
+  const numId = id ? parseInt(id, 10) : NaN;
+  const isValidId = Boolean(id && id !== "new" && !Number.isNaN(numId));
+  const {
+    data: item,
+    error,
+    isPending,
+    isFetching,
+    refetch,
+  } = useQuery({
+    queryKey: queryKeys.entities.taskDetail(numId),
+    queryFn: ({ signal }) => tasksApi.get(numId, signal),
+    enabled: ready && isValidId,
+    staleTime: QUERY_STALE_TIMES.entityDetailMs,
+    placeholderData: keepPreviousData,
+  });
+  const loading = isPending && !item;
+  const submitting = isFetching && !!item;
+  const hasResolvedNotFound = !loading && !item;
+  const loadTask = useCallback(async () => {
+    await refetch();
+  }, [refetch]);
 
   const handleComplete = async (complete: boolean) => {
     if (!item) return;
-    setSubmitting(true);
     try {
       await tasksApi.complete(item.id, complete);
       showToast(
@@ -64,11 +64,9 @@ export function TaskDetail() {
           : (t("js.tasks.reopened") !== "js.tasks.reopened" ? t("js.tasks.reopened") : "Task reopened"),
         "success"
       );
-      loadTask();
+      await loadTask();
     } catch (err) {
       showToast(getErrorMessage(err, t, "js.common.failedToSave"), "error");
-    } finally {
-      setSubmitting(false);
     }
   };
 
@@ -90,11 +88,11 @@ export function TaskDetail() {
     );
   }
 
-  if (error || !item) {
+  if (hasResolvedNotFound || error) {
     return (
       <div className={PAGE_CONTENT_CLASS}>
         <p className="text-sm text-error">
-          {error || (t("js.tasks.notFound") !== "js.tasks.notFound" ? t("js.tasks.notFound") : "Task not found.")}
+          {(error ? getErrorMessage(error, t, "js.common.failedToLoad") : "") || (t("js.tasks.notFound") !== "js.tasks.notFound" ? t("js.tasks.notFound") : "Task not found.")}
         </p>
       </div>
     );

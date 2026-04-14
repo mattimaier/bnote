@@ -11,6 +11,10 @@
 
 import { getBasePath } from "./path";
 
+export interface ApiRequestOptions {
+  signal?: AbortSignal;
+}
+
 function getApiBase(): string {
   if (typeof window !== "undefined") {
     const base = process.env.NEXT_PUBLIC_API_BASE ?? "";
@@ -53,7 +57,8 @@ export async function apiRequest<T>(
   module: string,
   action: string,
   data: Record<string, unknown> | null = null,
-  params: Record<string, string> = {}
+  params: Record<string, string> = {},
+  requestOptions: ApiRequestOptions = {}
 ): Promise<T> {
   const apiUrl = getApiUrl();
   const url = apiUrl.startsWith("http") ? new URL(apiUrl) : new URL(apiUrl, typeof window !== "undefined" ? window.location.origin : "http://localhost");
@@ -65,6 +70,7 @@ export async function apiRequest<T>(
     method: data ? "POST" : "GET",
     headers: { "Content-Type": "application/json" },
     credentials: "same-origin",
+    signal: requestOptions.signal,
   };
   if (data) {
     options.body = JSON.stringify({ ...data, action });
@@ -89,8 +95,8 @@ export async function apiRequest<T>(
 }
 
 export const api = {
-  get: <T>(module: string, action: string, params?: Record<string, string>) =>
-    apiRequest<T>(module, action, null, params ?? {}),
-  post: <T>(module: string, action: string, data?: Record<string, unknown>) =>
-    apiRequest<T>(module, action, data ?? {}),
+  get: <T>(module: string, action: string, params?: Record<string, string>, requestOptions?: ApiRequestOptions) =>
+    apiRequest<T>(module, action, null, params ?? {}, requestOptions),
+  post: <T>(module: string, action: string, data?: Record<string, unknown>, requestOptions?: ApiRequestOptions) =>
+    apiRequest<T>(module, action, data ?? {}, {}, requestOptions),
 };

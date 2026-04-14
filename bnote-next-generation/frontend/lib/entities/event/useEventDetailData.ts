@@ -6,10 +6,13 @@
 
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { api } from "@/lib/api";
 import { getErrorMessage } from "@/lib/error-utils";
 import type { ConcertMeta, RehearsalMeta } from "@/lib/entities/event/types";
+import { queryKeys } from "@/lib/query/keys";
+import { QUERY_STALE_TIMES } from "@/lib/query/stale-times";
 
 export type TranslateFn = (key: string) => string;
 
@@ -17,6 +20,9 @@ export interface UseEventDetailDataResult {
   data: Record<string, unknown> | null;
   meta: RehearsalMeta | ConcertMeta | null;
   loading: boolean;
+  isInitialLoading: boolean;
+  isFetching: boolean;
+  isResolvedNotFound: boolean;
   error: string;
   setError: (s: string) => void;
   reload: () => Promise<void>;
@@ -30,69 +36,57 @@ export function useEventDetailData(
   ready: boolean,
   t: TranslateFn
 ): UseEventDetailDataResult {
-  const [data, setData] = useState<Record<string, unknown> | null>(initialData ?? null);
-  const [meta, setMeta] = useState<RehearsalMeta | ConcertMeta | null>(null);
-  const [loading, setLoading] = useState(!initialData);
-  const [error, setError] = useState("");
+  const [manualError, setManualError] = useState("");
 
-  const module = type === "rehearsal" ? "rehearsals" : "concerts";
+  const moduleKey = type === "rehearsal" ? "rehearsals" : "concerts";
   const isNew = id === "new";
   const numId = id && !isNew ? parseInt(String(id), 10) : NaN;
 
-  const loadData = useCallback(async () => {
-    if (!ready || !type || !id || isNaN(numId)) return;
-    try {
-      const result = await api.get<Record<string, unknown>>(module, "", { id: String(numId) });
-      setData(result);
-      setError("");
-    } catch (err) {
-      setError(getErrorMessage(err, t, "js.common.failedToLoad"));
-      setData(null);
-    } finally {
-      setLoading(false);
-    }
-  }, [ready, type, id, numId, module, t]);
+  const detailEnabled = ready && !initialData && !isNew && Boolean(type) && Boolean(id) && !isNaN(numId);
+  const detailQuery = useQuery({
+    queryKey: queryKeys.entities.eventDetail(moduleKey, numId),
+    queryFn: ({ signal }) => api.get<Record<string, unknown>>(moduleKey, "", { id: String(numId) }, { signal }),
+    enabled: detailEnabled,
+    staleTime: QUERY_STALE_TIMES.entityDetailMs,
+    placeholderData: keepPreviousData,
+  });
 
-  const loadMeta = useCallback(async () => {
-    if (!ready) return;
-    const canEdit = isNew || Boolean((data as { canEdit?: boolean } | null)?.canEdit);
-    if (!canEdit) return;
-    try {
-      const result = await api.get<RehearsalMeta | ConcertMeta>(module, "meta");
-      setMeta(result);
-    } catch {
-      setMeta(null);
-    }
-  }, [ready, module, data, isNew]);
+  const canEdit = isNew || Boolean((detailQuery.data as { canEdit?: boolean } | null)?.canEdit);
+  const metaQuery = useQuery({
+    queryKey: queryKeys.entities.eventMeta(moduleKey),
+    queryFn: ({ signal }) => api.get<RehearsalMeta | ConcertMeta>(moduleKey, "meta", undefined, { signal }),
+    enabled: false,
+    staleTime: QUERY_STALE_TIMES.entityDetailMs,
+  });
 
-  useEffect(() => {
-    if (initialData != null) {
-      setLoading(false);
-      return;
-    }
-    if (!ready || !type || !id) {
-      setLoading(false);
-      return;
-    }
-    if (isNew) {
-      setData({ canEdit: true, canEditParticipation: true });
-      setLoading(false);
-      return;
-    }
-    if (isNaN(numId)) {
-      setLoading(false);
-      return;
-    }
-    loadData();
-  }, [ready, type, id, numId, loadData, initialData, isNew]);
+  const data =
+    initialData ?? (isNew ? ({ canEdit: true, canEditParticipation: true } as Record<string, unknown>) : detailQuery.data ?? null);
+  const queryError = detailQuery.error ? getErrorMessage(detailQuery.error, t, "js.common.failedToLoad") : "";
+  const error = manualError || queryError;
+  const isInitialLoading = detailEnabled ? detailQuery.isPending && !detailQuery.data : !ready && !initialData;
+  const isFetching = detailQuery.isFetching;
+  const isResolvedNotFound =
+    !isInitialLoading &&
+    !data &&
+    Boolean(
+      (detailQuery.error as { status?: number } | null)?.status === 404
+    );
 
   return {
     data,
-    meta,
-    loading,
+    meta: (metaQuery.data as RehearsalMeta | ConcertMeta | null) ?? null,
+    loading: isInitialLoading,
+    isInitialLoading,
+    isFetching,
+    isResolvedNotFound,
     error,
-    setError,
-    reload: loadData,
-    loadMeta,
+    setError: setManualError,
+    reload: async () => {
+      await detailQuery.refetch();
+    },
+    loadMeta: async () => {
+      if (!ready || !canEdit) return;
+      await metaQuery.refetch();
+    },
   };
 }

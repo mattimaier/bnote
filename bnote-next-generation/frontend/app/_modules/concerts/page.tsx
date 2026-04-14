@@ -6,10 +6,10 @@
 
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/contexts/I18nContext";
-import { concertsApi, type ConcertListItem } from "@/lib/concerts-api";
+import { type ConcertListItem } from "@/lib/concerts-api";
 import { getEntityPath } from "@/lib/entities/paths";
 import { compareDate, compareString, type SortDirection } from "@/lib/table-sort";
 import { getEscalationWarningUiConfig, getStatusPillStyle } from "@/lib/entity-config";
@@ -27,14 +27,19 @@ import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/error-utils";
 import { notesToPlainText } from "@/lib/editorjs-notes";
 import { PageContent } from "@/components/PageContent";
+import { useConcertsListQuery } from "@/lib/query/hooks/use-list-query";
+
+const EMPTY_CONCERTS: ConcertListItem[] = [];
 
 export default function ConcertsPage() {
   const router = useRouter();
   const { t, ready, formatDateTime, lang } = useI18n();
   const emptyText = t("js.common.empty") !== "js.common.empty" ? t("js.common.empty") : "";
-  const [items, setItems] = useState<ConcertListItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const { data, isPending, error } = useConcertsListQuery(ready);
+  const items = data ?? EMPTY_CONCERTS;
+  const [nowTs] = useState(() => Date.now());
+  const loading = isPending && !data;
+  const errorMessage = error ? getErrorMessage(error, t, "js.common.failedToLoad") : "";
   const [search, setSearch] = useState("");
   const [upcomingSortKey, setUpcomingSortKey] = useState<
     "title" | "begin" | "status" | "location" | null
@@ -43,24 +48,6 @@ export default function ConcertsPage() {
   const [pastSortState, setPastSortState] = useState<
     Record<number, { key: "title" | "begin" | "status" | "location" | null; dir: SortDirection }>
   >({});
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const list = await concertsApi.list();
-      setItems(list ?? []);
-      setError("");
-    } catch (err) {
-      setError(getErrorMessage(err, t, "js.common.failedToLoad"));
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!ready) return;
-    load();
-  }, [ready, load]);
 
   const handleUpcomingSort = (key: "title" | "begin" | "status" | "location") => {
     if (upcomingSortKey === key) {
@@ -103,7 +90,7 @@ export default function ConcertsPage() {
   }, [items, search]);
 
   const { upcomingItems, pastItems } = useMemo(() => {
-    const now = Date.now();
+    const now = nowTs;
     const upcoming: ConcertListItem[] = [];
     const past: ConcertListItem[] = [];
     filteredItems.forEach((item) => {
@@ -116,7 +103,7 @@ export default function ConcertsPage() {
       }
     });
     return { upcomingItems: upcoming, pastItems: past };
-  }, [filteredItems]);
+  }, [filteredItems, nowTs]);
 
   const pastByYear = useMemo(() => {
     const groups = new Map<number, ConcertListItem[]>();
@@ -156,7 +143,7 @@ export default function ConcertsPage() {
         )}
       />
 
-      {error && (
+      {errorMessage && (
         <div
           className="rounded-lg border px-4 py-3 text-sm"
           style={{
@@ -165,7 +152,7 @@ export default function ConcertsPage() {
             color: "var(--destructive-foreground)",
           }}
         >
-          {error}
+          {errorMessage}
         </div>
       )}
 

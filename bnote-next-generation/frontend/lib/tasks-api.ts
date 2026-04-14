@@ -43,8 +43,8 @@ export const tasksApi = {
       open: params?.open !== false ? "1" : "0",
       ...(params?.tour_id != null ? { tour_id: String(params.tour_id) } : {}),
     }),
-  get: (id: number) =>
-    api.get<Task>("tasks", "get", { id: String(id) }),
+  get: (id: number, signal?: AbortSignal) =>
+    api.get<Task>("tasks", "get", { id: String(id) }, { signal }),
   create: (data: TaskCreate) =>
     api.post<{ id: number; success: boolean }>("tasks", "create", data as unknown as Record<string, unknown>),
   update: (id: number, data: TaskUpdate) =>

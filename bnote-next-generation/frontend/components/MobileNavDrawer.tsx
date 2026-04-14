@@ -6,18 +6,18 @@
 
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useI18n } from "@/contexts/I18nContext";
 import { BNoteLogo } from "@/components/BNoteLogo";
 import { getEntityConfig } from "@/lib/entity-config";
 import { getIcon } from "@/components/icons";
-import { api } from "@/lib/api";
-import { checkSession } from "@/lib/auth";
 import { X } from "@/components/icons";
 import { getSidebarModuleKey } from "@/lib/sidebar-active";
 import { DEVELOPER_SIDEBAR_MODULE_ID, mergeDeveloperSidebarModule } from "@/lib/developer-tools";
+import { useModulesQuery } from "@/lib/query/hooks/use-modules-query";
+import { useSessionQuery } from "@/lib/query/hooks/use-session-query";
 
 interface SidebarModule {
   id: number;
@@ -35,27 +35,20 @@ interface MobileNavDrawerProps {
 export function MobileNavDrawer({ open, onClose }: MobileNavDrawerProps) {
   const pathname = usePathname();
   const { t } = useI18n();
-  const [modules, setModules] = useState<SidebarModule[]>([]);
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      const session = await checkSession();
-      if (cancelled) return;
-      const isAdminUser = Boolean(session.isAdmin);
-      try {
-        const res = await api.get<SidebarModule[] | { modules: SidebarModule[] }>("auth", "getModules");
-        if (cancelled) return;
-        const list = Array.isArray(res) ? res : (res as { modules: SidebarModule[] }).modules ?? [];
-        const normalized = list.map((m) => ({
-          ...m,
-          route: (m.route ?? "").replace(".html", "") || m.name.toLowerCase(),
-        }));
-        setModules(mergeDeveloperSidebarModule(normalized, isAdminUser));
-      } catch {
-        if (cancelled) return;
-        setModules(
-          mergeDeveloperSidebarModule(
+  const { data: modulesData, error: modulesError } = useModulesQuery();
+  const { data: session } = useSessionQuery();
+  const isAdminUser = Boolean(session?.isAdmin);
+  const modules: SidebarModule[] =
+    modulesData && modulesData.length > 0
+      ? mergeDeveloperSidebarModule(
+          modulesData.map((m) => ({
+            ...m,
+            route: (m.route ?? "").replace(".html", "") || m.name.toLowerCase(),
+          })) as SidebarModule[],
+          isAdminUser
+        )
+      : modulesError
+        ? mergeDeveloperSidebarModule(
             [
               { id: 1, name: "Start", route: "dashboard", icon: "layout-dashboard", i18n: "js.sidebar.dashboard" },
               { id: 3, name: "Kontakte", route: "contacts", icon: "users", i18n: "js.sidebar.contacts" },
@@ -63,13 +56,7 @@ export function MobileNavDrawer({ open, onClose }: MobileNavDrawerProps) {
             ],
             isAdminUser
           )
-        );
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+        : [];
 
   const activeModuleKey = getSidebarModuleKey(pathname);
 

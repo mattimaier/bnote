@@ -188,6 +188,11 @@ if ($module === 'auth' && $action === 'logout') {
     }
 }
 
+// Release PHP session lock for non-auth module requests so parallel reads don't queue behind each other.
+if ($module !== 'auth' && session_status() === PHP_SESSION_ACTIVE) {
+    session_write_close();
+}
+
 // Instantiate module handler and process request
 try {
     // Convert module name to class name (capitalize first letter + "Module")

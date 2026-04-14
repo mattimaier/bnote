@@ -15,18 +15,20 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/contexts/I18nContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { logout } from "@/lib/auth";
+import { logout, type SessionUser } from "@/lib/auth";
 import { api } from "@/lib/api";
 import { configurationApi } from "@/lib/configuration-api";
 import { prefixPath } from "@/lib/path";
 import { useSearch } from "@/contexts/SearchContext";
 import { SearchAutocompleteOverlay } from "@/components/SearchAutocompleteOverlay";
 import { useEffect, useRef, useState } from "react";
-import { checkSession, type SessionUser } from "@/lib/auth";
 import { Search, Menu, X, LogOut, User } from "@/components/icons";
 import { Avatar } from "@/components/Avatar";
 import { BugReportModal } from "@/components/bug-report/BugReportModal";
 import { initBugReportDiagnostics } from "@/lib/bug-report-diagnostics";
+import { useSessionQuery } from "@/lib/query/hooks/use-session-query";
+import { queryKeys } from "@/lib/query/keys";
+import { useQuery } from "@tanstack/react-query";
 
 function useMediaQuery(query: string): boolean {
   const [matches, setMatches] = useState(() => {
@@ -54,9 +56,6 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
   const router = useRouter();
   const { t } = useI18n();
   const { query, setQuery, setOverlayOpen } = useSearch();
-  const [user, setUser] = useState<SessionUser | null>(null);
-  const [canConfigure, setCanConfigure] = useState(false);
-  const [bugReportEnabled, setBugReportEnabled] = useState(false);
   const [bugReportOpen, setBugReportOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const searchAnchorRef = useRef<HTMLDivElement>(null);
@@ -66,18 +65,24 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
   const shortSearchPlaceholder =
     t("js.table.searchPlaceholder") !== "js.table.searchPlaceholder" ? t("js.table.searchPlaceholder") : "Search…";
   const searchPlaceholder = isDesktop ? fullSearchPlaceholder : shortSearchPlaceholder;
+  const { data: session } = useSessionQuery();
+  const user = (session?.user ?? null) as SessionUser | null;
+  const { data: canAccessConfig } = useQuery({
+    queryKey: ["configuration", "canAccess"] as const,
+    queryFn: ({ signal }) => configurationApi.canAccess(signal).catch(() => ({ canAccess: false })),
+    staleTime: 5 * 60 * 1000,
+  });
+  const { data: publicConfig } = useQuery({
+    queryKey: queryKeys.auth.publicConfig,
+    queryFn: ({ signal }) =>
+      api.get<PublicConfig>("auth", "getPublicConfig", undefined, { signal }).catch(() => ({ beta_bug_report_enabled: false })),
+    staleTime: 5 * 60 * 1000,
+  });
+  const canConfigure = Boolean(canAccessConfig?.canAccess);
+  const bugReportEnabled = Boolean(session?.authenticated && session?.user?.id && publicConfig?.beta_bug_report_enabled);
 
   useEffect(() => {
     initBugReportDiagnostics();
-    Promise.all([
-      checkSession(),
-      configurationApi.canAccess().catch(() => ({ canAccess: false })),
-      api.get<PublicConfig>("auth", "getPublicConfig").catch(() => ({ beta_bug_report_enabled: false })),
-    ]).then(([s, access, publicConfig]) => {
-      if (s.user) setUser(s.user);
-      setCanConfigure(Boolean(access?.canAccess));
-      setBugReportEnabled(Boolean(s.authenticated && s.user && s.user.id && publicConfig?.beta_bug_report_enabled));
-    });
   }, []);
 
   useEffect(() => {

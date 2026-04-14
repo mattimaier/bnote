@@ -24,6 +24,7 @@ import { DashboardVoteWidget } from "@/components/dashboard/DashboardVoteWidget"
 import { tasksApi } from "@/lib/tasks-api";
 import { notesToPlainText } from "@/lib/editorjs-notes";
 import { SquircleIconBadge } from "@/components/SquircleIconBadge";
+import type { ParticipationState, ParticipationStatus } from "@/lib/participation";
 
 export interface VoteOption {
   id: number;
@@ -49,6 +50,8 @@ export interface InboxEvent {
   assignee?: string | null;
   assigneeFullName?: string | null;
   is_complete?: number;
+  participation?: number | null;
+  replyUntil?: string | null;
 }
 
 interface EventCardProps {
@@ -59,7 +62,32 @@ interface EventCardProps {
   isLast?: boolean;
   onParticipationChange?: () => void;
   onTaskComplete?: () => void;
-  participationRefreshToken?: number;
+}
+
+function useMediaQuery(query: string): boolean {
+  const [matches, setMatches] = useState(false);
+  React.useEffect(() => {
+    const m = window.matchMedia(query);
+    const onChange = () => setMatches(m.matches);
+    onChange();
+    m.addEventListener("change", onChange);
+    return () => m.removeEventListener("change", onChange);
+  }, [query]);
+  return matches;
+}
+
+function mapParticipationToStatus(value: number | null | undefined): ParticipationStatus {
+  if (value === 1) return "yes";
+  if (value === 2) return "maybe";
+  if (value === 0) return "no";
+  return "undecided";
+}
+
+function toIsoString(value: string | null | undefined): string | null {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toISOString();
 }
 
 function extractLocation(event: InboxEvent): string | null {
@@ -82,7 +110,6 @@ export function EventCard({
   isLast = false,
   onParticipationChange,
   onTaskComplete,
-  participationRefreshToken = 0,
 }: EventCardProps) {
   const [taskCompleting, setTaskCompleting] = useState(false);
   const eventType = mapOtypeToEventType(event.otype);
@@ -136,6 +163,31 @@ export function EventCard({
   const isCancelled = status === "cancelled" || status === "canceled" || status === "abgesagt";
   const DotIcon = getIcon(typeConfig.icon);
   const markerColor = getEntityConfig(entityType)?.color ?? "var(--primary)";
+  const isDesktop = useMediaQuery("(min-width: 768px)");
+  const eventBeginIso = toIsoString(event.eventBegin || event.begin || null);
+  const replyUntilIso = toIsoString(event.replyUntil || event.dueDate || null);
+  const now = Date.now();
+  const computedLocked = Boolean(
+    (replyUntilIso && Date.parse(replyUntilIso) < now) ||
+    (eventBeginIso && Date.parse(eventBeginIso) < now)
+  );
+  const initialParticipationState: ParticipationState | undefined = hasParticipation
+    ? {
+        status: mapParticipationToStatus(event.participation),
+        allow_maybe: true,
+        is_locked: computedLocked,
+        deadline: replyUntilIso,
+      }
+    : undefined;
+  const participationWidget = hasParticipation ? (
+    <ParticipationWidget
+      eventId={event.oid}
+      eventType={event.otype}
+      onStatusChange={onParticipationChange}
+      disabled={isCancelled}
+      initialState={initialParticipationState}
+    />
+  ) : null;
 
   /* Desktop: timeline + card. Mobile: compact list item without timeline */
   const desktopContent = (
@@ -206,13 +258,7 @@ export function EventCard({
                   onVoteChange={onParticipationChange}
                 />
               ) : hasParticipation ? (
-                <ParticipationWidget
-                eventId={event.oid}
-                eventType={event.otype}
-                onStatusChange={onParticipationChange}
-                disabled={isCancelled}
-                refreshToken={participationRefreshToken}
-              />
+                participationWidget
               ) : null}
             </div>
           )}
@@ -301,13 +347,7 @@ export function EventCard({
                 onVoteChange={onParticipationChange}
               />
             ) : (
-              <ParticipationWidget
-                eventId={event.oid}
-                eventType={event.otype}
-                onStatusChange={onParticipationChange}
-                disabled={isCancelled}
-                refreshToken={participationRefreshToken}
-              />
+              participationWidget
             )}
           </div>
         )}
@@ -325,12 +365,15 @@ export function EventCard({
 
   const content = (
     <>
-      <div className="hidden md:flex relative gap-3 w-full">{desktopContent}</div>
-      <div
-        className={`md:hidden relative w-full group ${!isLast ? "border-b border-base-300/50 pb-3 mb-3" : ""}`}
-      >
-        {mobileContent}
-      </div>
+      {isDesktop ? (
+        <div className="relative gap-3 w-full flex">{desktopContent}</div>
+      ) : (
+        <div
+          className={`relative w-full group ${!isLast ? "border-b border-base-300/50 pb-3 mb-3" : ""}`}
+        >
+          {mobileContent}
+        </div>
+      )}
     </>
   );
 

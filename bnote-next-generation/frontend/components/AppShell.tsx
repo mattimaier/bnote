@@ -8,15 +8,18 @@
 
 import { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { AppSidebar } from "@/components/AppSidebar";
 import { AppTopbar } from "@/components/AppTopbar";
 import { MobileNavDrawer } from "@/components/MobileNavDrawer";
 import { useEditingBar } from "@/contexts/EditingBarContext";
 import { EditingBar } from "@/components/EditingBar";
-import { checkSession } from "@/lib/auth";
 import { changelogApi, type ChangelogEntry } from "@/lib/changelog-api";
 import { ChangelogModal } from "@/components/changelog/ChangelogModal";
 import { LegalFooter } from "@/components/auth/LegalFooter";
+import { useSessionQuery } from "@/lib/query/hooks/use-session-query";
+import { queryKeys } from "@/lib/query/keys";
+import { api } from "@/lib/api";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -28,6 +31,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
+  const { data: session } = useSessionQuery();
 
   useEffect(() => {
     let cancelled = false;
@@ -35,7 +40,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
     (async () => {
       try {
-        const session = await checkSession();
         const userId = session?.user?.id ? String(session.user.id) : "";
         if (!session?.authenticated || !userId || cancelled) return;
 
@@ -67,7 +71,34 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       cancelled = true;
       if (timer) clearTimeout(timer);
     };
-  }, [pathname]);
+  }, [pathname, session?.authenticated, session?.user?.id]);
+
+  useEffect(() => {
+    if (!session?.authenticated) return;
+    void queryClient.prefetchQuery({
+      queryKey: queryKeys.auth.modules,
+      queryFn: async ({ signal }) => {
+        const res = await api.get<Array<{ id: number; name: string; route?: string; icon?: string; i18n?: string }> | { modules: Array<{ id: number; name: string; route?: string; icon?: string; i18n?: string }> }>(
+          "auth",
+          "getModules",
+          undefined,
+          { signal }
+        );
+        const list = Array.isArray(res) ? res : res.modules ?? [];
+        return list.map((m) => ({
+          id: m.id,
+          name: m.name ?? "",
+          route: m.route,
+          icon: m.icon,
+          i18n: m.i18n,
+        }));
+      },
+    });
+    void queryClient.prefetchQuery({
+      queryKey: queryKeys.dashboard.home,
+      queryFn: ({ signal }) => api.get("dashboard", "bundle", undefined, { signal }),
+    });
+  }, [queryClient, session?.authenticated]);
 
   function markReleaseSeen() {
     if (typeof window === "undefined") return;

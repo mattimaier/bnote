@@ -96,7 +96,7 @@ export interface EscalationRiskActionResult {
 }
 
 export const rehearsalsApi = {
-  list: () => api.get<RehearsalListItem[]>("rehearsals", "list"),
+  list: (signal?: AbortSignal) => api.get<RehearsalListItem[]>("rehearsals", "list", undefined, { signal }),
   meta: () => api.get<Record<string, unknown>>("rehearsals", "meta"),
   delete: (id: number) => api.post<{ success: boolean }>("rehearsals", "delete", { id }),
   listSeries: () => api.get<RehearsalSeriesSummary[]>("rehearsals", "list_series"),

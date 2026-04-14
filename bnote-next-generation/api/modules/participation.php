@@ -49,6 +49,8 @@ class ParticipationModule {
         switch ($action) {
             case 'get':
                 return $this->getParticipation();
+            case 'batchGet':
+                return $this->batchGetParticipation();
             case 'save':
                 return $this->saveParticipation();
             default:
@@ -61,8 +63,6 @@ class ParticipationModule {
      * GET /api/index.php?module=participation&action=get&event_id={id}&event_type={R|C}
      */
     private function getParticipation() {
-        global $system_data;
-        
         $eventId = $_GET['event_id'] ?? null;
         $eventType = $_GET['event_type'] ?? null;
         
@@ -79,60 +79,56 @@ class ParticipationModule {
         if (!is_numeric($eventId)) {
             Response::error('Invalid event_id', 400);
         }
-        
+
         $eventId = intval($eventId);
         $userId = Auth::getUserId();
-        
-        // Check user has access to this event
-        if (!$this->userHasAccessToEvent($eventType, $eventId, $userId)) {
+        $state = $this->getParticipationState($eventType, $eventId, $userId, true);
+        if ($state === null) {
             Response::error('Access denied to this event', 403);
         }
-        
-        // Get participation status
-        $participation = null;
-        $eventBegin = null;
-        if ($eventType === 'R') {
-            $participation = $this->data->doesParticipateInRehearsal($eventId);
-            // Get rehearsal to check deadline and begin date
-            $rehearsal = $this->data->getRehearsal($eventId);
-            $deadline = $rehearsal['approve_until'] ?? null;
-            $eventBegin = $rehearsal['begin'] ?? null;
-        } else {
-            $participation = $this->data->doesParticipateInConcert($eventId, $userId);
-            // Get concert to check deadline and begin date
-            $concert = $this->data->getConcert($eventId);
-            $deadline = $concert['approve_until'] ?? null;
-            $eventBegin = $concert['begin'] ?? null;
+        return $state;
+    }
+
+    /**
+     * Batch get participation states for visible events.
+     * POST /api/index.php?module=participation&action=batchGet
+     * Body: {"events":[{"event_id":123,"event_type":"R"},{"event_id":456,"event_type":"C"}]}
+     */
+    private function batchGetParticipation() {
+        $payload = $this->readPayload();
+        $events = isset($payload['events']) && is_array($payload['events']) ? $payload['events'] : [];
+        if (count($events) < 1) {
+            return ['items' => []];
         }
-        
-        // Map participation integer to status string
-        $status = $this->mapParticipationToStatus($participation['participate'] ?? -1);
-        
-        // Get config for allow_participation_maybe
-        $allowMaybe = $system_data->getDynamicConfigParameter("allow_participation_maybe") == 1;
-        
-        // Check if deadline has passed
-        $isLocked = false;
-        if ($deadline && $deadline !== '-' && strlen(trim($deadline)) >= 10) {
-            $deadlineTime = strtotime($deadline);
-            $currentTime = time();
-            $isLocked = $deadlineTime < $currentTime;
+
+        $userId = Auth::getUserId();
+        $dedup = [];
+        foreach ($events as $entry) {
+            if (!is_array($entry)) {
+                continue;
+            }
+            $eventType = strtoupper(trim((string) ($entry['event_type'] ?? '')));
+            $eventIdRaw = $entry['event_id'] ?? null;
+            if (($eventType !== 'R' && $eventType !== 'C') || !is_numeric($eventIdRaw)) {
+                continue;
+            }
+            $eventId = intval($eventIdRaw);
+            if ($eventId <= 0) {
+                continue;
+            }
+            $dedup[$eventType . ':' . $eventId] = ['event_type' => $eventType, 'event_id' => $eventId];
         }
-        
-        // Also lock if event begin date is in the past
-        if (!$isLocked && $eventBegin && $eventBegin !== '-' && strlen(trim($eventBegin)) >= 10) {
-            $eventBeginTime = strtotime($eventBegin);
-            $currentTime = time();
-            $isLocked = $eventBeginTime < $currentTime;
+
+        $items = [];
+        foreach ($dedup as $key => $entry) {
+            $state = $this->getParticipationState($entry['event_type'], $entry['event_id'], $userId, false);
+            if ($state === null) {
+                continue;
+            }
+            $items[$key] = $state;
         }
-        
-        return [
-            'status' => $status,
-            'reason' => $participation['reason'] ?? null,
-            'allow_maybe' => $allowMaybe,
-            'deadline' => $deadline,
-            'is_locked' => $isLocked
-        ];
+
+        return ['items' => $items];
     }
     
     /**
@@ -417,5 +413,63 @@ class ParticipationModule {
             default:
                 return -1;
         }
+    }
+
+    /**
+     * Resolve participation state for one event.
+     * Returns null when access is denied and $enforceAccess is false.
+     */
+    private function getParticipationState(string $eventType, int $eventId, int $userId, bool $enforceAccess): ?array {
+        global $system_data;
+
+        if (!$this->userHasAccessToEvent($eventType, $eventId, $userId)) {
+            if ($enforceAccess) {
+                Response::error('Access denied to this event', 403);
+            }
+            return null;
+        }
+
+        $participation = null;
+        $eventBegin = null;
+        $deadline = null;
+        if ($eventType === 'R') {
+            $participation = $this->data->doesParticipateInRehearsal($eventId);
+            $rehearsal = $this->data->getRehearsal($eventId);
+            $deadline = $rehearsal['approve_until'] ?? null;
+            $eventBegin = $rehearsal['begin'] ?? null;
+        } else {
+            $participation = $this->data->doesParticipateInConcert($eventId, $userId);
+            $concert = $this->data->getConcert($eventId);
+            $deadline = $concert['approve_until'] ?? null;
+            $eventBegin = $concert['begin'] ?? null;
+        }
+
+        $allowMaybe = $system_data->getDynamicConfigParameter("allow_participation_maybe") == 1;
+        $isLocked = false;
+        if ($deadline && $deadline !== '-' && strlen(trim($deadline)) >= 10) {
+            $isLocked = strtotime($deadline) < time();
+        }
+        if (!$isLocked && $eventBegin && $eventBegin !== '-' && strlen(trim($eventBegin)) >= 10) {
+            $isLocked = strtotime($eventBegin) < time();
+        }
+
+        return [
+            'status' => $this->mapParticipationToStatus($participation['participate'] ?? -1),
+            'reason' => $participation['reason'] ?? null,
+            'allow_maybe' => $allowMaybe,
+            'deadline' => $deadline,
+            'is_locked' => $isLocked
+        ];
+    }
+
+    private function readPayload(): array {
+        $rawInput = file_get_contents('php://input');
+        if (!empty($rawInput)) {
+            $decoded = json_decode($rawInput, true);
+            if (is_array($decoded)) {
+                return $decoded;
+            }
+        }
+        return is_array($_POST) ? $_POST : [];
     }
 }

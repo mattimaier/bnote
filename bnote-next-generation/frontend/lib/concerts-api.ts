@@ -34,7 +34,7 @@ export interface EscalationRiskActionResult {
 }
 
 export const concertsApi = {
-  list: () => api.get<ConcertListItem[]>("concerts", "list"),
+  list: (signal?: AbortSignal) => api.get<ConcertListItem[]>("concerts", "list", undefined, { signal }),
   acceptEscalationRisk: (id: number) =>
     api.post<EscalationRiskActionResult>("concerts", "acceptEscalationRisk", { id }),
   resetEscalationRisk: (id: number) =>

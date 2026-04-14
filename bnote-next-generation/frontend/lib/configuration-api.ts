@@ -68,7 +68,7 @@ export interface InstrumentAdminDataResponse {
 }
 
 export const configurationApi = {
-  canAccess: () => api.get<{ canAccess: boolean }>("configuration", "canAccess"),
+  canAccess: (signal?: AbortSignal) => api.get<{ canAccess: boolean }>("configuration", "canAccess", undefined, { signal }),
   getConfig: () => api.get<ConfigurationResponse>("configuration", "getConfig"),
   updateConfig: (values: Record<string, unknown>) =>
     api.post<ConfigurationResponse>("configuration", "updateConfig", { values }),

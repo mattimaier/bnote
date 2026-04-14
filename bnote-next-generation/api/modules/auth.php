@@ -204,6 +204,7 @@ class AuthModule {
      * This endpoint is public and doesn't require authentication.
      */
     private function getPublicConfig() {
+        header('Cache-Control: private, max-age=60, stale-while-revalidate=120');
         global $system_data;
         $lang = $system_data->getLang();
         $country = $system_data->getDynamicConfigParameter('default_country');
@@ -239,6 +240,7 @@ class AuthModule {
      * Returns modules with route, icon, and i18n key mappings.
      */
     private function getModules() {
+        header('Cache-Control: private, max-age=60, stale-while-revalidate=120');
         global $system_data;
         
         if (!Auth::check()) {

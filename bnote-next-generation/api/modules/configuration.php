@@ -62,8 +62,10 @@ class ConfigurationModule {
         $action = $_GET['action'] ?? $_POST['action'] ?? 'getConfig';
         switch ($action) {
             case 'canAccess':
+                header('Cache-Control: private, max-age=30, stale-while-revalidate=60');
                 return ['canAccess' => true];
             case 'getConfig':
+                header('Cache-Control: private, max-age=15, stale-while-revalidate=30');
                 return $this->getConfig();
             case 'updateConfig':
                 return $this->updateConfig();
