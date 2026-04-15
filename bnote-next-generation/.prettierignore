@@ -1,0 +1,8 @@
+.git
+frontend/node_modules
+frontend/.next
+api/vendor
+build
+build-local-check
+frontend/out
+frontend/tsconfig.tsbuildinfo

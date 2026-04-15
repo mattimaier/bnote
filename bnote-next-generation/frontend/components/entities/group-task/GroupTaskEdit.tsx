@@ -35,7 +35,10 @@ export function GroupTaskEdit() {
 
   useEffect(() => {
     if (!ready) return;
-    tasksApi.getGroups().then((list) => setGroups(list ?? [])).catch(() => setGroups([]));
+    tasksApi
+      .getGroups()
+      .then((list) => setGroups(list ?? []))
+      .catch(() => setGroups([]));
   }, [ready]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -55,7 +58,7 @@ export function GroupTaskEdit() {
       await tasksApi.createGroupTasks({
         groupIds,
         title: title.trim(),
-        description: isEmptyEditorJson(description) ? undefined : (description.trim() || undefined),
+        description: isEmptyEditorJson(description) ? undefined : description.trim() || undefined,
         due_at: dueAt.trim() || null,
       });
       showToast(
@@ -122,9 +125,7 @@ export function GroupTaskEdit() {
 
       <form id="group-task-edit-form" onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div className="rounded-box border border-error bg-error/15 px-4 py-3 text-sm text-error">
-            {error}
-          </div>
+          <div className="rounded-box border border-error bg-error/15 px-4 py-3 text-sm text-error">{error}</div>
         )}
 
         <div className="rounded-none border-0 shadow-none p-4 md:rounded-box md:border md:border-base-300 md:shadow-sm md:p-6 bg-base-100 text-base-content">

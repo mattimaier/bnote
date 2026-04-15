@@ -75,7 +75,12 @@ function resolvePalette(p) {
 
 function buildIconSvg({ geometry, palette, glyphPathData }) {
   const outerPath = buildSquirclePath(geometry.canvasSize, 0, geometry.squircleExponent, geometry.pathSteps);
-  const borderPath = buildSquirclePath(geometry.canvasSize, geometry.borderInset, geometry.squircleExponent, geometry.pathSteps);
+  const borderPath = buildSquirclePath(
+    geometry.canvasSize,
+    geometry.borderInset,
+    geometry.squircleExponent,
+    geometry.pathSteps
+  );
   return [
     '<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">',
     "  <defs>",

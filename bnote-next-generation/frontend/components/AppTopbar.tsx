@@ -75,11 +75,15 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
   const { data: publicConfig } = useQuery({
     queryKey: queryKeys.auth.publicConfig,
     queryFn: ({ signal }) =>
-      api.get<PublicConfig>("auth", "getPublicConfig", undefined, { signal }).catch(() => ({ beta_bug_report_enabled: false })),
+      api
+        .get<PublicConfig>("auth", "getPublicConfig", undefined, { signal })
+        .catch(() => ({ beta_bug_report_enabled: false })),
     staleTime: 5 * 60 * 1000,
   });
   const canConfigure = Boolean(canAccessConfig?.canAccess);
-  const bugReportEnabled = Boolean(session?.authenticated && session?.user?.id && publicConfig?.beta_bug_report_enabled);
+  const bugReportEnabled = Boolean(
+    session?.authenticated && session?.user?.id && publicConfig?.beta_bug_report_enabled
+  );
 
   useEffect(() => {
     initBugReportDiagnostics();
@@ -117,48 +121,50 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
       )}
       {/* Search: full width */}
       <div ref={searchAnchorRef} className="relative flex-1 min-w-0">
-          <form action={prefixPath("/search/")} method="get" role="search" className="flex items-center gap-1 md:gap-2 w-full">
-            <div className="relative flex-1 min-w-0">
-              <Search
-                className="absolute left-3 h-4 w-4 -translate-y-1/2 text-base-content/50 z-10 top-1/2 pointer-events-none"
-                aria-hidden
-              />
-              <input
-                type="search"
-                name="q"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onFocus={() => setOverlayOpen(true)}
-                placeholder={searchPlaceholder}
-                className="input input-sm h-10 md:h-8 w-full pl-9 pr-9"
-                aria-label={searchPlaceholder}
-                aria-autocomplete="list"
-                aria-controls={query.trim().length >= 2 ? "search-autocomplete" : undefined}
-                id="topbar-search"
-              />
-              {query.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => setQuery("")}
-                  className="btn btn-soft btn-square btn-xs absolute right-2 top-1/2 -translate-y-1/2 z-10"
-                  aria-label={t("js.search.clear") !== "js.search.clear" ? t("js.search.clear") : "Clear search"}
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              )}
-            </div>
+        <form
+          action={prefixPath("/search/")}
+          method="get"
+          role="search"
+          className="flex items-center gap-1 md:gap-2 w-full"
+        >
+          <div className="relative flex-1 min-w-0">
+            <Search
+              className="absolute left-3 h-4 w-4 -translate-y-1/2 text-base-content/50 z-10 top-1/2 pointer-events-none"
+              aria-hidden
+            />
+            <input
+              type="search"
+              name="q"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onFocus={() => setOverlayOpen(true)}
+              placeholder={searchPlaceholder}
+              className="input input-sm h-10 md:h-8 w-full pl-9 pr-9"
+              aria-label={searchPlaceholder}
+              aria-autocomplete="list"
+              aria-controls={query.trim().length >= 2 ? "search-autocomplete" : undefined}
+              id="topbar-search"
+            />
             {query.length > 0 && (
               <button
-                type="submit"
-                className="btn btn-primary btn-sm shrink-0 hidden md:inline-flex"
+                type="button"
+                onClick={() => setQuery("")}
+                className="btn btn-soft btn-square btn-xs absolute right-2 top-1/2 -translate-y-1/2 z-10"
+                aria-label={t("js.search.clear") !== "js.search.clear" ? t("js.search.clear") : "Clear search"}
               >
-                {t("js.search.showResults") !== "js.search.showResults" ? t("js.search.showResults") : "Show results"}
+                <X className="h-4 w-4" />
               </button>
             )}
-          </form>
-          {query.trim().length >= 2 && (
-            <SearchAutocompleteOverlay anchorRef={searchAnchorRef} onSelect={() => {}} isDesktop={isDesktop} />
+          </div>
+          {query.length > 0 && (
+            <button type="submit" className="btn btn-primary btn-sm shrink-0 hidden md:inline-flex">
+              {t("js.search.showResults") !== "js.search.showResults" ? t("js.search.showResults") : "Show results"}
+            </button>
           )}
+        </form>
+        {query.trim().length >= 2 && (
+          <SearchAutocompleteOverlay anchorRef={searchAnchorRef} onSelect={() => {}} isDesktop={isDesktop} />
+        )}
       </div>
       {/* Theme + user: shrink-0 so they don't overlap */}
       <div className="flex shrink-0 items-center gap-1.5 md:gap-3">
@@ -168,7 +174,9 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
             type="button"
             onClick={() => setBugReportOpen(true)}
             className="btn btn-soft btn-sm gap-2"
-            title={t("js.bugReport.openButton") !== "js.bugReport.openButton" ? t("js.bugReport.openButton") : "Report bug"}
+            title={
+              t("js.bugReport.openButton") !== "js.bugReport.openButton" ? t("js.bugReport.openButton") : "Report bug"
+            }
           >
             <span className="icon-[tabler--bug] h-4 w-4" aria-hidden />
             <span className="hidden lg:inline">
@@ -186,9 +194,7 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
             aria-haspopup="true"
           >
             <Avatar email={user?.email} name={fullName} size={32} variant="solid" />
-            <span className="hidden sm:block text-xs font-semibold text-left text-base-content">
-              {fullName}
-            </span>
+            <span className="hidden sm:block text-xs font-semibold text-left text-base-content">{fullName}</span>
           </button>
           {menuOpen && (
             <div className="absolute right-0 top-full mt-1 py-1 min-w-[180px] rounded-box border border-base-300 bg-base-100 shadow-lg z-50">
@@ -198,7 +204,9 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
                 className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-base-200 transition-colors text-base-content"
               >
                 <User className="h-4 w-4" />
-                {t("js.profile.menuMyData") !== "js.profile.menuMyData" ? t("js.profile.menuMyData") : "My Contact Data"}
+                {t("js.profile.menuMyData") !== "js.profile.menuMyData"
+                  ? t("js.profile.menuMyData")
+                  : "My Contact Data"}
               </Link>
               <Link
                 href="/settings/"
@@ -206,7 +214,9 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
                 className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-base-200 transition-colors text-base-content"
               >
                 <span className="icon-[tabler--settings] h-4 w-4" aria-hidden />
-                {t("js.profile.menuSettings") !== "js.profile.menuSettings" ? t("js.profile.menuSettings") : "Preferences"}
+                {t("js.profile.menuSettings") !== "js.profile.menuSettings"
+                  ? t("js.profile.menuSettings")
+                  : "Preferences"}
               </Link>
               {canConfigure ? (
                 <Link
@@ -245,7 +255,9 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
                   className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-base-200 transition-colors text-base-content"
                 >
                   <span className="icon-[tabler--key] h-4 w-4" aria-hidden />
-                  {t("js.profile.menuConfiguration") !== "js.profile.menuConfiguration" ? t("js.profile.menuConfiguration") : "Configuration"}
+                  {t("js.profile.menuConfiguration") !== "js.profile.menuConfiguration"
+                    ? t("js.profile.menuConfiguration")
+                    : "Configuration"}
                 </Link>
               ) : null}
               {bugReportEnabled ? (
@@ -258,7 +270,9 @@ export function AppTopbar({ onOpenMobileNav }: AppTopbarProps) {
                   className="flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-base-200 transition-colors text-left text-base-content"
                 >
                   <span className="icon-[tabler--bug] h-4 w-4" aria-hidden />
-                  {t("js.bugReport.openButton") !== "js.bugReport.openButton" ? t("js.bugReport.openButton") : "Report bug"}
+                  {t("js.bugReport.openButton") !== "js.bugReport.openButton"
+                    ? t("js.bugReport.openButton")
+                    : "Report bug"}
                 </button>
               ) : null}
               <button

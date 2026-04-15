@@ -54,9 +54,7 @@ export function VoteDetail({ renderAfterContent }: VoteDetailProps = {}) {
     votesApi
       .get(numId)
       .then(setItem)
-      .catch((err) =>
-        setError(getErrorMessage(err, t, "js.common.failedToLoad"))
-      )
+      .catch((err) => setError(getErrorMessage(err, t, "js.common.failedToLoad")))
       .finally(() => setLoading(false));
   };
 
@@ -104,8 +102,7 @@ export function VoteDetail({ renderAfterContent }: VoteDetailProps = {}) {
     return (
       <div className={PAGE_CONTENT_CLASS}>
         <p className="text-sm text-error">
-          {error ||
-            (t("js.votes.notFound") !== "js.votes.notFound" ? t("js.votes.notFound") : "Vote not found.")}
+          {error || (t("js.votes.notFound") !== "js.votes.notFound" ? t("js.votes.notFound") : "Vote not found.")}
         </p>
       </div>
     );
@@ -149,8 +146,12 @@ export function VoteDetail({ renderAfterContent }: VoteDetailProps = {}) {
                       await votesApi.update(item.id, { is_finished: next === "finished" });
                       showToast(
                         next === "finished"
-                          ? (t("js.votes.finishDone") !== "js.votes.finishDone" ? t("js.votes.finishDone") : "Vote finished")
-                          : (t("js.votes.updated") !== "js.votes.updated" ? t("js.votes.updated") : "Vote updated"),
+                          ? t("js.votes.finishDone") !== "js.votes.finishDone"
+                            ? t("js.votes.finishDone")
+                            : "Vote finished"
+                          : t("js.votes.updated") !== "js.votes.updated"
+                            ? t("js.votes.updated")
+                            : "Vote updated",
                         "success"
                       );
                       loadVote();
@@ -169,8 +170,12 @@ export function VoteDetail({ renderAfterContent }: VoteDetailProps = {}) {
                   }}
                   labelFor={(v) =>
                     v === "finished"
-                      ? (t("js.votes.finished") !== "js.votes.finished" ? t("js.votes.finished") : "Finished")
-                      : (t("js.common.active") !== "js.common.active" ? t("js.common.active") : "Active")
+                      ? t("js.votes.finished") !== "js.votes.finished"
+                        ? t("js.votes.finished")
+                        : "Finished"
+                      : t("js.common.active") !== "js.common.active"
+                        ? t("js.common.active")
+                        : "Active"
                   }
                 />
               </span>
@@ -180,7 +185,9 @@ export function VoteDetail({ renderAfterContent }: VoteDetailProps = {}) {
                 style={getStatusPillStyle(item.is_finished ? "inactive" : "active")}
               >
                 {item.is_finished
-                  ? (t("js.votes.finished") !== "js.votes.finished" ? t("js.votes.finished") : "Finished")
+                  ? t("js.votes.finished") !== "js.votes.finished"
+                    ? t("js.votes.finished")
+                    : "Finished"
                   : t("js.common.active") !== "js.common.active"
                     ? t("js.common.active")
                     : "Active"}
@@ -245,17 +252,10 @@ export function VoteDetail({ renderAfterContent }: VoteDetailProps = {}) {
               <div
                 className="flex flex-col gap-2 rounded-field border border-base-300 p-3"
                 role="radiogroup"
-                aria-label={
-                  t("js.votes.castVote") !== "js.votes.castVote"
-                    ? t("js.votes.castVote")
-                    : "Cast your vote"
-                }
+                aria-label={t("js.votes.castVote") !== "js.votes.castVote" ? t("js.votes.castVote") : "Cast your vote"}
               >
                 {item.options.map((opt) => (
-                  <label
-                    key={opt.id}
-                    className="label-text flex cursor-pointer items-center gap-2"
-                  >
+                  <label key={opt.id} className="label-text flex cursor-pointer items-center gap-2">
                     <input
                       type="radio"
                       name={`vote-${item.id}`}

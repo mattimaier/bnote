@@ -44,9 +44,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         if (!session?.authenticated || !userId || cancelled) return;
 
         const seenKey = `bnote_changelog_seen::${userId}`;
-        const seenValue = typeof window !== "undefined"
-          ? localStorage.getItem(seenKey) ?? ""
-          : "";
+        const seenValue = typeof window !== "undefined" ? (localStorage.getItem(seenKey) ?? "") : "";
         const changelog = await changelogApi.get();
         if (cancelled) return;
         const releaseId = String(changelog?.releaseId ?? "").trim();
@@ -78,13 +76,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     void queryClient.prefetchQuery({
       queryKey: queryKeys.auth.modules,
       queryFn: async ({ signal }) => {
-        const res = await api.get<Array<{ id: number; name: string; route?: string; icon?: string; i18n?: string }> | { modules: Array<{ id: number; name: string; route?: string; icon?: string; i18n?: string }> }>(
-          "auth",
-          "getModules",
-          undefined,
-          { signal }
-        );
-        const list = Array.isArray(res) ? res : res.modules ?? [];
+        const res = await api.get<
+          | Array<{ id: number; name: string; route?: string; icon?: string; i18n?: string }>
+          | { modules: Array<{ id: number; name: string; route?: string; icon?: string; i18n?: string }> }
+        >("auth", "getModules", undefined, { signal });
+        const list = Array.isArray(res) ? res : (res.modules ?? []);
         return list.map((m) => ({
           id: m.id,
           name: m.name ?? "",
@@ -93,10 +89,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           i18n: m.i18n,
         }));
       },
-    });
-    void queryClient.prefetchQuery({
-      queryKey: queryKeys.dashboard.home,
-      queryFn: ({ signal }) => api.get("dashboard", "bundle", undefined, { signal }),
     });
   }, [queryClient, session?.authenticated]);
 
@@ -143,9 +135,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   function findVisibleActionTarget(actionName: "edit" | "delete"): HTMLElement | null {
-    const allTargets = Array.from(
-      document.querySelectorAll<HTMLElement>(`[data-bnote-hotkey-action="${actionName}"]`)
-    );
+    const allTargets = Array.from(document.querySelectorAll<HTMLElement>(`[data-bnote-hotkey-action="${actionName}"]`));
     for (const target of allTargets) {
       if (isActionElementVisible(target)) return target;
     }
@@ -261,7 +251,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }, [pathname, router, searchParams]);
 
   return (
-    <div data-bnote-capture-root="1" className="flex min-h-screen flex-col bg-base-100 md:h-screen md:flex-row md:overflow-hidden">
+    <div
+      data-bnote-capture-root="1"
+      className="flex min-h-screen flex-col bg-base-100 md:h-screen md:flex-row md:overflow-hidden"
+    >
       <AppSidebar />
       <div className="app-shell-mobile-topbar-offset flex min-w-0 flex-1 flex-col md:min-h-0">
         <AppTopbar onOpenMobileNav={() => setMobileNavOpen(true)} />

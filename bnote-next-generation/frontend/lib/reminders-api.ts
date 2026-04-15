@@ -77,7 +77,11 @@ export const remindersApi = {
   getConfig: () => api.get<ReminderConfigResponse>("reminders", "getConfig"),
   getRecipients: () => api.get<{ recipients: ReminderRecipient[] }>("reminders", "getRecipients"),
   updateConfig: (config: Partial<ReminderConfig>) =>
-    api.post<{ success: boolean; config: ReminderConfig }>("reminders", "updateConfig", config as Record<string, unknown>),
+    api.post<{ success: boolean; config: ReminderConfig }>(
+      "reminders",
+      "updateConfig",
+      config as Record<string, unknown>
+    ),
   runNow: (dryRun: boolean, force = true, onlyUserId?: number, ignoreLimits = false) =>
     api.post<ReminderRunResult>("reminders", "runNow", {
       dryRun,

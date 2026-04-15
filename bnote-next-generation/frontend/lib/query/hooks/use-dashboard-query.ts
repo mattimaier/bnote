@@ -22,8 +22,7 @@ export interface BandOverviewBundle {
 export function useDashboardHomeQuery(enabled: boolean) {
   return useQuery({
     queryKey: queryKeys.dashboard.home,
-    queryFn: async ({ signal }) =>
-      api.get<DashboardHomeBundle>("dashboard", "bundle", undefined, { signal }),
+    queryFn: async ({ signal }) => api.get<DashboardHomeBundle>("dashboard", "bundle", undefined, { signal }),
     enabled,
     staleTime: QUERY_STALE_TIMES.dashboardMs,
     placeholderData: keepPreviousData,

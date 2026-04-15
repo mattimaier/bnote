@@ -116,10 +116,7 @@ function ResetPasswordInner() {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
             <div>
-              <label
-                htmlFor="reset-identifier"
-                className="mb-2 block text-sm font-medium text-base-content"
-              >
+              <label htmlFor="reset-identifier" className="mb-2 block text-sm font-medium text-base-content">
                 {t("js.resetPassword.identifierLabel")}
               </label>
               <input
@@ -135,9 +132,7 @@ function ResetPasswordInner() {
               />
             </div>
             {error ? (
-              <div className="rounded-lg border border-error/20 bg-error/10 px-4 py-3 text-sm text-error">
-                {error}
-              </div>
+              <div className="rounded-lg border border-error/20 bg-error/10 px-4 py-3 text-sm text-error">{error}</div>
             ) : null}
             <button type="submit" disabled={submitting} className="btn btn-primary btn-lg btn-block">
               {submitting ? t("js.resetPassword.submitting") : t("js.resetPassword.submit")}

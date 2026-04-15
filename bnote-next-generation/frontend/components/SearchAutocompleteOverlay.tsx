@@ -18,13 +18,7 @@ import { EntityListRow } from "@/components/EntityListRow";
 import { Avatar } from "@/components/Avatar";
 import { AddressLink } from "@/components/AddressLink";
 import { formatEventDate, formatEventTime, getEventTypeConfig } from "@/lib/event-utils";
-import {
-  getEntityTypeForSearchCategory,
-  getColor,
-  getIconName,
-  getPillStyle,
-  getDotStyle,
-} from "@/lib/entity-config";
+import { getEntityTypeForSearchCategory, getColor, getIconName, getPillStyle, getDotStyle } from "@/lib/entity-config";
 import { getEntityPath } from "@/lib/entities/paths";
 import { Clock, MapPin, Calendar, User, Loader2 } from "@/components/icons";
 import type { SearchResults, SearchEventItem, SearchListItem } from "@/lib/search";
@@ -137,216 +131,343 @@ export function SearchAutocompleteOverlay({ anchorRef, onSelect, isDesktop = tru
         ) : (
           <div className="py-3">
             {results && (
-            <>
-            {CATEGORIES.map((cat) => {
-              const arr = results[cat.key];
-              const list = Array.isArray(arr) ? arr.slice(0, MAX_ITEMS_PER_CATEGORY) : [];
-              const totalCount = Array.isArray(results[cat.key]) ? (results[cat.key] as unknown[]).length : 0;
-              if (list.length === 0 && totalCount === 0) return null;
+              <>
+                {CATEGORIES.map((cat) => {
+                  const arr = results[cat.key];
+                  const list = Array.isArray(arr) ? arr.slice(0, MAX_ITEMS_PER_CATEGORY) : [];
+                  const totalCount = Array.isArray(results[cat.key]) ? (results[cat.key] as unknown[]).length : 0;
+                  if (list.length === 0 && totalCount === 0) return null;
 
-              const sectionLabel = t(cat.labelKey);
-              return (
-                <div key={cat.key} className="mb-4 last:mb-0">
-                  <h3 className="px-4 py-1.5 text-xs font-semibold text-base-content/60">
-                    {sectionLabel} ({totalCount})
-                  </h3>
-                  <div className="space-y-0.5">
-                    {cat.type === "events" &&
-                      (list as SearchEventItem[]).map((item) => {
-                        const oid = item.oid ?? item.id;
-                        const entityType = cat.key === "concerts" ? "concert" : "rehearsal";
-                        const href = oid != null ? getEntityPath(entityType, oid) : "#";
-                        const eventType = cat.key === "concerts" ? "performance" : "rehearsal";
-                        const typeConfig = getEventTypeConfig(eventType, t);
-                        const Icon = getIcon(typeConfig.icon);
-                        const tba = t("js.event.tba");
-                        const dateStr = formatEventDate(item.eventBegin ?? item.begin ?? item.dueDate, lang, tba);
-                        const timeStr = formatEventTime(item.eventBegin ?? item.begin ?? item.dueDate, lang, tba);
-                        const location = formatLocation(item, emptyText);
-                        const title = notesToPlainText(item.title ?? "") || (cat.key === "concerts" ? t("js.event.performance") : t("js.event.rehearsal"));
+                  const sectionLabel = t(cat.labelKey);
+                  return (
+                    <div key={cat.key} className="mb-4 last:mb-0">
+                      <h3 className="px-4 py-1.5 text-xs font-semibold text-base-content/60">
+                        {sectionLabel} ({totalCount})
+                      </h3>
+                      <div className="space-y-0.5">
+                        {cat.type === "events" &&
+                          (list as SearchEventItem[]).map((item) => {
+                            const oid = item.oid ?? item.id;
+                            const entityType = cat.key === "concerts" ? "concert" : "rehearsal";
+                            const href = oid != null ? getEntityPath(entityType, oid) : "#";
+                            const eventType = cat.key === "concerts" ? "performance" : "rehearsal";
+                            const typeConfig = getEventTypeConfig(eventType, t);
+                            const Icon = getIcon(typeConfig.icon);
+                            const tba = t("js.event.tba");
+                            const dateStr = formatEventDate(item.eventBegin ?? item.begin ?? item.dueDate, lang, tba);
+                            const timeStr = formatEventTime(item.eventBegin ?? item.begin ?? item.dueDate, lang, tba);
+                            const location = formatLocation(item, emptyText);
+                            const title =
+                              notesToPlainText(item.title ?? "") ||
+                              (cat.key === "concerts" ? t("js.event.performance") : t("js.event.rehearsal"));
 
-                        return (
-                          <div key={`${cat.key}-${oid}`}>
-                            <EntityListRow
-                              icon={
-                                <span className={`rounded-full flex items-center justify-center w-6 h-6 text-white ${typeConfig.dotClass}`}>
-                                  <Icon className="h-3 w-3" />
-                                </span>
-                              }
-                                primary={<span className="font-bold leading-tight text-primary">{dateStr}</span>}
-                              badge={<span className="text-sm">{title}</span>}
-                              secondary={
-                              <>
-                                <span className="flex items-center gap-1">
-                                  <Clock className="h-3 w-3 opacity-70" />
-                                  {timeStr}
-                                </span>
-                                {location && location !== emptyText && (
-                                  <span className="flex items-start gap-1">
-                                    <MapPin className="mt-0.5 h-3 w-3 opacity-70 shrink-0" />
-                                    <AddressLink value={location} t={t} renderRawIfNoAddress interactive={false} />
-                                  </span>
-                                )}
-                              </>
-                              }
-                              href={href}
-                              onClick={(e) => { e.preventDefault(); handleLinkClick(href); }}
-                            />
-                          </div>
-                        );
-                      })}
-                    {cat.type === "list" &&
-                      (list as SearchListItem[]).map((item) => {
-                        const title = item.name ?? (notesToPlainText(item.title ?? "") || `#${item.id}`);
-                        const href =
-                          cat.key === "users"
-                            ? getEntityPath("user", item.id)
-                            : cat.key === "contacts"
-                              ? getEntityPath("contact", item.id)
-                              : cat.key === "locations"
-                                ? getEntityPath("location", item.id)
-                                : cat.key === "equipment"
-                                  ? getEntityPath("equipment", item.id)
-                                    : cat.key === "outfits"
-                                    ? getEntityPath("outfit", item.id)
-                                    : cat.key === "songs"
-                                      ? getEntityPath("song", item.id)
-                                      : cat.key === "votes"
-                                        ? getEntityPath("vote", item.id)
-                                        : cat.key === "tasks"
-                                    ? "#"
-                                    : "#";
-                        const entityType = getEntityTypeForSearchCategory(cat.key);
-                        const entityColor = getColor(entityType);
-                        const iconName = getIconName(entityType);
-                        const Icon = getIcon(iconName);
-                        const pillStyle = getPillStyle(entityColor);
-                        const dotStyle = getDotStyle(entityColor);
-
-                        if (cat.key === "tasks") {
-                          return (
-                            <div key={`${cat.key}-${item.id}`}>
-                              <EntityListRow
-                                icon={<span className="rounded flex items-center justify-center w-6 h-6" style={dotStyle}><Icon className="h-3.5 w-3.5" /></span>}
-                                primary={title}
-                                secondary={
-                                  (item.dueAt || item.assignee) ? (
+                            return (
+                              <div key={`${cat.key}-${oid}`}>
+                                <EntityListRow
+                                  icon={
+                                    <span
+                                      className={`rounded-full flex items-center justify-center w-6 h-6 text-white ${typeConfig.dotClass}`}
+                                    >
+                                      <Icon className="h-3 w-3" />
+                                    </span>
+                                  }
+                                  primary={<span className="font-bold leading-tight text-primary">{dateStr}</span>}
+                                  badge={<span className="text-sm">{title}</span>}
+                                  secondary={
                                     <>
-                                      {item.dueAt && <span className="flex items-center gap-1"><Calendar className="h-3 w-3 opacity-70" />Due: {item.dueAt}</span>}
-                                      {(item.assigneeName ?? item.assignee) && (
-                                        <span className="flex items-center gap-1">
-                                          <User className="h-3 w-3 opacity-70" />
-                                          Assigned to: {item.assigneeName ?? item.assignee}
+                                      <span className="flex items-center gap-1">
+                                        <Clock className="h-3 w-3 opacity-70" />
+                                        {timeStr}
+                                      </span>
+                                      {location && location !== emptyText && (
+                                        <span className="flex items-start gap-1">
+                                          <MapPin className="mt-0.5 h-3 w-3 opacity-70 shrink-0" />
+                                          <AddressLink
+                                            value={location}
+                                            t={t}
+                                            renderRawIfNoAddress
+                                            interactive={false}
+                                          />
                                         </span>
                                       )}
                                     </>
-                                  ) : undefined
-                                }
-                                href={href}
-                                onClick={(e) => { e.preventDefault(); handleLinkClick(href); }}
-                              />
-                            </div>
-                          );
-                        }
+                                  }
+                                  href={href}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    handleLinkClick(href);
+                                  }}
+                                />
+                              </div>
+                            );
+                          })}
+                        {cat.type === "list" &&
+                          (list as SearchListItem[]).map((item) => {
+                            const title = item.name ?? (notesToPlainText(item.title ?? "") || `#${item.id}`);
+                            const href =
+                              cat.key === "users"
+                                ? getEntityPath("user", item.id)
+                                : cat.key === "contacts"
+                                  ? getEntityPath("contact", item.id)
+                                  : cat.key === "locations"
+                                    ? getEntityPath("location", item.id)
+                                    : cat.key === "equipment"
+                                      ? getEntityPath("equipment", item.id)
+                                      : cat.key === "outfits"
+                                        ? getEntityPath("outfit", item.id)
+                                        : cat.key === "songs"
+                                          ? getEntityPath("song", item.id)
+                                          : cat.key === "votes"
+                                            ? getEntityPath("vote", item.id)
+                                            : cat.key === "tasks"
+                                              ? "#"
+                                              : "#";
+                            const entityType = getEntityTypeForSearchCategory(cat.key);
+                            const entityColor = getColor(entityType);
+                            const iconName = getIconName(entityType);
+                            const Icon = getIcon(iconName);
+                            const pillStyle = getPillStyle(entityColor);
+                            const dotStyle = getDotStyle(entityColor);
 
-                        if (cat.key === "locations") {
-                          const address = [item.street, item.city].filter(Boolean).join(", ");
-                          return (
-                            <div key={`${cat.key}-${item.id}`}>
-                              <EntityListRow
-                                icon={<span className="rounded-full flex items-center justify-center w-6 h-6 text-white" style={{ ...dotStyle, background: pillStyle.backgroundColor, color: pillStyle.color }}><Icon className="h-3.5 w-3.5" /></span>}
-                                primary={title}
-                                secondary={address ? <span className="flex items-start gap-1"><MapPin className="mt-0.5 h-3 w-3 opacity-70 shrink-0" /><AddressLink value={address} t={t} renderRawIfNoAddress interactive={false} /></span> : undefined}
-                                href={href}
-                                onClick={(e) => { e.preventDefault(); handleLinkClick(href); }}
-                              />
-                            </div>
-                          );
-                        }
+                            if (cat.key === "tasks") {
+                              return (
+                                <div key={`${cat.key}-${item.id}`}>
+                                  <EntityListRow
+                                    icon={
+                                      <span
+                                        className="rounded flex items-center justify-center w-6 h-6"
+                                        style={dotStyle}
+                                      >
+                                        <Icon className="h-3.5 w-3.5" />
+                                      </span>
+                                    }
+                                    primary={title}
+                                    secondary={
+                                      item.dueAt || item.assignee ? (
+                                        <>
+                                          {item.dueAt && (
+                                            <span className="flex items-center gap-1">
+                                              <Calendar className="h-3 w-3 opacity-70" />
+                                              Due: {item.dueAt}
+                                            </span>
+                                          )}
+                                          {(item.assigneeName ?? item.assignee) && (
+                                            <span className="flex items-center gap-1">
+                                              <User className="h-3 w-3 opacity-70" />
+                                              Assigned to: {item.assigneeName ?? item.assignee}
+                                            </span>
+                                          )}
+                                        </>
+                                      ) : undefined
+                                    }
+                                    href={href}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      handleLinkClick(href);
+                                    }}
+                                  />
+                                </div>
+                              );
+                            }
 
-                        if (cat.key === "equipment") {
-                          return (
-                            <div key={`${cat.key}-${item.id}`}>
-                              <EntityListRow
-                                icon={<span className="rounded-full flex items-center justify-center w-6 h-6 text-white" style={{ ...dotStyle, background: pillStyle.backgroundColor, color: pillStyle.color }}><Icon className="h-3.5 w-3.5" /></span>}
-                                primary={title}
-                                href={href}
-                                onClick={(e) => { e.preventDefault(); handleLinkClick(href); }}
-                              />
-                            </div>
-                          );
-                        }
+                            if (cat.key === "locations") {
+                              const address = [item.street, item.city].filter(Boolean).join(", ");
+                              return (
+                                <div key={`${cat.key}-${item.id}`}>
+                                  <EntityListRow
+                                    icon={
+                                      <span
+                                        className="rounded-full flex items-center justify-center w-6 h-6 text-white"
+                                        style={{
+                                          ...dotStyle,
+                                          background: pillStyle.backgroundColor,
+                                          color: pillStyle.color,
+                                        }}
+                                      >
+                                        <Icon className="h-3.5 w-3.5" />
+                                      </span>
+                                    }
+                                    primary={title}
+                                    secondary={
+                                      address ? (
+                                        <span className="flex items-start gap-1">
+                                          <MapPin className="mt-0.5 h-3 w-3 opacity-70 shrink-0" />
+                                          <AddressLink value={address} t={t} renderRawIfNoAddress interactive={false} />
+                                        </span>
+                                      ) : undefined
+                                    }
+                                    href={href}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      handleLinkClick(href);
+                                    }}
+                                  />
+                                </div>
+                              );
+                            }
 
-                        if (cat.key === "outfits") {
-                          return (
-                            <div key={`${cat.key}-${item.id}`}>
-                              <EntityListRow
-                                icon={<span className="rounded-full flex items-center justify-center w-6 h-6 text-white" style={{ ...dotStyle, background: pillStyle.backgroundColor, color: pillStyle.color }}><Icon className="h-3.5 w-3.5" /></span>}
-                                primary={title}
-                                href={href}
-                                onClick={(e) => { e.preventDefault(); handleLinkClick(href); }}
-                              />
-                            </div>
-                          );
-                        }
+                            if (cat.key === "equipment") {
+                              return (
+                                <div key={`${cat.key}-${item.id}`}>
+                                  <EntityListRow
+                                    icon={
+                                      <span
+                                        className="rounded-full flex items-center justify-center w-6 h-6 text-white"
+                                        style={{
+                                          ...dotStyle,
+                                          background: pillStyle.backgroundColor,
+                                          color: pillStyle.color,
+                                        }}
+                                      >
+                                        <Icon className="h-3.5 w-3.5" />
+                                      </span>
+                                    }
+                                    primary={title}
+                                    href={href}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      handleLinkClick(href);
+                                    }}
+                                  />
+                                </div>
+                              );
+                            }
 
-                        if (cat.key === "songs") {
-                          return (
-                            <div key={`${cat.key}-${item.id}`}>
-                              <EntityListRow
-                                icon={<span className="rounded-full flex items-center justify-center w-6 h-6 text-white" style={{ ...dotStyle, background: pillStyle.backgroundColor, color: pillStyle.color }}><Icon className="h-3.5 w-3.5" /></span>}
-                                primary={title}
-                                secondary={item.composer ? <span>{item.composer}</span> : undefined}
-                                href={href}
-                                onClick={(e) => { e.preventDefault(); handleLinkClick(href); }}
-                              />
-                            </div>
-                          );
-                        }
+                            if (cat.key === "outfits") {
+                              return (
+                                <div key={`${cat.key}-${item.id}`}>
+                                  <EntityListRow
+                                    icon={
+                                      <span
+                                        className="rounded-full flex items-center justify-center w-6 h-6 text-white"
+                                        style={{
+                                          ...dotStyle,
+                                          background: pillStyle.backgroundColor,
+                                          color: pillStyle.color,
+                                        }}
+                                      >
+                                        <Icon className="h-3.5 w-3.5" />
+                                      </span>
+                                    }
+                                    primary={title}
+                                    href={href}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      handleLinkClick(href);
+                                    }}
+                                  />
+                                </div>
+                              );
+                            }
 
-                        if (cat.key === "votes") {
-                          return (
-                            <div key={`${cat.key}-${item.id}`}>
-                              <EntityListRow
-                                icon={<span className="rounded-full flex items-center justify-center w-6 h-6 text-white" style={{ ...dotStyle, background: pillStyle.backgroundColor, color: pillStyle.color }}><Icon className="h-3.5 w-3.5" /></span>}
-                                primary={title}
-                                href={href}
-                                onClick={(e) => { e.preventDefault(); handleLinkClick(href); }}
-                              />
-                            </div>
-                          );
-                        }
+                            if (cat.key === "songs") {
+                              return (
+                                <div key={`${cat.key}-${item.id}`}>
+                                  <EntityListRow
+                                    icon={
+                                      <span
+                                        className="rounded-full flex items-center justify-center w-6 h-6 text-white"
+                                        style={{
+                                          ...dotStyle,
+                                          background: pillStyle.backgroundColor,
+                                          color: pillStyle.color,
+                                        }}
+                                      >
+                                        <Icon className="h-3.5 w-3.5" />
+                                      </span>
+                                    }
+                                    primary={title}
+                                    secondary={item.composer ? <span>{item.composer}</span> : undefined}
+                                    href={href}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      handleLinkClick(href);
+                                    }}
+                                  />
+                                </div>
+                              );
+                            }
 
-                        if (cat.key === "users" || cat.key === "contacts") {
-                          return (
-                            <div key={`${cat.key}-${item.id}`}>
-                              <EntityListRow
-                                icon={<Avatar email={item.email} name={title} size={24} variant="soft" />}
-                                primary={title}
-                                secondary={item.instrument ? <span>{item.instrument}</span> : undefined}
-                                href={href}
-                                onClick={(e) => { e.preventDefault(); handleLinkClick(href); }}
-                              />
-                            </div>
-                          );
-                        }
-                        return (
-                          <div key={`${cat.key}-${item.id}`}>
-                            <EntityListRow
-                              icon={<span className="rounded-full flex items-center justify-center w-6 h-6 text-white" style={{ ...dotStyle, background: pillStyle.backgroundColor, color: pillStyle.color }}><Icon className="h-3.5 w-3.5" /></span>}
-                              primary={title}
-                              secondary={(item.email || item.phone || item.instrument) ? <span className="truncate">{[item.email, item.phone, item.instrument].filter(Boolean).join(" · ")}</span> : undefined}
-                              href={href}
-                              onClick={(e) => { e.preventDefault(); handleLinkClick(href); }}
-                            />
-                          </div>
-                        );
-                      })}
-                  </div>
-                </div>
-              );
-            })}
-            </>
+                            if (cat.key === "votes") {
+                              return (
+                                <div key={`${cat.key}-${item.id}`}>
+                                  <EntityListRow
+                                    icon={
+                                      <span
+                                        className="rounded-full flex items-center justify-center w-6 h-6 text-white"
+                                        style={{
+                                          ...dotStyle,
+                                          background: pillStyle.backgroundColor,
+                                          color: pillStyle.color,
+                                        }}
+                                      >
+                                        <Icon className="h-3.5 w-3.5" />
+                                      </span>
+                                    }
+                                    primary={title}
+                                    href={href}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      handleLinkClick(href);
+                                    }}
+                                  />
+                                </div>
+                              );
+                            }
+
+                            if (cat.key === "users" || cat.key === "contacts") {
+                              return (
+                                <div key={`${cat.key}-${item.id}`}>
+                                  <EntityListRow
+                                    icon={<Avatar email={item.email} name={title} size={24} variant="soft" />}
+                                    primary={title}
+                                    secondary={item.instrument ? <span>{item.instrument}</span> : undefined}
+                                    href={href}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      handleLinkClick(href);
+                                    }}
+                                  />
+                                </div>
+                              );
+                            }
+                            return (
+                              <div key={`${cat.key}-${item.id}`}>
+                                <EntityListRow
+                                  icon={
+                                    <span
+                                      className="rounded-full flex items-center justify-center w-6 h-6 text-white"
+                                      style={{
+                                        ...dotStyle,
+                                        background: pillStyle.backgroundColor,
+                                        color: pillStyle.color,
+                                      }}
+                                    >
+                                      <Icon className="h-3.5 w-3.5" />
+                                    </span>
+                                  }
+                                  primary={title}
+                                  secondary={
+                                    item.email || item.phone || item.instrument ? (
+                                      <span className="truncate">
+                                        {[item.email, item.phone, item.instrument].filter(Boolean).join(" · ")}
+                                      </span>
+                                    ) : undefined
+                                  }
+                                  href={href}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    handleLinkClick(href);
+                                  }}
+                                />
+                              </div>
+                            );
+                          })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </>
             )}
             <Link
               {...linkProps(`/search?q=${encodeURIComponent(trimmed)}`)}

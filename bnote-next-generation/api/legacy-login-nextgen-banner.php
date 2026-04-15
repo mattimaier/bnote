@@ -1,71 +1,70 @@
 <?php
 
-if(!function_exists("bnote_render_legacy_login_nextgen_banner")) {
-	function bnote_render_legacy_login_nextgen_banner($rawLang = "en") {
-		$helperDir = __DIR__;
-		$nextGenRoot = dirname($helperDir);
-		$indexFile = $nextGenRoot . DIRECTORY_SEPARATOR . "index.html";
-		$apiIndexFile = $nextGenRoot . DIRECTORY_SEPARATOR . "api" . DIRECTORY_SEPARATOR . "index.php";
-		$apiIndexSameDir = $helperDir . DIRECTORY_SEPARATOR . "index.php";
-		if(!is_file($indexFile) && !is_file($apiIndexFile)) {
-			$apiSameDirExists = is_file($apiIndexSameDir);
-			if($apiSameDirExists) {
-				// Fallback for deployments where only API files are present at this point.
-			}
-			else {
-			return;
-			}
-		}
+if (!function_exists("bnote_render_legacy_login_nextgen_banner")) {
+  function bnote_render_legacy_login_nextgen_banner($rawLang = "en")
+  {
+    $helperDir = __DIR__;
+    $nextGenRoot = dirname($helperDir);
+    $indexFile = $nextGenRoot . DIRECTORY_SEPARATOR . "index.html";
+    $apiIndexFile = $nextGenRoot . DIRECTORY_SEPARATOR . "api" . DIRECTORY_SEPARATOR . "index.php";
+    $apiIndexSameDir = $helperDir . DIRECTORY_SEPARATOR . "index.php";
+    if (!is_file($indexFile) && !is_file($apiIndexFile)) {
+      $apiSameDirExists = is_file($apiIndexSameDir);
+      if ($apiSameDirExists) {
+        // Fallback for deployments where only API files are present at this point.
+      } else {
+        return;
+      }
+    }
 
-		$copy = array(
-			"de" => array(
-				"title" => "BNote Next Generation (beta)",
-				"subtitle" => "Alles im Takt: modern, schnell, übersichtlich.",
-				"cta" => "Jetzt ausprobieren",
-			),
-			"en" => array(
-				"title" => "BNote Next Generation (beta)",
-				"subtitle" => "Everything in sync: modern, fast, clear.",
-				"cta" => "Try now",
-			),
-			"es" => array(
-				"title" => "BNote Next Generation (beta)",
-				"subtitle" => "Todo en sincronía: moderno, rápido y claro.",
-				"cta" => "Probar ahora",
-			),
-			"fr" => array(
-				"title" => "BNote Next Generation (beta)",
-				"subtitle" => "Tout en rythme : moderne, rapide et clair.",
-				"cta" => "Essayer maintenant",
-			),
-		);
+    $copy = [
+      "de" => [
+        "title" => "BNote Next Generation (beta)",
+        "subtitle" => "Alles im Takt: modern, schnell, übersichtlich.",
+        "cta" => "Jetzt ausprobieren",
+      ],
+      "en" => [
+        "title" => "BNote Next Generation (beta)",
+        "subtitle" => "Everything in sync: modern, fast, clear.",
+        "cta" => "Try now",
+      ],
+      "es" => [
+        "title" => "BNote Next Generation (beta)",
+        "subtitle" => "Todo en sincronía: moderno, rápido y claro.",
+        "cta" => "Probar ahora",
+      ],
+      "fr" => [
+        "title" => "BNote Next Generation (beta)",
+        "subtitle" => "Tout en rythme : moderne, rapide et clair.",
+        "cta" => "Essayer maintenant",
+      ],
+    ];
 
-		$lang = "en";
-		$currentLang = strtolower(trim((string)$rawLang));
-		if(isset($copy[$currentLang])) {
-			$lang = $currentLang;
-		}
-		else {
-			$shortLang = substr($currentLang, 0, 2);
-			if(isset($copy[$shortLang])) {
-				$lang = $shortLang;
-			}
-		}
+    $lang = "en";
+    $currentLang = strtolower(trim((string) $rawLang));
+    if (isset($copy[$currentLang])) {
+      $lang = $currentLang;
+    } else {
+      $shortLang = substr($currentLang, 0, 2);
+      if (isset($copy[$shortLang])) {
+        $lang = $shortLang;
+      }
+    }
 
-		$title = htmlspecialchars($copy[$lang]["title"], ENT_QUOTES, "UTF-8");
-		$subtitle = htmlspecialchars($copy[$lang]["subtitle"], ENT_QUOTES, "UTF-8");
-		$cta = htmlspecialchars($copy[$lang]["cta"], ENT_QUOTES, "UTF-8");
+    $title = htmlspecialchars($copy[$lang]["title"], ENT_QUOTES, "UTF-8");
+    $subtitle = htmlspecialchars($copy[$lang]["subtitle"], ENT_QUOTES, "UTF-8");
+    $cta = htmlspecialchars($copy[$lang]["cta"], ENT_QUOTES, "UTF-8");
 
-		$scriptName = isset($_SERVER["SCRIPT_NAME"]) ? (string)$_SERVER["SCRIPT_NAME"] : "";
-		$scriptDir = str_replace("\\", "/", dirname($scriptName));
-		$parentPrefix = str_replace("\\", "/", dirname($scriptDir));
-		if($parentPrefix === ".") {
-			$parentPrefix = "";
-		}
-		$parentPrefix = rtrim($parentPrefix, "/");
-		$nextGenHref = ($parentPrefix !== "" ? $parentPrefix : "") . "/bnote-next-generation/";
-		$nextGenHref = htmlspecialchars($nextGenHref, ENT_QUOTES, "UTF-8");
-		?>
+    $scriptName = isset($_SERVER["SCRIPT_NAME"]) ? (string) $_SERVER["SCRIPT_NAME"] : "";
+    $scriptDir = str_replace("\\", "/", dirname($scriptName));
+    $parentPrefix = str_replace("\\", "/", dirname($scriptDir));
+    if ($parentPrefix === ".") {
+      $parentPrefix = "";
+    }
+    $parentPrefix = rtrim($parentPrefix, "/");
+    $nextGenHref = ($parentPrefix !== "" ? $parentPrefix : "") . "/bnote-next-generation/";
+    $nextGenHref = htmlspecialchars($nextGenHref, ENT_QUOTES, "UTF-8");
+    ?>
 		<style>
 			.nextgen-login-banner {
 				display: block;
@@ -209,5 +208,5 @@ if(!function_exists("bnote_render_legacy_login_nextgen_banner")) {
 			})();
 		</script>
 		<?php
-	}
+  }
 }

@@ -41,12 +41,10 @@ export interface ReservationUpdate {
 
 export const reservationsApi = {
   list: () => api.get<Reservation[]>("reservations", "list"),
-  get: (id: number) =>
-    api.get<Reservation>("reservations", "get", { id: String(id) }),
+  get: (id: number) => api.get<Reservation>("reservations", "get", { id: String(id) }),
   create: (data: ReservationCreate) =>
     api.post<{ id: number; success: boolean }>("reservations", "create", data as unknown as Record<string, unknown>),
   update: (id: number, data: ReservationUpdate) =>
     api.post<{ success: boolean }>("reservations", "update", { id, ...data } as unknown as Record<string, unknown>),
-  delete: (id: number) =>
-    api.post<{ success: boolean }>("reservations", "delete", { id }),
+  delete: (id: number) => api.post<{ success: boolean }>("reservations", "delete", { id }),
 };

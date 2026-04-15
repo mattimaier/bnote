@@ -39,9 +39,7 @@ export function AppCommandPalette({ open, onClose, actions }: AppCommandPaletteP
     });
   }, [actions, query]);
 
-  const safeSelectedIndex = filteredActions.length > 0
-    ? Math.min(selectedIndex, filteredActions.length - 1)
-    : 0;
+  const safeSelectedIndex = filteredActions.length > 0 ? Math.min(selectedIndex, filteredActions.length - 1) : 0;
 
   useEffect(() => {
     if (!open) return;
@@ -71,7 +69,12 @@ export function AppCommandPalette({ open, onClose, actions }: AppCommandPaletteP
   }, [open, filteredActions, safeSelectedIndex, onClose]);
 
   return (
-    <Modal open={open} onClose={onClose} title={label("js.commandPalette.title", "Command palette")} dialogClassName="max-w-2xl">
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={label("js.commandPalette.title", "Command palette")}
+      dialogClassName="max-w-2xl"
+    >
       <div className="space-y-3">
         <input
           type="search"

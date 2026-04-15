@@ -103,9 +103,10 @@ export default function InstrumentMinimumsPage() {
         configurationApi.getConfig(),
       ]);
 
-      const featureEnabled = cfgRes?.values?.beta_section_coverage_enabled === true
-        || cfgRes?.values?.beta_section_coverage_enabled === 1
-        || cfgRes?.values?.beta_section_coverage_enabled === "1";
+      const featureEnabled =
+        cfgRes?.values?.beta_section_coverage_enabled === true ||
+        cfgRes?.values?.beta_section_coverage_enabled === 1 ||
+        cfgRes?.values?.beta_section_coverage_enabled === "1";
       setSectionCoverageEnabled(featureEnabled);
 
       setInstruments(Array.isArray(instrumentsRes?.instruments) ? instrumentsRes.instruments : []);
@@ -115,7 +116,9 @@ export default function InstrumentMinimumsPage() {
       setConfirmedCoverageMode(nextMode);
       const rawSimplePairs = Array.isArray(minimumsRes?.simplePairs)
         ? minimumsRes.simplePairs
-        : (minimumsRes?.simplePair ? [minimumsRes.simplePair] : []);
+        : minimumsRes?.simplePair
+          ? [minimumsRes.simplePair]
+          : [];
       const nextSimplePairs = rawSimplePairs
         .map((item) => ({
           instrument_a_id: Number(item?.instrument_a_id || 0),
@@ -123,7 +126,10 @@ export default function InstrumentMinimumsPage() {
           required_rehearsal: Math.max(1, Math.floor(Number(item?.required_rehearsal ?? item?.required ?? 1))),
           required_concert: Math.max(1, Math.floor(Number(item?.required_concert ?? item?.required ?? 1))),
         }))
-        .filter((item) => item.instrument_a_id > 0 && item.instrument_b_id > 0 && item.instrument_a_id !== item.instrument_b_id);
+        .filter(
+          (item) =>
+            item.instrument_a_id > 0 && item.instrument_b_id > 0 && item.instrument_a_id !== item.instrument_b_id
+        );
       setSimplePairs(nextSimplePairs);
       setConfirmedSimplePairs(nextSimplePairs);
       setSimplePairDraft({
@@ -146,11 +152,7 @@ export default function InstrumentMinimumsPage() {
         return out;
       };
 
-      if (
-        rawMinimums &&
-        typeof rawMinimums === "object" &&
-        ("rehearsal" in rawMinimums || "concert" in rawMinimums)
-      ) {
+      if (rawMinimums && typeof rawMinimums === "object" && ("rehearsal" in rawMinimums || "concert" in rawMinimums)) {
         const byType = rawMinimums as { rehearsal?: Record<string, number>; concert?: Record<string, number> };
         const rehearsal = normalize(byType.rehearsal ?? {});
         const concertRaw = normalize(byType.concert ?? {});
@@ -245,9 +247,10 @@ export default function InstrumentMinimumsPage() {
     });
 
     const q = filter.trim().toLowerCase();
-    const filtered = q === ""
-      ? rows
-      : rows.filter((row) => row.name.toLowerCase().includes(q) || row.family.toLowerCase().includes(q));
+    const filtered =
+      q === ""
+        ? rows
+        : rows.filter((row) => row.name.toLowerCase().includes(q) || row.family.toLowerCase().includes(q));
 
     const groups = new Map<string, MinimumRow[]>();
     filtered.forEach((row) => {
@@ -257,10 +260,7 @@ export default function InstrumentMinimumsPage() {
     });
 
     return Array.from(groups.entries())
-      .map(([family, items]) => [
-        family,
-        [...items].sort((a, b) => a.name.localeCompare(b.name)),
-      ] as const)
+      .map(([family, items]) => [family, [...items].sort((a, b) => a.name.localeCompare(b.name))] as const)
       .sort(([a], [b]) => a.localeCompare(b));
   }, [coverageMode, filter, instruments, label, sectionAssignedInstrumentIds]);
 
@@ -295,13 +295,19 @@ export default function InstrumentMinimumsPage() {
       showToast(label("js.settings.minimums.simplePairs.invalid", "Please select two different instruments."), "error");
       return;
     }
-    if (simplePairs.some((pair) => (
-      pair.instrument_a_id === draft.instrument_a_id
-      || pair.instrument_b_id === draft.instrument_a_id
-      || pair.instrument_a_id === draft.instrument_b_id
-      || pair.instrument_b_id === draft.instrument_b_id
-    ))) {
-      showToast(label("js.settings.minimums.simplePairs.overlap", "Each instrument can only be used in one pairing."), "error");
+    if (
+      simplePairs.some(
+        (pair) =>
+          pair.instrument_a_id === draft.instrument_a_id ||
+          pair.instrument_b_id === draft.instrument_a_id ||
+          pair.instrument_a_id === draft.instrument_b_id ||
+          pair.instrument_b_id === draft.instrument_b_id
+      )
+    ) {
+      showToast(
+        label("js.settings.minimums.simplePairs.overlap", "Each instrument can only be used in one pairing."),
+        "error"
+      );
       return;
     }
     setSimplePairs((prev) => [...prev, draft]);
@@ -332,7 +338,10 @@ export default function InstrumentMinimumsPage() {
       <DetailSection className="space-y-4">
         <div>
           <p className="text-sm text-base-content/70">
-            {label("js.settings.minimums.help", "Configure minimum required players per instrument for escalation checks.")}
+            {label(
+              "js.settings.minimums.help",
+              "Configure minimum required players per instrument for escalation checks."
+            )}
           </p>
           <p className="text-xs text-base-content/60 mt-1">
             {minimumsAutosave.status === "saving"
@@ -374,7 +383,10 @@ export default function InstrumentMinimumsPage() {
                   "js.settings.minimums.modeSectionHelpSimplified",
                   "Section checks are configured in Instrument Setup. This table is fallback-only for instruments not assigned to any section."
                 )
-              : label("js.settings.minimums.modeInstrumentHelp", "Only instrument minimums are active for escalation checks.")}
+              : label(
+                  "js.settings.minimums.modeInstrumentHelp",
+                  "Only instrument minimums are active for escalation checks."
+                )}
           </p>
         ) : null}
 
@@ -398,12 +410,8 @@ export default function InstrumentMinimumsPage() {
                 <th className="w-2/3 border-b border-base-300">
                   {label("js.settings.minimums.instrument", "Instrument")}
                 </th>
-                <th className="w-1/6 border-b border-base-300">
-                  {label("js.sidebar.rehearsals", "Rehearsals")}
-                </th>
-                <th className="w-1/6 border-b border-base-300">
-                  {label("js.sidebar.concerts", "Concerts")}
-                </th>
+                <th className="w-1/6 border-b border-base-300">{label("js.sidebar.rehearsals", "Rehearsals")}</th>
+                <th className="w-1/6 border-b border-base-300">{label("js.sidebar.concerts", "Concerts")}</th>
               </tr>
             </thead>
             <tbody>
@@ -417,7 +425,10 @@ export default function InstrumentMinimumsPage() {
               {groupedRows.map(([family, items]) => (
                 <Fragment key={family}>
                   <tr className="bg-base-200/60">
-                    <td colSpan={3} className="border-y-2 border-base-300 text-sm font-semibold uppercase tracking-wide text-base-content/70">
+                    <td
+                      colSpan={3}
+                      className="border-y-2 border-base-300 text-sm font-semibold uppercase tracking-wide text-base-content/70"
+                    >
                       {family}
                     </td>
                   </tr>
@@ -469,11 +480,7 @@ export default function InstrumentMinimumsPage() {
             <h3 className="text-sm font-semibold text-base-content">
               {label("js.settings.minimums.simplePairTitle", "Combined Seat (Simple)")}
             </h3>
-            <button
-              type="button"
-              className="btn btn-soft btn-primary btn-sm"
-              onClick={addSimplePair}
-            >
+            <button type="button" className="btn btn-soft btn-primary btn-sm" onClick={addSimplePair}>
               {label("js.settings.minimums.simplePairs.add", "Add pairing")}
             </button>
           </div>
@@ -539,7 +546,7 @@ export default function InstrumentMinimumsPage() {
               <tbody>
                 <tr>
                   <td className="text-base-content/70">
-                    {(simplePairDraft.instrument_a_id > 0 || simplePairDraft.instrument_b_id > 0)
+                    {simplePairDraft.instrument_a_id > 0 || simplePairDraft.instrument_b_id > 0
                       ? `${instrumentNameById.get(simplePairDraft.instrument_a_id) ?? label("js.settings.minimums.simplePairInstrumentA", "Instrument A")} / ${instrumentNameById.get(simplePairDraft.instrument_b_id) ?? label("js.settings.minimums.simplePairInstrumentB", "Instrument B")}`
                       : label("js.settings.minimums.simplePairEmptyDraft", "Select instruments above")}
                   </td>
@@ -594,7 +601,9 @@ export default function InstrumentMinimumsPage() {
                   {simplePairs.map((pair, index) => (
                     <tr key={`${pair.instrument_a_id}-${pair.instrument_b_id}-${index}`}>
                       <td>
-                        {(instrumentNameById.get(pair.instrument_a_id) ?? `#${pair.instrument_a_id}`) + " / " + (instrumentNameById.get(pair.instrument_b_id) ?? `#${pair.instrument_b_id}`)}
+                        {(instrumentNameById.get(pair.instrument_a_id) ?? `#${pair.instrument_a_id}`) +
+                          " / " +
+                          (instrumentNameById.get(pair.instrument_b_id) ?? `#${pair.instrument_b_id}`)}
                       </td>
                       <td>{Math.max(1, pair.required_rehearsal)}</td>
                       <td>{Math.max(1, pair.required_concert)}</td>

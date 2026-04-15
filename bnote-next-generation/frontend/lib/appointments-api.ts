@@ -68,12 +68,14 @@ export function setPendingAppointment(item: Appointment): void {
 
 export const appointmentsApi = {
   list: () => api.get<Appointment[]>("appointments", "list"),
-  get: (id: number) =>
-    api.get<Appointment>("appointments", "get", { id: String(id) }),
+  get: (id: number) => api.get<Appointment>("appointments", "get", { id: String(id) }),
   create: (data: AppointmentCreate) =>
-    api.post<{ id: number; success: boolean; item?: Appointment }>("appointments", "create", data as unknown as Record<string, unknown>),
+    api.post<{ id: number; success: boolean; item?: Appointment }>(
+      "appointments",
+      "create",
+      data as unknown as Record<string, unknown>
+    ),
   update: (id: number, data: AppointmentUpdate) =>
     api.post<{ success: boolean }>("appointments", "update", { id, ...data } as unknown as Record<string, unknown>),
-  delete: (id: number) =>
-    api.post<{ success: boolean }>("appointments", "delete", { id }),
+  delete: (id: number) => api.post<{ success: boolean }>("appointments", "delete", { id }),
 };

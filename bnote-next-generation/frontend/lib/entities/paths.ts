@@ -17,11 +17,7 @@ export function isEventEntityType(type: string): type is EventEntityType {
  * Build path for entity view or edit (query-based; scales with static export).
  * Do not add basePath (Next.js does that).
  */
-export function getEntityPath(
-  type: string,
-  id: string | number,
-  mode?: "view" | "edit"
-): string {
+export function getEntityPath(type: string, id: string | number, mode?: "view" | "edit"): string {
   const idStr = String(id);
   const params = new URLSearchParams({ type, id: idStr });
   if (mode === "edit") params.set("edit", "1");
@@ -65,25 +61,14 @@ const NON_EVENT_REDIRECT: Record<string, EntityRedirectTarget> = {
 /**
  * Get redirect target for a non-event entity type. Replace __id__ in pathname and query values with actual id.
  */
-export function getRedirectForEntityType(
-  type: string,
-  id: string | number
-): EntityRedirectTarget | null {
+export function getRedirectForEntityType(type: string, id: string | number): EntityRedirectTarget | null {
   const key = type?.toLowerCase?.() ?? "";
   const target = NON_EVENT_REDIRECT[key];
   if (!target) return null;
   const idStr = String(id);
-  const pathname =
-    target.pathname.includes("__id__")
-      ? target.pathname.replace("__id__", idStr)
-      : target.pathname;
+  const pathname = target.pathname.includes("__id__") ? target.pathname.replace("__id__", idStr) : target.pathname;
   const query = target.query
-    ? Object.fromEntries(
-        Object.entries(target.query).map(([k, v]) => [
-          k,
-          v === "__id__" ? idStr : v,
-        ])
-      )
+    ? Object.fromEntries(Object.entries(target.query).map(([k, v]) => [k, v === "__id__" ? idStr : v]))
     : undefined;
   return { pathname, query };
 }
@@ -92,8 +77,6 @@ export function getRedirectForEntityType(
 export function getRedirectPath(type: string, id: string | number): string {
   const target = getRedirectForEntityType(type, id);
   if (!target) return "/dashboard";
-  const qs = target.query
-    ? "?" + new URLSearchParams(target.query).toString()
-    : "";
+  const qs = target.query ? "?" + new URLSearchParams(target.query).toString() : "";
   return target.pathname + qs;
 }

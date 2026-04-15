@@ -68,30 +68,32 @@ export interface InstrumentAdminDataResponse {
 }
 
 export const configurationApi = {
-  canAccess: (signal?: AbortSignal) => api.get<{ canAccess: boolean }>("configuration", "canAccess", undefined, { signal }),
+  canAccess: (signal?: AbortSignal) =>
+    api.get<{ canAccess: boolean }>("configuration", "canAccess", undefined, { signal }),
   getConfig: () => api.get<ConfigurationResponse>("configuration", "getConfig"),
   updateConfig: (values: Record<string, unknown>) =>
     api.post<ConfigurationResponse>("configuration", "updateConfig", { values }),
   regeneratePublicConcertsFeedToken: () =>
     api.post<ConfigurationResponse>("configuration", "regeneratePublicConcertsFeedToken", {}),
-  getInstrumentAdminData: () =>
-    api.get<InstrumentAdminDataResponse>("configuration", "getInstrumentAdminData"),
-  createCategory: (name: string) =>
-    api.post<{ success: boolean }>("configuration", "createCategory", { name }),
+  getInstrumentAdminData: () => api.get<InstrumentAdminDataResponse>("configuration", "getInstrumentAdminData"),
+  createCategory: (name: string) => api.post<{ success: boolean }>("configuration", "createCategory", { name }),
   updateCategory: (id: number, name: string) =>
     api.post<{ success: boolean }>("configuration", "updateCategory", { id, name }),
-  deleteCategory: (id: number) =>
-    api.post<{ success: boolean }>("configuration", "deleteCategory", { id }),
+  deleteCategory: (id: number) => api.post<{ success: boolean }>("configuration", "deleteCategory", { id }),
   createInstrument: (input: { name: string; category_id?: number; rank?: number }) =>
     api.post<{ success: boolean }>("configuration", "createInstrument", input as Record<string, unknown>),
   updateInstrument: (input: { id: number; name: string; category_id?: number; rank?: number }) =>
     api.post<{ success: boolean }>("configuration", "updateInstrument", input as Record<string, unknown>),
-  deleteInstrument: (id: number) =>
-    api.post<{ success: boolean }>("configuration", "deleteInstrument", { id }),
+  deleteInstrument: (id: number) => api.post<{ success: boolean }>("configuration", "deleteInstrument", { id }),
   applyBigBandPresetMerge: () =>
-    api.post<{ success: boolean; sections?: InstrumentSectionConfig[] }>("configuration", "applyBigBandPresetMerge", {}),
+    api.post<{ success: boolean; sections?: InstrumentSectionConfig[] }>(
+      "configuration",
+      "applyBigBandPresetMerge",
+      {}
+    ),
   saveInstrumentSections: (sections: InstrumentSectionConfig[]) =>
-    api.post<{ success: boolean; sections: InstrumentSectionConfig[] }>("configuration", "saveInstrumentSections", { sections }),
-  seedInstrumentDefaults: () =>
-    api.post<{ success: boolean }>("configuration", "seedInstrumentDefaults", {}),
+    api.post<{ success: boolean; sections: InstrumentSectionConfig[] }>("configuration", "saveInstrumentSections", {
+      sections,
+    }),
+  seedInstrumentDefaults: () => api.post<{ success: boolean }>("configuration", "seedInstrumentDefaults", {}),
 };

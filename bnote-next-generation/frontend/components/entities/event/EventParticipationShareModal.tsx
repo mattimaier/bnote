@@ -202,8 +202,7 @@ export function EventParticipationShareModal({
       cacheBust: true,
       pixelRatio: 3,
       backgroundColor: "#ffffff",
-      imagePlaceholder:
-        "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==",
+      imagePlaceholder: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==",
     });
     if (!blob) throw new Error("Export failed");
     return blob;
@@ -217,10 +216,9 @@ export function EventParticipationShareModal({
     formData.set("file", file);
     formData.set("name", fileName);
     const apiUrl = getApiUrl();
-    const shareCardEndpoint =
-      apiUrl.startsWith("http")
-        ? new URL(apiUrl)
-        : new URL(apiUrl, typeof window !== "undefined" ? window.location.origin : "http://localhost");
+    const shareCardEndpoint = apiUrl.startsWith("http")
+      ? new URL(apiUrl)
+      : new URL(apiUrl, typeof window !== "undefined" ? window.location.origin : "http://localhost");
     shareCardEndpoint.searchParams.set("module", "share");
     shareCardEndpoint.searchParams.set("action", "uploadShareCard");
     const controller = new AbortController();
@@ -260,10 +258,9 @@ export function EventParticipationShareModal({
   const deleteShareCard = async (shareId: string): Promise<void> => {
     if (!shareId) return;
     const apiUrl = getApiUrl();
-    const endpoint =
-      apiUrl.startsWith("http")
-        ? new URL(apiUrl)
-        : new URL(apiUrl, typeof window !== "undefined" ? window.location.origin : "http://localhost");
+    const endpoint = apiUrl.startsWith("http")
+      ? new URL(apiUrl)
+      : new URL(apiUrl, typeof window !== "undefined" ? window.location.origin : "http://localhost");
     endpoint.searchParams.set("module", "share");
     endpoint.searchParams.set("action", "deleteShareCard");
     const body = new URLSearchParams();
@@ -357,129 +354,124 @@ export function EventParticipationShareModal({
   };
 
   return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      title={modalTitle}
-      bodyClassName="max-h-[90dvh] p-0 pt-0"
-    >
+    <Modal open={open} onClose={onClose} title={modalTitle} bodyClassName="max-h-[90dvh] p-0 pt-0">
       <div className="flex max-h-[90dvh] flex-col">
         <div className="overflow-y-auto p-4">
           <div className="flex justify-center">
             <div className="inline-block rounded-xl border border-base-300 bg-transparent p-2">
-            <div
-              ref={previewRef}
-              className="mx-auto w-[320px] rounded-2xl bg-white p-4 text-[#111827]"
-              style={{ aspectRatio: "5 / 4" }}
-            >
-              <div className="flex items-center justify-between">
-                <span className={`event-badge ${eventBadgeClassName}`}>
-                  {eventBadgeLabel}
-                </span>
-                <BNoteLogo size="sm" />
-              </div>
-              <div className="mt-3">
-                <h3 className="line-clamp-2 text-lg font-bold">{title}</h3>
-                <p className="mt-1 text-xs text-[#4b5563]">
-                  {dateText} · {timeText}
-                </p>
-                {locationText ? <p className="line-clamp-1 text-xs text-[#4b5563]">{locationText}</p> : null}
-              </div>
+              <div
+                ref={previewRef}
+                className="mx-auto w-[320px] rounded-2xl bg-white p-4 text-[#111827]"
+                style={{ aspectRatio: "5 / 4" }}
+              >
+                <div className="flex items-center justify-between">
+                  <span className={`event-badge ${eventBadgeClassName}`}>{eventBadgeLabel}</span>
+                  <BNoteLogo size="sm" />
+                </div>
+                <div className="mt-3">
+                  <h3 className="line-clamp-2 text-lg font-bold">{title}</h3>
+                  <p className="mt-1 text-xs text-[#4b5563]">
+                    {dateText} · {timeText}
+                  </p>
+                  {locationText ? <p className="line-clamp-1 text-xs text-[#4b5563]">{locationText}</p> : null}
+                </div>
 
-              <div className="mt-4">
-                <div className="h-6 overflow-hidden rounded-md bg-[#e5e7eb]">
-                  <div className="flex h-full w-full">
-                    {yes > 0 ? (
-                      <div
-                        style={{ width: `${yesPct}%` }}
-                        className="flex items-center justify-center bg-[#16a34a] text-[10px] font-semibold text-white"
-                      >
-                        {yes}
-                      </div>
-                    ) : null}
-                    {maybe > 0 ? (
-                      <div
-                        style={{ width: `${maybePct}%` }}
-                        className="flex items-center justify-center bg-[#f59e0b] text-[10px] font-semibold text-white"
-                      >
-                        {maybe}
-                      </div>
-                    ) : null}
-                    {no > 0 ? (
-                      <div
-                        style={{ width: `${noPct}%` }}
-                        className="flex items-center justify-center bg-[#dc2626] text-[10px] font-semibold text-white"
-                      >
-                        {no}
-                      </div>
-                    ) : null}
-                    {pending > 0 ? (
-                      <div
-                        style={{ width: `${pendingPct}%` }}
-                        className="flex items-center justify-center bg-[var(--participation-pending)] text-[10px] font-semibold text-white"
-                      >
-                        {pending}
-                      </div>
-                    ) : null}
+                <div className="mt-4">
+                  <div className="h-6 overflow-hidden rounded-md bg-[#e5e7eb]">
+                    <div className="flex h-full w-full">
+                      {yes > 0 ? (
+                        <div
+                          style={{ width: `${yesPct}%` }}
+                          className="flex items-center justify-center bg-[#16a34a] text-[10px] font-semibold text-white"
+                        >
+                          {yes}
+                        </div>
+                      ) : null}
+                      {maybe > 0 ? (
+                        <div
+                          style={{ width: `${maybePct}%` }}
+                          className="flex items-center justify-center bg-[#f59e0b] text-[10px] font-semibold text-white"
+                        >
+                          {maybe}
+                        </div>
+                      ) : null}
+                      {no > 0 ? (
+                        <div
+                          style={{ width: `${noPct}%` }}
+                          className="flex items-center justify-center bg-[#dc2626] text-[10px] font-semibold text-white"
+                        >
+                          {no}
+                        </div>
+                      ) : null}
+                      {pending > 0 ? (
+                        <div
+                          style={{ width: `${pendingPct}%` }}
+                          className="flex items-center justify-center bg-[var(--participation-pending)] text-[10px] font-semibold text-white"
+                        >
+                          {pending}
+                        </div>
+                      ) : null}
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="mt-4">
-                <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-[10px] leading-snug">
-                  {sectionStats.map((section) => (
-                    <div key={section.name} className="py-1 min-w-0">
-                      <div className="mb-1 truncate text-xs font-semibold text-[#111827]">{section.name}</div>
-                      <div className="h-4 overflow-hidden rounded bg-[#e5e7eb]">
-                        <div className="flex h-full w-full">
-                          {section.yes > 0 ? (
-                            <div
-                              className="flex items-center justify-center bg-[#16a34a] text-[9px] font-semibold text-white"
-                              style={{ width: `${(section.yes / section.total) * 100}%` }}
-                            >
-                              {section.yes}
-                            </div>
-                          ) : null}
-                          {section.maybe > 0 ? (
-                            <div
-                              className="flex items-center justify-center bg-[#f59e0b] text-[9px] font-semibold text-white"
-                              style={{ width: `${(section.maybe / section.total) * 100}%` }}
-                            >
-                              {section.maybe}
-                            </div>
-                          ) : null}
-                          {section.no > 0 ? (
-                            <div
-                              className="flex items-center justify-center bg-[#dc2626] text-[9px] font-semibold text-white"
-                              style={{ width: `${(section.no / section.total) * 100}%` }}
-                            >
-                              {section.no}
-                            </div>
-                          ) : null}
-                          {section.pending > 0 ? (
-                            <div
-                              className="flex items-center justify-center bg-[var(--participation-pending)] text-[9px] font-semibold text-white"
-                              style={{ width: `${(section.pending / section.total) * 100}%` }}
-                            >
-                              {section.pending}
-                            </div>
-                          ) : null}
+                <div className="mt-4">
+                  <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-[10px] leading-snug">
+                    {sectionStats.map((section) => (
+                      <div key={section.name} className="py-1 min-w-0">
+                        <div className="mb-1 truncate text-xs font-semibold text-[#111827]">{section.name}</div>
+                        <div className="h-4 overflow-hidden rounded bg-[#e5e7eb]">
+                          <div className="flex h-full w-full">
+                            {section.yes > 0 ? (
+                              <div
+                                className="flex items-center justify-center bg-[#16a34a] text-[9px] font-semibold text-white"
+                                style={{ width: `${(section.yes / section.total) * 100}%` }}
+                              >
+                                {section.yes}
+                              </div>
+                            ) : null}
+                            {section.maybe > 0 ? (
+                              <div
+                                className="flex items-center justify-center bg-[#f59e0b] text-[9px] font-semibold text-white"
+                                style={{ width: `${(section.maybe / section.total) * 100}%` }}
+                              >
+                                {section.maybe}
+                              </div>
+                            ) : null}
+                            {section.no > 0 ? (
+                              <div
+                                className="flex items-center justify-center bg-[#dc2626] text-[9px] font-semibold text-white"
+                                style={{ width: `${(section.no / section.total) * 100}%` }}
+                              >
+                                {section.no}
+                              </div>
+                            ) : null}
+                            {section.pending > 0 ? (
+                              <div
+                                className="flex items-center justify-center bg-[var(--participation-pending)] text-[9px] font-semibold text-white"
+                                style={{ width: `${(section.pending / section.total) * 100}%` }}
+                              >
+                                {section.pending}
+                              </div>
+                            ) : null}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              <div className="mt-4 flex items-center justify-between border-t border-[#e5e7eb] pt-3 text-[10px] text-[#6b7280]">
-                <span className="truncate">{bandName}</span>
-                <span>{generatedAt}</span>
+                <div className="mt-4 flex items-center justify-between border-t border-[#e5e7eb] pt-3 text-[10px] text-[#6b7280]">
+                  <span className="truncate">{bandName}</span>
+                  <span>{generatedAt}</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-          {error ? <div className="mt-4 rounded-md border border-error bg-error/10 p-2 text-sm text-error">{error}</div> : null}
+          {error ? (
+            <div className="mt-4 rounded-md border border-error bg-error/10 p-2 text-sm text-error">{error}</div>
+          ) : null}
         </div>
 
         <div className="sticky bottom-0 border-t border-base-300 bg-base-100 p-4">

@@ -15,5 +15,6 @@ Use for high-confidence production-ready updates.
 UI release gate (required): mobile + desktop smoke checks must pass; no unresolved mobile regression.
 
 Failure protocol:
+
 - If checks fail, do not mark done.
 - Reproduce, patch, re-run checks, and report remaining blockers explicitly.

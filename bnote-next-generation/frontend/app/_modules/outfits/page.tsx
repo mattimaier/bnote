@@ -84,14 +84,13 @@ export default function OutfitsPage() {
     router.push(getEntityPath("outfit", id));
   };
 
-  const filtered =
-    search.trim()
-      ? items.filter(
-          (item) =>
-            (item.name ?? "").toLowerCase().includes(search.toLowerCase()) ||
-            (item.description ?? "").toLowerCase().includes(search.toLowerCase())
-        )
-      : items;
+  const filtered = search.trim()
+    ? items.filter(
+        (item) =>
+          (item.name ?? "").toLowerCase().includes(search.toLowerCase()) ||
+          (item.description ?? "").toLowerCase().includes(search.toLowerCase())
+      )
+    : items;
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -127,34 +126,24 @@ export default function OutfitsPage() {
       <AppPageHeader
         moduleKey="outfit"
         title={t("js.outfits.title") !== "js.outfits.title" ? t("js.outfits.title") : "Outfits"}
-        subtitle={t("js.outfits.subtitle") !== "js.outfits.subtitle" ? t("js.outfits.subtitle") : "Manage costumes and uniforms"}
-        actions={(
+        subtitle={
+          t("js.outfits.subtitle") !== "js.outfits.subtitle" ? t("js.outfits.subtitle") : "Manage costumes and uniforms"
+        }
+        actions={
           <ActionButton href={getEntityPath("outfit", "new", "edit")}>
             <Plus className="h-4 w-4" />
-            {t("js.outfits.addOutfit") !== "js.outfits.addOutfit"
-              ? t("js.outfits.addOutfit")
-              : "Add Outfit"}
+            {t("js.outfits.addOutfit") !== "js.outfits.addOutfit" ? t("js.outfits.addOutfit") : "Add Outfit"}
           </ActionButton>
-        )}
+        }
       />
 
-      {error && (
-        <div
-          className="rounded-lg border border-error bg-error/15 px-4 py-3 text-sm text-error"
-        >
-          {error}
-        </div>
-      )}
+      {error && <div className="rounded-lg border border-error bg-error/15 px-4 py-3 text-sm text-error">{error}</div>}
 
       <div className="flex items-center gap-2">
         <div className="flex w-full items-center gap-3 rounded-lg px-3 py-2 bg-base-200">
           <input
             type="search"
-            placeholder={
-              t("js.common.search") !== "js.common.search"
-                ? t("js.common.search")
-                : "Search…"
-            }
+            placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full bg-transparent px-0 py-1 text-sm outline-none text-base-content"
@@ -179,7 +168,14 @@ export default function OutfitsPage() {
               const sub = (item.description ?? "").trim().slice(0, 120) || emptyText;
               return (
                 <EntityListRow
-                  icon={<span className="rounded-full flex items-center justify-center w-6 h-6 text-white" style={{ ...dotStyle, background: pillStyle.backgroundColor, color: pillStyle.color }}><Icon className="h-3.5 w-3.5" /></span>}
+                  icon={
+                    <span
+                      className="rounded-full flex items-center justify-center w-6 h-6 text-white"
+                      style={{ ...dotStyle, background: pillStyle.backgroundColor, color: pillStyle.color }}
+                    >
+                      <Icon className="h-3.5 w-3.5" />
+                    </span>
+                  }
                   primary={item.name ?? emptyText}
                   secondary={sub ? <span>{sub}</span> : undefined}
                   onClick={() => handleRowClick(item.id)}
@@ -188,9 +184,7 @@ export default function OutfitsPage() {
             }}
             onRowClick={(item) => handleRowClick(item.id)}
             emptyMessage={
-              t("js.outfits.noOutfits") !== "js.outfits.noOutfits"
-                ? t("js.outfits.noOutfits")
-                : "No outfits found"
+              t("js.outfits.noOutfits") !== "js.outfits.noOutfits" ? t("js.outfits.noOutfits") : "No outfits found"
             }
             sortOptions={[
               { key: "name", label: t("js.outfits.name") !== "js.outfits.name" ? t("js.outfits.name") : "Name" },
@@ -209,11 +203,7 @@ export default function OutfitsPage() {
               <thead>
                 <tr className="border-b border-base-300 bg-base-200/50">
                   <SortableTh
-                    label={
-                      t("js.outfits.name") !== "js.outfits.name"
-                        ? t("js.outfits.name")
-                        : "Name"
-                    }
+                    label={t("js.outfits.name") !== "js.outfits.name" ? t("js.outfits.name") : "Name"}
                     columnId="name"
                     sortKey="name"
                     currentSortKey={sortKey}
@@ -279,11 +269,7 @@ function SortableTh({
   onSort: (k: SortKey) => void;
 }) {
   const active = currentSortKey === sortKey;
-  const Icon = active
-    ? sortDir === "asc"
-      ? ArrowUp
-      : ArrowDown
-    : ArrowUpDown;
+  const Icon = active ? (sortDir === "asc" ? ArrowUp : ArrowDown) : ArrowUpDown;
   return (
     <ResizableTh columnId={columnId}>
       <button

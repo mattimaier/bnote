@@ -29,11 +29,7 @@ function toDate(value: string | Date | null | undefined): Date | null {
   return isValid(parsed) ? parsed : null;
 }
 
-export function formatDateValue(
-  value: string | Date | null | undefined,
-  lang: string,
-  pattern: string
-): string | null {
+export function formatDateValue(value: string | Date | null | undefined, lang: string, pattern: string): string | null {
   const date = toDate(value);
   if (!date) return null;
   return format(date, pattern, { locale: resolveLocale(lang) });

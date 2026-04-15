@@ -1,1 +1,25 @@
-{"comment":"Order of sidebar modules. List module names (BNote internal names) in the desired display order. Modules not listed keep order by module ID after these.","order":["Start","Stats","Auswertungen","Statistik","Statistics","Wrapped","Nachrichten","Kommunikation","Proben","Konzerte","Kalender","User","Kontakte","Share","Locations","Equipment","Outfits","Repertoire","Abstimmung","Aufgaben"]}
+{
+  "comment": "Order of sidebar modules. List module names (BNote internal names) in the desired display order. Modules not listed keep order by module ID after these.",
+  "order": [
+    "Start",
+    "Stats",
+    "Auswertungen",
+    "Statistik",
+    "Statistics",
+    "Wrapped",
+    "Nachrichten",
+    "Kommunikation",
+    "Proben",
+    "Konzerte",
+    "Kalender",
+    "User",
+    "Kontakte",
+    "Share",
+    "Locations",
+    "Equipment",
+    "Outfits",
+    "Repertoire",
+    "Abstimmung",
+    "Aufgaben"
+  ]
+}

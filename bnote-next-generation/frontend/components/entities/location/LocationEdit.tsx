@@ -83,10 +83,7 @@ export function LocationEdit() {
         router.replace(getEntityPath("location", res.id, "view"));
       } else {
         await locationsApi.update(parseInt(id, 10), payload);
-        showToast(
-          t("js.common.saved") !== "js.common.saved" ? t("js.common.saved") : "Saved",
-          "success"
-        );
+        showToast(t("js.common.saved") !== "js.common.saved" ? t("js.common.saved") : "Saved", "success");
         router.replace(getEntityPath("location", id, "view"));
       }
     } catch (err) {
@@ -151,16 +148,10 @@ export function LocationEdit() {
     <div className={PAGE_CONTENT_CLASS}>
       <form id="location-edit-form" onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div
-            className="rounded-lg border border-error bg-error/15 px-4 py-3 text-sm text-error"
-          >
-            {error}
-          </div>
+          <div className="rounded-lg border border-error bg-error/15 px-4 py-3 text-sm text-error">{error}</div>
         )}
 
-        <div
-          className="rounded-none border-0 shadow-none p-4 md:rounded-box md:border md:border-base-300 md:shadow-sm md:p-6 bg-base-100 md:bg-base-100 text-base-content"
-        >
+        <div className="rounded-none border-0 shadow-none p-4 md:rounded-box md:border md:border-base-300 md:shadow-sm md:p-6 bg-base-100 md:bg-base-100 text-base-content">
           <div className="space-y-4">
             <div>
               <label className="mb-1 block text-sm font-medium">

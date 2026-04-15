@@ -104,13 +104,15 @@ export function EventDetail({
   const emptyText = t("js.common.empty") !== "js.common.empty" ? t("js.common.empty") : "";
   const type = typeProp ?? searchParams.get("type") ?? "";
   const id = idProp ?? searchParams.get("id") ?? "";
-  const { data, meta, loading, error, setError, reload: loadData, loadMeta } = useEventDetailData(
-    type,
-    id,
-    initialDataProp ?? null,
-    ready,
-    t
-  );
+  const {
+    data,
+    meta,
+    loading,
+    error,
+    setError,
+    reload: loadData,
+    loadMeta,
+  } = useEventDetailData(type, id, initialDataProp ?? null, ready, t);
   const [isEditing, setIsEditing] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [configuredBandName, setConfiguredBandName] = useState("");
@@ -130,7 +132,6 @@ export function EventDetail({
     const normalized = value.replace(" ", "T");
     return normalized.length === 16 ? `${normalized}:00` : normalized;
   };
-
 
   const mapParticipationToStatus = (value: number | null | undefined): EditableParticipant["participate"] => {
     if (value === 1) return "yes";
@@ -158,7 +159,8 @@ export function EventDetail({
   const numId = id && !isNew ? parseInt(String(id), 10) : NaN;
   const eventType = type === "rehearsal" ? "R" : "C";
   const canEdit = isNew || Boolean((data as { canEdit?: boolean } | null)?.canEdit);
-  const canEditParticipation = isNew || Boolean((data as { canEditParticipation?: boolean } | null)?.canEditParticipation);
+  const canEditParticipation =
+    isNew || Boolean((data as { canEditParticipation?: boolean } | null)?.canEditParticipation);
 
   const rehearsalMeta = type === "rehearsal" ? (meta as RehearsalMeta | null) : null;
   const concertMeta = type === "concert" ? (meta as ConcertMeta | null) : null;
@@ -366,15 +368,16 @@ export function EventDetail({
   const currentBegin = isEditing && form ? fromInputDateTime(form.begin) : begin;
   const currentEnd = isEditing && form ? fromInputDateTime(form.end) : end;
   const currentLocationId = isEditing && form ? form.locationId : (loc?.id ?? 0);
-  const currentLocationName = isEditing && form
-    ? (((type === "concert" ? concertMeta?.locations : rehearsalMeta?.locations) ?? []).find(
-        (option) => option.id === currentLocationId
-      )?.name ?? "")
-    : locationName;
+  const currentLocationName =
+    isEditing && form
+      ? (((type === "concert" ? concertMeta?.locations : rehearsalMeta?.locations) ?? []).find(
+          (option) => option.id === currentLocationId
+        )?.name ?? "")
+      : locationName;
   const tba = t("js.event.tba");
   const dateStr = formatDateShort(currentBegin, lang) ?? tba;
   const timeStr = formatTimeShort(currentBegin, lang) ?? tba;
-  const endTimeStr = currentEnd ? formatTimeShort(currentEnd, lang) ?? tba : null;
+  const endTimeStr = currentEnd ? (formatTimeShort(currentEnd, lang) ?? tba) : null;
   const status = (data.status as string) ?? "planned";
   const isPublished = Boolean(data.isPublished);
   const approveUntil = data.approve_until as string | undefined;
@@ -397,11 +400,12 @@ export function EventDetail({
   const accommodation = data.accommodation as AccommodationObj | undefined;
   const payment = data.payment as number | null | undefined;
   const conditions = data.conditions as string | undefined;
-  const contact = data.contact as (ContactObj & { firstname?: string; surname?: string; lastname?: string }) | undefined;
-  const contactNameParts = [
-    safeString(contact?.firstname),
-    safeString(contact?.surname ?? contact?.lastname),
-  ].filter(Boolean);
+  const contact = data.contact as
+    | (ContactObj & { firstname?: string; surname?: string; lastname?: string })
+    | undefined;
+  const contactNameParts = [safeString(contact?.firstname), safeString(contact?.surname ?? contact?.lastname)].filter(
+    Boolean
+  );
   const contactName = contactNameParts.length > 0 ? contactNameParts.join(" ") : safeString(contact?.name);
 
   const displayType: EventDisplayType = type === "concert" ? "performance" : (type as EventDisplayType);
@@ -427,10 +431,10 @@ export function EventDetail({
           ? t("js.event.status.hidden")
           : t("js.event.status.planned");
   const selectedCountLabel = (count: number) =>
-    (t("js.common.selectedCount") !== "js.common.selectedCount" ? t("js.common.selectedCount") : "{count} selected").replace(
-      "{count}",
-      String(count)
-    );
+    (t("js.common.selectedCount") !== "js.common.selectedCount"
+      ? t("js.common.selectedCount")
+      : "{count} selected"
+    ).replace("{count}", String(count));
 
   const safeDate = (value?: string) => {
     if (!value) return null;
@@ -460,9 +464,7 @@ export function EventDetail({
       ) ?? [];
 
     const initialContacts = Array.from(
-      new Set(
-        eventContacts.length > 0 ? eventContacts.map((c) => c.id) : participantRows.map((p) => p.contactId)
-      )
+      new Set(eventContacts.length > 0 ? eventContacts.map((c) => c.id) : participantRows.map((p) => p.contactId))
     );
 
     return {
@@ -540,9 +542,10 @@ export function EventDetail({
     setSaveError("");
     try {
       const normalizedEventNotes = isEmptyEditorJson(form.notes) ? "" : form.notes;
-      const normalizedSongs = type === "rehearsal"
-        ? form.songs.map((song) => ({ id: song.id, notes: isEmptyEditorJson(song.notes) ? "" : song.notes }))
-        : undefined;
+      const normalizedSongs =
+        type === "rehearsal"
+          ? form.songs.map((song) => ({ id: song.id, notes: isEmptyEditorJson(song.notes) ? "" : song.notes }))
+          : undefined;
       const baseFields =
         type === "concert"
           ? {
@@ -634,11 +637,7 @@ export function EventDetail({
 
   const deleteCurrentEvent = async () => {
     if (isNew || Number.isNaN(numId) || numId <= 0) {
-      setSaveError(
-        t("js.common.invalidId") !== "js.common.invalidId"
-          ? t("js.common.invalidId")
-          : "Invalid ID"
-      );
+      setSaveError(t("js.common.invalidId") !== "js.common.invalidId" ? t("js.common.invalidId") : "Invalid ID");
       return;
     }
     try {
@@ -690,7 +689,14 @@ export function EventDetail({
     setEmailComposerQuery(false, "push");
   };
 
-  if (emailComposerOpen && !isEditing && canEdit && !isNew && (type === "rehearsal" || type === "concert") && numId > 0) {
+  if (
+    emailComposerOpen &&
+    !isEditing &&
+    canEdit &&
+    !isNew &&
+    (type === "rehearsal" || type === "concert") &&
+    numId > 0
+  ) {
     return (
       <div className="w-full max-w-none px-0 py-0 space-y-3 md:max-w-7xl md:mx-auto md:space-y-6 md:px-4 md:py-3">
         <EventInfoEmailComposerModal
@@ -714,9 +720,7 @@ export function EventDetail({
   return (
     <div className="w-full max-w-none px-0 py-0 space-y-3 md:max-w-7xl md:mx-auto md:space-y-6 md:px-4 md:py-3">
       {/* Header + participation widget */}
-      <div
-        className={DETAIL_SECTION_CLASS}
-      >
+      <div className={DETAIL_SECTION_CLASS}>
         <div className="flex flex-col gap-3 md:gap-4">
           <div className="flex-1 min-w-0">
             {isEditing && form && type === "concert" ? (
@@ -742,16 +746,17 @@ export function EventDetail({
                 dateTimeLine={`${dateStr} · ${timeStr}${endTimeStr ? ` - ${endTimeStr}` : ""}`}
                 locationLine={
                   currentLocationName ? (
-                    <EntityLink entityType="location" id={currentLocationId} name={currentLocationName} modules={modules} />
+                    <EntityLink
+                      entityType="location"
+                      id={currentLocationId}
+                      name={currentLocationName}
+                      modules={modules}
+                    />
                   ) : undefined
                 }
               />
             )}
-            {isPastEvent && (
-              <p className="mt-2 text-xs font-medium text-error">
-                {t("js.event.detail.pastEvent")}
-              </p>
-            )}
+            {isPastEvent && <p className="mt-2 text-xs font-medium text-error">{t("js.event.detail.pastEvent")}</p>}
             {!isPastEvent && isPastDeadline && (
               <p className="mt-2 text-xs font-medium text-base-content/60">
                 {t("js.event.detail.participationClosed")}
@@ -762,11 +767,7 @@ export function EventDetail({
           <div className="flex flex-col gap-2 xl:flex-row xl:items-center xl:justify-end">
             {canEdit && !isEditing && <DetailEditButton onClick={startEdit} />}
             {canEdit && !isEditing && !isNew && (type === "rehearsal" || type === "concert") && (
-              <button
-                type="button"
-                className="btn btn-soft btn-primary"
-                onClick={() => setEmailComposerQuery(true)}
-              >
+              <button type="button" className="btn btn-soft btn-primary" onClick={() => setEmailComposerQuery(true)}>
                 <MailIcon className="h-4 w-4" />
                 <span>
                   {t("js.event.emailInfo.button") !== "js.event.emailInfo.button"
@@ -776,11 +777,7 @@ export function EventDetail({
               </button>
             )}
             {!isEditing && participationStats && (participationStats.total ?? 0) > 0 && (
-              <button
-                type="button"
-                className="btn btn-soft btn-primary"
-                onClick={() => setShareModalOpen(true)}
-              >
+              <button type="button" className="btn btn-soft btn-primary" onClick={() => setShareModalOpen(true)}>
                 <ShareIcon className="h-4 w-4" />
                 <span>
                   {t("js.event.share.button") !== "js.event.share.button"
@@ -804,13 +801,14 @@ export function EventDetail({
       </div>
 
       {saveError && (
-        <div className="rounded-lg border border-error bg-error/15 text-error px-4 py-3 text-sm">
-          {saveError}
-        </div>
+        <div className="rounded-lg border border-error bg-error/15 text-error px-4 py-3 text-sm">{saveError}</div>
       )}
 
       {escalationWarning && !isPastEvent && (
-        <div className={`${DETAIL_SECTION_CLASS} border-2`} style={getEscalationWarningUiConfig(escalationWarning.severity).cardStyle}>
+        <div
+          className={`${DETAIL_SECTION_CLASS} border-2`}
+          style={getEscalationWarningUiConfig(escalationWarning.severity).cardStyle}
+        >
           {(() => {
             const warningUi = getEscalationWarningUiConfig(escalationWarning.severity);
             const WarningIcon = getIcon(warningUi.iconName);
@@ -845,10 +843,16 @@ export function EventDetail({
             return (
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
-                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border" style={warningUi.badgeStyle}>
+                  <span
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-full border"
+                    style={warningUi.badgeStyle}
+                  >
                     <WarningIcon className={`h-6 w-6 ${warningUi.iconClassName}`} />
                   </span>
-                  <h1 className="text-2xl font-bold break-words whitespace-normal leading-tight" style={{ color: warningUi.textColor }}>
+                  <h1
+                    className="text-2xl font-bold break-words whitespace-normal leading-tight"
+                    style={{ color: warningUi.textColor }}
+                  >
                     {warningHeadline}
                   </h1>
                 </div>
@@ -876,7 +880,7 @@ export function EventDetail({
                     <ul className="list-disc list-inside text-sm space-y-1" style={{ color: warningUi.textColor }}>
                       {criticalInstruments.map((gap, idx) => (
                         <li key={`${idx}-${gap.instrument_name ?? "instrument"}`}>
-                          {(gap.instrument_name ?? "Instrument")}: {gap.current ?? 0}/{gap.minimum ?? 0}
+                          {gap.instrument_name ?? "Instrument"}: {gap.current ?? 0}/{gap.minimum ?? 0}
                         </li>
                       ))}
                     </ul>
@@ -884,14 +888,8 @@ export function EventDetail({
                 )}
                 {accepted && (
                   <div className="rounded-md border border-success/60 bg-success/20 px-3 py-2">
-                    <p className="text-sm font-semibold text-base-content">
-                      {acceptedLabel}
-                    </p>
-                    {acceptedAtLabel && (
-                      <p className="text-xs text-base-content/80">
-                        {acceptedAtLabel}
-                      </p>
-                    )}
+                    <p className="text-sm font-semibold text-base-content">{acceptedLabel}</p>
+                    {acceptedAtLabel && <p className="text-xs text-base-content/80">{acceptedAtLabel}</p>}
                   </div>
                 )}
                 {canManageEscalation && !isEditing && (
@@ -903,23 +901,25 @@ export function EventDetail({
                       onClick={() => void onEscalationRiskAction(accepted ? "reset" : "accept")}
                     >
                       {escalationActionLoading
-                        ? (t("js.common.saving") !== "js.common.saving" ? t("js.common.saving") : "Saving…")
+                        ? t("js.common.saving") !== "js.common.saving"
+                          ? t("js.common.saving")
+                          : "Saving…"
                         : accepted
-                          ? (t("js.event.escalation.resetRisk") !== "js.event.escalation.resetRisk"
+                          ? t("js.event.escalation.resetRisk") !== "js.event.escalation.resetRisk"
                             ? t("js.event.escalation.resetRisk")
-                            : "Reset escalation")
-                          : (t("js.event.escalation.acceptRisk") !== "js.event.escalation.acceptRisk"
+                            : "Reset escalation"
+                          : t("js.event.escalation.acceptRisk") !== "js.event.escalation.acceptRisk"
                             ? t("js.event.escalation.acceptRisk")
-                            : "Accept risk")}
+                            : "Accept risk"}
                     </button>
                     <p className="text-xs text-base-content/70">
                       {accepted
-                        ? (t("js.event.escalation.pausedHelp") !== "js.event.escalation.pausedHelp"
+                        ? t("js.event.escalation.pausedHelp") !== "js.event.escalation.pausedHelp"
                           ? t("js.event.escalation.pausedHelp")
-                          : "Escalation emails are currently paused. Reset escalation to send alerts again.")
-                        : (t("js.event.escalation.acceptHelp") !== "js.event.escalation.acceptHelp"
+                          : "Escalation emails are currently paused. Reset escalation to send alerts again."
+                        : t("js.event.escalation.acceptHelp") !== "js.event.escalation.acceptHelp"
                           ? t("js.event.escalation.acceptHelp")
-                          : "Accepting risk pauses escalation emails until risk changes or escalation is reset.")}
+                          : "Accepting risk pauses escalation emails until risk changes or escalation is reset."}
                     </p>
                   </div>
                 )}
@@ -931,9 +931,7 @@ export function EventDetail({
 
       {/* Event actions (view mode only; config: features.showQuickActions) */}
       {!isEditing && isQuickActionsEnabled() && (type === "rehearsal" || type === "concert") && (
-        <div
-          className={DETAIL_SECTION_CLASS}
-        >
+        <div className={DETAIL_SECTION_CLASS}>
           <h2 className="text-sm font-semibold mb-2 md:mb-3 text-base-content/60">
             {t("js.event.actions.title") !== "js.event.actions.title" ? t("js.event.actions.title") : "Actions"}
           </h2>
@@ -946,10 +944,10 @@ export function EventDetail({
                   <div className="p-2 rounded-lg bg-current/10 group-hover:bg-current/15 transition-colors relative">
                     <Icon className="h-5 w-5" />
                     {action.comingSoon && (
-                      <span
-                        className="absolute -top-1 -right-1 text-[10px] px-1.5 py-0.5 rounded font-medium bg-base-200 text-base-content/60"
-                      >
-                        {t("js.event.actions.comingSoon") !== "js.event.actions.comingSoon" ? t("js.event.actions.comingSoon") : "Coming soon"}
+                      <span className="absolute -top-1 -right-1 text-[10px] px-1.5 py-0.5 rounded font-medium bg-base-200 text-base-content/60">
+                        {t("js.event.actions.comingSoon") !== "js.event.actions.comingSoon"
+                          ? t("js.event.actions.comingSoon")
+                          : "Coming soon"}
                       </span>
                     )}
                   </div>
@@ -978,9 +976,7 @@ export function EventDetail({
       )}
 
       {/* Basic info */}
-      <div
-        className={DETAIL_SECTION_CLASS}
-      >
+      <div className={DETAIL_SECTION_CLASS}>
         <h2 className="text-lg font-semibold mb-3 md:mb-4 text-base-content">
           {t("js.event.detail.additionalInfo") !== "js.event.detail.additionalInfo"
             ? t("js.event.detail.additionalInfo")
@@ -996,31 +992,30 @@ export function EventDetail({
                 value={toInputDateTime(form.begin).replace("T", " ")}
                 onChange={(val) => {
                   const nextBegin = val ? val.replace(" ", "T") : "";
-                    const isFirstBeginSet = !form.begin && !!nextBegin;
-                    const rehearsalDuration =
-                      type === "rehearsal" ? Number(rehearsalMeta?.defaultDurationMinutes ?? 0) : 0;
-                    const shouldAutofillRehearsalEnd =
-                      type === "rehearsal" &&
-                      isFirstBeginSet &&
-                      !form.end &&
-                      Number.isFinite(rehearsalDuration) &&
-                      rehearsalDuration > 0;
-                    const nextEnd = shouldAutofillRehearsalEnd
-                      ? addMinutesToInputDateTime(nextBegin, rehearsalDuration) || syncEndDate(nextBegin, form.end)
-                      : syncEndDate(nextBegin, form.end);
-                    const shouldAutofillConcertTimes = type === "concert" && isFirstBeginSet;
-                    const shouldAutofillRehearsalDeadline = type === "rehearsal" && isFirstBeginSet;
-                    setForm({
-                      ...form,
-                      begin: nextBegin,
-                      end: nextEnd,
-                      approveUntil:
-                        (shouldAutofillConcertTimes || shouldAutofillRehearsalDeadline) && !form.approveUntil
-                          ? nextBegin
-                          : form.approveUntil,
-                      meetingtime:
-                        shouldAutofillConcertTimes && !form.meetingtime ? nextBegin : form.meetingtime,
-                    });
+                  const isFirstBeginSet = !form.begin && !!nextBegin;
+                  const rehearsalDuration =
+                    type === "rehearsal" ? Number(rehearsalMeta?.defaultDurationMinutes ?? 0) : 0;
+                  const shouldAutofillRehearsalEnd =
+                    type === "rehearsal" &&
+                    isFirstBeginSet &&
+                    !form.end &&
+                    Number.isFinite(rehearsalDuration) &&
+                    rehearsalDuration > 0;
+                  const nextEnd = shouldAutofillRehearsalEnd
+                    ? addMinutesToInputDateTime(nextBegin, rehearsalDuration) || syncEndDate(nextBegin, form.end)
+                    : syncEndDate(nextBegin, form.end);
+                  const shouldAutofillConcertTimes = type === "concert" && isFirstBeginSet;
+                  const shouldAutofillRehearsalDeadline = type === "rehearsal" && isFirstBeginSet;
+                  setForm({
+                    ...form,
+                    begin: nextBegin,
+                    end: nextEnd,
+                    approveUntil:
+                      (shouldAutofillConcertTimes || shouldAutofillRehearsalDeadline) && !form.approveUntil
+                        ? nextBegin
+                        : form.approveUntil,
+                    meetingtime: shouldAutofillConcertTimes && !form.meetingtime ? nextBegin : form.meetingtime,
+                  });
                 }}
                 mode="datetime"
                 locale={lang}
@@ -1047,18 +1042,18 @@ export function EventDetail({
             )}
           </div>
           <div>
-            <span className="text-xs font-medium text-base-content/60">
-              {t("js.event.detail.status")}:
-            </span>
+            <span className="text-xs font-medium text-base-content/60">{t("js.event.detail.status")}:</span>
             {isEditing && form ? (
               <span className="ml-2 inline-flex items-center gap-2 align-middle">
                 <StatusPicker
-                  options={(type === "concert" ? concertMeta?.statusOptions : rehearsalMeta?.statusOptions) ?? [
-                    "planned",
-                    "confirmed",
-                    "cancelled",
-                    "hidden",
-                  ]}
+                  options={
+                    (type === "concert" ? concertMeta?.statusOptions : rehearsalMeta?.statusOptions) ?? [
+                      "planned",
+                      "confirmed",
+                      "cancelled",
+                      "hidden",
+                    ]
+                  }
                   value={form.status}
                   onChange={(next) => setForm({ ...form, status: next })}
                   labelFor={statusLabelFor}
@@ -1098,16 +1093,20 @@ export function EventDetail({
               ) : (
                 <span
                   className={`ml-2 inline-flex rounded-full px-2 py-0.5 text-xs font-medium border align-middle ${
-                    isPublished ? "border-success/50 bg-success/15 text-success" : "border-base-300 bg-base-200/60 text-base-content/70"
+                    isPublished
+                      ? "border-success/50 bg-success/15 text-success"
+                      : "border-base-300 bg-base-200/60 text-base-content/70"
                   }`}
                 >
                   {isPublished
-                    ? (t("js.configuration.publicConcerts.state.published") !== "js.configuration.publicConcerts.state.published"
+                    ? t("js.configuration.publicConcerts.state.published") !==
+                      "js.configuration.publicConcerts.state.published"
                       ? t("js.configuration.publicConcerts.state.published")
-                      : "Public details")
-                    : (t("js.configuration.publicConcerts.state.unpublished") !== "js.configuration.publicConcerts.state.unpublished"
+                      : "Public details"
+                    : t("js.configuration.publicConcerts.state.unpublished") !==
+                        "js.configuration.publicConcerts.state.unpublished"
                       ? t("js.configuration.publicConcerts.state.unpublished")
-                      : "Private event")}
+                      : "Private event"}
                 </span>
               )}
             </div>
@@ -1115,7 +1114,10 @@ export function EventDetail({
           {(approveUntil || isEditing) && (
             <div>
               <span className="text-xs font-medium text-base-content/60">
-                {t("js.event.detail.deadline") !== "js.event.detail.deadline" ? t("js.event.detail.deadline") : "Reply by"}:
+                {t("js.event.detail.deadline") !== "js.event.detail.deadline"
+                  ? t("js.event.detail.deadline")
+                  : "Reply by"}
+                :
               </span>
               {isEditing && form ? (
                 <DatePicker
@@ -1132,21 +1134,21 @@ export function EventDetail({
           )}
           {type === "rehearsal" && (conductor?.name || isEditing) && (
             <div>
-              <span className="text-xs font-medium text-base-content/60">
-                {t("js.event.detail.conductor")}:
-              </span>
-            {isEditing && form ? (
-              <SelectPicker
-                options={[{ id: 0, name: "-" }, ...(rehearsalMeta?.conductors ?? [])]}
-                value={form.conductorId}
-                onChange={(next) => setForm({ ...form, conductorId: next })}
-                placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
-                emptyLabel="-"
-                labelSelect={t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Select…"}
-                labelNoMatches={t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"}
-                labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close"}
-              />
-            ) : (
+              <span className="text-xs font-medium text-base-content/60">{t("js.event.detail.conductor")}:</span>
+              {isEditing && form ? (
+                <SelectPicker
+                  options={[{ id: 0, name: "-" }, ...(rehearsalMeta?.conductors ?? [])]}
+                  value={form.conductorId}
+                  onChange={(next) => setForm({ ...form, conductorId: next })}
+                  placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
+                  emptyLabel="-"
+                  labelSelect={t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Select…"}
+                  labelNoMatches={
+                    t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"
+                  }
+                  labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close"}
+                />
+              ) : (
                 <span className="ml-2 text-sm">
                   <EntityLink entityType="contact" id={conductor?.id} name={conductorName} modules={modules} />
                 </span>
@@ -1158,7 +1160,8 @@ export function EventDetail({
               <span className="text-xs font-medium text-base-content/60">
                 {t("js.event.detail.meetingTime") !== "js.event.detail.meetingTime"
                   ? t("js.event.detail.meetingTime")
-                  : "Meeting time"}:
+                  : "Meeting time"}
+                :
               </span>
               {isEditing && form ? (
                 <DatePicker
@@ -1174,21 +1177,22 @@ export function EventDetail({
             </div>
           )}
           <div className="md:col-span-2">
-            <span className="text-xs font-medium text-base-content/60">
-              {t("js.event.detail.location")}:
-            </span>
+            <span className="text-xs font-medium text-base-content/60">{t("js.event.detail.location")}:</span>
             {isEditing && form ? (
               <SelectPicker
                 options={[
                   { id: 0, name: "-" },
-                  ...(((type === "concert" ? concertMeta?.locations : rehearsalMeta?.locations) ?? []) as SimpleOption[]),
+                  ...(((type === "concert" ? concertMeta?.locations : rehearsalMeta?.locations) ??
+                    []) as SimpleOption[]),
                 ]}
                 value={form.locationId}
                 onChange={(next) => setForm({ ...form, locationId: next })}
                 placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
                 emptyLabel="-"
                 labelSelect={t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Select…"}
-                labelNoMatches={t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"}
+                labelNoMatches={
+                  t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"
+                }
                 labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close"}
               />
             ) : (
@@ -1211,9 +1215,7 @@ export function EventDetail({
           </div>
           {type === "concert" && (notes?.trim() || isEditing) && (
             <div className="md:col-span-2">
-              <span className="text-xs font-medium text-base-content/60">
-                {t("js.event.detail.notes")}:
-              </span>
+              <span className="text-xs font-medium text-base-content/60">{t("js.event.detail.notes")}:</span>
               {isEditing && form ? (
                 <div className="mt-1">
                   <NotesEditor
@@ -1232,9 +1234,7 @@ export function EventDetail({
       </div>
 
       {type === "rehearsal" && (isEditing || groups.length > 0) && (
-        <div
-          className={DETAIL_SECTION_CLASS}
-        >
+        <div className={DETAIL_SECTION_CLASS}>
           <div className="flex flex-wrap items-baseline justify-between gap-3">
             <h2 className="text-lg font-semibold text-base-content">
               {t("js.event.metadata.besetzung") !== "js.event.metadata.besetzung"
@@ -1251,8 +1251,12 @@ export function EventDetail({
                   showChips={false}
                   labelSelect={t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Select…"}
                   labelSelectedCount={selectedCountLabel}
-                  labelNoSelection={t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "No selection"}
-                  labelNoMatches={t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"}
+                  labelNoSelection={
+                    t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "No selection"
+                  }
+                  labelNoMatches={
+                    t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"
+                  }
                   labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close"}
                   labelRemove={t("js.common.remove") !== "js.common.remove" ? t("js.common.remove") : "Remove"}
                 />
@@ -1265,12 +1269,17 @@ export function EventDetail({
               selected={form.groups}
               onRemove={(id) => setForm({ ...form, groups: form.groups.filter((gid) => gid !== id) })}
               labelRemove={t("js.common.remove") !== "js.common.remove" ? t("js.common.remove") : "Remove"}
-              emptyLabel={t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "No selection"}
+              emptyLabel={
+                t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "No selection"
+              }
               className="mt-4"
             />
           ) : (
             <div className="mt-4 text-sm">
-              {groups.map((group) => safeString(group.name)).filter(Boolean).join(", ") || emptyText}
+              {groups
+                .map((group) => safeString(group.name))
+                .filter(Boolean)
+                .join(", ") || emptyText}
             </div>
           )}
         </div>
@@ -1278,9 +1287,7 @@ export function EventDetail({
 
       {/* Participation overview (diagram) */}
       {!isEditing && participationStats && (participationStats.total ?? 0) > 0 && (
-        <div
-          className={DETAIL_SECTION_CLASS}
-        >
+        <div className={DETAIL_SECTION_CLASS}>
           <h2 className="text-lg font-semibold mb-3 md:mb-4 text-base-content">
             {t("js.event.detail.participationOverview") !== "js.event.detail.participationOverview"
               ? t("js.event.detail.participationOverview")
@@ -1292,9 +1299,7 @@ export function EventDetail({
 
       {/* Participants by instrument */}
       {participantsByInstrument && participantsByInstrument.length > 0 && (
-        <div
-          className={DETAIL_SECTION_CLASS}
-        >
+        <div className={DETAIL_SECTION_CLASS}>
           <div className="flex flex-wrap items-baseline justify-between gap-3">
             <h2 className="text-lg font-semibold text-base-content">
               {t("js.event.detail.participants") !== "js.event.detail.participants"
@@ -1327,8 +1332,12 @@ export function EventDetail({
                   showChips={false}
                   labelSelect={t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Select…"}
                   labelSelectedCount={selectedCountLabel}
-                  labelNoSelection={t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "No selection"}
-                  labelNoMatches={t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"}
+                  labelNoSelection={
+                    t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "No selection"
+                  }
+                  labelNoMatches={
+                    t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"
+                  }
                   labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close"}
                   labelRemove={t("js.common.remove") !== "js.common.remove" ? t("js.common.remove") : "Remove"}
                 />
@@ -1338,32 +1347,32 @@ export function EventDetail({
           {isEditing && form && canEditParticipation ? (
             <div className="mt-4">
               <ParticipantEditor
-              participants={form.participants}
-              onRemoveContact={(contactId) => {
-                if (!form) return;
-                const groupContacts = getGroupContacts(
-                  form.groups,
-                  type === "concert" ? concertMeta?.groupMembers : rehearsalMeta?.groupMembers
-                );
-                if (groupContacts.has(contactId)) {
-                  if (!form.excludedContacts.includes(contactId)) {
+                participants={form.participants}
+                onRemoveContact={(contactId) => {
+                  if (!form) return;
+                  const groupContacts = getGroupContacts(
+                    form.groups,
+                    type === "concert" ? concertMeta?.groupMembers : rehearsalMeta?.groupMembers
+                  );
+                  if (groupContacts.has(contactId)) {
+                    if (!form.excludedContacts.includes(contactId)) {
+                      setForm({
+                        ...form,
+                        excludedContacts: [...form.excludedContacts, contactId],
+                        manualContacts: form.manualContacts.filter((id) => id !== contactId),
+                        manualContactsInitialized: true,
+                      });
+                    }
+                  } else {
                     setForm({
                       ...form,
-                      excludedContacts: [...form.excludedContacts, contactId],
                       manualContacts: form.manualContacts.filter((id) => id !== contactId),
                       manualContactsInitialized: true,
                     });
                   }
-                } else {
-                  setForm({
-                    ...form,
-                    manualContacts: form.manualContacts.filter((id) => id !== contactId),
-                    manualContactsInitialized: true,
-                  });
-                }
-              }}
-              onChange={(next) => setForm({ ...form, participants: next })}
-              t={t}
+                }}
+                onChange={(next) => setForm({ ...form, participants: next })}
+                t={t}
               />
             </div>
           ) : (
@@ -1391,277 +1400,318 @@ export function EventDetail({
           (payment != null && payment !== undefined) ||
           conditions ||
           contact) && (
-        <div
-          className={DETAIL_SECTION_CLASS}
-        >
-          <h2 className="text-lg font-semibold mb-3 md:mb-4 text-base-content">
-            {t("js.event.metadata.organisation") !== "js.event.metadata.organisation"
-              ? t("js.event.metadata.organisation")
-              : "Organisation"}
-          </h2>
-          <div className="space-y-3 md:space-y-4">
-            {(isEditing || groups.length > 0) && (
-              <div>
-                <div className="flex flex-wrap items-baseline justify-between gap-3">
+          <div className={DETAIL_SECTION_CLASS}>
+            <h2 className="text-lg font-semibold mb-3 md:mb-4 text-base-content">
+              {t("js.event.metadata.organisation") !== "js.event.metadata.organisation"
+                ? t("js.event.metadata.organisation")
+                : "Organisation"}
+            </h2>
+            <div className="space-y-3 md:space-y-4">
+              {(isEditing || groups.length > 0) && (
+                <div>
+                  <div className="flex flex-wrap items-baseline justify-between gap-3">
+                    <span className="text-xs font-medium text-base-content/60">
+                      {t("js.event.metadata.besetzung") !== "js.event.metadata.besetzung"
+                        ? t("js.event.metadata.besetzung")
+                        : "Groups"}
+                      :
+                    </span>
+                    {isEditing && form ? (
+                      <div className="w-[min(100%,260px)]">
+                        <MultiSelect
+                          options={concertMeta?.groups ?? []}
+                          selected={form.groups}
+                          onChange={(next) => setForm({ ...form, groups: next })}
+                          placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
+                          showChips={false}
+                          labelSelect={t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Select…"}
+                          labelSelectedCount={selectedCountLabel}
+                          labelNoSelection={
+                            t("js.common.noSelection") !== "js.common.noSelection"
+                              ? t("js.common.noSelection")
+                              : "No selection"
+                          }
+                          labelNoMatches={
+                            t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"
+                          }
+                          labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close"}
+                          labelRemove={t("js.common.remove") !== "js.common.remove" ? t("js.common.remove") : "Remove"}
+                        />
+                      </div>
+                    ) : null}
+                  </div>
+                  {!isEditing && (
+                    <div className="mt-4 text-sm">
+                      {groups
+                        .map((g) => safeString(g.name))
+                        .filter(Boolean)
+                        .join(", ") || emptyText}
+                    </div>
+                  )}
+                  {isEditing && form ? (
+                    <SelectedItemsList
+                      options={concertMeta?.groups ?? []}
+                      selected={form.groups}
+                      onRemove={(id) => setForm({ ...form, groups: form.groups.filter((gid) => gid !== id) })}
+                      labelRemove={t("js.common.remove") !== "js.common.remove" ? t("js.common.remove") : "Remove"}
+                      emptyLabel={
+                        t("js.common.noSelection") !== "js.common.noSelection"
+                          ? t("js.common.noSelection")
+                          : "No selection"
+                      }
+                      className="mt-4"
+                    />
+                  ) : null}
+                </div>
+              )}
+              {(isEditing || safeString(program?.name)) && (
+                <div>
                   <span className="text-xs font-medium text-base-content/60">
-                    {t("js.event.metadata.besetzung") !== "js.event.metadata.besetzung"
-                      ? t("js.event.metadata.besetzung")
-                      : "Groups"}
+                    {t("js.event.metadata.programm") !== "js.event.metadata.programm"
+                      ? t("js.event.metadata.programm")
+                      : "Program"}
                     :
                   </span>
                   {isEditing && form ? (
-                    <div className="w-[min(100%,260px)]">
-                      <MultiSelect
-                        options={concertMeta?.groups ?? []}
-                        selected={form.groups}
-                        onChange={(next) => setForm({ ...form, groups: next })}
-                        placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
-                        showChips={false}
-                        labelSelect={t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Select…"}
-                        labelSelectedCount={selectedCountLabel}
-                        labelNoSelection={t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "No selection"}
-                        labelNoMatches={t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"}
-                        labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close"}
-                        labelRemove={t("js.common.remove") !== "js.common.remove" ? t("js.common.remove") : "Remove"}
-                      />
-                    </div>
-                  ) : null}
+                    <SelectPicker
+                      options={[{ id: 0, name: "-" }, ...(concertMeta?.programs ?? [])]}
+                      value={form.programId}
+                      onChange={(next) => setForm({ ...form, programId: next })}
+                      placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
+                      emptyLabel="-"
+                      labelSelect={t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Select…"}
+                      labelNoMatches={
+                        t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"
+                      }
+                      labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close"}
+                    />
+                  ) : (
+                    <span className="ml-2 text-sm">{safeString(program?.name)}</span>
+                  )}
                 </div>
-                {!isEditing && (
-                  <div className="mt-4 text-sm">
-                    {groups.map((g) => safeString(g.name)).filter(Boolean).join(", ") || emptyText}
-                  </div>
-                )}
-                {isEditing && form ? (
-                  <SelectedItemsList
-                    options={concertMeta?.groups ?? []}
-                    selected={form.groups}
-                    onRemove={(id) => setForm({ ...form, groups: form.groups.filter((gid) => gid !== id) })}
-                    labelRemove={t("js.common.remove") !== "js.common.remove" ? t("js.common.remove") : "Remove"}
-                    emptyLabel={t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "No selection"}
-                    className="mt-4"
-                  />
-                ) : null}
-              </div>
-            )}
-            {(isEditing || safeString(program?.name)) && (
-              <div>
-                <span className="text-xs font-medium text-base-content/60">
-                  {t("js.event.metadata.programm") !== "js.event.metadata.programm"
-                    ? t("js.event.metadata.programm")
-                    : "Program"}:
-                </span>
-                {isEditing && form ? (
-                  <SelectPicker
-                    options={[{ id: 0, name: "-" }, ...(concertMeta?.programs ?? [])]}
-                    value={form.programId}
-                    onChange={(next) => setForm({ ...form, programId: next })}
-                    placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
-                    emptyLabel="-"
-                    labelSelect={t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Select…"}
-                    labelNoMatches={t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"}
-                    labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close"}
-                  />
-                ) : (
-                  <span className="ml-2 text-sm">{safeString(program?.name)}</span>
-                )}
-              </div>
-            )}
-            {(isEditing || safeString(outfit?.name)) && (
-              <div>
-                <span className="text-xs font-medium text-base-content/60">
-                  {t("js.event.metadata.outfit") !== "js.event.metadata.outfit"
-                    ? t("js.event.metadata.outfit")
-                    : "Outfit"}:
-                </span>
-                {isEditing && form ? (
-                  <SelectPicker
-                    options={[{ id: 0, name: "-" }, ...(concertMeta?.outfits ?? [])]}
-                    value={form.outfitId}
-                    onChange={(next) => setForm({ ...form, outfitId: next })}
-                    placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
-                    emptyLabel="-"
-                    labelSelect={t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Select…"}
-                    labelNoMatches={t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"}
-                    labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close"}
-                  />
-                ) : (
-                  <span className="ml-2 text-sm">{safeString(outfit?.name)}</span>
-                )}
-              </div>
-            )}
-            {(isEditing || equipment.length > 0) && (
-              <div>
-                <div className="flex flex-wrap items-baseline justify-between gap-3">
+              )}
+              {(isEditing || safeString(outfit?.name)) && (
+                <div>
                   <span className="text-xs font-medium text-base-content/60">
-                    {t("js.event.metadata.equipment") !== "js.event.metadata.equipment"
-                      ? t("js.event.metadata.equipment")
-                      : "Equipment"}
+                    {t("js.event.metadata.outfit") !== "js.event.metadata.outfit"
+                      ? t("js.event.metadata.outfit")
+                      : "Outfit"}
                     :
                   </span>
                   {isEditing && form ? (
-                    <div className="w-[min(100%,260px)]">
-                      <MultiSelect
-                        options={concertMeta?.equipment ?? []}
-                        selected={form.equipment}
-                        onChange={(next) => setForm({ ...form, equipment: next })}
-                        placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
-                        showChips={false}
-                        labelSelect={t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Select…"}
-                        labelSelectedCount={selectedCountLabel}
-                        labelNoSelection={t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "No selection"}
-                        labelNoMatches={t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"}
-                        labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close"}
-                        labelRemove={t("js.common.remove") !== "js.common.remove" ? t("js.common.remove") : "Remove"}
-                      />
+                    <SelectPicker
+                      options={[{ id: 0, name: "-" }, ...(concertMeta?.outfits ?? [])]}
+                      value={form.outfitId}
+                      onChange={(next) => setForm({ ...form, outfitId: next })}
+                      placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
+                      emptyLabel="-"
+                      labelSelect={t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Select…"}
+                      labelNoMatches={
+                        t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"
+                      }
+                      labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close"}
+                    />
+                  ) : (
+                    <span className="ml-2 text-sm">{safeString(outfit?.name)}</span>
+                  )}
+                </div>
+              )}
+              {(isEditing || equipment.length > 0) && (
+                <div>
+                  <div className="flex flex-wrap items-baseline justify-between gap-3">
+                    <span className="text-xs font-medium text-base-content/60">
+                      {t("js.event.metadata.equipment") !== "js.event.metadata.equipment"
+                        ? t("js.event.metadata.equipment")
+                        : "Equipment"}
+                      :
+                    </span>
+                    {isEditing && form ? (
+                      <div className="w-[min(100%,260px)]">
+                        <MultiSelect
+                          options={concertMeta?.equipment ?? []}
+                          selected={form.equipment}
+                          onChange={(next) => setForm({ ...form, equipment: next })}
+                          placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
+                          showChips={false}
+                          labelSelect={t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Select…"}
+                          labelSelectedCount={selectedCountLabel}
+                          labelNoSelection={
+                            t("js.common.noSelection") !== "js.common.noSelection"
+                              ? t("js.common.noSelection")
+                              : "No selection"
+                          }
+                          labelNoMatches={
+                            t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"
+                          }
+                          labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close"}
+                          labelRemove={t("js.common.remove") !== "js.common.remove" ? t("js.common.remove") : "Remove"}
+                        />
+                      </div>
+                    ) : null}
+                  </div>
+                  {!isEditing && (
+                    <div className="mt-4 text-sm">
+                      {equipment
+                        .map((e) => safeString(e.name))
+                        .filter(Boolean)
+                        .join(", ") || emptyText}
                     </div>
+                  )}
+                  {isEditing && form ? (
+                    <SelectedItemsList
+                      options={concertMeta?.equipment ?? []}
+                      selected={form.equipment}
+                      onRemove={(id) => setForm({ ...form, equipment: form.equipment.filter((eid) => eid !== id) })}
+                      labelRemove={t("js.common.remove") !== "js.common.remove" ? t("js.common.remove") : "Remove"}
+                      emptyLabel={
+                        t("js.common.noSelection") !== "js.common.noSelection"
+                          ? t("js.common.noSelection")
+                          : "No selection"
+                      }
+                      className="mt-4"
+                    />
                   ) : null}
                 </div>
-                {!isEditing && (
-                  <div className="mt-4 text-sm">
-                    {equipment.map((e) => safeString(e.name)).filter(Boolean).join(", ") || emptyText}
-                  </div>
-                )}
-                {isEditing && form ? (
-                  <SelectedItemsList
-                    options={concertMeta?.equipment ?? []}
-                    selected={form.equipment}
-                    onRemove={(id) => setForm({ ...form, equipment: form.equipment.filter((eid) => eid !== id) })}
-                    labelRemove={t("js.common.remove") !== "js.common.remove" ? t("js.common.remove") : "Remove"}
-                    emptyLabel={t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "No selection"}
-                    className="mt-4"
-                  />
-                ) : null}
-              </div>
-            )}
-          </div>
-          <h3 className="text-sm font-semibold mt-4 mb-3 md:mt-6 md:mb-3 text-base-content">
-            {t("js.event.metadata.details") !== "js.event.metadata.details"
-              ? t("js.event.metadata.details")
-              : "Details"}
-          </h3>
-          <div className="space-y-3">
-            {(isEditing || safeString(accommodation?.name)) && (
-              <div>
-                <span className="text-xs font-medium text-base-content/60">
-                  {t("js.event.metadata.unterkunft") !== "js.event.metadata.unterkunft"
-                    ? t("js.event.metadata.unterkunft")
-                    : "Accommodation"}:
-                </span>
-                {isEditing && form ? (
-                  <SelectPicker
-                    options={[{ id: 0, name: "-" }, ...(concertMeta?.locations ?? [])]}
-                    value={form.accommodationId}
-                    onChange={(next) => setForm({ ...form, accommodationId: next })}
-                    placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
-                    emptyLabel="-"
-                    labelSelect={t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Select…"}
-                    labelNoMatches={t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"}
-                    labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close"}
-                  />
-                ) : (
-                  <span className="ml-2 text-sm">{safeString(accommodation?.name)}</span>
-                )}
-              </div>
-            )}
-            {(isEditing || (payment != null && payment !== undefined)) && (
-              <div>
-                <span className="text-xs font-medium text-base-content/60">
-                  {t("js.event.metadata.gage") !== "js.event.metadata.gage" ? t("js.event.metadata.gage") : "Payment"}:
-                </span>
-                {isEditing && form ? (
+              )}
+            </div>
+            <h3 className="text-sm font-semibold mt-4 mb-3 md:mt-6 md:mb-3 text-base-content">
+              {t("js.event.metadata.details") !== "js.event.metadata.details"
+                ? t("js.event.metadata.details")
+                : "Details"}
+            </h3>
+            <div className="space-y-3">
+              {(isEditing || safeString(accommodation?.name)) && (
+                <div>
+                  <span className="text-xs font-medium text-base-content/60">
+                    {t("js.event.metadata.unterkunft") !== "js.event.metadata.unterkunft"
+                      ? t("js.event.metadata.unterkunft")
+                      : "Accommodation"}
+                    :
+                  </span>
+                  {isEditing && form ? (
+                    <SelectPicker
+                      options={[{ id: 0, name: "-" }, ...(concertMeta?.locations ?? [])]}
+                      value={form.accommodationId}
+                      onChange={(next) => setForm({ ...form, accommodationId: next })}
+                      placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
+                      emptyLabel="-"
+                      labelSelect={t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Select…"}
+                      labelNoMatches={
+                        t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"
+                      }
+                      labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close"}
+                    />
+                  ) : (
+                    <span className="ml-2 text-sm">{safeString(accommodation?.name)}</span>
+                  )}
+                </div>
+              )}
+              {(isEditing || (payment != null && payment !== undefined)) && (
+                <div>
+                  <span className="text-xs font-medium text-base-content/60">
+                    {t("js.event.metadata.gage") !== "js.event.metadata.gage" ? t("js.event.metadata.gage") : "Payment"}
+                    :
+                  </span>
+                  {isEditing && form ? (
+                    <input
+                      type="number"
+                      value={form.payment}
+                      onChange={(event) => setForm({ ...form, payment: event.target.value })}
+                      className="ml-2 rounded-md border border-base-300 bg-base-100 text-base-content px-2 py-1 text-sm"
+                    />
+                  ) : (
+                    <span className="ml-2 text-sm">
+                      {new Intl.NumberFormat(lang === "de" ? "de-DE" : "en-US", {
+                        style: "currency",
+                        currency: "EUR",
+                      }).format(payment ?? 0)}
+                    </span>
+                  )}
+                </div>
+              )}
+              {(isEditing || conditions?.trim()) && (
+                <div>
+                  <span className="text-xs font-medium text-base-content/60">
+                    {t("js.event.metadata.konditionen") !== "js.event.metadata.konditionen"
+                      ? t("js.event.metadata.konditionen")
+                      : "Conditions"}
+                    :
+                  </span>
+                  {isEditing && form ? (
+                    <textarea
+                      value={form.conditions}
+                      onChange={(event) => setForm({ ...form, conditions: event.target.value })}
+                      className="mt-1 w-full rounded-md border border-base-300 bg-base-100 text-base-content px-3 py-2 text-sm"
+                      rows={3}
+                    />
+                  ) : (
+                    <MarkdownText value={conditions ?? ""} className="mt-1 text-sm" />
+                  )}
+                </div>
+              )}
+              {(isEditing ||
+                (contact &&
+                  (safeString(contact.name) ||
+                    safeString(contact.phone) ||
+                    safeString(contact.mobile) ||
+                    safeString(contact.email)))) && (
+                <div>
+                  <span className="text-xs font-medium text-base-content/60">
+                    {t("js.event.metadata.kontakt") !== "js.event.metadata.kontakt"
+                      ? t("js.event.metadata.kontakt")
+                      : "Contact"}
+                    :
+                  </span>
+                  {isEditing && form ? (
+                    <SelectPicker
+                      options={concertMeta?.contacts ?? []}
+                      value={form.contactId}
+                      onChange={(next) => setForm({ ...form, contactId: next })}
+                      placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
+                      emptyLabel="-"
+                      labelSelect={t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Select…"}
+                      labelNoMatches={
+                        t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"
+                      }
+                      labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close"}
+                    />
+                  ) : (
+                    <span className="ml-2 text-sm">
+                      {contact?.id && canViewEntityType("contact", modules) ? (
+                        <Link href={getEntityPath("contact", contact.id)} className="text-inherit no-underline">
+                          {contactName || "—"}
+                        </Link>
+                      ) : (
+                        contactName || "—"
+                      )}
+                    </span>
+                  )}
+                </div>
+              )}
+              {isEditing && form && (
+                <div>
+                  <span className="text-xs font-medium text-base-content/60">
+                    {t("js.event.metadata.organizer") !== "js.event.metadata.organizer"
+                      ? t("js.event.metadata.organizer")
+                      : "Organizer"}
+                    :
+                  </span>
                   <input
-                    type="number"
-                    value={form.payment}
-                    onChange={(event) => setForm({ ...form, payment: event.target.value })}
+                    type="text"
+                    value={form.organizer}
+                    onChange={(event) => setForm({ ...form, organizer: event.target.value })}
                     className="ml-2 rounded-md border border-base-300 bg-base-100 text-base-content px-2 py-1 text-sm"
                   />
-                ) : (
-                  <span className="ml-2 text-sm">
-                    {new Intl.NumberFormat(lang === "de" ? "de-DE" : "en-US", {
-                      style: "currency",
-                      currency: "EUR",
-                    }).format(payment ?? 0)}
-                  </span>
-                )}
-              </div>
-            )}
-            {(isEditing || conditions?.trim()) && (
-              <div>
-                <span className="text-xs font-medium text-base-content/60">
-                  {t("js.event.metadata.konditionen") !== "js.event.metadata.konditionen"
-                    ? t("js.event.metadata.konditionen")
-                    : "Conditions"}:
-                </span>
-                {isEditing && form ? (
-                  <textarea
-                    value={form.conditions}
-                    onChange={(event) => setForm({ ...form, conditions: event.target.value })}
-                    className="mt-1 w-full rounded-md border border-base-300 bg-base-100 text-base-content px-3 py-2 text-sm"
-                    rows={3}
-                  />
-                ) : (
-                  <MarkdownText value={conditions ?? ""} className="mt-1 text-sm" />
-                )}
-              </div>
-            )}
-            {(isEditing ||
-              (contact && (safeString(contact.name) || safeString(contact.phone) || safeString(contact.mobile) || safeString(contact.email)))) && (
-              <div>
-                <span className="text-xs font-medium text-base-content/60">
-                  {t("js.event.metadata.kontakt") !== "js.event.metadata.kontakt"
-                    ? t("js.event.metadata.kontakt")
-                    : "Contact"}:
-                </span>
-                {isEditing && form ? (
-                  <SelectPicker
-                    options={concertMeta?.contacts ?? []}
-                    value={form.contactId}
-                    onChange={(next) => setForm({ ...form, contactId: next })}
-                    placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
-                    emptyLabel="-"
-                    labelSelect={t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Select…"}
-                    labelNoMatches={t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"}
-                    labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close"}
-                  />
-                ) : (
-                  <span className="ml-2 text-sm">
-                    {contact?.id && canViewEntityType("contact", modules) ? (
-                      <Link href={getEntityPath("contact", contact.id)} className="text-inherit no-underline">
-                        {contactName || "—"}
-                      </Link>
-                    ) : (
-                      contactName || "—"
-                    )}
-                  </span>
-                )}
-              </div>
-            )}
-            {isEditing && form && (
-              <div>
-                <span className="text-xs font-medium text-base-content/60">
-                  {t("js.event.metadata.organizer") !== "js.event.metadata.organizer" ? t("js.event.metadata.organizer") : "Organizer"}:
-                </span>
-                <input
-                  type="text"
-                  value={form.organizer}
-                  onChange={(event) => setForm({ ...form, organizer: event.target.value })}
-                  className="ml-2 rounded-md border border-base-300 bg-base-100 text-base-content px-2 py-1 text-sm"
-                />
-              </div>
-            )}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
       {/* Notes (rehearsal) */}
       {type === "rehearsal" && (notes?.trim() || isEditing) && (
-        <div
-          className={DETAIL_SECTION_CLASS}
-        >
-          <h2 className="text-lg font-semibold mb-2 text-base-content">
-            {t("js.event.detail.notes")}
-          </h2>
+        <div className={DETAIL_SECTION_CLASS}>
+          <h2 className="text-lg font-semibold mb-2 text-base-content">{t("js.event.detail.notes")}</h2>
           <div className="text-base-content/60">
             {isEditing && form ? (
               <NotesEditor
@@ -1678,13 +1728,9 @@ export function EventDetail({
       )}
 
       {type === "rehearsal" && (isEditing || (Array.isArray(songsToPractice) && songsToPractice.length > 0)) && (
-        <div
-          className={DETAIL_SECTION_CLASS}
-        >
+        <div className={DETAIL_SECTION_CLASS}>
           <div className="flex flex-wrap items-baseline justify-between gap-3">
-            <h2 className="text-lg font-semibold text-base-content">
-              {t("js.event.detail.songsToPractice")}
-            </h2>
+            <h2 className="text-lg font-semibold text-base-content">{t("js.event.detail.songsToPractice")}</h2>
             {isEditing && form ? (
               <div className="w-[min(100%,260px)]">
                 <MultiSelect
@@ -1694,12 +1740,16 @@ export function EventDetail({
                   placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
                   showChips={false}
                   labelSelect={t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Select…"}
-                labelSelectedCount={selectedCountLabel}
-                labelNoSelection={t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "No selection"}
-                labelNoMatches={t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"}
-                labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close"}
-                labelRemove={t("js.common.remove") !== "js.common.remove" ? t("js.common.remove") : "Remove"}
-              />
+                  labelSelectedCount={selectedCountLabel}
+                  labelNoSelection={
+                    t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "No selection"
+                  }
+                  labelNoMatches={
+                    t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"
+                  }
+                  labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close"}
+                  labelRemove={t("js.common.remove") !== "js.common.remove" ? t("js.common.remove") : "Remove"}
+                />
               </div>
             ) : null}
           </div>
@@ -1724,9 +1774,7 @@ export function EventDetail({
                       onChange={(next) =>
                         setForm({
                           ...form,
-                          songs: form.songs.map((entry) =>
-                            entry.id === song.id ? { ...entry, notes: next } : entry
-                          ),
+                          songs: form.songs.map((entry) => (entry.id === song.id ? { ...entry, notes: next } : entry)),
                         })
                       }
                       placeholder={t("js.event.detail.notes")}
@@ -1759,11 +1807,7 @@ export function EventDetail({
         </div>
       )}
       {isEditing && !isNew && canEdit && (
-        <DetailDeleteSection
-          canDelete
-          entityTitle={title || undefined}
-          onDelete={deleteCurrentEvent}
-        />
+        <DetailDeleteSection canDelete entityTitle={title || undefined} onDelete={deleteCurrentEvent} />
       )}
       {!emailComposerOpen && renderAfterContent}
       {participationStats && participantsByInstrument && participantsByInstrument.length > 0 && (
@@ -1774,7 +1818,9 @@ export function EventDetail({
           bandName={shareBandName}
           eventBadgeLabel={eventTypeConfig.label}
           eventBadgeClassName={eventTypeConfig.badgeClass}
-          fileDateIso={typeof begin === "string" && begin.length >= 10 ? begin.slice(0, 10) : new Date().toISOString().slice(0, 10)}
+          fileDateIso={
+            typeof begin === "string" && begin.length >= 10 ? begin.slice(0, 10) : new Date().toISOString().slice(0, 10)
+          }
           fileEventType={eventTypeConfig.label}
           fileLocation={locationName || "Location"}
           locale={lang}

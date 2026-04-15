@@ -16,9 +16,5 @@ export interface DetailSectionProps {
 }
 
 export function DetailSection({ children, className = "" }: DetailSectionProps) {
-  return (
-    <div className={`${DETAIL_SECTION_CLASS} ${className}`.trim()}>
-      {children}
-    </div>
-  );
+  return <div className={`${DETAIL_SECTION_CLASS} ${className}`.trim()}>{children}</div>;
 }

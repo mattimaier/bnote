@@ -29,7 +29,7 @@ export function useModulesQuery() {
     queryKey: queryKeys.auth.modules,
     queryFn: async ({ signal }) => {
       const res = await api.get<RawModule[] | { modules: RawModule[] }>("auth", "getModules", undefined, { signal });
-      const list = Array.isArray(res) ? res : (res as { modules: RawModule[] }).modules ?? [];
+      const list = Array.isArray(res) ? res : ((res as { modules: RawModule[] }).modules ?? []);
       return normalizeModules(list);
     },
     staleTime: QUERY_STALE_TIMES.authModulesMs,

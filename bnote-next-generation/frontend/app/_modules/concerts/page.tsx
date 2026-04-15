@@ -41,9 +41,7 @@ export default function ConcertsPage() {
   const loading = isPending && !data;
   const errorMessage = error ? getErrorMessage(error, t, "js.common.failedToLoad") : "";
   const [search, setSearch] = useState("");
-  const [upcomingSortKey, setUpcomingSortKey] = useState<
-    "title" | "begin" | "status" | "location" | null
-  >("begin");
+  const [upcomingSortKey, setUpcomingSortKey] = useState<"title" | "begin" | "status" | "location" | null>("begin");
   const [upcomingSortDir, setUpcomingSortDir] = useState<SortDirection>("asc");
   const [pastSortState, setPastSortState] = useState<
     Record<number, { key: "title" | "begin" | "status" | "location" | null; dir: SortDirection }>
@@ -58,10 +56,7 @@ export default function ConcertsPage() {
     }
   };
 
-  const handlePastSort = (
-    year: number,
-    key: "title" | "begin" | "status" | "location"
-  ) => {
+  const handlePastSort = (year: number, key: "title" | "begin" | "status" | "location") => {
     setPastSortState((prev) => {
       const current = prev[year] ?? { key: "begin", dir: "desc" as SortDirection };
       if (current.key === key) {
@@ -75,13 +70,7 @@ export default function ConcertsPage() {
     const query = search.trim().toLowerCase();
     if (!query) return items;
     return items.filter((item) => {
-      const haystack = [
-        item.title,
-        item.location_name,
-        item.status,
-        item.notes,
-        item.begin,
-      ]
+      const haystack = [item.title, item.location_name, item.status, item.notes, item.begin]
         .filter(Boolean)
         .join(" ")
         .toLowerCase();
@@ -133,14 +122,12 @@ export default function ConcertsPage() {
       <AppPageHeader
         moduleKey="concert"
         title={t("js.sidebar.concerts") !== "js.sidebar.concerts" ? t("js.sidebar.concerts") : "Concerts"}
-        actions={(
+        actions={
           <ActionButton href={getEntityPath("concert", "new", "edit")}>
             <Plus className="h-4 w-4" />
-            {t("js.concerts.addConcert") !== "js.concerts.addConcert"
-              ? t("js.concerts.addConcert")
-              : "Add Concert"}
+            {t("js.concerts.addConcert") !== "js.concerts.addConcert" ? t("js.concerts.addConcert") : "Add Concert"}
           </ActionButton>
-        )}
+        }
       />
 
       {errorMessage && (
@@ -171,7 +158,9 @@ export default function ConcertsPage() {
         title={t("js.concerts.upcoming") !== "js.concerts.upcoming" ? t("js.concerts.upcoming") : "Upcoming concerts"}
         items={upcomingItems}
         loading={loading}
-        emptyLabel={t("js.concerts.noConcerts") !== "js.concerts.noConcerts" ? t("js.concerts.noConcerts") : "No concerts"}
+        emptyLabel={
+          t("js.concerts.noConcerts") !== "js.concerts.noConcerts" ? t("js.concerts.noConcerts") : "No concerts"
+        }
         formatDateTime={formatDateTime}
         onRowClick={(id) => router.push(getEntityPath("concert", id))}
         emptyText={emptyText}
@@ -189,7 +178,10 @@ export default function ConcertsPage() {
           {t("js.common.history") !== "js.common.history" ? t("js.common.history") : "History"}
         </h2>
         {pastByYear.years.length === 0 ? (
-          <div className="mt-3 rounded-xl border p-8 text-center text-sm" style={{ color: "var(--muted-foreground)", borderColor: "var(--border)", background: "var(--card)" }}>
+          <div
+            className="mt-3 rounded-xl border p-8 text-center text-sm"
+            style={{ color: "var(--muted-foreground)", borderColor: "var(--border)", background: "var(--card)" }}
+          >
             {t("js.concerts.noHistory") !== "js.concerts.noHistory" ? t("js.concerts.noHistory") : "No past concerts"}
           </div>
         ) : (
@@ -202,7 +194,11 @@ export default function ConcertsPage() {
                   title={`${year}`}
                   items={pastByYear.groups.get(year) ?? []}
                   loading={loading}
-                  emptyLabel={t("js.concerts.noHistory") !== "js.concerts.noHistory" ? t("js.concerts.noHistory") : "No past concerts"}
+                  emptyLabel={
+                    t("js.concerts.noHistory") !== "js.concerts.noHistory"
+                      ? t("js.concerts.noHistory")
+                      : "No past concerts"
+                  }
                   formatDateTime={formatDateTime}
                   onRowClick={(id) => router.push(getEntityPath("concert", id))}
                   emptyText={emptyText}
@@ -348,11 +344,17 @@ function EventsTable({
               return (
                 <EntityListRow
                   icon={
-                    <span className={`rounded-full flex items-center justify-center w-6 h-6 text-white ${typeConfig.dotClass}`}>
+                    <span
+                      className={`rounded-full flex items-center justify-center w-6 h-6 text-white ${typeConfig.dotClass}`}
+                    >
                       <Icon className="h-3 w-3" />
                     </span>
                   }
-                  primary={<span className="font-bold leading-tight" style={{ color: "var(--primary)" }}>{dateStr}</span>}
+                  primary={
+                    <span className="font-bold leading-tight" style={{ color: "var(--primary)" }}>
+                      {dateStr}
+                    </span>
+                  }
                   badge={
                     <>
                       {WarningIcon && (
@@ -366,7 +368,10 @@ function EventsTable({
                       )}
                       <span className="text-sm min-w-0 break-words whitespace-normal leading-snug">{title}</span>
                       {row.status && (
-                        <span className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium border" style={getStatusPillStyle(row.status)}>
+                        <span
+                          className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium border"
+                          style={getStatusPillStyle(row.status)}
+                        >
                           {statusLabelFor(row.status)}
                         </span>
                       )}
@@ -396,7 +401,10 @@ function EventsTable({
               { key: "title", label: t("js.event.title") !== "js.event.title" ? t("js.event.title") : "Title" },
               { key: "begin", label: t("js.event.begin") !== "js.event.begin" ? t("js.event.begin") : "Begin" },
               { key: "status", label: t("js.common.status") !== "js.common.status" ? t("js.common.status") : "Status" },
-              { key: "location", label: t("js.event.location") !== "js.event.location" ? t("js.event.location") : "Location" },
+              {
+                key: "location",
+                label: t("js.event.location") !== "js.event.location" ? t("js.event.location") : "Location",
+              },
             ]}
             sortKey={sortKey}
             sortDir={sortDir}
@@ -414,9 +422,7 @@ function EventsTable({
               ]}
             >
               <thead>
-                <tr
-                  className="border-b border-base-300 bg-base-200/60"
-                >
+                <tr className="border-b border-base-300 bg-base-200/60">
                   <SortableTh
                     columnId="title"
                     label={t("js.event.title") !== "js.event.title" ? t("js.event.title") : "Title"}
@@ -442,7 +448,9 @@ function EventsTable({
                     onSort={onSort}
                   />
                   <ResizableTh columnId="warning">
-                    {t("mail.escalation.alertBadge") !== "mail.escalation.alertBadge" ? t("mail.escalation.alertBadge") : "Alert"}
+                    {t("mail.escalation.alertBadge") !== "mail.escalation.alertBadge"
+                      ? t("mail.escalation.alertBadge")
+                      : "Alert"}
                   </ResizableTh>
                   <SortableTh
                     columnId="location"
@@ -460,11 +468,7 @@ function EventsTable({
               <tbody>
                 {sortedItems.length === 0 ? (
                   <tr>
-                    <td
-                      colSpan={6}
-                      className="p-8 text-center"
-                      style={{ color: "var(--muted-foreground)" }}
-                    >
+                    <td colSpan={6} className="p-8 text-center" style={{ color: "var(--muted-foreground)" }}>
                       {emptyLabel}
                     </td>
                   </tr>
@@ -476,9 +480,7 @@ function EventsTable({
                       onClick={() => onRowClick(row.id)}
                     >
                       <td className="p-3 font-medium">{notesToPlainText(row.title ?? "") || emptyText}</td>
-                      <td className="p-3">
-                        {row.begin ? formatDateTime(new Date(row.begin)) : emptyText}
-                      </td>
+                      <td className="p-3">{row.begin ? formatDateTime(new Date(row.begin)) : emptyText}</td>
                       <td className="p-3">
                         {row.status ? (
                           <span
@@ -492,21 +494,21 @@ function EventsTable({
                         )}
                       </td>
                       <td className="p-3">
-                        {row.escalationWarning ? (() => {
-                          const warningUi = getEscalationWarningUiConfig(row.escalationWarning.severity);
-                          const WarningIcon = getIcon(warningUi.iconName);
-                          return (
-                            <span
-                              className="inline-flex items-center justify-center rounded-full border px-2 py-0.5"
-                              style={warningUi.badgeStyle}
-                              title={row.escalationWarning.reasons?.join(" • ")}
-                            >
-                              <WarningIcon className={`h-5 w-5 ${warningUi.iconClassName}`} />
-                            </span>
-                          );
-                        })() : (
-                          emptyText
-                        )}
+                        {row.escalationWarning
+                          ? (() => {
+                              const warningUi = getEscalationWarningUiConfig(row.escalationWarning.severity);
+                              const WarningIcon = getIcon(warningUi.iconName);
+                              return (
+                                <span
+                                  className="inline-flex items-center justify-center rounded-full border px-2 py-0.5"
+                                  style={warningUi.badgeStyle}
+                                  title={row.escalationWarning.reasons?.join(" • ")}
+                                >
+                                  <WarningIcon className={`h-5 w-5 ${warningUi.iconClassName}`} />
+                                </span>
+                              );
+                            })()
+                          : emptyText}
                       </td>
                       <td className="p-3">{row.location_name || emptyText}</td>
                       <td className="p-3">

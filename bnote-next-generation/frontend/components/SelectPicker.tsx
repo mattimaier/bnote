@@ -137,7 +137,7 @@ export function SelectPicker({
                 }}
                 className="w-full text-left px-3 py-3 text-sm border-b border-base-300 text-base-content hover:bg-base-200/60 active:bg-base-200"
               >
-                {(opt.email != null || opt.instrument != null) ? (
+                {opt.email != null || opt.instrument != null ? (
                   <PersonOptionRow
                     name={opt.name ?? resolvedEmptyLabel ?? ""}
                     email={opt.email}
@@ -148,19 +148,13 @@ export function SelectPicker({
                   <span className="flex flex-col">
                     <span>{opt.name ?? resolvedEmptyLabel}</span>
                     {(opt.subtitle ?? opt.instrument) ? (
-                      <span className="text-xs text-base-content/60">
-                        {opt.instrument ?? opt.subtitle}
-                      </span>
+                      <span className="text-xs text-base-content/60">{opt.instrument ?? opt.subtitle}</span>
                     ) : null}
                   </span>
                 )}
               </button>
             ))}
-            {filtered.length === 0 && (
-              <div className="px-3 py-2 text-sm text-base-content/60">
-                {labelNoMatches}
-              </div>
-            )}
+            {filtered.length === 0 && <div className="px-3 py-2 text-sm text-base-content/60">{labelNoMatches}</div>}
           </div>
         </div>
       )}
@@ -209,7 +203,7 @@ export function SelectPicker({
                   }}
                   className="w-full text-left px-3 py-3 text-sm border-b border-base-300 text-base-content hover:bg-base-200/60 active:bg-base-200"
                 >
-                  {(opt.email != null || opt.instrument != null) ? (
+                  {opt.email != null || opt.instrument != null ? (
                     <PersonOptionRow
                       name={opt.name ?? resolvedEmptyLabel ?? ""}
                       email={opt.email}
@@ -220,19 +214,13 @@ export function SelectPicker({
                     <span className="flex flex-col">
                       <span>{opt.name ?? emptyLabel}</span>
                       {(opt.subtitle ?? opt.instrument) ? (
-                        <span className="text-xs text-base-content/60">
-                          {opt.instrument ?? opt.subtitle}
-                        </span>
+                        <span className="text-xs text-base-content/60">{opt.instrument ?? opt.subtitle}</span>
                       ) : null}
                     </span>
                   )}
                 </button>
               ))}
-              {filtered.length === 0 && (
-                <div className="px-3 py-2 text-sm text-base-content/60">
-                  {labelNoMatches}
-                </div>
-              )}
+              {filtered.length === 0 && <div className="px-3 py-2 text-sm text-base-content/60">{labelNoMatches}</div>}
             </div>
           </div>
         </div>

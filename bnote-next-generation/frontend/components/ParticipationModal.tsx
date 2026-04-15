@@ -84,11 +84,7 @@ export function ParticipationModal({
         e.stopPropagation();
       }}
     >
-      <div
-        className="absolute inset-0 bg-base-content/20"
-        aria-hidden="true"
-        onClick={handleBackdropClick}
-      />
+      <div className="absolute inset-0 bg-base-content/20" aria-hidden="true" onClick={handleBackdropClick} />
       <div
         className="relative z-10 w-full max-w-md rounded-box border border-base-300 bg-base-100 p-4 shadow-xl"
         onClick={(e) => e.stopPropagation()}

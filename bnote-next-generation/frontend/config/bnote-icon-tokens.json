@@ -1,25 +1,25 @@
 {
   "geometry": {
-    "canvasSize": 512,
-    "squircleExponent": 4.8,
-    "pathSteps": 128,
     "borderInset": 8,
     "borderWidth": 12,
+    "canvasSize": 512,
+    "glyphScale": 0.4225,
     "glyphTranslate": 87,
-    "glyphScale": 0.4225
+    "pathSteps": 128,
+    "squircleExponent": 4.8
   },
   "palette": {
-    "light": {
-      "glyph": "#3399ff",
-      "bgStartMixWhite": 0.73,
-      "bgEndMixWhite": 0.68,
-      "borderMixWhite": 0.36
-    },
     "dark": {
-      "bgStart": "#0f2f66",
       "bgEnd": "#18478f",
+      "bgStart": "#0f2f66",
       "border": "#73b8ff",
       "glyph": "#9fd0ff"
+    },
+    "light": {
+      "bgEndMixWhite": 0.68,
+      "bgStartMixWhite": 0.73,
+      "borderMixWhite": 0.36,
+      "glyph": "#3399ff"
     }
   }
 }

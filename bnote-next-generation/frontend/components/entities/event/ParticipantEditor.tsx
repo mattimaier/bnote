@@ -18,12 +18,7 @@ export interface ParticipantEditorProps {
   t: (key: string) => string;
 }
 
-export function ParticipantEditor({
-  participants,
-  onRemoveContact,
-  onChange,
-  t,
-}: ParticipantEditorProps) {
+export function ParticipantEditor({ participants, onRemoveContact, onChange, t }: ParticipantEditorProps) {
   const [query, setQuery] = useState("");
   const filtered = participants.filter((p) => {
     const haystack = `${p.name} ${p.instrument}`.toLowerCase();
@@ -47,9 +42,7 @@ export function ParticipantEditor({
           >
             <div>
               <div className="font-medium">{participant.name}</div>
-              <div className="text-xs text-base-content/60">
-                {participant.instrument}
-              </div>
+              <div className="text-xs text-base-content/60">{participant.instrument}</div>
             </div>
             <div className="flex items-center gap-3">
               <ParticipationTrafficLight

@@ -105,10 +105,7 @@ export default function NewsPage() {
     try {
       const payload = isEmptyEditorJson(content) ? "" : content;
       await api.post("news", "save", { content: payload });
-      showToast(
-        t("js.news.saved") !== "js.news.saved" ? t("js.news.saved") : "News saved",
-        "success"
-      );
+      showToast(t("js.news.saved") !== "js.news.saved" ? t("js.news.saved") : "News saved", "success");
     } catch (err: unknown) {
       showToast(
         t("js.news.saveError") !== "js.news.saveError"
@@ -143,11 +140,7 @@ export default function NewsPage() {
               ? t("js.news.accessDenied")
               : "You do not have permission to edit news."}
           </p>
-          <button
-            type="button"
-            onClick={() => router.push("/dashboard")}
-            className="btn btn-primary btn-sm mt-3"
-          >
+          <button type="button" onClick={() => router.push("/dashboard")} className="btn btn-primary btn-sm mt-3">
             {t("js.news.backToDashboard") !== "js.news.backToDashboard"
               ? t("js.news.backToDashboard")
               : t("js.common.back") !== "js.common.back"
@@ -164,7 +157,11 @@ export default function NewsPage() {
       <AppPageHeader
         moduleKey="news"
         title={t("js.sidebar.news") !== "js.sidebar.news" ? t("js.sidebar.news") : "News"}
-        subtitle={t("js.news.subtitle") !== "js.news.subtitle" ? t("js.news.subtitle") : "Edit the message shown on the dashboard."}
+        subtitle={
+          t("js.news.subtitle") !== "js.news.subtitle"
+            ? t("js.news.subtitle")
+            : "Edit the message shown on the dashboard."
+        }
       />
 
       {error && (
@@ -204,21 +201,16 @@ export default function NewsPage() {
             )}
           </div>
           <div className="card-actions justify-end px-4 py-3 border-t border-border/30">
-            <button
-              type="button"
-              onClick={handleSave}
-              disabled={loading || saving}
-              className="btn btn-primary"
-            >
+            <button type="button" onClick={handleSave} disabled={loading || saving} className="btn btn-primary">
               {saving ? (
                 <span className="flex items-center gap-2">
                   <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                  {t("js.common.saving") !== "js.common.saving"
-                    ? t("js.common.saving")
-                    : "Saving…"}
+                  {t("js.common.saving") !== "js.common.saving" ? t("js.common.saving") : "Saving…"}
                 </span>
+              ) : t("js.news.save") !== "js.news.save" ? (
+                t("js.news.save")
               ) : (
-                t("js.news.save") !== "js.news.save" ? t("js.news.save") : "Save"
+                "Save"
               )}
             </button>
           </div>

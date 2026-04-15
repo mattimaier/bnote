@@ -155,69 +155,69 @@ export function WrappedShareModal({
       cacheBust: true,
       pixelRatio: 3,
       backgroundColor: "#ffffff",
-      imagePlaceholder:
-        "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==",
+      imagePlaceholder: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==",
     });
     if (!blob) throw new Error(t("js.wrapped.share.error"));
     return blob;
   }, [t]);
 
-  const createShareUrl = useCallback(async (blob: Blob): Promise<ShareCardCreateResult> => {
-    const formData = new FormData();
-    const file = new File([blob], fileName, { type: "image/png" });
-    formData.set("file", file);
-    formData.set("name", fileName);
+  const createShareUrl = useCallback(
+    async (blob: Blob): Promise<ShareCardCreateResult> => {
+      const formData = new FormData();
+      const file = new File([blob], fileName, { type: "image/png" });
+      formData.set("file", file);
+      formData.set("name", fileName);
 
-    const apiUrl = getApiUrl();
-    const endpoint =
-      apiUrl.startsWith("http")
+      const apiUrl = getApiUrl();
+      const endpoint = apiUrl.startsWith("http")
         ? new URL(apiUrl)
         : new URL(apiUrl, typeof window !== "undefined" ? window.location.origin : "http://localhost");
-    endpoint.searchParams.set("module", "share");
-    endpoint.searchParams.set("action", "uploadShareCard");
+      endpoint.searchParams.set("module", "share");
+      endpoint.searchParams.set("action", "uploadShareCard");
 
-    const controller = new AbortController();
-    const timeoutId = window.setTimeout(() => controller.abort(), 20000);
-    let res: Response;
-    try {
-      res = await fetch(endpoint.toString(), {
-        method: "POST",
-        body: formData,
-        credentials: "same-origin",
-        headers: { Accept: "application/json" },
-        signal: controller.signal,
-      });
-    } catch (err) {
-      if (err instanceof DOMException && err.name === "AbortError") {
-        throw new Error(t("js.wrapped.share.timeoutError"));
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => controller.abort(), 20000);
+      let res: Response;
+      try {
+        res = await fetch(endpoint.toString(), {
+          method: "POST",
+          body: formData,
+          credentials: "same-origin",
+          headers: { Accept: "application/json" },
+          signal: controller.signal,
+        });
+      } catch (err) {
+        if (err instanceof DOMException && err.name === "AbortError") {
+          throw new Error(t("js.wrapped.share.timeoutError"));
+        }
+        throw err;
+      } finally {
+        window.clearTimeout(timeoutId);
       }
-      throw err;
-    } finally {
-      window.clearTimeout(timeoutId);
-    }
 
-    const raw = await res.text();
-    let json: { success?: boolean; data?: ShareCardCreateResult; error?: string } | null = null;
-    try {
-      json = JSON.parse(raw) as { success?: boolean; data?: ShareCardCreateResult; error?: string };
-    } catch {
-      throw new Error(t("js.wrapped.share.nonJsonError"));
-    }
+      const raw = await res.text();
+      let json: { success?: boolean; data?: ShareCardCreateResult; error?: string } | null = null;
+      try {
+        json = JSON.parse(raw) as { success?: boolean; data?: ShareCardCreateResult; error?: string };
+      } catch {
+        throw new Error(t("js.wrapped.share.nonJsonError"));
+      }
 
-    if (!res.ok || json.success === false || !json.data?.url || !json.data?.shareId) {
-      throw new Error(json.error || t("js.wrapped.share.error"));
-    }
+      if (!res.ok || json.success === false || !json.data?.url || !json.data?.shareId) {
+        throw new Error(json.error || t("js.wrapped.share.error"));
+      }
 
-    return json.data;
-  }, [fileName, t]);
+      return json.data;
+    },
+    [fileName, t]
+  );
 
   const deleteShareCard = useCallback(async (shareId: string): Promise<void> => {
     if (!shareId) return;
     const apiUrl = getApiUrl();
-    const endpoint =
-      apiUrl.startsWith("http")
-        ? new URL(apiUrl)
-        : new URL(apiUrl, typeof window !== "undefined" ? window.location.origin : "http://localhost");
+    const endpoint = apiUrl.startsWith("http")
+      ? new URL(apiUrl)
+      : new URL(apiUrl, typeof window !== "undefined" ? window.location.origin : "http://localhost");
     endpoint.searchParams.set("module", "share");
     endpoint.searchParams.set("action", "deleteShareCard");
 
@@ -322,9 +322,7 @@ export function WrappedShareModal({
 
     try {
       didClickShareRef.current = true;
-      const prepared = preparedShareUrl
-        ? { url: preparedShareUrl, shareId: preparedShareId }
-        : await prepareShareUrl();
+      const prepared = preparedShareUrl ? { url: preparedShareUrl, shareId: preparedShareId } : await prepareShareUrl();
 
       if (!preparedShareUrl) {
         setPreparedShareUrl(prepared.url);
@@ -381,9 +379,7 @@ export function WrappedShareModal({
           <h3 className="wrapped-display text-3xl font-bold leading-[1.05]">
             {t("js.wrapped.card.headline", [data?.profile.firstName ?? ""])}
           </h3>
-          <p className="mt-1 text-xs text-[#334155]">
-            {t("js.wrapped.card.subline", [String(data?.year ?? "")])}
-          </p>
+          <p className="mt-1 text-xs text-[#334155]">{t("js.wrapped.card.subline", [String(data?.year ?? "")])}</p>
         </div>
 
         <div className="mt-4 rounded-2xl border border-primary/25 bg-white/80 px-3 py-3 text-xs text-[#0f172a] shadow-sm">
@@ -404,9 +400,7 @@ export function WrappedShareModal({
 
         {medals.length > 0 ? (
           <div className="mt-3 rounded-2xl border border-primary/20 bg-white/75 px-3 py-2.5 shadow-sm">
-            <p className="text-[10px] uppercase tracking-[0.2em] text-primary">
-              {t("js.wrapped.achievements.title")}
-            </p>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-primary">{t("js.wrapped.achievements.title")}</p>
             <div className="mt-2 grid grid-cols-2 gap-2">
               {medals.slice(0, 4).map((badge) => (
                 <div
@@ -450,7 +444,11 @@ export function WrappedShareModal({
     >
       <div className="flex max-h-[90dvh] flex-col">
         <div className="fixed left-[-10000px] top-0 pointer-events-none" aria-hidden="true">
-          <div className="rounded-xl border border-base-300 bg-base-200/30 p-2" data-theme="bnotelight" style={{ colorScheme: "light" }}>
+          <div
+            className="rounded-xl border border-base-300 bg-base-200/30 p-2"
+            data-theme="bnotelight"
+            style={{ colorScheme: "light" }}
+          >
             <div
               ref={captureRef}
               className="relative mx-auto w-[420px] overflow-hidden rounded-3xl bg-white p-0 text-[#0f172a]"
@@ -464,38 +462,53 @@ export function WrappedShareModal({
         <div className="overflow-y-auto p-4">
           <div ref={previewViewportRef} className="max-h-[62dvh] overflow-auto rounded-xl [touch-action:pan-x_pan-y]">
             <div className="flex justify-center">
-            <div className="inline-block rounded-xl border border-base-300 bg-base-200/30 p-2" data-theme="bnotelight" style={{ colorScheme: "light" }}>
               <div
-                className="relative"
-                style={{
-                  width: `${Math.ceil(SHARE_CARD_WIDTH * previewScale)}px`,
-                  height: `${Math.ceil(SHARE_CARD_HEIGHT * previewScale)}px`,
-                }}
+                className="inline-block rounded-xl border border-base-300 bg-base-200/30 p-2"
+                data-theme="bnotelight"
+                style={{ colorScheme: "light" }}
               >
                 <div
-                  ref={previewRef}
-                  className="absolute left-0 top-0 overflow-hidden rounded-3xl bg-white p-0 text-[#0f172a]"
+                  className="relative"
                   style={{
-                    width: `${SHARE_CARD_WIDTH}px`,
-                    height: `${SHARE_CARD_HEIGHT}px`,
-                    transform: `scale(${previewScale})`,
-                    transformOrigin: "top left",
-                    ...themeStyle,
+                    width: `${Math.ceil(SHARE_CARD_WIDTH * previewScale)}px`,
+                    height: `${Math.ceil(SHARE_CARD_HEIGHT * previewScale)}px`,
                   }}
                 >
-                  {renderShareCardContent()}
+                  <div
+                    ref={previewRef}
+                    className="absolute left-0 top-0 overflow-hidden rounded-3xl bg-white p-0 text-[#0f172a]"
+                    style={{
+                      width: `${SHARE_CARD_WIDTH}px`,
+                      height: `${SHARE_CARD_HEIGHT}px`,
+                      transform: `scale(${previewScale})`,
+                      transformOrigin: "top left",
+                      ...themeStyle,
+                    }}
+                  >
+                    {renderShareCardContent()}
+                  </div>
                 </div>
               </div>
             </div>
-            </div>
           </div>
 
-          {error ? <div className="mt-4 rounded-md border border-error bg-error/10 p-2 text-sm text-error">{error}</div> : null}
+          {error ? (
+            <div className="mt-4 rounded-md border border-error bg-error/10 p-2 text-sm text-error">{error}</div>
+          ) : null}
         </div>
 
         <div className="sticky bottom-0 border-t border-base-300 bg-base-100 p-4">
-          <button type="button" onClick={() => void handleShare()} disabled={busy || preparing} className="btn btn-primary w-full">
-            {preparing ? t("js.wrapped.share.preparing") : busy ? t("js.wrapped.share.sharing") : t("js.wrapped.share.now")}
+          <button
+            type="button"
+            onClick={() => void handleShare()}
+            disabled={busy || preparing}
+            className="btn btn-primary w-full"
+          >
+            {preparing
+              ? t("js.wrapped.share.preparing")
+              : busy
+                ? t("js.wrapped.share.sharing")
+                : t("js.wrapped.share.now")}
           </button>
         </div>
       </div>

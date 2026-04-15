@@ -65,7 +65,8 @@ export function DashboardVoteWidget({
     const init: Record<number, string> = {};
     options.forEach((o) => {
       const id = Number(o.id);
-      init[id] = (userChoices as Record<string, string>)[id] ?? (userChoices as Record<string, string>)[String(id)] ?? "no";
+      init[id] =
+        (userChoices as Record<string, string>)[id] ?? (userChoices as Record<string, string>)[String(id)] ?? "no";
     });
     setChoices(init);
     if (!isMulti) {
@@ -73,8 +74,7 @@ export function DashboardVoteWidget({
     }
   }, [options, userChoices, isMulti]);
 
-  const optionLabel = (opt: VoteOption) =>
-    opt.odate ? formatDateShortDisplay(opt.odate, lang) : (opt.name ?? "");
+  const optionLabel = (opt: VoteOption) => (opt.odate ? formatDateShortDisplay(opt.odate, lang) : (opt.name ?? ""));
 
   const submit = async (data: { choices?: Record<number, string>; uservote?: number | null }) => {
     if (disabled || submitting) return;
@@ -107,13 +107,8 @@ export function DashboardVoteWidget({
     return (
       <div className="flex flex-col gap-1.5 mt-1" onClick={(e) => e.preventDefault()}>
         {options.map((opt) => (
-          <div
-            key={opt.id}
-            className="flex items-center justify-between gap-2 text-xs"
-          >
-            <span className="truncate text-base-content/90 min-w-0">
-              {optionLabel(opt)}
-            </span>
+          <div key={opt.id} className="flex items-center justify-between gap-2 text-xs">
+            <span className="truncate text-base-content/90 min-w-0">{optionLabel(opt)}</span>
             <ParticipationTrafficLight
               value={(choices[opt.id] || "pending") as "yes" | "maybe" | "no" | "pending"}
               onChange={async (next) => {
@@ -140,17 +135,10 @@ export function DashboardVoteWidget({
       className="mt-1 flex flex-col gap-2 rounded-field border border-base-300 p-3"
       onClick={(e) => e.stopPropagation()}
       role="radiogroup"
-      aria-label={
-        t("js.votes.castVote") !== "js.votes.castVote"
-          ? t("js.votes.castVote")
-          : "Cast your vote"
-      }
+      aria-label={t("js.votes.castVote") !== "js.votes.castVote" ? t("js.votes.castVote") : "Cast your vote"}
     >
       {options.map((opt) => (
-        <label
-          key={opt.id}
-          className="label flex cursor-pointer gap-2"
-        >
+        <label key={opt.id} className="label flex cursor-pointer gap-2">
           <input
             type="radio"
             name={`vote-dash-${voteId}`}

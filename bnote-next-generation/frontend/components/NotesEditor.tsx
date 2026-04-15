@@ -46,16 +46,19 @@ export function NotesEditor({
 
   onChangeRef.current = onChange;
 
-  const notifyChange = useCallback((output: OutputData) => {
-    const normalizedOutput = allowChecklist ? output : normalizeChecklistBlocks(output);
-    const blocks = Array.isArray(normalizedOutput?.blocks) ? normalizedOutput.blocks : [];
-    if (blocks.length === 0) {
-      onChangeRef.current("");
-      return;
-    }
-    const str = JSON.stringify(normalizedOutput);
-    onChangeRef.current(str);
-  }, [allowChecklist]);
+  const notifyChange = useCallback(
+    (output: OutputData) => {
+      const normalizedOutput = allowChecklist ? output : normalizeChecklistBlocks(output);
+      const blocks = Array.isArray(normalizedOutput?.blocks) ? normalizedOutput.blocks : [];
+      if (blocks.length === 0) {
+        onChangeRef.current("");
+        return;
+      }
+      const str = JSON.stringify(normalizedOutput);
+      onChangeRef.current(str);
+    },
+    [allowChecklist]
+  );
 
   useEffect(() => {
     if (disabled) return;
@@ -151,12 +154,7 @@ export function NotesEditor({
 
   if (disabled) {
     return (
-      <textarea
-        value={value}
-        readOnly
-        className="textarea textarea-sm w-full min-h-[120px]"
-        style={{ minHeight }}
-      />
+      <textarea value={value} readOnly className="textarea textarea-sm w-full min-h-[120px]" style={{ minHeight }} />
     );
   }
 
@@ -168,9 +166,7 @@ export function NotesEditor({
       className={`${ready ? "w-full" : "w-full min-h-[120px] flex items-center justify-center"} ${allowChecklist ? "" : "notes-editor-no-checklist"}`}
       style={{ minHeight: ready ? undefined : minHeight }}
     >
-      {!ready && (
-        <Spinner />
-      )}
+      {!ready && <Spinner />}
     </div>
   );
 }
@@ -222,10 +218,10 @@ function createListToolWithoutChecklist(BaseListTool: ListToolConstructor): List
       const parentPrototype = Object.getPrototypeOf(ListWithoutChecklist.prototype) as {
         renderSettings?: (this: unknown) => unknown[];
       };
-      const settings = typeof parentPrototype.renderSettings === "function"
-        ? parentPrototype.renderSettings.call(this)
-        : [];
-      const checklistLabel = (this as { api?: { i18n?: { t?: (k: string) => string } } }).api?.i18n?.t?.("Checklist") ?? "Checklist";
+      const settings =
+        typeof parentPrototype.renderSettings === "function" ? parentPrototype.renderSettings.call(this) : [];
+      const checklistLabel =
+        (this as { api?: { i18n?: { t?: (k: string) => string } } }).api?.i18n?.t?.("Checklist") ?? "Checklist";
       return removeChecklistTuneItems(settings, checklistLabel);
     }
   }
@@ -238,10 +234,13 @@ function removeChecklistTuneItems(items: unknown[], checklistLabel: string): unk
     .map((item) => {
       if (!item || typeof item !== "object") return item;
       const tune = item as { label?: string; title?: string; onActivate?: unknown; children?: { items?: unknown[] } };
-      const label = String(tune.label ?? tune.title ?? "").trim().toLowerCase();
+      const label = String(tune.label ?? tune.title ?? "")
+        .trim()
+        .toLowerCase();
       const onActivateSource =
         typeof tune.onActivate === "function" ? Function.prototype.toString.call(tune.onActivate).toLowerCase() : "";
-      const isChecklistByLabel = label === normalizedChecklistLabel || label === "checklist" || label.includes("checklist");
+      const isChecklistByLabel =
+        label === normalizedChecklistLabel || label === "checklist" || label.includes("checklist");
       const isChecklistByHandler = onActivateSource.includes("checklist");
       if (isChecklistByLabel || isChecklistByHandler) return null;
       if (tune.children?.items && Array.isArray(tune.children.items)) {
@@ -257,8 +256,12 @@ function removeChecklistToolboxEntries(toolbox: unknown): unknown {
   return toolbox.filter((entry) => {
     if (!entry || typeof entry !== "object") return true;
     const item = entry as { title?: string; data?: { style?: string } };
-    const title = String(item.title ?? "").trim().toLowerCase();
-    const style = String(item.data?.style ?? "").trim().toLowerCase();
+    const title = String(item.title ?? "")
+      .trim()
+      .toLowerCase();
+    const style = String(item.data?.style ?? "")
+      .trim()
+      .toLowerCase();
     return style !== "checklist" && title !== "checklist";
   });
 }

@@ -10,15 +10,10 @@ export interface SquircleIconBadgeProps {
   className?: string;
 }
 
-export function SquircleIconBadge({
-  Icon,
-  color,
-  size = "lg",
-  iconClassName,
-  className = "",
-}: SquircleIconBadgeProps) {
+export function SquircleIconBadge({ Icon, color, size = "lg", iconClassName, className = "" }: SquircleIconBadgeProps) {
   const sizeClass = size === "sm" ? "h-7 w-7 border" : size === "md" ? "h-8 w-8 border-2" : "h-10 w-10 border-2";
-  const resolvedIconClassName = iconClassName ?? (size === "sm" ? "h-3.5 w-3.5" : size === "md" ? "h-4 w-4" : "h-5 w-5");
+  const resolvedIconClassName =
+    iconClassName ?? (size === "sm" ? "h-3.5 w-3.5" : size === "md" ? "h-4 w-4" : "h-5 w-5");
   const badgeStyle = {
     color,
     background: `color-mix(in oklch, ${color} 17%, transparent)`,

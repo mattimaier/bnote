@@ -4,20 +4,20 @@
  */
 declare(strict_types=1);
 
-require_once __DIR__ . '/mail_loopback_guard.php';
+require_once __DIR__ . "/mail_loopback_guard.php";
 mail_loopback_guard();
 
-require_once __DIR__ . '/../mail/MailPreviewRegistry.php';
+require_once __DIR__ . "/../mail/MailPreviewRegistry.php";
 
 $templates = MailPreviewRegistry::templates();
-$locales = ['en', 'de', 'es', 'fr'];
-$previewScript = 'mail_preview.php';
-$theme = isset($_GET['theme']) && is_string($_GET['theme']) ? strtolower(trim($_GET['theme'])) : 'auto';
-if (!in_array($theme, ['auto', 'light', 'dark'], true)) {
-    $theme = 'auto';
+$locales = ["en", "de", "es", "fr"];
+$previewScript = "mail_preview.php";
+$theme = isset($_GET["theme"]) && is_string($_GET["theme"]) ? strtolower(trim($_GET["theme"])) : "auto";
+if (!in_array($theme, ["auto", "light", "dark"], true)) {
+  $theme = "auto";
 }
 
-header('Content-Type: text/html; charset=UTF-8');
+header("Content-Type: text/html; charset=UTF-8");
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -164,13 +164,17 @@ header('Content-Type: text/html; charset=UTF-8');
       <h1>Transactional mail — previews</h1>
       <p class="subtitle">Loopback only. Opens the same HTML as production sends; the logo uses a data URL in the browser.</p>
       <div class="theme-switch" role="tablist" aria-label="Preview theme">
-        <?php
-        foreach (['auto' => 'Auto', 'light' => 'Light', 'dark' => 'Dark'] as $key => $label) {
-            $href = 'mail_debug.php?theme=' . rawurlencode($key);
-            $active = $theme === $key ? ' active' : '';
-            echo '<a class="' . ltrim($active) . '" href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</a>';
-        }
-        ?>
+        <?php foreach (["auto" => "Auto", "light" => "Light", "dark" => "Dark"] as $key => $label) {
+          $href = "mail_debug.php?theme=" . rawurlencode($key);
+          $active = $theme === $key ? " active" : "";
+          echo '<a class="' .
+            ltrim($active) .
+            '" href="' .
+            htmlspecialchars($href, ENT_QUOTES, "UTF-8") .
+            '">' .
+            htmlspecialchars($label, ENT_QUOTES, "UTF-8") .
+            "</a>";
+        } ?>
       </div>
     </header>
     <div class="card">
@@ -179,27 +183,37 @@ header('Content-Type: text/html; charset=UTF-8');
           <tr>
             <th>Template</th>
             <?php foreach ($locales as $loc) {
-                echo '<th>' . htmlspecialchars($loc, ENT_QUOTES, 'UTF-8') . '</th>';
+              echo "<th>" . htmlspecialchars($loc, ENT_QUOTES, "UTF-8") . "</th>";
             } ?>
           </tr>
         </thead>
         <tbody>
 <?php foreach ($templates as $t) {
-    $lab = htmlspecialchars($t['label'], ENT_QUOTES, 'UTF-8');
-    echo '<tr><td>' . $lab . '</td>';
-    foreach ($locales as $loc) {
-        $href = htmlspecialchars($previewScript, ENT_QUOTES, 'UTF-8')
-            . '?template=' . rawurlencode($t['id'])
-            . '&locale=' . rawurlencode($loc)
-            . '&theme=' . rawurlencode($theme);
-        echo '<td><a href="' . $href . '">Preview</a></td>';
-    }
-    echo '</tr>';
+  $lab = htmlspecialchars($t["label"], ENT_QUOTES, "UTF-8");
+  echo "<tr><td>" . $lab . "</td>";
+  foreach ($locales as $loc) {
+    $href =
+      htmlspecialchars($previewScript, ENT_QUOTES, "UTF-8") .
+      "?template=" .
+      rawurlencode($t["id"]) .
+      "&locale=" .
+      rawurlencode($loc) .
+      "&theme=" .
+      rawurlencode($theme);
+    echo '<td><a href="' . $href . '">Preview</a></td>';
+  }
+  echo "</tr>";
 } ?>
         </tbody>
       </table>
     </div>
-    <a class="btn" href="<?php echo htmlspecialchars($previewScript, ENT_QUOTES, 'UTF-8'); ?>?template=password_reset&amp;locale=en&amp;theme=<?php echo rawurlencode($theme); ?>">Sample: password reset (en)</a>
+    <a class="btn" href="<?php echo htmlspecialchars(
+      $previewScript,
+      ENT_QUOTES,
+      "UTF-8",
+    ); ?>?template=password_reset&amp;locale=en&amp;theme=<?php echo rawurlencode(
+  $theme,
+); ?>">Sample: password reset (en)</a>
     <footer>BNote Next Gen · api/debug/</footer>
   </div>
 </body>

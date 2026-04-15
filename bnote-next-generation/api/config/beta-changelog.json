@@ -1,122 +1,122 @@
 {
-  "releaseId": "0.1.0@fa1160ddbd9b",
-  "generatedAt": "2026-04-09T15:40:19.469Z",
-  "source": "hybrid",
   "build": {
-    "version": "0.1.0",
     "buildId": "fa1160ddbd9b",
+    "buildTime": "2026-04-09T15:40:19.468Z",
     "commit": "fa1160ddbd9b",
     "fullCommit": "fa1160ddbd9b12578a93048046898f9919ee4941",
-    "buildTime": "2026-04-09T15:40:19.468Z"
+    "version": "0.1.0"
   },
   "entries": [
     {
-      "title": "App and module header icons now use the refreshed squircle style with improved light/dark contrast, thicker app-icon border, and build-generated SVG/PNG/ICO assets.",
+      "bugId": null,
       "changeType": "changed",
       "date": "2026-04-09",
-      "bugId": null
+      "title": "App and module header icons now use the refreshed squircle style with improved light/dark contrast, thicker app-icon border, and build-generated SVG/PNG/ICO assets."
     },
     {
-      "title": "Empty notes from the rich text editor are now saved as empty values instead of persisted EditorJS JSON placeholders.",
+      "bugId": null,
       "changeType": "fixed",
       "date": "2026-04-09",
-      "bugId": null
+      "title": "Empty notes from the rich text editor are now saved as empty values instead of persisted EditorJS JSON placeholders."
     },
     {
-      "title": "Next Generation now keeps users signed in with secure long-lived login tokens by default and rotates tokens after automatic session restore.",
+      "bugId": null,
       "changeType": "changed",
       "date": "2026-04-09",
-      "bugId": null
+      "title": "Next Generation now keeps users signed in with secure long-lived login tokens by default and rotates tokens after automatic session restore."
     },
     {
-      "title": "Next Generation-only modules (starting with Wrapped) are now kept out of legacy app navigation while remaining available in Next Generation with normal permission checks.",
+      "bugId": null,
       "changeType": "fixed",
       "date": "2026-04-09",
-      "bugId": null
+      "title": "Next Generation-only modules (starting with Wrapped) are now kept out of legacy app navigation while remaining available in Next Generation with normal permission checks."
     },
     {
-      "title": "Event detail action layout on narrow desktop widths",
+      "bugId": "BUG-20260408-085533-67E4",
       "changeType": "fixed",
       "date": "2026-04-08T21:26:07+02:00",
-      "bugId": "BUG-20260408-085533-67E4"
+      "title": "Event detail action layout on narrow desktop widths"
     },
     {
-      "title": "Share: add rename support for files and folders",
+      "bugId": "BUG-20260408-150929-F00B",
       "changeType": "fixed",
       "date": "2026-04-08T21:24:02+02:00",
-      "bugId": "BUG-20260408-150929-F00B"
+      "title": "Share: add rename support for files and folders"
     },
     {
-      "title": "Escalation cards on rehearsal and concert detail pages now let authorized users accept current risk (pausing escalation emails) and reset escalation, with automatic reset when risk profile changes.",
+      "bugId": null,
       "changeType": "changed",
       "date": "2026-04-08",
-      "bugId": null
+      "title": "Escalation cards on rehearsal and concert detail pages now let authorized users accept current risk (pausing escalation emails) and reset escalation, with automatic reset when risk profile changes."
     },
     {
-      "title": "Event detail actions now stack vertically on narrower desktop widths to prevent clipped controls in rehearsal and concert headers.",
+      "bugId": "BUG-20260408-085533-67E4",
       "changeType": "fixed",
       "date": "2026-04-08",
-      "bugId": "BUG-20260408-085533-67E4"
+      "title": "Event detail actions now stack vertically on narrower desktop widths to prevent clipped controls in rehearsal and concert headers."
     },
     {
-      "title": "Vote results popover now uses the shared person/contact row layout, fixing broken voter list rendering and improving readability on smaller screens.",
+      "bugId": null,
       "changeType": "fixed",
       "date": "2026-04-08",
-      "bugId": null
+      "title": "Vote results popover now uses the shared person/contact row layout, fixing broken voter list rendering and improving readability on smaller screens."
     },
     {
-      "title": "Escalation minimums now support configurable combined instrument pairings with shared rehearsal and concert thresholds.",
+      "bugId": null,
       "changeType": "changed",
       "date": "2026-04-07",
-      "bugId": null
+      "title": "Escalation minimums now support configurable combined instrument pairings with shared rehearsal and concert thresholds."
     },
     {
-      "title": "Escalation now sends a follow-up resolved email when an at-risk event returns to a healthy state, including immediate checks after participation or member assignment changes.",
+      "bugId": null,
       "changeType": "changed",
       "date": "2026-04-07",
-      "bugId": null
+      "title": "Escalation now sends a follow-up resolved email when an at-risk event returns to a healthy state, including immediate checks after participation or member assignment changes."
     },
     {
-      "title": "Regenerate beta changelog with",
+      "bugId": "BUG-20260403-143547-7D94",
       "changeType": "fixed",
       "date": "2026-04-04T21:29:37+02:00",
-      "bugId": "BUG-20260403-143547-7D94"
+      "title": "Regenerate beta changelog with"
     },
     {
-      "title": "Participation modal click-through on dashboard",
+      "bugId": "BUG-20260403-143341-88FC",
       "changeType": "fixed",
       "date": "2026-04-04T20:29:46+02:00",
-      "bugId": "BUG-20260403-143341-88FC"
+      "title": "Participation modal click-through on dashboard"
     },
     {
-      "title": "Enforce white text on destructive buttons",
+      "bugId": "BUG-20260403-143442-4BAE",
       "changeType": "fixed",
       "date": "2026-04-04T20:29:00+02:00",
-      "bugId": "BUG-20260403-143442-4BAE"
+      "title": "Enforce white text on destructive buttons"
     },
     {
-      "title": "Shorten mobile search placeholder, keep long desktop",
+      "bugId": "BUG-20260402-204722-4446",
       "changeType": "fixed",
       "date": "2026-04-02T22:49:30+02:00",
-      "bugId": "BUG-20260402-204722-4446"
+      "title": "Shorten mobile search placeholder, keep long desktop"
     },
     {
-      "title": "Dark mode white bars in FullCalendar",
+      "bugId": "BUG-20260402-204126-5E98",
       "changeType": "fixed",
       "date": "2026-04-02T22:45:28+02:00",
-      "bugId": "BUG-20260402-204126-5E98"
+      "title": "Dark mode white bars in FullCalendar"
     },
     {
-      "title": "Simplify Android subscription UX",
+      "bugId": "BUG-20260402-183114-C206",
       "changeType": "fixed",
       "date": "2026-04-02T22:39:11+02:00",
-      "bugId": "BUG-20260402-183114-C206"
+      "title": "Simplify Android subscription UX"
     },
     {
-      "title": "Make delete confirmation fail visibly",
+      "bugId": "BUG-20260402-170933-95EC",
       "changeType": "fixed",
       "date": "2026-04-02T22:32:00+02:00",
-      "bugId": "BUG-20260402-170933-95EC"
+      "title": "Make delete confirmation fail visibly"
     }
-  ]
+  ],
+  "generatedAt": "2026-04-09T15:40:19.469Z",
+  "releaseId": "0.1.0@fa1160ddbd9b",
+  "source": "hybrid"
 }

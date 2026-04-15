@@ -28,12 +28,17 @@ export function DetailDeleteSection({ canDelete, onDelete, entityTitle }: Detail
 
   if (!canDelete) return null;
 
-  const title = t("js.common.confirmDeleteTitle") !== "js.common.confirmDeleteTitle" ? t("js.common.confirmDeleteTitle") : "Delete?";
+  const title =
+    t("js.common.confirmDeleteTitle") !== "js.common.confirmDeleteTitle"
+      ? t("js.common.confirmDeleteTitle")
+      : "Delete?";
   const message = entityTitle
-    ? (t("js.common.confirmDeleteMessageNamed") !== "js.common.confirmDeleteMessageNamed"
+    ? t("js.common.confirmDeleteMessageNamed") !== "js.common.confirmDeleteMessageNamed"
       ? t("js.common.confirmDeleteMessageNamed").replace("%s", entityTitle)
-      : `Delete "${entityTitle}"? This cannot be undone.`)
-    : (t("js.common.confirmDeleteMessage") !== "js.common.confirmDeleteMessage" ? t("js.common.confirmDeleteMessage") : "This cannot be undone.");
+      : `Delete "${entityTitle}"? This cannot be undone.`
+    : t("js.common.confirmDeleteMessage") !== "js.common.confirmDeleteMessage"
+      ? t("js.common.confirmDeleteMessage")
+      : "This cannot be undone.";
   const confirmLabel = t("js.common.delete") !== "js.common.delete" ? t("js.common.delete") : "Delete";
   const cancelLabel = t("js.common.cancel") !== "js.common.cancel" ? t("js.common.cancel") : "Cancel";
 
@@ -50,11 +55,7 @@ export function DetailDeleteSection({ canDelete, onDelete, entityTitle }: Detail
               ? t("js.common.deleteSectionHint")
               : "Permanently remove this item."}
           </p>
-          <ActionButton
-            variant="outline-error"
-            onClick={() => setConfirmOpen(true)}
-            data-bnote-hotkey-action="delete"
-          >
+          <ActionButton variant="outline-error" onClick={() => setConfirmOpen(true)} data-bnote-hotkey-action="delete">
             <Trash2 className="h-4 w-4" />
             {confirmLabel}
           </ActionButton>

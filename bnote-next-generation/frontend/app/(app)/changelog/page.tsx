@@ -34,9 +34,9 @@ export default function ChangelogPage() {
         setError(
           err instanceof Error
             ? err.message
-            : (t("js.common.loadFailed") !== "js.common.loadFailed"
-                ? t("js.common.loadFailed")
-                : "Failed to load data.")
+            : t("js.common.loadFailed") !== "js.common.loadFailed"
+              ? t("js.common.loadFailed")
+              : "Failed to load data."
         );
       } finally {
         if (!cancelled) setLoading(false);
@@ -58,9 +58,7 @@ export default function ChangelogPage() {
       />
 
       {error ? (
-        <div className="rounded-box border border-error/30 bg-error/10 px-4 py-3 text-sm text-error">
-          {error}
-        </div>
+        <div className="rounded-box border border-error/30 bg-error/10 px-4 py-3 text-sm text-error">{error}</div>
       ) : null}
 
       {loading ? (
@@ -81,12 +79,11 @@ export default function ChangelogPage() {
             <ul className="space-y-4">
               {entries.map((entry) => (
                 <li key={`${entry.bugId ?? "note"}-${entry.title}-${entry.date}`} className="text-sm">
-                  <div className="text-base-content">- {changeTypeLabel(entry.changeType)}: {entry.title}</div>
+                  <div className="text-base-content">
+                    - {changeTypeLabel(entry.changeType)}: {entry.title}
+                  </div>
                   <div className="mt-1 pl-4 text-xs text-base-content/65">
-                    {[
-                      entry.bugId ?? "",
-                      entry.date ? formatDateShortDisplay(entry.date, lang) : "",
-                    ]
+                    {[entry.bugId ?? "", entry.date ? formatDateShortDisplay(entry.date, lang) : ""]
                       .filter(Boolean)
                       .join(" · ")}
                   </div>

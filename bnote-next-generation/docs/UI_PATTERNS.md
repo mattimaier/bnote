@@ -39,14 +39,14 @@ Applies to: Users, Contacts, Locations, Equipment, Outfits, Repertoire (songs), 
 
 All entity detail views and profile/edit screens use the **same** components and layout.
 
-| Component | Location | Use |
-|-----------|----------|-----|
-| **DetailPageHeader** | `components/DetailPageHeader.tsx` | Every detail page: title (left), optional subtitle, optional right slot. |
-| **DetailEditButton** | same file | Right slot when not editing. Edit button is always **right, baseline-aligned** with the title. |
-| **EditingBar** | `components/EditingBar.tsx` | Shown when in edit mode: Save/Cancel, optional form submit. Same styling everywhere. |
-| **SelectPicker** | `components/SelectPicker.tsx` | Single-select in edit mode (instruments, conductors, locations, etc.). **Never** use native `<select>` for entity/profile pickers. |
-| **StatusPicker** | `components/entities/event/StatusPicker.tsx` | Badge-style status picker in edit mode. Use for any status-like field (active/inactive, event status, finished state, etc.). |
-| **DetailCard** | `components/DetailCard.tsx` | Wrap all detail content (view and edit) in at least one card: rounded border, card background (“white boxes”). Same look as rehearsals/concerts. |
+| Component            | Location                                     | Use                                                                                                                                              |
+| -------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **DetailPageHeader** | `components/DetailPageHeader.tsx`            | Every detail page: title (left), optional subtitle, optional right slot.                                                                         |
+| **DetailEditButton** | same file                                    | Right slot when not editing. Edit button is always **right, baseline-aligned** with the title.                                                   |
+| **EditingBar**       | `components/EditingBar.tsx`                  | Shown when in edit mode: Save/Cancel, optional form submit. Same styling everywhere.                                                             |
+| **SelectPicker**     | `components/SelectPicker.tsx`                | Single-select in edit mode (instruments, conductors, locations, etc.). **Never** use native `<select>` for entity/profile pickers.               |
+| **StatusPicker**     | `components/entities/event/StatusPicker.tsx` | Badge-style status picker in edit mode. Use for any status-like field (active/inactive, event status, finished state, etc.).                     |
+| **DetailCard**       | `components/DetailCard.tsx`                  | Wrap all detail content (view and edit) in at least one card: rounded border, card background (“white boxes”). Same look as rehearsals/concerts. |
 
 **Layout rules:**
 

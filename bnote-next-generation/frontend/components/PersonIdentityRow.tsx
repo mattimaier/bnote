@@ -27,23 +27,11 @@ export function PersonIdentityRow({
   const displaySubtitle = subtitle?.trim() || null;
 
   return (
-    <span
-      className={`flex items-center min-w-0 ${compact ? "gap-2" : "gap-3"} ${className}`.trim()}
-    >
-      <Avatar
-        email={email}
-        name={displayName}
-        size={avatarSize}
-        variant={avatarVariant}
-        className="shrink-0"
-      />
+    <span className={`flex items-center min-w-0 ${compact ? "gap-2" : "gap-3"} ${className}`.trim()}>
+      <Avatar email={email} name={displayName} size={avatarSize} variant={avatarVariant} className="shrink-0" />
       <span className={`flex flex-col min-w-0 ${compact ? "truncate" : ""}`.trim()}>
-        <span className={`truncate ${compact ? "" : "font-medium"} ${nameClassName}`.trim()}>
-          {displayName}
-        </span>
-        {displaySubtitle ? (
-          <span className="text-xs text-base-content/60 truncate">{displaySubtitle}</span>
-        ) : null}
+        <span className={`truncate ${compact ? "" : "font-medium"} ${nameClassName}`.trim()}>{displayName}</span>
+        {displaySubtitle ? <span className="text-xs text-base-content/60 truncate">{displaySubtitle}</span> : null}
       </span>
     </span>
   );

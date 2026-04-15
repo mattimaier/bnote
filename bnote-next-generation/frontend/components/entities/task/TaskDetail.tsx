@@ -60,8 +60,12 @@ export function TaskDetail() {
       await tasksApi.complete(item.id, complete);
       showToast(
         complete
-          ? (t("js.tasks.complete") !== "js.tasks.complete" ? t("js.tasks.complete") : "Task completed")
-          : (t("js.tasks.reopened") !== "js.tasks.reopened" ? t("js.tasks.reopened") : "Task reopened"),
+          ? t("js.tasks.complete") !== "js.tasks.complete"
+            ? t("js.tasks.complete")
+            : "Task completed"
+          : t("js.tasks.reopened") !== "js.tasks.reopened"
+            ? t("js.tasks.reopened")
+            : "Task reopened",
         "success"
       );
       await loadTask();
@@ -92,7 +96,8 @@ export function TaskDetail() {
     return (
       <div className={PAGE_CONTENT_CLASS}>
         <p className="text-sm text-error">
-          {(error ? getErrorMessage(error, t, "js.common.failedToLoad") : "") || (t("js.tasks.notFound") !== "js.tasks.notFound" ? t("js.tasks.notFound") : "Task not found.")}
+          {(error ? getErrorMessage(error, t, "js.common.failedToLoad") : "") ||
+            (t("js.tasks.notFound") !== "js.tasks.notFound" ? t("js.tasks.notFound") : "Task not found.")}
         </p>
       </div>
     );
@@ -102,9 +107,7 @@ export function TaskDetail() {
     <div className={PAGE_CONTENT_CLASS}>
       <DetailPageHeader
         title={item.title || emptyText}
-        right={
-          <DetailEditButton onClick={() => router.push(getEntityPath("task", item.id, "edit"))} />
-        }
+        right={<DetailEditButton onClick={() => router.push(getEntityPath("task", item.id, "edit"))} />}
       />
 
       <DetailCard>
@@ -120,8 +123,12 @@ export function TaskDetail() {
               />
               <span className="text-sm font-medium">
                 {item.is_complete
-                  ? (t("js.tasks.completed") !== "js.tasks.completed" ? t("js.tasks.completed") : "Completed")
-                  : (t("js.tasks.complete") !== "js.tasks.complete" ? t("js.tasks.complete") : "Complete")}
+                  ? t("js.tasks.completed") !== "js.tasks.completed"
+                    ? t("js.tasks.completed")
+                    : "Completed"
+                  : t("js.tasks.complete") !== "js.tasks.complete"
+                    ? t("js.tasks.complete")
+                    : "Complete"}
               </span>
             </label>
           </div>

@@ -55,9 +55,9 @@ export function isAddressLike(text: string): boolean {
   return hasLetter && (hasStreetHint || (hasDigit && (hasZip || hasComma)));
 }
 
-export function getAddressInfo(value: AddressParts | string | null | undefined):
-  | { formatted: string; query: string }
-  | null {
+export function getAddressInfo(
+  value: AddressParts | string | null | undefined
+): { formatted: string; query: string } | null {
   if (!value) return null;
   if (typeof value === "string") {
     const raw = value.trim();

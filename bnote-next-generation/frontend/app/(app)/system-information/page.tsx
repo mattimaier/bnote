@@ -5,10 +5,7 @@ import { AppPageHeader } from "@/components/AppPageHeader";
 import { PageContent } from "@/components/PageContent";
 import { useI18n } from "@/contexts/I18nContext";
 import { formatDateTimeShort } from "@/lib/date-time";
-import {
-  systemInformationApi,
-  type SystemInformationOverview,
-} from "@/lib/system-information-api";
+import { systemInformationApi, type SystemInformationOverview } from "@/lib/system-information-api";
 
 export default function SystemInformationPage() {
   const { t, lang } = useI18n();
@@ -31,9 +28,9 @@ export default function SystemInformationPage() {
         setError(
           err instanceof Error
             ? err.message
-            : (t("js.common.loadFailed") !== "js.common.loadFailed"
-                ? t("js.common.loadFailed")
-                : "Failed to load data.")
+            : t("js.common.loadFailed") !== "js.common.loadFailed"
+              ? t("js.common.loadFailed")
+              : "Failed to load data."
         );
       } finally {
         if (!cancelled) setLoading(false);
@@ -49,16 +46,11 @@ export default function SystemInformationPage() {
       <AppPageHeader
         moduleKey="system-information"
         title={label("js.systemInformation.title", "System Information")}
-        subtitle={label(
-          "js.systemInformation.subtitle",
-          "Legacy core data and Next Generation build metadata."
-        )}
+        subtitle={label("js.systemInformation.subtitle", "Legacy core data and Next Generation build metadata.")}
       />
 
       {error ? (
-        <div className="rounded-box border border-error/30 bg-error/10 px-4 py-3 text-sm text-error">
-          {error}
-        </div>
+        <div className="rounded-box border border-error/30 bg-error/10 px-4 py-3 text-sm text-error">{error}</div>
       ) : null}
 
       {loading ? (
@@ -85,7 +77,10 @@ export default function SystemInformationPage() {
               value={overview.demo_mode ? label("js.common.yes", "Yes") : label("js.common.no", "No")}
             />
             <InfoRow label={label("js.systemInformation.systemUrl", "System URL")} value={overview.system_url || "—"} />
-            <InfoRow label={label("js.systemInformation.modulesCount", "Modules")} value={String(overview.modules_count ?? 0)} />
+            <InfoRow
+              label={label("js.systemInformation.modulesCount", "Modules")}
+              value={String(overview.modules_count ?? 0)}
+            />
           </dl>
         </section>
       ) : null}
@@ -96,9 +91,18 @@ export default function SystemInformationPage() {
             {label("js.systemInformation.section.build", "Next Generation Build")}
           </h2>
           <dl className="mt-3 grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
-            <InfoRow label={label("js.systemInformation.version", "Version")} value={overview.nextgen.version || "unknown"} />
-            <InfoRow label={label("js.systemInformation.buildId", "Build ID")} value={overview.nextgen.buildId || "unknown"} />
-            <InfoRow label={label("js.systemInformation.commit", "Commit")} value={overview.nextgen.commit || "unknown"} />
+            <InfoRow
+              label={label("js.systemInformation.version", "Version")}
+              value={overview.nextgen.version || "unknown"}
+            />
+            <InfoRow
+              label={label("js.systemInformation.buildId", "Build ID")}
+              value={overview.nextgen.buildId || "unknown"}
+            />
+            <InfoRow
+              label={label("js.systemInformation.commit", "Commit")}
+              value={overview.nextgen.commit || "unknown"}
+            />
             <InfoRow
               label={label("js.systemInformation.buildTime", "Build time")}
               value={formatDateTimeShort(overview.nextgen.buildTime, lang) ?? (overview.nextgen.buildTime || "unknown")}
@@ -106,7 +110,6 @@ export default function SystemInformationPage() {
           </dl>
         </section>
       ) : null}
-
     </PageContent>
   );
 }

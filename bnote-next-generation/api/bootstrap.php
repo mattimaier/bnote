@@ -21,20 +21,20 @@
 /**
  * API Bootstrap - Loads all required base classes
  * This ensures all dependencies are available before loading module-specific classes
- * 
+ *
  * Based on the loading order from src/logic/controller.php
- * 
+ *
  * Note: Database and Regex are loaded by Systemdata (in init.php)
  * ApplicationDataProvider is loaded conditionally by abstractdata.php
  */
 
 // Load field types (used by all data classes to define field types)
-require_once $GLOBALS['DIR_DATA'] . 'fieldtype.php';
+require_once $GLOBALS["DIR_DATA"] . "fieldtype.php";
 
 // Load abstract base classes (dependency order matters)
 // AbstractData loads ApplicationDataProvider conditionally
-require_once $GLOBALS['DIR_DATA'] . 'abstractdata.php';
-require_once $GLOBALS['DIR_DATA'] . 'abstractlocationdata.php';
+require_once $GLOBALS["DIR_DATA"] . "abstractdata.php";
+require_once $GLOBALS["DIR_DATA"] . "abstractlocationdata.php";
 
 // Some data classes (e.g. UserData, Systemdata, AbstimmungData) require
 // LoginController, which itself extends DefaultController. In the main
@@ -42,4 +42,5 @@ require_once $GLOBALS['DIR_DATA'] . 'abstractlocationdata.php';
 // The Next API runs without those entrypoints, so we must ensure
 // DefaultController is available before any LoginController includes happen
 // (otherwise PHP will throw "Class \"DefaultController\" not found").
-require_once $GLOBALS['DIR_LOGIC'] . 'defaultcontroller.php';
+require_once $GLOBALS["DIR_LOGIC"] . "defaultcontroller.php";
+require_once __DIR__ . "/legacy_module_names.php";

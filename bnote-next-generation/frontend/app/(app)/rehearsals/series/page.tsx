@@ -53,34 +53,51 @@ export default function RehearsalSeriesListPage() {
   }, [items]);
 
   if (!ready) {
-    return <div className="flex items-center justify-center py-12"><Spinner /></div>;
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Spinner />
+      </div>
+    );
   }
 
   return (
     <PageContent className="px-1 md:px-4">
       <AppPageHeader
         moduleKey="rehearsal"
-        title={t("js.rehearsals.series.listTitle") !== "js.rehearsals.series.listTitle" ? t("js.rehearsals.series.listTitle") : "Rehearsal series"}
-        actions={(
+        title={
+          t("js.rehearsals.series.listTitle") !== "js.rehearsals.series.listTitle"
+            ? t("js.rehearsals.series.listTitle")
+            : "Rehearsal series"
+        }
+        actions={
           <ActionButton href="/rehearsals/series/detail?new=1&edit=1">
             <Plus className="h-4 w-4" />
-            {t("js.rehearsals.series.createButton") !== "js.rehearsals.series.createButton" ? t("js.rehearsals.series.createButton") : "Create series"}
+            {t("js.rehearsals.series.createButton") !== "js.rehearsals.series.createButton"
+              ? t("js.rehearsals.series.createButton")
+              : "Create series"}
           </ActionButton>
-        )}
+        }
       />
 
       {error && <div className="rounded-lg border border-error bg-error/15 text-error px-4 py-3 text-sm">{error}</div>}
 
       {loading ? (
-        <div className="overflow-hidden rounded-xl border" style={{ borderColor: "var(--border)", background: "var(--card)" }}>
-          <div className="flex items-center justify-center py-12"><Spinner /></div>
+        <div
+          className="overflow-hidden rounded-xl border"
+          style={{ borderColor: "var(--border)", background: "var(--card)" }}
+        >
+          <div className="flex items-center justify-center py-12">
+            <Spinner />
+          </div>
         </div>
       ) : (
         <div className="space-y-6">
           <SeriesTableSection
-            title={t("js.rehearsals.series.activeTitle") !== "js.rehearsals.series.activeTitle"
-              ? t("js.rehearsals.series.activeTitle")
-              : "Active series"}
+            title={
+              t("js.rehearsals.series.activeTitle") !== "js.rehearsals.series.activeTitle"
+                ? t("js.rehearsals.series.activeTitle")
+                : "Active series"
+            }
             items={activeItems}
             onOpen={(seriesId) => router.push(`/rehearsals/series/detail?seriesId=${seriesId}`)}
             t={t}
@@ -122,8 +139,13 @@ function SeriesTableSection({
 
   return (
     <div>
-      <h2 className="text-lg font-semibold" style={{ color: "var(--foreground)" }}>{title}</h2>
-      <div className="mt-3 overflow-hidden rounded-xl border" style={{ borderColor: "var(--border)", background: "var(--card)" }}>
+      <h2 className="text-lg font-semibold" style={{ color: "var(--foreground)" }}>
+        {title}
+      </h2>
+      <div
+        className="mt-3 overflow-hidden rounded-xl border"
+        style={{ borderColor: "var(--border)", background: "var(--card)" }}
+      >
         <ResponsiveTable<RehearsalSeriesSummary, never>
           rows={items}
           getRowKey={(row) => row.id}
@@ -132,7 +154,11 @@ function SeriesTableSection({
             <EntityListRow
               icon={<CalendarDays className="h-4 w-4" />}
               primary={<span className="font-semibold">{row.name || `#${row.id}`}</span>}
-              secondary={<span>{localizeDate(row.firstSession)} - {localizeDate(row.lastSession)} ({row.rehearsalCount})</span>}
+              secondary={
+                <span>
+                  {localizeDate(row.firstSession)} - {localizeDate(row.lastSession)} ({row.rehearsalCount})
+                </span>
+              }
               onClick={() => onOpen(row.id)}
             />
           )}
@@ -145,23 +171,39 @@ function SeriesTableSection({
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b" style={{ borderColor: "var(--border)" }}>
-                <th className="p-3 text-left">{t("js.common.name") !== "js.common.name" ? t("js.common.name") : "Name"}</th>
+                <th className="p-3 text-left">
+                  {t("js.common.name") !== "js.common.name" ? t("js.common.name") : "Name"}
+                </th>
                 <th className="p-3 text-left">{t("js.rehearsals.series.firstSession")}</th>
                 <th className="p-3 text-left">{t("js.rehearsals.series.lastSession")}</th>
-                <th className="p-3 text-left">{t("js.rehearsals.series.sessions") !== "js.rehearsals.series.sessions" ? t("js.rehearsals.series.sessions") : "Sessions"}</th>
+                <th className="p-3 text-left">
+                  {t("js.rehearsals.series.sessions") !== "js.rehearsals.series.sessions"
+                    ? t("js.rehearsals.series.sessions")
+                    : "Sessions"}
+                </th>
               </tr>
             </thead>
             <tbody>
               {items.length === 0 ? (
-                <tr><td className="p-8 text-center" colSpan={4}>{t("js.common.noData") !== "js.common.noData" ? t("js.common.noData") : "No data"}</td></tr>
-              ) : items.map((row) => (
-                <tr key={row.id} className="cursor-pointer border-b border-base-300 hover:bg-base-200/70" onClick={() => onOpen(row.id)}>
-                  <td className="p-3">{row.name || `#${row.id}`}</td>
-                  <td className="p-3">{localizeDate(row.firstSession)}</td>
-                  <td className="p-3">{localizeDate(row.lastSession)}</td>
-                  <td className="p-3">{row.rehearsalCount}</td>
+                <tr>
+                  <td className="p-8 text-center" colSpan={4}>
+                    {t("js.common.noData") !== "js.common.noData" ? t("js.common.noData") : "No data"}
+                  </td>
                 </tr>
-              ))}
+              ) : (
+                items.map((row) => (
+                  <tr
+                    key={row.id}
+                    className="cursor-pointer border-b border-base-300 hover:bg-base-200/70"
+                    onClick={() => onOpen(row.id)}
+                  >
+                    <td className="p-3">{row.name || `#${row.id}`}</td>
+                    <td className="p-3">{localizeDate(row.firstSession)}</td>
+                    <td className="p-3">{localizeDate(row.lastSession)}</td>
+                    <td className="p-3">{row.rehearsalCount}</td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </ResponsiveTable>

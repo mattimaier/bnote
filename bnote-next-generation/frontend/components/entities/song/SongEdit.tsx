@@ -79,9 +79,7 @@ export function SongEdit() {
         setNotes(s.notes ?? "");
         setIsActive(s.is_active ?? true);
       })
-      .catch((err) =>
-        setError(getErrorMessage(err, t, "js.common.failedToLoad"))
-      )
+      .catch((err) => setError(getErrorMessage(err, t, "js.common.failedToLoad")))
       .finally(() => setLoading(false));
   }, [id, isNew]);
 
@@ -116,20 +114,13 @@ export function SongEdit() {
       if (isNew) {
         const res = await repertoireApi.create(payload);
         showToast(
-          t("js.repertoire.created") !== "js.repertoire.created"
-            ? t("js.repertoire.created")
-            : "Song created",
+          t("js.repertoire.created") !== "js.repertoire.created" ? t("js.repertoire.created") : "Song created",
           "success"
         );
         router.replace(getEntityPath("song", res.id, "view"));
       } else {
         await repertoireApi.update(parseInt(id, 10), payload);
-        showToast(
-          t("js.common.saved") !== "js.common.saved"
-            ? t("js.common.saved")
-            : "Saved",
-          "success"
-        );
+        showToast(t("js.common.saved") !== "js.common.saved" ? t("js.common.saved") : "Saved", "success");
         router.replace(getEntityPath("song", id, "view"));
       }
     } catch (err) {
@@ -204,18 +195,14 @@ export function SongEdit() {
     <div className={PAGE_CONTENT_CLASS}>
       <form id="song-edit-form" onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div className="rounded-box border border-error bg-error/15 px-4 py-3 text-sm text-error">
-            {error}
-          </div>
+          <div className="rounded-box border border-error bg-error/15 px-4 py-3 text-sm text-error">{error}</div>
         )}
 
         <div className="rounded-none border-0 shadow-none p-4 md:rounded-box md:border md:border-base-300 md:shadow-sm md:p-6 bg-base-100 md:bg-base-100 text-base-content">
           <div className="space-y-4">
             <div>
               <label className="mb-1 block text-sm font-medium">
-                {t("js.repertoire.songTitle") !== "js.repertoire.songTitle"
-                  ? t("js.repertoire.songTitle")
-                  : "Title"}
+                {t("js.repertoire.songTitle") !== "js.repertoire.songTitle" ? t("js.repertoire.songTitle") : "Title"}
               </label>
               <input
                 type="text"
@@ -226,9 +213,7 @@ export function SongEdit() {
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium">
-                {t("js.repertoire.composer") !== "js.repertoire.composer"
-                  ? t("js.repertoire.composer")
-                  : "Composer"}
+                {t("js.repertoire.composer") !== "js.repertoire.composer" ? t("js.repertoire.composer") : "Composer"}
               </label>
               <input
                 type="text"
@@ -240,9 +225,7 @@ export function SongEdit() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="mb-1 block text-sm font-medium">
-                  {t("js.repertoire.genre") !== "js.repertoire.genre"
-                    ? t("js.repertoire.genre")
-                    : "Genre"}
+                  {t("js.repertoire.genre") !== "js.repertoire.genre" ? t("js.repertoire.genre") : "Genre"}
                 </label>
                 <SelectPicker
                   options={genreOptions}
@@ -254,9 +237,7 @@ export function SongEdit() {
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium">
-                  {t("js.repertoire.status") !== "js.repertoire.status"
-                    ? t("js.repertoire.status")
-                    : "Status"}
+                  {t("js.repertoire.status") !== "js.repertoire.status" ? t("js.repertoire.status") : "Status"}
                 </label>
                 <StatusPicker
                   options={statusOptions.map((opt) => (opt.id === 0 ? "" : toStatusKey(opt.name)))}
@@ -273,9 +254,7 @@ export function SongEdit() {
             <div className="grid grid-cols-3 gap-4">
               <div>
                 <label className="mb-1 block text-sm font-medium">
-                  {t("js.repertoire.length") !== "js.repertoire.length"
-                    ? t("js.repertoire.length")
-                    : "Length"}
+                  {t("js.repertoire.length") !== "js.repertoire.length" ? t("js.repertoire.length") : "Length"}
                 </label>
                 <input
                   type="text"
@@ -287,9 +266,7 @@ export function SongEdit() {
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium">
-                  {t("js.repertoire.bpm") !== "js.repertoire.bpm"
-                    ? t("js.repertoire.bpm")
-                    : "BPM"}
+                  {t("js.repertoire.bpm") !== "js.repertoire.bpm" ? t("js.repertoire.bpm") : "BPM"}
                 </label>
                 <input
                   type="number"
@@ -301,9 +278,7 @@ export function SongEdit() {
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium">
-                  {t("js.repertoire.musicKey") !== "js.repertoire.musicKey"
-                    ? t("js.repertoire.musicKey")
-                    : "Key"}
+                  {t("js.repertoire.musicKey") !== "js.repertoire.musicKey" ? t("js.repertoire.musicKey") : "Key"}
                 </label>
                 <input
                   type="text"
@@ -315,9 +290,7 @@ export function SongEdit() {
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium">
-                {t("js.repertoire.setting") !== "js.repertoire.setting"
-                  ? t("js.repertoire.setting")
-                  : "Setting"}
+                {t("js.repertoire.setting") !== "js.repertoire.setting" ? t("js.repertoire.setting") : "Setting"}
               </label>
               <input
                 type="text"
@@ -328,9 +301,7 @@ export function SongEdit() {
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium">
-                {t("js.repertoire.notes") !== "js.repertoire.notes"
-                  ? t("js.repertoire.notes")
-                  : "Notes"}
+                {t("js.repertoire.notes") !== "js.repertoire.notes" ? t("js.repertoire.notes") : "Notes"}
               </label>
               <NotesEditor
                 value={notes}
@@ -341,9 +312,7 @@ export function SongEdit() {
             </div>
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium">
-                {t("js.repertoire.isActive") !== "js.repertoire.isActive"
-                  ? t("js.repertoire.isActive")
-                  : "Active"}
+                {t("js.repertoire.isActive") !== "js.repertoire.isActive" ? t("js.repertoire.isActive") : "Active"}
               </label>
               <StatusPicker
                 options={["active", "inactive"]}

@@ -109,14 +109,18 @@ function Icon({ name, className = "h-5 w-5", ...props }: IconProps & { name: str
 
 /** Renders a Tabler icon by name without creating a new component type each render (eslint static-components). */
 export function TablerIconByName({ name, ...props }: IconProps & { name: string }) {
-  const key = String(name || "").toLowerCase().trim();
+  const key = String(name || "")
+    .toLowerCase()
+    .trim();
   const resolved = Object.keys(TABLER_MAP).find((k) => k === key) ?? "layout-dashboard";
   return <Icon name={resolved} {...props} />;
 }
 
 /** Returns a React component that renders the Tabler icon for the given name */
 export function getIcon(name: string): React.ComponentType<IconProps> {
-  const key = String(name || "").toLowerCase().trim();
+  const key = String(name || "")
+    .toLowerCase()
+    .trim();
   const iconName = Object.keys(TABLER_MAP).find((k) => k === key) ?? "layout-dashboard";
   const IconComponent = (props: IconProps) => <Icon name={iconName} {...props} />;
   IconComponent.displayName = `Icon(${iconName})`;

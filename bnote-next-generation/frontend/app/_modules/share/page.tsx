@@ -11,12 +11,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useI18n } from "@/contexts/I18nContext";
 import { useToast } from "@/contexts/ToastContext";
-import {
-  shareApi,
-  type ShareRoot,
-  type ShareItem,
-  type ShareBrowseResult,
-} from "@/lib/share-api";
+import { shareApi, type ShareRoot, type ShareItem, type ShareBrowseResult } from "@/lib/share-api";
 import { ShareFileList } from "@/components/share/ShareFileList";
 import { ShareUploadZone } from "@/components/share/ShareUploadZone";
 import { getIcon } from "@/components/icons";
@@ -62,11 +57,7 @@ export default function SharePage() {
       setLoading(true);
       setError("");
       try {
-        const res = await shareApi.browse(
-          path,
-          sortKey ?? undefined,
-          sortDir
-        );
+        const res = await shareApi.browse(path, sortKey ?? undefined, sortDir);
         setBrowseResult(res);
       } catch (err) {
         setError(getErrorMessage(err, t, "js.share.failedToLoad"));
@@ -151,48 +142,43 @@ export default function SharePage() {
     window.open(url, "_blank");
   }, [effectivePath]);
 
-  const handleCreateFolder = useCallback(
-    async () => {
-      const name = newFolderName.trim();
-      if (!name) return;
-      try {
-        await shareApi.createFolder(effectivePath, name);
-        showToast(t("js.share.folderCreated"), "success");
-        setCreateFolderModal(false);
-        setNewFolderName("");
-        loadBrowse(effectivePath);
-      } catch (err) {
-        showToast(err instanceof Error ? err.message : t("js.share.createFolderFailed"), "error");
-      }
-    },
-    [effectivePath, newFolderName, showToast, loadBrowse, t]
-  );
+  const handleCreateFolder = useCallback(async () => {
+    const name = newFolderName.trim();
+    if (!name) return;
+    try {
+      await shareApi.createFolder(effectivePath, name);
+      showToast(t("js.share.folderCreated"), "success");
+      setCreateFolderModal(false);
+      setNewFolderName("");
+      loadBrowse(effectivePath);
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : t("js.share.createFolderFailed"), "error");
+    }
+  }, [effectivePath, newFolderName, showToast, loadBrowse, t]);
 
   const handleOpenRenameModal = useCallback((item: ShareItem) => {
     setRenameModal(item);
     setRenameName(item.name);
   }, []);
 
-  const handleRename = useCallback(
-    async () => {
-      if (!renameModal) return;
-      const nextName = renameName.trim();
-      if (!nextName) return;
-      try {
-        await shareApi.rename(renameModal.path, nextName);
-        showToast(t("js.share.renamed"), "success");
-        setRenameModal(null);
-        setRenameName("");
-        loadBrowse(effectivePath);
-      } catch (err) {
-        showToast(err instanceof Error ? err.message : t("js.share.renameFailed"), "error");
-      }
-    },
-    [effectivePath, loadBrowse, renameModal, renameName, showToast, t]
-  );
+  const handleRename = useCallback(async () => {
+    if (!renameModal) return;
+    const nextName = renameName.trim();
+    if (!nextName) return;
+    try {
+      await shareApi.rename(renameModal.path, nextName);
+      showToast(t("js.share.renamed"), "success");
+      setRenameModal(null);
+      setRenameName("");
+      loadBrowse(effectivePath);
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : t("js.share.renameFailed"), "error");
+    }
+  }, [effectivePath, loadBrowse, renameModal, renameName, showToast, t]);
 
   const title = t("js.share.title") !== "js.share.title" ? t("js.share.title") : "Share";
-  const subtitle = t("js.share.subtitle") !== "js.share.subtitle" ? t("js.share.subtitle") : "Browse and manage shared files";
+  const subtitle =
+    t("js.share.subtitle") !== "js.share.subtitle" ? t("js.share.subtitle") : "Browse and manage shared files";
 
   if (!ready) {
     return (
@@ -309,12 +295,7 @@ export default function SharePage() {
           )}
 
           {/* Upload zone */}
-          {browseResult?.permissions?.canWrite && (
-            <ShareUploadZone
-              onUpload={handleUpload}
-              disabled={loading}
-            />
-          )}
+          {browseResult?.permissions?.canWrite && <ShareUploadZone onUpload={handleUpload} disabled={loading} />}
 
           {/* File list */}
           {loading ? (
@@ -342,12 +323,16 @@ export default function SharePage() {
       <ConfirmModal
         open={Boolean(deleteModal)}
         onClose={() => setDeleteModal(null)}
-        title={t("js.common.confirmDeleteTitle") !== "js.common.confirmDeleteTitle" ? t("js.common.confirmDeleteTitle") : "Delete?"}
+        title={
+          t("js.common.confirmDeleteTitle") !== "js.common.confirmDeleteTitle"
+            ? t("js.common.confirmDeleteTitle")
+            : "Delete?"
+        }
         message={
           deleteModal
-            ? (t("js.common.confirmDeleteMessageNamed") !== "js.common.confirmDeleteMessageNamed"
+            ? t("js.common.confirmDeleteMessageNamed") !== "js.common.confirmDeleteMessageNamed"
               ? t("js.common.confirmDeleteMessageNamed").replace("%s", deleteModal.name)
-              : `Delete "${deleteModal.name}"? This cannot be undone.`)
+              : `Delete "${deleteModal.name}"? This cannot be undone.`
             : ""
         }
         confirmLabel={t("js.common.delete") !== "js.common.delete" ? t("js.common.delete") : "Delete"}

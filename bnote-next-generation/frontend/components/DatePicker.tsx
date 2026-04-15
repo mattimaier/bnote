@@ -196,11 +196,7 @@ export function DatePicker({
   const langKey = locale?.split("-")[0]?.toLowerCase() ?? "en";
   const localePlaceholders = PLACEHOLDER_BY_LOCALE[langKey] ?? PLACEHOLDER_BY_LOCALE.en;
   const placeholderFallback =
-    mode === "date"
-      ? localePlaceholders.date
-      : mode === "time"
-        ? localePlaceholders.time
-        : localePlaceholders.datetime;
+    mode === "date" ? localePlaceholders.date : mode === "time" ? localePlaceholders.time : localePlaceholders.datetime;
 
   const usesAltInput = mode === "date" || mode === "datetime";
 
@@ -212,7 +208,7 @@ export function DatePicker({
       placeholder={placeholder ?? placeholderFallback}
       disabled={disabled}
       id={usesAltInput ? undefined : id}
-      autoComplete={usesAltInput ? "off" : autoCompleteProp ?? "off"}
+      autoComplete={usesAltInput ? "off" : (autoCompleteProp ?? "off")}
       {...(usesAltInput ? { "data-1p-ignore": "" as const } : {})}
     />
   );

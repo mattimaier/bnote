@@ -18,7 +18,10 @@ export function DebugBreadcrumb({ items }: { items: DebugCrumb[] }) {
         <span key={`${item.label}-${i}`} className="flex items-center gap-2">
           {i > 0 ? <span className="text-base-content/35 select-none">/</span> : null}
           {item.href ? (
-            <Link href={item.href} className="link link-hover text-base-content/80 hover:text-primary truncate font-medium">
+            <Link
+              href={item.href}
+              className="link link-hover text-base-content/80 hover:text-primary truncate font-medium"
+            >
               {item.label}
             </Link>
           ) : (
@@ -43,10 +46,7 @@ export function DebugSection({
 }) {
   return (
     <section
-      className={[
-        "rounded-box border border-base-300 bg-base-100/90 p-4 md:p-5 space-y-4 shadow-sm",
-        className ?? "",
-      ]
+      className={["rounded-box border border-base-300 bg-base-100/90 p-4 md:p-5 space-y-4 shadow-sm", className ?? ""]
         .filter(Boolean)
         .join(" ")}
     >

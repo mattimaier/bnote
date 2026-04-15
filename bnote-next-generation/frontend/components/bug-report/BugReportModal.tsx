@@ -61,7 +61,10 @@ export function BugReportModal({ open, onClose }: BugReportModalProps) {
       });
       return dataUrl;
     } catch {
-      showToast(label("js.bugReport.screenshotCaptureFailed", "Screenshot capture failed. Sending report without screenshot."), "error");
+      showToast(
+        label("js.bugReport.screenshotCaptureFailed", "Screenshot capture failed. Sending report without screenshot."),
+        "error"
+      );
       return undefined;
     }
   }
@@ -89,12 +92,7 @@ export function BugReportModal({ open, onClose }: BugReportModalProps) {
       });
 
       const success = label("js.bugReport.sent", "Bug report sent");
-      showToast(
-        response?.reportId
-          ? `${success} (${response.reportId})`
-          : success,
-        "success"
-      );
+      showToast(response?.reportId ? `${success} (${response.reportId})` : success, "success");
       resetForm();
       onClose();
     } catch (err) {
@@ -106,7 +104,12 @@ export function BugReportModal({ open, onClose }: BugReportModalProps) {
   }
 
   return (
-    <Modal open={open} onClose={onClose} title={label("js.bugReport.titleModal", "Report bug")} dialogClassName="max-w-2xl">
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={label("js.bugReport.titleModal", "Report bug")}
+      dialogClassName="max-w-2xl"
+    >
       <form className="space-y-4" onSubmit={handleSubmit}>
         <label className="form-control">
           <span className="label-text text-xs font-medium text-base-content/70">
@@ -126,16 +129,35 @@ export function BugReportModal({ open, onClose }: BugReportModalProps) {
             {label("js.bugReport.includeDiagnostics", "Include diagnostics")}
           </p>
           <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" className="checkbox checkbox-sm checkbox-primary" checked={includeScreenshot} onChange={(e) => setIncludeScreenshot(e.target.checked)} />
+            <input
+              type="checkbox"
+              className="checkbox checkbox-sm checkbox-primary"
+              checked={includeScreenshot}
+              onChange={(e) => setIncludeScreenshot(e.target.checked)}
+            />
             <span>{label("js.bugReport.includeScreenshot", "Include screenshot")}</span>
           </label>
           <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" className="checkbox checkbox-sm checkbox-primary" checked={includeNetwork} onChange={(e) => setIncludeNetwork(e.target.checked)} />
-            <span>{label("js.bugReport.includeNetwork", "Include recent network requests")} ({snapshotCounts.network})</span>
+            <input
+              type="checkbox"
+              className="checkbox checkbox-sm checkbox-primary"
+              checked={includeNetwork}
+              onChange={(e) => setIncludeNetwork(e.target.checked)}
+            />
+            <span>
+              {label("js.bugReport.includeNetwork", "Include recent network requests")} ({snapshotCounts.network})
+            </span>
           </label>
           <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" className="checkbox checkbox-sm checkbox-primary" checked={includeLogs} onChange={(e) => setIncludeLogs(e.target.checked)} />
-            <span>{label("js.bugReport.includeLogs", "Include recent logs")} ({snapshotCounts.logs})</span>
+            <input
+              type="checkbox"
+              className="checkbox checkbox-sm checkbox-primary"
+              checked={includeLogs}
+              onChange={(e) => setIncludeLogs(e.target.checked)}
+            />
+            <span>
+              {label("js.bugReport.includeLogs", "Include recent logs")} ({snapshotCounts.logs})
+            </span>
           </label>
         </div>
 

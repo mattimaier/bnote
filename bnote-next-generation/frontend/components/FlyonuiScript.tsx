@@ -34,7 +34,8 @@ export default function FlyonuiScript() {
       if (
         typeof window !== "undefined" &&
         (window as unknown as { HSStaticMethods?: { autoInit?: () => void } }).HSStaticMethods &&
-        typeof (window as unknown as { HSStaticMethods: { autoInit: () => void } }).HSStaticMethods.autoInit === "function"
+        typeof (window as unknown as { HSStaticMethods: { autoInit: () => void } }).HSStaticMethods.autoInit ===
+          "function"
       ) {
         (window as unknown as { HSStaticMethods: { autoInit: () => void } }).HSStaticMethods.autoInit();
       }

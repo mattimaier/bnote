@@ -33,15 +33,7 @@ const rowStyle: React.CSSProperties = {
   WebkitTapHighlightColor: "transparent",
 } as React.CSSProperties;
 
-export function EntityListRow({
-  icon,
-  primary,
-  badge,
-  secondary,
-  href,
-  onClick,
-  className = "",
-}: EntityListRowProps) {
+export function EntityListRow({ icon, primary, badge, secondary, href, onClick, className = "" }: EntityListRowProps) {
   const iconShellStyle = {
     borderRadius: "30%",
     cornerShape: "superellipse(100%)",
@@ -49,25 +41,18 @@ export function EntityListRow({
 
   const content = (
     <>
-      <div
-        className="mt-0.5 h-6 w-6 shrink-0 flex items-center justify-center overflow-hidden"
-        style={iconShellStyle}
-      >
+      <div className="mt-0.5 h-6 w-6 shrink-0 flex items-center justify-center overflow-hidden" style={iconShellStyle}>
         {icon}
       </div>
       <div className="min-w-0 flex-1 space-y-1">
         <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1 min-w-0">
           <span className="text-sm font-medium min-w-0 break-words whitespace-normal">{primary}</span>
           {badge != null && badge !== false && (
-            <span className="min-w-0 flex flex-wrap items-center gap-1.5">
-              {badge}
-            </span>
+            <span className="min-w-0 flex flex-wrap items-center gap-1.5">{badge}</span>
           )}
         </div>
         {secondary != null && secondary !== false && (
-          <div
-            className="flex flex-wrap items-start gap-x-3 gap-y-0.5 text-xs leading-snug text-base-content/60"
-          >
+          <div className="flex flex-wrap items-start gap-x-3 gap-y-0.5 text-xs leading-snug text-base-content/60">
             {secondary}
           </div>
         )}
@@ -87,12 +72,7 @@ export function EntityListRow({
 
   if (onClick) {
     return (
-      <button
-        type="button"
-        className={combinedClass}
-        style={rowStyle}
-        onClick={onClick}
-      >
+      <button type="button" className={combinedClass} style={rowStyle} onClick={onClick}>
         {content}
       </button>
     );

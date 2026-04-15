@@ -34,15 +34,7 @@ export interface BugReportClientContext {
 const MAX_NETWORK_EVENTS = 20;
 const MAX_LOG_EVENTS = 50;
 
-const sensitiveNeedles = [
-  "password",
-  "authorization",
-  "cookie",
-  "set-cookie",
-  "secret",
-  "apikey",
-  "api_key",
-];
+const sensitiveNeedles = ["password", "authorization", "cookie", "set-cookie", "secret", "apikey", "api_key"];
 
 let initialized = false;
 const networkEvents: BugReportNetworkEvent[] = [];
@@ -188,9 +180,7 @@ export function getBugReportClientContext(): BugReportClientContext {
   const language = typeof navigator !== "undefined" ? navigator.language : "unknown";
   const userAgent = typeof navigator !== "undefined" ? navigator.userAgent : "unknown";
   const theme =
-    typeof document !== "undefined"
-      ? document.documentElement.getAttribute("data-theme") ?? "unknown"
-      : "unknown";
+    typeof document !== "undefined" ? (document.documentElement.getAttribute("data-theme") ?? "unknown") : "unknown";
 
   return {
     route,

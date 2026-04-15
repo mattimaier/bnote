@@ -135,11 +135,7 @@ function EntityContent() {
     if (typeKey === "vote") {
       if (withChat) {
         return (
-          <EntityChatLayout
-            entityType="vote"
-            entityId={entityIdNum}
-            currentUserId={currentUserId}
-          >
+          <EntityChatLayout entityType="vote" entityId={entityIdNum} currentUserId={currentUserId}>
             <VoteDetail />
           </EntityChatLayout>
         );
@@ -152,18 +148,20 @@ function EntityContent() {
     if (typeKey === "rehearsal" || typeKey === "concert") {
       if (withChat) {
         return (
-          <EntityChatLayout
-            entityType={typeKey}
-            entityId={entityIdNum}
-            currentUserId={currentUserId}
-          >
+          <EntityChatLayout entityType={typeKey} entityId={entityIdNum} currentUserId={currentUserId}>
             <EventDetail type={type} id={id} mode="view" />
           </EntityChatLayout>
         );
       }
     }
     return (
-      <Suspense fallback={<div className="flex items-center justify-center py-12"><Spinner /></div>}>
+      <Suspense
+        fallback={
+          <div className="flex items-center justify-center py-12">
+            <Spinner />
+          </div>
+        }
+      >
         <EventDetail type={type} id={id} mode="view" />
       </Suspense>
     );
@@ -178,7 +176,13 @@ function EntityContent() {
 
 export default function EntityPage() {
   return (
-    <Suspense fallback={<div className="flex items-center justify-center py-12"><Spinner /></div>}>
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center py-12">
+          <Spinner />
+        </div>
+      }
+    >
       <EntityContent />
     </Suspense>
   );

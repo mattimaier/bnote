@@ -3,8 +3,7 @@
  * and BNote `Regex` (special-character set from BNote/src/data/regex.php).
  */
 
-const RX_SPECIAL =
-  "'`,àáâãăäāåæćčçèéêĕëēìíîĭïðłñòóôõöőøœšùúûüűýÿþÀÁÂÃĂÄĀÅÆĆČÇÈÉÊĔËĒÌÍÎĬÏÐŁÑÒÓÔÕÖŐØŒŠÙÚÛÜŰÝÞß";
+const RX_SPECIAL = "'`,àáâãăäāåæćčçèéêĕëēìíîĭïðłñòóôõöőøœšùúûüűýÿþÀÁÂÃĂÄĀÅÆĆČÇÈÉÊĔËĒÌÍÎĬÏÐŁÑÒÓÔÕÖŐØŒŠÙÚÛÜŰÝÞß";
 
 /** Escapes a string for safe inclusion inside a RegExp character class (except final `-` placement). */
 function ccChars(s: string): string {
@@ -20,20 +19,11 @@ function ccChars(s: string): string {
 const _sc = ccChars(RX_SPECIAL);
 
 /** Name / surname / nickname (nickname optional on server). */
-const RX_NAME = new RegExp(
-  `^[\\p{L}\\p{N}${_sc} \\.\\-,;:_+&#'/?()]{1,50}$`,
-  "u",
-);
+const RX_NAME = new RegExp(`^[\\p{L}\\p{N}${_sc} \\.\\-,;:_+&#'/?()]{1,50}$`, "u");
 
-const RX_STREET = new RegExp(
-  `^[\\p{L}${_sc}0-9 \\.,\\-/()]{1,45}$`,
-  "u",
-);
+const RX_STREET = new RegExp(`^[\\p{L}${_sc}0-9 \\.,\\-/()]{1,45}$`, "u");
 
-const RX_CITY = new RegExp(
-  `^[\\p{L}${_sc}0-9 \\.,\\-]{1,45}$`,
-  "u",
-);
+const RX_CITY = new RegExp(`^[\\p{L}${_sc}0-9 \\.,\\-]{1,45}$`, "u");
 
 /** Postal code: 4–7 chars, letters/digits/spaces only (matches server). */
 const RX_ZIP = /^[\p{L}0-9\s]{4,7}$/u;
@@ -44,8 +34,7 @@ const PHONE_RX = /^[0-9+\-/() ]{1,29}$/;
 const RX_PASSWORD = /^[\s\S]{6,45}$/;
 
 const RX_API_DATE = /^\d{4}-\d{2}-\d{2}$/;
-const RX_API_EMAIL =
-  /^[_a-zA-Z0-9-]+(\.[_a-zA-Z0-9-]+)*@([a-zA-Z0-9-]+\.)+([a-zA-Z]{2,4})$/;
+const RX_API_EMAIL = /^[_a-zA-Z0-9-]+(\.[_a-zA-Z0-9-]+)*@([a-zA-Z0-9-]+\.)+([a-zA-Z]{2,4})$/;
 
 function isRealDateYmd(ymd: string): boolean {
   if (!RX_API_DATE.test(ymd)) return false;

@@ -21,7 +21,12 @@ import { PAGE_CONTENT_BASE_CLASS } from "@/lib/layout";
 import { Spinner } from "@/components/Spinner";
 import { useI18n } from "@/contexts/I18nContext";
 import { type StatsDashboardData } from "@/lib/stats-api";
-import { getEntityConfig, getEscalationWarningUiConfig, getEventTypeConfig, getStatusPillStyle } from "@/lib/entity-config";
+import {
+  getEntityConfig,
+  getEscalationWarningUiConfig,
+  getEventTypeConfig,
+  getStatusPillStyle,
+} from "@/lib/entity-config";
 import { EntityListRow } from "@/components/EntityListRow";
 import { ResizableTable, ResizableTh } from "@/components/ResizableTable";
 import { ResponsiveTable } from "@/components/ResponsiveTable";
@@ -44,7 +49,6 @@ const CHART_COLORS = {
   no: PARTICIPATION_SEGMENT_COLORS.no,
   pending: PARTICIPATION_SEGMENT_COLORS.pending,
 };
-
 
 function StatCard({
   iconName,
@@ -255,7 +259,10 @@ export function StatsDashboardContent({
 
   const leadTimeValue = leadTime?.sampleSize ? formatHoursForDisplay(leadTime.medianHours, t, { locale: lang }) : "—";
   const leadTimeHint = leadTime?.sampleSize
-    ? t("js.stats.cards.leadTimeHint", [formatHoursForDisplay(leadTime.p90Hours, t, { locale: lang }), String(leadTime.sampleSize)])
+    ? t("js.stats.cards.leadTimeHint", [
+        formatHoursForDisplay(leadTime.p90Hours, t, { locale: lang }),
+        String(leadTime.sampleSize),
+      ])
     : t("js.stats.cards.leadTimeEmpty");
   const lateRateValue = lateResponses ? `${lateResponses.rate.toFixed(1)}%` : "0.0%";
   const lateRateHint = lateResponses
@@ -271,17 +278,27 @@ export function StatsDashboardContent({
     : t("js.common.empty");
   const activeMemberRate = data?.activeMembersTrend?.overallRate ?? 0;
   const activeMemberHint = data?.activeMembersTrend
-    ? t("js.stats.cards.activeMembersHint", [String(data.activeMembersTrend.active), String(data.activeMembersTrend.total)])
+    ? t("js.stats.cards.activeMembersHint", [
+        String(data.activeMembersTrend.active),
+        String(data.activeMembersTrend.total),
+      ])
     : t("js.common.empty");
-  const taskLatencyValue = taskLatency?.available ? formatHoursForDisplay(taskLatency.overallMedian, t, { locale: lang }) : "—";
+  const taskLatencyValue = taskLatency?.available
+    ? formatHoursForDisplay(taskLatency.overallMedian, t, { locale: lang })
+    : "—";
   const taskLatencyHint = taskLatency?.available
     ? t("js.stats.cards.taskLatencyHint")
     : t("js.stats.cards.taskLatencyEmpty");
-  const voteParticipationValue = data?.voteParticipationTrend ? `${data.voteParticipationTrend.overallRate.toFixed(1)}%` : "—";
+  const voteParticipationValue = data?.voteParticipationTrend
+    ? `${data.voteParticipationTrend.overallRate.toFixed(1)}%`
+    : "—";
   const voteParticipationHint = t("js.stats.cards.voteParticipationHint");
   const reminderUpliftValue = reminderEffectiveness ? `${reminderEffectiveness.upliftRate.toFixed(1)}%` : "—";
   const reminderUpliftHint = reminderEffectiveness
-    ? t("js.stats.cards.reminderEffectivenessHint", [String(reminderEffectiveness.afterCount), String(reminderEffectiveness.beforeCount)])
+    ? t("js.stats.cards.reminderEffectivenessHint", [
+        String(reminderEffectiveness.afterCount),
+        String(reminderEffectiveness.beforeCount),
+      ])
     : t("js.common.empty");
 
   const formatRankingValue = (metricKey: string, value: number) => {
@@ -553,8 +570,20 @@ export function StatsDashboardContent({
                     <YAxis allowDecimals={false} />
                     <Tooltip />
                     <Legend />
-                    <Line type="monotone" dataKey="rehearsals" stroke={CHART_COLORS.rehearsal} strokeWidth={2} name={t("js.sidebar.rehearsals")} />
-                    <Line type="monotone" dataKey="concerts" stroke={CHART_COLORS.concert} strokeWidth={2} name={t("js.sidebar.concerts")} />
+                    <Line
+                      type="monotone"
+                      dataKey="rehearsals"
+                      stroke={CHART_COLORS.rehearsal}
+                      strokeWidth={2}
+                      name={t("js.sidebar.rehearsals")}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="concerts"
+                      stroke={CHART_COLORS.concert}
+                      strokeWidth={2}
+                      name={t("js.sidebar.concerts")}
+                    />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -573,7 +602,12 @@ export function StatsDashboardContent({
                     <Tooltip />
                     <Bar dataKey="count" radius={[6, 6, 0, 0]} name={t("js.stats.labels.members")}>
                       {membersPerGroup.map((entry) => (
-                        <Cell key={`member-group-${entry.name}`} fill={entry.name.toLowerCase().includes("vorstand") ? CHART_COLORS.concert : CHART_COLORS.trend} />
+                        <Cell
+                          key={`member-group-${entry.name}`}
+                          fill={
+                            entry.name.toLowerCase().includes("vorstand") ? CHART_COLORS.concert : CHART_COLORS.trend
+                          }
+                        />
                       ))}
                     </Bar>
                   </BarChart>
@@ -592,7 +626,13 @@ export function StatsDashboardContent({
                     <XAxis dataKey="month" />
                     <YAxis domain={[0, 100]} />
                     <Tooltip />
-                    <Line type="monotone" dataKey="rate" stroke={CHART_COLORS.trend} strokeWidth={2} name={t("js.stats.labels.participationRate")} />
+                    <Line
+                      type="monotone"
+                      dataKey="rate"
+                      stroke={CHART_COLORS.trend}
+                      strokeWidth={2}
+                      name={t("js.stats.labels.participationRate")}
+                    />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -635,10 +675,38 @@ export function StatsDashboardContent({
                     <YAxis allowDecimals={false} />
                     <Tooltip />
                     <Legend />
-                    <Area type="monotone" dataKey="yes" stackId="a" stroke={CHART_COLORS.yes} fill={CHART_COLORS.yes} name={t("js.stats.labels.yes")} />
-                    <Area type="monotone" dataKey="maybe" stackId="a" stroke={CHART_COLORS.maybe} fill={CHART_COLORS.maybe} name={t("js.stats.labels.maybe")} />
-                    <Area type="monotone" dataKey="no" stackId="a" stroke={CHART_COLORS.no} fill={CHART_COLORS.no} name={t("js.stats.labels.no")} />
-                    <Area type="monotone" dataKey="pending" stackId="a" stroke={CHART_COLORS.pending} fill={CHART_COLORS.pending} name={t("js.stats.labels.pendingResponses")} />
+                    <Area
+                      type="monotone"
+                      dataKey="yes"
+                      stackId="a"
+                      stroke={CHART_COLORS.yes}
+                      fill={CHART_COLORS.yes}
+                      name={t("js.stats.labels.yes")}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="maybe"
+                      stackId="a"
+                      stroke={CHART_COLORS.maybe}
+                      fill={CHART_COLORS.maybe}
+                      name={t("js.stats.labels.maybe")}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="no"
+                      stackId="a"
+                      stroke={CHART_COLORS.no}
+                      fill={CHART_COLORS.no}
+                      name={t("js.stats.labels.no")}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="pending"
+                      stackId="a"
+                      stroke={CHART_COLORS.pending}
+                      fill={CHART_COLORS.pending}
+                      name={t("js.stats.labels.pendingResponses")}
+                    />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
@@ -652,9 +720,21 @@ export function StatsDashboardContent({
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={[
-                      { stage: t("js.stats.labels.invited"), value: responseFunnel.invited, color: CHART_COLORS.rehearsal },
-                      { stage: t("js.stats.labels.responded"), value: responseFunnel.responded, color: CHART_COLORS.concert },
-                      { stage: t("js.stats.labels.confirmed"), value: responseFunnel.confirmed, color: CHART_COLORS.rehearsal },
+                      {
+                        stage: t("js.stats.labels.invited"),
+                        value: responseFunnel.invited,
+                        color: CHART_COLORS.rehearsal,
+                      },
+                      {
+                        stage: t("js.stats.labels.responded"),
+                        value: responseFunnel.responded,
+                        color: CHART_COLORS.concert,
+                      },
+                      {
+                        stage: t("js.stats.labels.confirmed"),
+                        value: responseFunnel.confirmed,
+                        color: CHART_COLORS.rehearsal,
+                      },
                     ]}
                     layout="vertical"
                   >
@@ -695,7 +775,12 @@ export function StatsDashboardContent({
                     <XAxis dataKey="label" />
                     <YAxis allowDecimals={false} />
                     <Tooltip />
-                    <Bar dataKey="value" radius={[6, 6, 0, 0]} fill={CHART_COLORS.rehearsal} name={t("js.stats.labels.hours")} />
+                    <Bar
+                      dataKey="value"
+                      radius={[6, 6, 0, 0]}
+                      fill={CHART_COLORS.rehearsal}
+                      name={t("js.stats.labels.hours")}
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -712,7 +797,13 @@ export function StatsDashboardContent({
                     <XAxis dataKey="month" />
                     <YAxis domain={[0, 100]} />
                     <Tooltip />
-                    <Line type="monotone" dataKey="rate" stroke={CHART_COLORS.trend} strokeWidth={2} name={t("js.stats.labels.activeRate")} />
+                    <Line
+                      type="monotone"
+                      dataKey="rate"
+                      stroke={CHART_COLORS.trend}
+                      strokeWidth={2}
+                      name={t("js.stats.labels.activeRate")}
+                    />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -731,7 +822,12 @@ export function StatsDashboardContent({
                     <XAxis dataKey="label" />
                     <YAxis allowDecimals={false} />
                     <Tooltip />
-                    <Bar dataKey="count" radius={[6, 6, 0, 0]} fill={CHART_COLORS.completion} name={t("js.stats.labels.members")} />
+                    <Bar
+                      dataKey="count"
+                      radius={[6, 6, 0, 0]}
+                      fill={CHART_COLORS.completion}
+                      name={t("js.stats.labels.members")}
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -748,7 +844,13 @@ export function StatsDashboardContent({
                     <XAxis dataKey="month" />
                     <YAxis allowDecimals={false} />
                     <Tooltip />
-                    <Line type="monotone" dataKey="medianHours" stroke={CHART_COLORS.rehearsal} strokeWidth={2} name={t("js.stats.labels.hours")} />
+                    <Line
+                      type="monotone"
+                      dataKey="medianHours"
+                      stroke={CHART_COLORS.rehearsal}
+                      strokeWidth={2}
+                      name={t("js.stats.labels.hours")}
+                    />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -767,7 +869,13 @@ export function StatsDashboardContent({
                     <XAxis dataKey="month" />
                     <YAxis domain={[0, 100]} />
                     <Tooltip />
-                    <Line type="monotone" dataKey="rate" stroke={CHART_COLORS.concert} strokeWidth={2} name={t("js.stats.labels.participationRate")} />
+                    <Line
+                      type="monotone"
+                      dataKey="rate"
+                      stroke={CHART_COLORS.concert}
+                      strokeWidth={2}
+                      name={t("js.stats.labels.participationRate")}
+                    />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -789,7 +897,12 @@ export function StatsDashboardContent({
                     <XAxis dataKey="label" />
                     <YAxis allowDecimals={false} />
                     <Tooltip />
-                    <Bar dataKey="value" radius={[6, 6, 0, 0]} fill={CHART_COLORS.trend} name={t("js.stats.labels.responses")} />
+                    <Bar
+                      dataKey="value"
+                      radius={[6, 6, 0, 0]}
+                      fill={CHART_COLORS.trend}
+                      name={t("js.stats.labels.responses")}
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -808,7 +921,12 @@ export function StatsDashboardContent({
                     <XAxis dataKey="name" interval={0} angle={-20} textAnchor="end" height={60} />
                     <YAxis allowDecimals={false} />
                     <Tooltip />
-                    <Bar dataKey="shortfalls" radius={[6, 6, 0, 0]} fill={CHART_COLORS.completion} name={t("js.stats.labels.shortfalls")} />
+                    <Bar
+                      dataKey="shortfalls"
+                      radius={[6, 6, 0, 0]}
+                      fill={CHART_COLORS.completion}
+                      name={t("js.stats.labels.shortfalls")}
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -998,16 +1116,15 @@ export function StatsDashboardContent({
                 const warningUi = getEscalationWarningUiConfig(event.severity);
                 const WarningIcon = getIcon(warningUi.iconName);
                 const begin = formatDateTimeShort(event.begin, lang) ?? formatDateShortDisplay(event.begin, lang);
-                const deadline = formatDateTimeShort(event.approveUntil, lang) ?? formatDateShortDisplay(event.approveUntil, lang);
+                const deadline =
+                  formatDateTimeShort(event.approveUntil, lang) ?? formatDateShortDisplay(event.approveUntil, lang);
                 const title = event.type === "concert" ? event.title : "";
                 const location = event.locationName?.trim() || "—";
                 const href = getEntityPath(event.type, event.id);
                 return (
                   <EntityListRow
                     href={href}
-                    icon={
-                      <SquircleIconBadge Icon={Icon} color={markerColor} size="sm" iconClassName="h-3 w-3" />
-                    }
+                    icon={<SquircleIconBadge Icon={Icon} color={markerColor} size="sm" iconClassName="h-3 w-3" />}
                     primary={begin}
                     badge={
                       <>
@@ -1018,7 +1135,10 @@ export function StatsDashboardContent({
                           <WarningIcon className={`h-3.5 w-3.5 ${warningUi.iconClassName}`} />
                         </span>
                         {event.status ? (
-                          <span className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium border" style={getStatusPillStyle(event.status)}>
+                          <span
+                            className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium border"
+                            style={getStatusPillStyle(event.status)}
+                          >
                             {statusLabelFor(event.status)}
                           </span>
                         ) : null}
@@ -1073,7 +1193,9 @@ export function StatsDashboardContent({
                       {t("js.common.status") !== "js.common.status" ? t("js.common.status") : "Status"}
                     </ResizableTh>
                     <ResizableTh columnId="warning" className="text-left p-3 font-semibold">
-                      {t("mail.escalation.alertBadge") !== "mail.escalation.alertBadge" ? t("mail.escalation.alertBadge") : "Alert"}
+                      {t("mail.escalation.alertBadge") !== "mail.escalation.alertBadge"
+                        ? t("mail.escalation.alertBadge")
+                        : "Alert"}
                     </ResizableTh>
                     <ResizableTh columnId="location" className="text-left p-3 font-semibold">
                       {t("js.event.location") !== "js.event.location" ? t("js.event.location") : "Location"}
@@ -1124,7 +1246,10 @@ export function StatsDashboardContent({
                           </td>
                           <td className="p-3">
                             {event.status ? (
-                              <span className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium border" style={getStatusPillStyle(event.status)}>
+                              <span
+                                className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium border"
+                                style={getStatusPillStyle(event.status)}
+                              >
                                 {statusLabelFor(event.status)}
                               </span>
                             ) : (
@@ -1135,7 +1260,11 @@ export function StatsDashboardContent({
                             <span
                               className="inline-flex items-center justify-center rounded-full border px-2 py-0.5"
                               style={warningUi.badgeStyle}
-                              title={event.severity === "critical" ? t("js.stats.cards.criticalEvents") : t("js.stats.cards.pendingResponses")}
+                              title={
+                                event.severity === "critical"
+                                  ? t("js.stats.cards.criticalEvents")
+                                  : t("js.stats.cards.pendingResponses")
+                              }
                             >
                               <WarningIcon className={`h-5 w-5 ${warningUi.iconClassName}`} />
                             </span>

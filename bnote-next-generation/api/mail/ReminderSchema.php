@@ -4,270 +4,286 @@
  */
 declare(strict_types=1);
 
-final class ReminderSchema {
-    private static bool $ensured = false;
+final class ReminderSchema
+{
+  private static bool $ensured = false;
 
-    public static function ensureTables(object $db): bool {
-        if (self::$ensured) {
-            return true;
-        }
-
-        $mysqli = self::mysqliFromDatabase($db);
-        if ($mysqli === null) {
-            error_log('ReminderSchema: could not access mysqli from Database');
-            return false;
-        }
-
-        $statements = [
-            <<<SQL
-CREATE TABLE IF NOT EXISTS `nextgen_reminder_config` (
-  `config_key` varchar(80) NOT NULL,
-  `config_value` text NOT NULL,
-  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`config_key`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8
-SQL,
-            <<<SQL
-CREATE TABLE IF NOT EXISTS `nextgen_reminder_nonce` (
-  `nonce_hash` char(64) NOT NULL,
-  `seen_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `expires_at` datetime NOT NULL,
-  PRIMARY KEY (`nonce_hash`),
-  KEY `expires_at` (`expires_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8
-SQL,
-            <<<SQL
-CREATE TABLE IF NOT EXISTS `nextgen_reminder_run_log` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `run_key` varchar(32) NOT NULL,
-  `user_id` int(10) unsigned NOT NULL,
-  `delivery_mode` varchar(20) NOT NULL DEFAULT 'scheduled',
-  `sent_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uniq_run_user` (`run_key`,`user_id`),
-  KEY `idx_user` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8
-SQL,
-            <<<SQL
-CREATE TABLE IF NOT EXISTS `nextgen_escalation_audit` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `is_test` tinyint(1) NOT NULL DEFAULT 0,
-  `trigger_kind` varchar(32) NOT NULL DEFAULT 'scheduled',
-  `delivery_mode` varchar(32) NOT NULL DEFAULT 'scheduled',
-  `otype` char(1) NOT NULL DEFAULT '',
-  `oid` int(10) unsigned NOT NULL DEFAULT 0,
-  `event_title` varchar(255) NOT NULL DEFAULT '',
-  `reason_summary` varchar(255) NOT NULL DEFAULT '',
-  `payload_json` mediumtext NULL,
-  PRIMARY KEY (`id`),
-  KEY `idx_created_at` (`created_at`),
-  KEY `idx_event` (`otype`,`oid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8
-SQL,
-            <<<SQL
-CREATE TABLE IF NOT EXISTS `nextgen_escalation_acceptance` (
-  `otype` char(1) NOT NULL,
-  `oid` int(10) unsigned NOT NULL,
-  `accepted_by_user_id` int(10) unsigned NOT NULL DEFAULT 0,
-  `accepted_by_name` varchar(255) NOT NULL DEFAULT '',
-  `accepted_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `accepted_risk_fingerprint` char(64) NOT NULL DEFAULT '',
-  `is_active` tinyint(1) NOT NULL DEFAULT 1,
-  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`otype`,`oid`),
-  KEY `idx_active` (`is_active`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8
-SQL,
-        ];
-
-        foreach ($statements as $sql) {
-            if (!$mysqli->query($sql)) {
-                error_log('ReminderSchema: CREATE failed: ' . $mysqli->error);
-                return false;
-            }
-        }
-
-        self::$ensured = true;
-        return true;
+  public static function ensureTables(object $db): bool
+  {
+    if (self::$ensured) {
+      return true;
     }
 
-    public static function purgeExpiredNonces(object $db): void {
-        $db->execute('DELETE FROM nextgen_reminder_nonce WHERE expires_at < UTC_TIMESTAMP()', []);
+    $mysqli = self::mysqliFromDatabase($db);
+    if ($mysqli === null) {
+      error_log("ReminderSchema: could not access mysqli from Database");
+      return false;
     }
 
-    public static function countRecentNonceRequests(object $db, int $seconds): int {
-        $seconds = max(1, min(3600, $seconds));
-        $sel = $db->getSelection(
-            'SELECT COUNT(*) AS cnt FROM nextgen_reminder_nonce WHERE seen_at >= (UTC_TIMESTAMP() - INTERVAL ? SECOND)',
-            [['i', $seconds]]
-        );
-        if (!is_array($sel) || !isset($sel[1]['cnt'])) {
-            return 0;
-        }
-        return (int) $sel[1]['cnt'];
+    $statements = [
+      <<<SQL
+      CREATE TABLE IF NOT EXISTS `nextgen_reminder_config` (
+        `config_key` varchar(80) NOT NULL,
+        `config_value` text NOT NULL,
+        `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        PRIMARY KEY (`config_key`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8
+      SQL
+      ,
+      <<<SQL
+      CREATE TABLE IF NOT EXISTS `nextgen_reminder_nonce` (
+        `nonce_hash` char(64) NOT NULL,
+        `seen_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        `expires_at` datetime NOT NULL,
+        PRIMARY KEY (`nonce_hash`),
+        KEY `expires_at` (`expires_at`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8
+      SQL
+      ,
+      <<<SQL
+      CREATE TABLE IF NOT EXISTS `nextgen_reminder_run_log` (
+        `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+        `run_key` varchar(32) NOT NULL,
+        `user_id` int(10) unsigned NOT NULL,
+        `delivery_mode` varchar(20) NOT NULL DEFAULT 'scheduled',
+        `sent_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (`id`),
+        UNIQUE KEY `uniq_run_user` (`run_key`,`user_id`),
+        KEY `idx_user` (`user_id`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8
+      SQL
+      ,
+      <<<SQL
+      CREATE TABLE IF NOT EXISTS `nextgen_escalation_audit` (
+        `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+        `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        `is_test` tinyint(1) NOT NULL DEFAULT 0,
+        `trigger_kind` varchar(32) NOT NULL DEFAULT 'scheduled',
+        `delivery_mode` varchar(32) NOT NULL DEFAULT 'scheduled',
+        `otype` char(1) NOT NULL DEFAULT '',
+        `oid` int(10) unsigned NOT NULL DEFAULT 0,
+        `event_title` varchar(255) NOT NULL DEFAULT '',
+        `reason_summary` varchar(255) NOT NULL DEFAULT '',
+        `payload_json` mediumtext NULL,
+        PRIMARY KEY (`id`),
+        KEY `idx_created_at` (`created_at`),
+        KEY `idx_event` (`otype`,`oid`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8
+      SQL
+      ,
+      <<<SQL
+      CREATE TABLE IF NOT EXISTS `nextgen_escalation_acceptance` (
+        `otype` char(1) NOT NULL,
+        `oid` int(10) unsigned NOT NULL,
+        `accepted_by_user_id` int(10) unsigned NOT NULL DEFAULT 0,
+        `accepted_by_name` varchar(255) NOT NULL DEFAULT '',
+        `accepted_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        `accepted_risk_fingerprint` char(64) NOT NULL DEFAULT '',
+        `is_active` tinyint(1) NOT NULL DEFAULT 1,
+        `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        PRIMARY KEY (`otype`,`oid`),
+        KEY `idx_active` (`is_active`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8
+      SQL
+    ,
+    ];
+
+    foreach ($statements as $sql) {
+      if (!$mysqli->query($sql)) {
+        error_log("ReminderSchema: CREATE failed: " . $mysqli->error);
+        return false;
+      }
     }
 
-    public static function rememberNonce(object $db, string $nonceHash, int $ttlSeconds): bool {
-        $ttlSeconds = max(60, min(3600, $ttlSeconds));
-        try {
-            $db->execute(
-                'INSERT INTO nextgen_reminder_nonce (nonce_hash, expires_at) VALUES (?, (UTC_TIMESTAMP() + INTERVAL ? SECOND))',
-                [['s', $nonceHash], ['i', $ttlSeconds]]
-            );
-            return true;
-        } catch (Throwable $e) {
-            return false;
-        }
-    }
+    self::$ensured = true;
+    return true;
+  }
 
-    public static function hasRunForUser(object $db, string $runKey, int $userId): bool {
-        $sel = $db->getSelection(
-            'SELECT id FROM nextgen_reminder_run_log WHERE run_key = ? AND user_id = ? LIMIT 1',
-            [['s', $runKey], ['i', $userId]]
-        );
-        return is_array($sel) && count($sel) > 1;
-    }
+  public static function purgeExpiredNonces(object $db): void
+  {
+    $db->execute("DELETE FROM nextgen_reminder_nonce WHERE expires_at < UTC_TIMESTAMP()", []);
+  }
 
-    public static function markRunForUser(object $db, string $runKey, int $userId, string $mode): bool {
-        $mode = trim($mode) === '' ? 'scheduled' : substr(trim($mode), 0, 20);
-        try {
-            $db->execute(
-                'INSERT INTO nextgen_reminder_run_log (run_key, user_id, delivery_mode) VALUES (?, ?, ?)',
-                [['s', $runKey], ['i', $userId], ['s', $mode]]
-            );
-            return true;
-        } catch (Throwable $e) {
-            return false;
-        }
+  public static function countRecentNonceRequests(object $db, int $seconds): int
+  {
+    $seconds = max(1, min(3600, $seconds));
+    $sel = $db->getSelection(
+      "SELECT COUNT(*) AS cnt FROM nextgen_reminder_nonce WHERE seen_at >= (UTC_TIMESTAMP() - INTERVAL ? SECOND)",
+      [["i", $seconds]],
+    );
+    if (!is_array($sel) || !isset($sel[1]["cnt"])) {
+      return 0;
     }
+    return (int) $sel[1]["cnt"];
+  }
 
-    /**
-     * @param array<string,mixed> $payload
-     */
-    public static function addEscalationAudit(object $db, array $payload): bool {
-        $isTest = !empty($payload['is_test']) ? 1 : 0;
-        $triggerKind = substr(trim((string) ($payload['trigger_kind'] ?? 'scheduled')), 0, 32);
-        $deliveryMode = substr(trim((string) ($payload['delivery_mode'] ?? 'scheduled')), 0, 32);
-        $otype = strtoupper(substr(trim((string) ($payload['otype'] ?? '')), 0, 1));
-        $oid = max(0, (int) ($payload['oid'] ?? 0));
-        $eventTitle = substr(trim((string) ($payload['event_title'] ?? '')), 0, 255);
-        $reasonSummary = substr(trim((string) ($payload['reason_summary'] ?? '')), 0, 255);
-        $json = json_encode($payload, JSON_UNESCAPED_SLASHES);
-        if (!is_string($json)) {
-            $json = '{}';
-        }
-        try {
-            $db->execute(
-                'INSERT INTO nextgen_escalation_audit
+  public static function rememberNonce(object $db, string $nonceHash, int $ttlSeconds): bool
+  {
+    $ttlSeconds = max(60, min(3600, $ttlSeconds));
+    try {
+      $db->execute(
+        "INSERT INTO nextgen_reminder_nonce (nonce_hash, expires_at) VALUES (?, (UTC_TIMESTAMP() + INTERVAL ? SECOND))",
+        [["s", $nonceHash], ["i", $ttlSeconds]],
+      );
+      return true;
+    } catch (Throwable $e) {
+      return false;
+    }
+  }
+
+  public static function hasRunForUser(object $db, string $runKey, int $userId): bool
+  {
+    $sel = $db->getSelection("SELECT id FROM nextgen_reminder_run_log WHERE run_key = ? AND user_id = ? LIMIT 1", [
+      ["s", $runKey],
+      ["i", $userId],
+    ]);
+    return is_array($sel) && count($sel) > 1;
+  }
+
+  public static function markRunForUser(object $db, string $runKey, int $userId, string $mode): bool
+  {
+    $mode = trim($mode) === "" ? "scheduled" : substr(trim($mode), 0, 20);
+    try {
+      $db->execute("INSERT INTO nextgen_reminder_run_log (run_key, user_id, delivery_mode) VALUES (?, ?, ?)", [
+        ["s", $runKey],
+        ["i", $userId],
+        ["s", $mode],
+      ]);
+      return true;
+    } catch (Throwable $e) {
+      return false;
+    }
+  }
+
+  /**
+   * @param array<string,mixed> $payload
+   */
+  public static function addEscalationAudit(object $db, array $payload): bool
+  {
+    $isTest = !empty($payload["is_test"]) ? 1 : 0;
+    $triggerKind = substr(trim((string) ($payload["trigger_kind"] ?? "scheduled")), 0, 32);
+    $deliveryMode = substr(trim((string) ($payload["delivery_mode"] ?? "scheduled")), 0, 32);
+    $otype = strtoupper(substr(trim((string) ($payload["otype"] ?? "")), 0, 1));
+    $oid = max(0, (int) ($payload["oid"] ?? 0));
+    $eventTitle = substr(trim((string) ($payload["event_title"] ?? "")), 0, 255);
+    $reasonSummary = substr(trim((string) ($payload["reason_summary"] ?? "")), 0, 255);
+    $json = json_encode($payload, JSON_UNESCAPED_SLASHES);
+    if (!is_string($json)) {
+      $json = "{}";
+    }
+    try {
+      $db->execute(
+        'INSERT INTO nextgen_escalation_audit
                     (is_test, trigger_kind, delivery_mode, otype, oid, event_title, reason_summary, payload_json)
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-                [
-                    ['i', $isTest],
-                    ['s', $triggerKind !== '' ? $triggerKind : 'scheduled'],
-                    ['s', $deliveryMode !== '' ? $deliveryMode : 'scheduled'],
-                    ['s', $otype],
-                    ['i', $oid],
-                    ['s', $eventTitle],
-                    ['s', $reasonSummary],
-                    ['s', $json],
-                ]
-            );
-            return true;
-        } catch (Throwable $e) {
-            return false;
-        }
+        [
+          ["i", $isTest],
+          ["s", $triggerKind !== "" ? $triggerKind : "scheduled"],
+          ["s", $deliveryMode !== "" ? $deliveryMode : "scheduled"],
+          ["s", $otype],
+          ["i", $oid],
+          ["s", $eventTitle],
+          ["s", $reasonSummary],
+          ["s", $json],
+        ],
+      );
+      return true;
+    } catch (Throwable $e) {
+      return false;
     }
+  }
 
-    /**
-     * @return list<array<string,mixed>>
-     */
-    public static function listEscalationAudit(object $db, int $limit = 50): array {
-        $limit = max(1, min(200, $limit));
-        $sel = $db->getSelection(
-            'SELECT id, created_at, is_test, trigger_kind, delivery_mode, otype, oid, event_title, reason_summary, payload_json
+  /**
+   * @return list<array<string,mixed>>
+   */
+  public static function listEscalationAudit(object $db, int $limit = 50): array
+  {
+    $limit = max(1, min(200, $limit));
+    $sel = $db->getSelection(
+      'SELECT id, created_at, is_test, trigger_kind, delivery_mode, otype, oid, event_title, reason_summary, payload_json
              FROM nextgen_escalation_audit
              ORDER BY id DESC
              LIMIT ?',
-            [['i', $limit]]
-        );
-        if (!is_array($sel) || count($sel) < 2) {
-            return [];
-        }
-        $out = [];
-        for ($i = 1; $i < count($sel); $i++) {
-            $row = $sel[$i];
-            $payloadRaw = (string) ($row['payload_json'] ?? '');
-            $payload = json_decode($payloadRaw, true);
-            if (!is_array($payload)) {
-                $payload = null;
-            }
-            $out[] = [
-                'id' => (int) ($row['id'] ?? 0),
-                'created_at' => (string) ($row['created_at'] ?? ''),
-                'is_test' => ((int) ($row['is_test'] ?? 0) === 1),
-                'trigger_kind' => (string) ($row['trigger_kind'] ?? ''),
-                'delivery_mode' => (string) ($row['delivery_mode'] ?? ''),
-                'otype' => (string) ($row['otype'] ?? ''),
-                'oid' => (int) ($row['oid'] ?? 0),
-                'event_title' => (string) ($row['event_title'] ?? ''),
-                'reason_summary' => (string) ($row['reason_summary'] ?? ''),
-                'payload' => $payload,
-            ];
-        }
-        return $out;
+      [["i", $limit]],
+    );
+    if (!is_array($sel) || count($sel) < 2) {
+      return [];
     }
+    $out = [];
+    for ($i = 1; $i < count($sel); $i++) {
+      $row = $sel[$i];
+      $payloadRaw = (string) ($row["payload_json"] ?? "");
+      $payload = json_decode($payloadRaw, true);
+      if (!is_array($payload)) {
+        $payload = null;
+      }
+      $out[] = [
+        "id" => (int) ($row["id"] ?? 0),
+        "created_at" => (string) ($row["created_at"] ?? ""),
+        "is_test" => (int) ($row["is_test"] ?? 0) === 1,
+        "trigger_kind" => (string) ($row["trigger_kind"] ?? ""),
+        "delivery_mode" => (string) ($row["delivery_mode"] ?? ""),
+        "otype" => (string) ($row["otype"] ?? ""),
+        "oid" => (int) ($row["oid"] ?? 0),
+        "event_title" => (string) ($row["event_title"] ?? ""),
+        "reason_summary" => (string) ($row["reason_summary"] ?? ""),
+        "payload" => $payload,
+      ];
+    }
+    return $out;
+  }
 
-    /**
-     * @return array<string,mixed>|null
-     */
-    public static function getEscalationAcceptance(object $db, string $otype, int $oid): ?array {
-        $otype = strtoupper(substr(trim($otype), 0, 1));
-        $oid = max(0, (int) $oid);
-        if (($otype !== 'R' && $otype !== 'C') || $oid < 1) {
-            return null;
-        }
-        $row = $db->fetchRow(
-            'SELECT otype, oid, accepted_by_user_id, accepted_by_name, accepted_at, accepted_risk_fingerprint, is_active, updated_at
+  /**
+   * @return array<string,mixed>|null
+   */
+  public static function getEscalationAcceptance(object $db, string $otype, int $oid): ?array
+  {
+    $otype = strtoupper(substr(trim($otype), 0, 1));
+    $oid = max(0, (int) $oid);
+    if (($otype !== "R" && $otype !== "C") || $oid < 1) {
+      return null;
+    }
+    $row = $db->fetchRow(
+      'SELECT otype, oid, accepted_by_user_id, accepted_by_name, accepted_at, accepted_risk_fingerprint, is_active, updated_at
              FROM nextgen_escalation_acceptance
              WHERE otype = ? AND oid = ?
              LIMIT 1',
-            [['s', $otype], ['i', $oid]]
-        );
-        if (!is_array($row)) {
-            return null;
-        }
-        return [
-            'otype' => (string) ($row['otype'] ?? ''),
-            'oid' => (int) ($row['oid'] ?? 0),
-            'accepted_by_user_id' => (int) ($row['accepted_by_user_id'] ?? 0),
-            'accepted_by_name' => (string) ($row['accepted_by_name'] ?? ''),
-            'accepted_at' => (string) ($row['accepted_at'] ?? ''),
-            'accepted_risk_fingerprint' => (string) ($row['accepted_risk_fingerprint'] ?? ''),
-            'is_active' => ((int) ($row['is_active'] ?? 0) === 1),
-            'updated_at' => (string) ($row['updated_at'] ?? ''),
-        ];
+      [["s", $otype], ["i", $oid]],
+    );
+    if (!is_array($row)) {
+      return null;
     }
+    return [
+      "otype" => (string) ($row["otype"] ?? ""),
+      "oid" => (int) ($row["oid"] ?? 0),
+      "accepted_by_user_id" => (int) ($row["accepted_by_user_id"] ?? 0),
+      "accepted_by_name" => (string) ($row["accepted_by_name"] ?? ""),
+      "accepted_at" => (string) ($row["accepted_at"] ?? ""),
+      "accepted_risk_fingerprint" => (string) ($row["accepted_risk_fingerprint"] ?? ""),
+      "is_active" => (int) ($row["is_active"] ?? 0) === 1,
+      "updated_at" => (string) ($row["updated_at"] ?? ""),
+    ];
+  }
 
-    public static function saveEscalationAcceptance(
-        object $db,
-        string $otype,
-        int $oid,
-        int $acceptedByUserId,
-        string $acceptedByName,
-        string $fingerprint
-    ): bool {
-        $otype = strtoupper(substr(trim($otype), 0, 1));
-        $oid = max(0, (int) $oid);
-        $acceptedByUserId = max(0, (int) $acceptedByUserId);
-        $acceptedByName = substr(trim($acceptedByName), 0, 255);
-        $fingerprint = substr(strtolower(trim($fingerprint)), 0, 64);
-        if (($otype !== 'R' && $otype !== 'C') || $oid < 1 || strlen($fingerprint) !== 64) {
-            return false;
-        }
-        try {
-            $db->execute(
-                'INSERT INTO nextgen_escalation_acceptance
+  public static function saveEscalationAcceptance(
+    object $db,
+    string $otype,
+    int $oid,
+    int $acceptedByUserId,
+    string $acceptedByName,
+    string $fingerprint,
+  ): bool {
+    $otype = strtoupper(substr(trim($otype), 0, 1));
+    $oid = max(0, (int) $oid);
+    $acceptedByUserId = max(0, (int) $acceptedByUserId);
+    $acceptedByName = substr(trim($acceptedByName), 0, 255);
+    $fingerprint = substr(strtolower(trim($fingerprint)), 0, 64);
+    if (($otype !== "R" && $otype !== "C") || $oid < 1 || strlen($fingerprint) !== 64) {
+      return false;
+    }
+    try {
+      $db->execute(
+        'INSERT INTO nextgen_escalation_acceptance
                     (otype, oid, accepted_by_user_id, accepted_by_name, accepted_at, accepted_risk_fingerprint, is_active)
                  VALUES (?, ?, ?, ?, UTC_TIMESTAMP(), ?, 1)
                  ON DUPLICATE KEY UPDATE
@@ -276,51 +292,47 @@ SQL,
                     accepted_at = VALUES(accepted_at),
                     accepted_risk_fingerprint = VALUES(accepted_risk_fingerprint),
                     is_active = 1',
-                [
-                    ['s', $otype],
-                    ['i', $oid],
-                    ['i', $acceptedByUserId],
-                    ['s', $acceptedByName],
-                    ['s', $fingerprint],
-                ]
-            );
-            return true;
-        } catch (Throwable $e) {
-            return false;
-        }
+        [["s", $otype], ["i", $oid], ["i", $acceptedByUserId], ["s", $acceptedByName], ["s", $fingerprint]],
+      );
+      return true;
+    } catch (Throwable $e) {
+      return false;
     }
+  }
 
-    public static function deactivateEscalationAcceptance(object $db, string $otype, int $oid): bool {
-        $otype = strtoupper(substr(trim($otype), 0, 1));
-        $oid = max(0, (int) $oid);
-        if (($otype !== 'R' && $otype !== 'C') || $oid < 1) {
-            return false;
-        }
-        try {
-            $db->execute(
-                'UPDATE nextgen_escalation_acceptance
+  public static function deactivateEscalationAcceptance(object $db, string $otype, int $oid): bool
+  {
+    $otype = strtoupper(substr(trim($otype), 0, 1));
+    $oid = max(0, (int) $oid);
+    if (($otype !== "R" && $otype !== "C") || $oid < 1) {
+      return false;
+    }
+    try {
+      $db->execute(
+        'UPDATE nextgen_escalation_acceptance
                  SET is_active = 0
                  WHERE otype = ? AND oid = ? AND is_active = 1',
-                [['s', $otype], ['i', $oid]]
-            );
-            return true;
-        } catch (Throwable $e) {
-            return false;
-        }
+        [["s", $otype], ["i", $oid]],
+      );
+      return true;
+    } catch (Throwable $e) {
+      return false;
     }
+  }
 
-    private static function mysqliFromDatabase(object $db): ?mysqli {
-        try {
-            $ref = new ReflectionClass($db);
-            if (!$ref->hasProperty('db')) {
-                return null;
-            }
-            $p = $ref->getProperty('db');
-            $p->setAccessible(true);
-            $m = $p->getValue($db);
-            return $m instanceof mysqli ? $m : null;
-        } catch (ReflectionException $e) {
-            return null;
-        }
+  private static function mysqliFromDatabase(object $db): ?mysqli
+  {
+    try {
+      $ref = new ReflectionClass($db);
+      if (!$ref->hasProperty("db")) {
+        return null;
+      }
+      $p = $ref->getProperty("db");
+      $p->setAccessible(true);
+      $m = $p->getValue($db);
+      return $m instanceof mysqli ? $m : null;
+    } catch (ReflectionException $e) {
+      return null;
     }
+  }
 }

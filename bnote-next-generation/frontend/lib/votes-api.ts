@@ -40,8 +40,7 @@ export interface VoteDetail extends Vote {
 export const votesApi = {
   list: (params?: { active?: string }) =>
     api.get<Vote[]>("votes", "list", params ? { active: params.active ?? "" } : {}),
-  get: (id: number) =>
-    api.get<VoteDetail>("votes", "get", { id: String(id) }),
+  get: (id: number) => api.get<VoteDetail>("votes", "get", { id: String(id) }),
   getVoters: (id: number) =>
     api.get<
       Array<{
@@ -58,27 +57,18 @@ export const votesApi = {
       }>
     >("votes", "getVoters", { id: String(id) }),
   create: (data: { name: string; end: string; is_date: boolean; is_multi: boolean; groups?: number[] }) =>
-    api.post<{ success: boolean; id: number; message: string }>(
-      "votes",
-      "create",
-      data as Record<string, unknown>
-    ),
+    api.post<{ success: boolean; id: number; message: string }>("votes", "create", data as Record<string, unknown>),
   update: (id: number, data: { name?: string; end?: string; is_finished?: boolean }) =>
-    api.post<{ success: boolean; message: string }>(
-      "votes",
-      "update",
-      { id, ...data } as Record<string, unknown>
-    ),
+    api.post<{ success: boolean; message: string }>("votes", "update", { id, ...data } as Record<string, unknown>),
   delete: (id: number) =>
     api.post<{ success: boolean; message: string }>("votes", "delete", {
       id,
     }),
   addOption: (voteId: number, data: { name?: string; odate?: string }) =>
-    api.post<{ success: boolean; id: number; message: string }>(
-      "votes",
-      "addOption",
-      { vote_id: voteId, ...data } as Record<string, unknown>
-    ),
+    api.post<{ success: boolean; id: number; message: string }>("votes", "addOption", {
+      vote_id: voteId,
+      ...data,
+    } as Record<string, unknown>),
   removeOption: (optionId: number) =>
     api.post<{ success: boolean; message: string }>("votes", "removeOption", {
       option_id: optionId,
@@ -87,34 +77,27 @@ export const votesApi = {
     api.post<{ success: boolean; message: string }>("votes", "finish", {
       id,
     }),
-  submit: (
-    voteId: number,
-    data: { choices?: Record<number, string>; uservote?: number | null }
-  ) =>
+  submit: (voteId: number, data: { choices?: Record<number, string>; uservote?: number | null }) =>
     api.post<{ success: boolean; message: string }>("votes", "submit", {
       vote_id: voteId,
       ...data,
     } as Record<string, unknown>),
   getAssignableVoters: (id: number) =>
     api.get<VoteAssignableVoter[]>("votes", "getAssignableVoters", { id: String(id) }),
-  getAssignedVoters: (id: number) =>
-    api.get<VoteAssignableVoter[]>("votes", "getAssignedVoters", { id: String(id) }),
+  getAssignedVoters: (id: number) => api.get<VoteAssignableVoter[]>("votes", "getAssignedVoters", { id: String(id) }),
   addVoters: (voteId: number, userIds: number[]) =>
-    api.post<{ success: boolean; message: string; added: number }>(
-      "votes",
-      "addVoters",
-      { id: voteId, user_ids: userIds } as Record<string, unknown>
-    ),
+    api.post<{ success: boolean; message: string; added: number }>("votes", "addVoters", {
+      id: voteId,
+      user_ids: userIds,
+    } as Record<string, unknown>),
   removeVoters: (voteId: number, userIds: number[]) =>
-    api.post<{ success: boolean; message: string; removed: number }>(
-      "votes",
-      "removeVoters",
-      { id: voteId, user_ids: userIds } as Record<string, unknown>
-    ),
+    api.post<{ success: boolean; message: string; removed: number }>("votes", "removeVoters", {
+      id: voteId,
+      user_ids: userIds,
+    } as Record<string, unknown>),
   setVoters: (voteId: number, userIds: number[]) =>
-    api.post<{ success: boolean; message: string; added: number; removed: number }>(
-      "votes",
-      "setVoters",
-      { id: voteId, user_ids: userIds } as Record<string, unknown>
-    ),
+    api.post<{ success: boolean; message: string; added: number; removed: number }>("votes", "setVoters", {
+      id: voteId,
+      user_ids: userIds,
+    } as Record<string, unknown>),
 };

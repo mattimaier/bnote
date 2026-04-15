@@ -10,17 +10,17 @@ If SMTP is not configured, or BNote runs in **demo mode**, those emails are skip
 
 **Recipient policy:** **`MailRecipientPolicy`** ([`api/mail/MailRecipientPolicy.php`](../api/mail/MailRecipientPolicy.php)) applies to outbound Next Gen mail: delivery is skipped for `example.com` and `*.example.com` (reserved / placeholder domains).
 
-| Flow | Entry point | Builder / notifier | Transactional policy? | Send API |
-|------|-------------|--------------------|------------------------|----------|
-| Password reset | `api/modules/auth.php` → `requestPasswordReset` | `PasswordResetMailBuilder` | No (system mail) | `NextGenMailer::send` |
-| New registration → administrators | `api/nextgen_registration.php` | `RegistrationAdminNotifier` / `NewUserAdminMailBuilder` | No (system mail) | `NextGenMailer::sendBulk` |
-| Rehearsal/concert participant added | `api/modules/rehearsals.php`, `api/modules/concerts.php` | `EventParticipantNotifier` / `EventParticipantInviteMailBuilder` | Yes (`NextGenMailPolicy`) | `NextGenMailer::sendBulk` |
-| Rehearsal/concert event-info group mail | `api/modules/rehearsals.php`, `api/modules/concerts.php` (`emailInfoDraft/Preview/Send`) | `EventInfoMailService` / `EventInfoMailBuilder` | Yes (`NextGenMailPolicy`) | `NextGenMailer::send` |
-| Generic email composer (module 7 / Kommunikation) | `api/modules/email.php` (`meta/draft/preview/send`) | `GenericEmailComposerService` / `GenericEmailComposerMailBuilder` | Yes (`NextGenMailPolicy`) | `NextGenMailer::send` |
-| Weekly reminder digest | `api/modules/reminders.php`, `api/reminders_run.php` | `ReminderDigestService` / `ReminderDigestMailBuilder` | No (admin-configured scheduler flow) | `NextGenMailer::send` |
-| Escalation alerts + resolved notices | `api/modules/reminders.php`, `api/reminders_run.php` (+ immediate transition hooks in participation/contacts/dashboard modules) | `EscalationAlertService` / `EscalationAlertMailBuilder` / `EscalationResolvedMailBuilder` | No (admin-configured scheduler flow) | `NextGenMailer::send` |
-| Task assignee create/update | `api/modules/tasks.php` | `TaskNotificationMailBuilder` | Yes | `NextGenMailer::send` |
-| Entity comment added | `api/modules/comments.php` | `CommentDiscussionNotifier` / `CommentDiscussionMailBuilder` | Yes | `NextGenMailer::sendBulk` |
+| Flow                                              | Entry point                                                                                                                     | Builder / notifier                                                                        | Transactional policy?                | Send API                  |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ------------------------------------ | ------------------------- |
+| Password reset                                    | `api/modules/auth.php` → `requestPasswordReset`                                                                                 | `PasswordResetMailBuilder`                                                                | No (system mail)                     | `NextGenMailer::send`     |
+| New registration → administrators                 | `api/nextgen_registration.php`                                                                                                  | `RegistrationAdminNotifier` / `NewUserAdminMailBuilder`                                   | No (system mail)                     | `NextGenMailer::sendBulk` |
+| Rehearsal/concert participant added               | `api/modules/rehearsals.php`, `api/modules/concerts.php`                                                                        | `EventParticipantNotifier` / `EventParticipantInviteMailBuilder`                          | Yes (`NextGenMailPolicy`)            | `NextGenMailer::sendBulk` |
+| Rehearsal/concert event-info group mail           | `api/modules/rehearsals.php`, `api/modules/concerts.php` (`emailInfoDraft/Preview/Send`)                                        | `EventInfoMailService` / `EventInfoMailBuilder`                                           | Yes (`NextGenMailPolicy`)            | `NextGenMailer::send`     |
+| Generic email composer (module 7 / Kommunikation) | `api/modules/email.php` (`meta/draft/preview/send`)                                                                             | `GenericEmailComposerService` / `GenericEmailComposerMailBuilder`                         | Yes (`NextGenMailPolicy`)            | `NextGenMailer::send`     |
+| Weekly reminder digest                            | `api/modules/reminders.php`, `api/reminders_run.php`                                                                            | `ReminderDigestService` / `ReminderDigestMailBuilder`                                     | No (admin-configured scheduler flow) | `NextGenMailer::send`     |
+| Escalation alerts + resolved notices              | `api/modules/reminders.php`, `api/reminders_run.php` (+ immediate transition hooks in participation/contacts/dashboard modules) | `EscalationAlertService` / `EscalationAlertMailBuilder` / `EscalationResolvedMailBuilder` | No (admin-configured scheduler flow) | `NextGenMailer::send`     |
+| Task assignee create/update                       | `api/modules/tasks.php`                                                                                                         | `TaskNotificationMailBuilder`                                                             | Yes                                  | `NextGenMailer::send`     |
+| Entity comment added                              | `api/modules/comments.php`                                                                                                      | `CommentDiscussionNotifier` / `CommentDiscussionMailBuilder`                              | Yes                                  | `NextGenMailer::sendBulk` |
 
 **Preview template IDs** (for `api/debug/mail_preview.php?template=…`): canonical list is **`MailPreviewRegistry::templates()`** in [`api/mail/MailPreviewRegistry.php`](../api/mail/MailPreviewRegistry.php) — `password_reset`, `new_user_admin`, `long_demo`, `comment_discussion_*`, `event_invite_*`, `event_info_concert`, `reminder_digest_*`, `escalation_*` (including `escalation_resolved`), `task_assigned`, `task_updated`.
 
@@ -52,13 +52,13 @@ On Strato **PowerWeb** / shared hosting you usually **cannot** edit `httpd.conf`
 
 ### Strato outbound SMTP
 
-| Setting | Value |
-|--------|--------|
-| Server | `smtp.strato.de` |
-| Port + encryption (recommended) | **465** and **`ssl`** (SMTPS) |
-| Alternative | **587** and **`tls`** (STARTTLS) |
-| Username | Full mailbox address (e.g. `mail@your-domain.de`) |
-| Password | That mailbox’s password |
+| Setting                         | Value                                             |
+| ------------------------------- | ------------------------------------------------- |
+| Server                          | `smtp.strato.de`                                  |
+| Port + encryption (recommended) | **465** and **`ssl`** (SMTPS)                     |
+| Alternative                     | **587** and **`tls`** (STARTTLS)                  |
+| Username                        | Full mailbox address (e.g. `mail@your-domain.de`) |
+| Password                        | That mailbox’s password                           |
 
 Official Strato help (verify if wording changes): [`.htaccess` anpassen](https://www.strato.de/faq/hosting/wie-kann-ich-die-htaccess-anpassen/) and Strato’s email/SMTP documentation for your product.
 
@@ -84,19 +84,19 @@ After saving, reload the site and trigger a test (e.g. password reset). If **`ge
 
 ### Environment variables (reference)
 
-| Variable | Purpose | Strato example (no secrets) |
-|----------|---------|------------------------------|
-| `MAIL_HOST` | SMTP server | `smtp.strato.de` |
-| `MAIL_PORT` | SMTP port | `465` (with `ssl`) or `587` (with `tls`) |
-| `MAIL_ENCRYPTION` | PHPMailer mode | `ssl` or `tls` |
-| `MAIL_USERNAME` | SMTP auth user | Full email address |
-| `MAIL_PASSWORD` | SMTP auth password | (your mailbox password) |
-| `MAIL_FROM_ADDRESS` | From header | Usually same as mailbox |
-| `MAIL_FROM_NAME` | From display name | e.g. band name |
-| `BNOTE_NEXT_GENERATION_PUBLIC_URL` | Base URL for links in mail | `https://domain/path` — **no** trailing `/` |
-| `BNOTE_NEXT_GENERATION_MAIL_BULK_DELAY_MS` | Pause between each message when notifying many recipients (comment thread, new-user admins). Milliseconds; **`0`** = send back-to-back. If unset, defaults to **100** to reduce SMTP rate limits (e.g. ~50 recipients). | `150` or `0` |
-| `BNOTE_NEXT_GENERATION_REMINDER_SECRET` | Shared secret for signed calls to `api/reminders_run.php` | random 32+ bytes |
-| `BNOTE_NEXT_GENERATION_REMINDER_ALLOWED_SKEW_SECONDS` | Allowed timestamp skew for signed reminder endpoint requests | `300` |
+| Variable                                              | Purpose                                                                                                                                                                                                                 | Strato example (no secrets)                 |
+| ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| `MAIL_HOST`                                           | SMTP server                                                                                                                                                                                                             | `smtp.strato.de`                            |
+| `MAIL_PORT`                                           | SMTP port                                                                                                                                                                                                               | `465` (with `ssl`) or `587` (with `tls`)    |
+| `MAIL_ENCRYPTION`                                     | PHPMailer mode                                                                                                                                                                                                          | `ssl` or `tls`                              |
+| `MAIL_USERNAME`                                       | SMTP auth user                                                                                                                                                                                                          | Full email address                          |
+| `MAIL_PASSWORD`                                       | SMTP auth password                                                                                                                                                                                                      | (your mailbox password)                     |
+| `MAIL_FROM_ADDRESS`                                   | From header                                                                                                                                                                                                             | Usually same as mailbox                     |
+| `MAIL_FROM_NAME`                                      | From display name                                                                                                                                                                                                       | e.g. band name                              |
+| `BNOTE_NEXT_GENERATION_PUBLIC_URL`                    | Base URL for links in mail                                                                                                                                                                                              | `https://domain/path` — **no** trailing `/` |
+| `BNOTE_NEXT_GENERATION_MAIL_BULK_DELAY_MS`            | Pause between each message when notifying many recipients (comment thread, new-user admins). Milliseconds; **`0`** = send back-to-back. If unset, defaults to **100** to reduce SMTP rate limits (e.g. ~50 recipients). | `150` or `0`                                |
+| `BNOTE_NEXT_GENERATION_REMINDER_SECRET`               | Shared secret for signed calls to `api/reminders_run.php`                                                                                                                                                               | random 32+ bytes                            |
+| `BNOTE_NEXT_GENERATION_REMINDER_ALLOWED_SKEW_SECONDS` | Allowed timestamp skew for signed reminder endpoint requests                                                                                                                                                            | `300`                                       |
 
 Optional fallback instead of `BNOTE_NEXT_GENERATION_PUBLIC_URL`: set **`BNOTE_NEXT_GENERATION_PUBLIC_ORIGIN`** (e.g. `https://www.example.de`) and **`NEXT_PUBLIC_BASE_PATH`** (e.g. `/bnote-next-generation`); PHP combines them.
 
@@ -163,6 +163,7 @@ hex(hmac_sha256(BNOTE_NEXT_GENERATION_REMINDER_SECRET, canonical))
 ### GitHub Actions example (weekly UTC)
 
 Store these in GitHub repository/environment secrets:
+
 - `BNOTE_NEXT_GENERATION_REMINDER_ENDPOINT` (full HTTPS URL to `api/reminders_run.php`)
 - `BNOTE_NEXT_GENERATION_REMINDER_SECRET` (same value as server `BNOTE_NEXT_GENERATION_REMINDER_SECRET`)
 
@@ -246,10 +247,10 @@ These scripts live under **`api/debug/`**, work only from **127.0.0.1** or **::1
 2. **Test send** — **required** query **`to`**; optional **`template`** (default `password_reset`) and **`locale`** (`en` / `de` / `es` / `fr`, default `en`). The message is built with **`MailPreviewRegistry::build()`** (same bodies as **`mail_preview.php`**), then addressed only to **`to`**.  
    Example: `…/api/debug/mail_test_send.php?to=you@example.com&template=event_invite_concert&locale=de`
 
-3. **HTML preview** (no SMTP): open **`api/debug/mail_debug.php`** for a list of templates and locales, or call **`api/debug/mail_preview.php?template=password_reset&locale=en`**. Every supported `template=` id is listed in **`MailPreviewRegistry::templates()`** (see [Subsystem map](#subsystem-map-handover)); examples include **`long_demo`** (stress-test layout), **`comment_discussion_*`**, **`event_invite_*`**, **`task_assigned`** / **`task_updated`**. Example: `api/debug/mail_preview.php?template=comment_discussion_rehearsal_short&locale=de`  
-   - Preview theme override for dark-mode QA: add **`&theme=auto|light|dark`** (default `auto`).  
+3. **HTML preview** (no SMTP): open **`api/debug/mail_debug.php`** for a list of templates and locales, or call **`api/debug/mail_preview.php?template=password_reset&locale=en`**. Every supported `template=` id is listed in **`MailPreviewRegistry::templates()`** (see [Subsystem map](#subsystem-map-handover)); examples include **`long_demo`** (stress-test layout), **`comment_discussion_*`**, **`event_invite_*`**, **`task_assigned`** / **`task_updated`**. Example: `api/debug/mail_preview.php?template=comment_discussion_rehearsal_short&locale=de`
+   - Preview theme override for dark-mode QA: add **`&theme=auto|light|dark`** (default `auto`).
    - The debug index now includes an **Auto / Light / Dark** switch and forwards it to all preview links.
-   The JSON from **`mail_config_check.php`** includes a **`mailDebug`** object with paths under **`api/debug/`**. Logo uses a data URL in the browser; real sends use a CID attachment.
+     The JSON from **`mail_config_check.php`** includes a **`mailDebug`** object with paths under **`api/debug/`**. Logo uses a data URL in the browser; real sends use a CID attachment.
 
 **Dark mode:** HTML mail sets `color-scheme: light dark`, meta `color-scheme` / `supported-color-schemes`, and **`@media (prefers-color-scheme: dark)`** using dark palette tokens in **`frontend/mail-design-tokens.json`** (aligned with FlyonUI `bnotedark`). Apple Mail and many iOS clients follow this; Gmail and other webmail may keep a light canvas or apply their own rules.
 
@@ -294,11 +295,11 @@ Templates and subjects live in **`bnote-next-generation/lang/<locale>.json`** un
 
 Some Next Gen mail goes to **contacts** attached to events or tasks. Recipient rules are centralized in **`api/mail/NextGenMailPolicy.php`**:
 
-| Linked `user` row | `user.isActive` | Mail sent? |
-|-------------------|-----------------|------------|
-| **None** (contact only, no login) | — | **Yes** (subject to SMTP, demo mode, valid address, and feature-specific rules). |
-| Present | **0** (inactive / deactivated) | **No** — inactive accounts must not receive transactional mail. |
-| Present | **1** (active) | **Only if** the user has email notifications enabled (`email_notification` / `userEmailNotificationOn()`). |
+| Linked `user` row                 | `user.isActive`                | Mail sent?                                                                                                 |
+| --------------------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| **None** (contact only, no login) | —                              | **Yes** (subject to SMTP, demo mode, valid address, and feature-specific rules).                           |
+| Present                           | **0** (inactive / deactivated) | **No** — inactive accounts must not receive transactional mail.                                            |
+| Present                           | **1** (active)                 | **Only if** the user has email notifications enabled (`email_notification` / `userEmailNotificationOn()`). |
 
 **Features that use this policy today:** rehearsal/concert participation invites (`EventParticipantNotifier`), task assignee create/update mail (`api/modules/tasks.php`), and comment/discussion notifications (`CommentDiscussionNotifier`).
 

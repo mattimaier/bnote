@@ -1,4 +1,5 @@
 # BNote API Endpoints Reference
+
 **Version:** 1.0  
 **Date:** 2026-01-25  
 **Base URL:** `/api/v1/`
@@ -29,15 +30,15 @@
 17. [Votes/Polls](#votespolls)
 18. [Comments (Discussion)](#comments-discussion)
 19. [Appointments](#appointments)
-19. [Tours](#tours)
-20. [Travel](#travel)
-21. [Accommodations](#accommodations)
-22. [Outfits](#outfits)
-23. [File Sharing](#file-sharing)
-24. [Statistics](#statistics)
-25. [Admin](#admin)
-26. [Configuration](#configuration)
-27. [Other Modules](#other-modules)
+20. [Tours](#tours)
+21. [Travel](#travel)
+22. [Accommodations](#accommodations)
+23. [Outfits](#outfits)
+24. [File Sharing](#file-sharing)
+25. [Statistics](#statistics)
+26. [Admin](#admin)
+27. [Configuration](#configuration)
+28. [Other Modules](#other-modules)
 
 ---
 
@@ -48,31 +49,34 @@
 Authenticate user and create session.
 
 **Request:**
+
 ```json
 {
-    "username": "user@example.com",
-    "password": "password123"
+  "username": "user@example.com",
+  "password": "password123"
 }
 ```
 
 **Response (200):**
+
 ```json
 {
-    "success": true,
-    "data": {
-        "user": {
-            "id": 5,
-            "name": "John",
-            "surname": "Doe",
-            "email": "user@example.com"
-        },
-        "permissions": [1, 3, 5, 7],
-        "token": "..." // Optional, for mobile
-    }
+  "success": true,
+  "data": {
+    "user": {
+      "id": 5,
+      "name": "John",
+      "surname": "Doe",
+      "email": "user@example.com"
+    },
+    "permissions": [1, 3, 5, 7],
+    "token": "..." // Optional, for mobile
+  }
 }
 ```
 
 **Errors:**
+
 - `401` - Invalid credentials
 - `422` - Validation error
 
@@ -83,10 +87,11 @@ Authenticate user and create session.
 Logout current user.
 
 **Response (200):**
+
 ```json
 {
-    "success": true,
-    "message": "Logged out successfully"
+  "success": true,
+  "message": "Logged out successfully"
 }
 ```
 
@@ -97,28 +102,30 @@ Logout current user.
 Check current session status.
 
 **Response (200):**
+
 ```json
 {
-    "success": true,
-    "data": {
-        "authenticated": true,
-        "user": {
-            "id": 5,
-            "name": "John",
-            "surname": "Doe"
-        }
+  "success": true,
+  "data": {
+    "authenticated": true,
+    "user": {
+      "id": 5,
+      "name": "John",
+      "surname": "Doe"
     }
+  }
 }
 ```
 
 **Response (401):**
+
 ```json
 {
-    "success": false,
-    "error": {
-        "code": "AUTH_REQUIRED",
-        "message": "Authentication required"
-    }
+  "success": false,
+  "error": {
+    "code": "AUTH_REQUIRED",
+    "message": "Authentication required"
+  }
 }
 ```
 
@@ -181,26 +188,27 @@ Public. Set a new password using the token from the reset email.
 Get dashboard data (inbox items, news, etc.).
 
 **Response (200):**
+
 ```json
 {
-    "success": true,
-    "data": {
-        "news": "Welcome message...",
-        "inbox": [
-            {
-                "otype": "R",
-                "oid": 42,
-                "title": "Probe am 29.01.2026 19:30",
-                "dueDate": "2026-01-28",
-                "participation": 1
-            }
-        ],
-        "stats": {
-            "upcoming_rehearsals": 5,
-            "upcoming_concerts": 2,
-            "open_tasks": 3
-        }
+  "success": true,
+  "data": {
+    "news": "Welcome message...",
+    "inbox": [
+      {
+        "otype": "R",
+        "oid": 42,
+        "title": "Probe am 29.01.2026 19:30",
+        "dueDate": "2026-01-28",
+        "participation": 1
+      }
+    ],
+    "stats": {
+      "upcoming_rehearsals": 5,
+      "upcoming_concerts": 2,
+      "open_tasks": 3
     }
+  }
 }
 ```
 
@@ -211,23 +219,25 @@ Get dashboard data (inbox items, news, etc.).
 Get inbox items (rehearsals, concerts, tasks, votes, appointments).
 
 **Query Parameters:**
+
 - `otype` - Filter by type (R=rehearsal, C=concert, T=task, V=vote, A=appointment)
 - `only` - Filter by specific type
 
 **Response (200):**
+
 ```json
 {
-    "success": true,
-    "data": [
-        {
-            "otype": "R",
-            "oid": 42,
-            "title": "Probe am 29.01.2026 19:30",
-            "preview": "Regular rehearsal...",
-            "dueDate": "2026-01-28",
-            "participation": 1
-        }
-    ]
+  "success": true,
+  "data": [
+    {
+      "otype": "R",
+      "oid": 42,
+      "title": "Probe am 29.01.2026 19:30",
+      "preview": "Regular rehearsal...",
+      "dueDate": "2026-01-28",
+      "participation": 1
+    }
+  ]
 }
 ```
 
@@ -241,6 +251,7 @@ List all rehearsals.
 Access rule: users with module permission `Proben` can access the full rehearsal set (visibility override), while participant/group assignment is used only when that module permission is missing.
 
 **Query Parameters:**
+
 - `page` - Page number (default: 1)
 - `limit` - Items per page (default: 50)
 - `sort` - Sort field (default: begin)
@@ -251,44 +262,43 @@ Access rule: users with module permission `Proben` can access the full rehearsal
 - `to` - Filter to date (YYYY-MM-DD)
 
 **Response (200):**
+
 ```json
 {
-    "success": true,
-    "data": [
-        {
-            "id": 42,
-            "begin": "2026-02-01 19:00:00",
-            "end": "2026-02-01 21:00:00",
-            "approve_until": "2026-01-31 23:59:59",
-            "location": {
-                "id": 5,
-                "name": "Haus der Vereine",
-                "address": {
-                    "street": "Main St 1",
-                    "city": "Berlin",
-                    "zip": "10115"
-                }
-            },
-            "conductor": {
-                "id": 10,
-                "name": "Franz",
-                "surname": "Schledorn"
-            },
-            "status": "confirmed",
-            "notes": "Regular rehearsal",
-            "groups": [
-                { "id": 2, "name": "Orchestra" }
-            ]
+  "success": true,
+  "data": [
+    {
+      "id": 42,
+      "begin": "2026-02-01 19:00:00",
+      "end": "2026-02-01 21:00:00",
+      "approve_until": "2026-01-31 23:59:59",
+      "location": {
+        "id": 5,
+        "name": "Haus der Vereine",
+        "address": {
+          "street": "Main St 1",
+          "city": "Berlin",
+          "zip": "10115"
         }
-    ],
-    "meta": {
-        "pagination": {
-            "page": 1,
-            "limit": 50,
-            "total": 150,
-            "pages": 3
-        }
+      },
+      "conductor": {
+        "id": 10,
+        "name": "Franz",
+        "surname": "Schledorn"
+      },
+      "status": "confirmed",
+      "notes": "Regular rehearsal",
+      "groups": [{ "id": 2, "name": "Orchestra" }]
     }
+  ],
+  "meta": {
+    "pagination": {
+      "page": 1,
+      "limit": 50,
+      "total": 150,
+      "pages": 3
+    }
+  }
 }
 ```
 
@@ -299,6 +309,7 @@ Access rule: users with module permission `Proben` can access the full rehearsal
 Get single rehearsal with full details.
 
 **Response (200):**
+
 ```json
 {
     "success": true,
@@ -344,21 +355,23 @@ Get single rehearsal with full details.
 Create new rehearsal.
 
 **Request:**
+
 ```json
 {
-    "begin": "2026-02-01 19:00:00",
-    "end": "2026-02-01 21:00:00",
-    "approve_until": "2026-01-31 23:59:59",
-    "location": 5,
-    "conductor": 10,
-    "serie": 3,
-    "status": "confirmed",
-    "notes": "Regular rehearsal",
-    "groups": [2, 3]
+  "begin": "2026-02-01 19:00:00",
+  "end": "2026-02-01 21:00:00",
+  "approve_until": "2026-01-31 23:59:59",
+  "location": 5,
+  "conductor": 10,
+  "serie": 3,
+  "status": "confirmed",
+  "notes": "Regular rehearsal",
+  "groups": [2, 3]
 }
 ```
 
 **Response (201):**
+
 ```json
 {
     "success": true,
@@ -379,6 +392,7 @@ Update rehearsal.
 **Request:** (Same as POST, full resource)
 
 **Response (200):**
+
 ```json
 {
     "success": true,
@@ -396,10 +410,11 @@ Update rehearsal.
 Delete rehearsal.
 
 **Response (200):**
+
 ```json
 {
-    "success": true,
-    "message": "Rehearsal deleted"
+  "success": true,
+  "message": "Rehearsal deleted"
 }
 ```
 
@@ -410,21 +425,22 @@ Delete rehearsal.
 Get rehearsal participants.
 
 **Response (200):**
+
 ```json
 {
-    "success": true,
-    "data": [
-        {
-            "id": 5,
-            "name": "John",
-            "surname": "Doe",
-            "nickname": "Johnny",
-            "instrument": "Violin",
-            "participate": 1,
-            "reason": "",
-            "replyon": "2026-01-25 10:00:00"
-        }
-    ]
+  "success": true,
+  "data": [
+    {
+      "id": 5,
+      "name": "John",
+      "surname": "Doe",
+      "nickname": "Johnny",
+      "instrument": "Violin",
+      "participate": 1,
+      "reason": "",
+      "replyon": "2026-01-25 10:00:00"
+    }
+  ]
 }
 ```
 
@@ -435,21 +451,23 @@ Get rehearsal participants.
 Save user participation.
 
 **Request:**
+
 ```json
 {
-    "participate": 1,  // 1=yes, 0=no, 2=maybe
-    "reason": "Will attend"
+  "participate": 1, // 1=yes, 0=no, 2=maybe
+  "reason": "Will attend"
 }
 ```
 
 **Response (200):**
+
 ```json
 {
-    "success": true,
-    "data": {
-        "participate": 1,
-        "reason": "Will attend"
-    }
+  "success": true,
+  "data": {
+    "participate": 1,
+    "reason": "Will attend"
+  }
 }
 ```
 
@@ -460,18 +478,19 @@ Save user participation.
 Get songs for rehearsal.
 
 **Response (200):**
+
 ```json
 {
-    "success": true,
-    "data": [
-        {
-            "id": 15,
-            "title": "Symphony No. 5",
-            "composer": "Beethoven",
-            "rank": 1,
-            "notes": ""
-        }
-    ]
+  "success": true,
+  "data": [
+    {
+      "id": 15,
+      "title": "Symphony No. 5",
+      "composer": "Beethoven",
+      "rank": 1,
+      "notes": ""
+    }
+  ]
 }
 ```
 
@@ -482,23 +501,25 @@ Get songs for rehearsal.
 Add song to rehearsal.
 
 **Request:**
+
 ```json
 {
-    "song": 15,
-    "rank": 1,
-    "notes": ""
+  "song": 15,
+  "rank": 1,
+  "notes": ""
 }
 ```
 
 **Response (201):**
+
 ```json
 {
-    "success": true,
-    "data": {
-        "id": 123,
-        "song": 15,
-        "rank": 1
-    }
+  "success": true,
+  "data": {
+    "id": 123,
+    "song": 15,
+    "rank": 1
+  }
 }
 ```
 
@@ -514,6 +535,7 @@ Access rule: users with module permission `Konzerte` can access the full concert
 **Query Parameters:** (Same as rehearsals)
 
 **Response (200):**
+
 ```json
 {
     "success": true,
@@ -546,6 +568,7 @@ Access rule: users with module permission `Konzerte` can access the full concert
 Get single concert.
 
 **Response (200):**
+
 ```json
 {
     "success": true,
@@ -571,20 +594,21 @@ Get single concert.
 Create new concert.
 
 **Request:**
+
 ```json
 {
-    "title": "Spring Concert",
-    "begin": "2026-03-15 19:00:00",
-    "end": "2026-03-15 21:00:00",
-    "meetingtime": "2026-03-15 18:00:00",
-    "approve_until": "2026-03-10 23:59:59",
-    "location": 5,
-    "program": 5,
-    "contact": 10,
-    "organizer": "Concert Hall",
-    "status": "confirmed",
-    "payment": 500.00,
-    "notes": "..."
+  "title": "Spring Concert",
+  "begin": "2026-03-15 19:00:00",
+  "end": "2026-03-15 21:00:00",
+  "meetingtime": "2026-03-15 18:00:00",
+  "approve_until": "2026-03-10 23:59:59",
+  "location": 5,
+  "program": 5,
+  "contact": 10,
+  "organizer": "Concert Hall",
+  "status": "confirmed",
+  "payment": 500.0,
+  "notes": "..."
 }
 ```
 
@@ -617,41 +641,43 @@ The contacts module is implemented with delegated handlers: `ContactsModule` in 
 List all contacts.
 
 **Query Parameters:**
+
 - `group` - Filter by group ID
 - `instrument` - Filter by instrument ID
 - `search` - Search by name/email
 
 **Response (200):**
+
 ```json
 {
-    "success": true,
-    "data": [
-        {
-            "id": 10,
-            "name": "Franz",
-            "surname": "Schledorn",
-            "nickname": "Franzi",
-            "email": "franz@example.com",
-            "phone": "+49 123 456789",
-            "mobile": "+49 987 654321",
-            "instrument": {
-                "id": 3,
-                "name": "Conductor"
-            },
-            "address": {
-                "street": "Main St 1",
-                "city": "Berlin",
-                "zip": "10115"
-            },
-            "groups": [
-                { "id": 1, "name": "Administrators" },
-                { "id": 2, "name": "Orchestra" }
-            ],
-            "is_conductor": true,
-            "birthday": "1970-01-01",
-            "status": "active"
-        }
-    ]
+  "success": true,
+  "data": [
+    {
+      "id": 10,
+      "name": "Franz",
+      "surname": "Schledorn",
+      "nickname": "Franzi",
+      "email": "franz@example.com",
+      "phone": "+49 123 456789",
+      "mobile": "+49 987 654321",
+      "instrument": {
+        "id": 3,
+        "name": "Conductor"
+      },
+      "address": {
+        "street": "Main St 1",
+        "city": "Berlin",
+        "zip": "10115"
+      },
+      "groups": [
+        { "id": 1, "name": "Administrators" },
+        { "id": 2, "name": "Orchestra" }
+      ],
+      "is_conductor": true,
+      "birthday": "1970-01-01",
+      "status": "active"
+    }
+  ]
 }
 ```
 
@@ -668,19 +694,20 @@ Get single contact.
 Create new contact.
 
 **Request:**
+
 ```json
 {
-    "name": "John",
-    "surname": "Doe",
-    "nickname": "Johnny",
-    "email": "john@example.com",
-    "phone": "+49 123 456789",
-    "instrument": 3,
-    "address": 5,
-    "groups": [2],
-    "is_conductor": false,
-    "birthday": "1990-01-01",
-    "status": "active"
+  "name": "John",
+  "surname": "Doe",
+  "nickname": "Johnny",
+  "email": "john@example.com",
+  "phone": "+49 123 456789",
+  "instrument": 3,
+  "address": 5,
+  "groups": [2],
+  "is_conductor": false,
+  "birthday": "1990-01-01",
+  "status": "active"
 }
 ```
 
@@ -709,9 +736,10 @@ Get contact's groups.
 Add contact to group.
 
 **Request:**
+
 ```json
 {
-    "group": 2
+  "group": 2
 }
 ```
 
@@ -731,34 +759,36 @@ Get calendar events (rehearsals, concerts, appointments).
 For rehearsal/concert calendar entries, event visibility follows the same precedence: module permission (`Proben` / `Konzerte`) grants full visibility, and participant-based filtering applies only without that module permission.
 
 **Query Parameters:**
+
 - `from` - Start date (YYYY-MM-DD, required)
 - `to` - End date (YYYY-MM-DD, required)
 - `type` - Filter by type (rehearsal, concert, appointment)
 
 **Response (200):**
+
 ```json
 {
-    "success": true,
-    "data": [
-        {
-            "id": 42,
-            "type": "rehearsal",
-            "title": "Probe am 29.01.2026 19:30",
-            "begin": "2026-01-29 19:00:00",
-            "end": "2026-01-29 21:00:00",
-            "location": "Haus der Vereine",
-            "color": "#3b82f6"
-        },
-        {
-            "id": 20,
-            "type": "concert",
-            "title": "Spring Concert",
-            "begin": "2026-03-15 19:00:00",
-            "end": "2026-03-15 21:00:00",
-            "location": "Concert Hall",
-            "color": "#10b981"
-        }
-    ]
+  "success": true,
+  "data": [
+    {
+      "id": 42,
+      "type": "rehearsal",
+      "title": "Probe am 29.01.2026 19:30",
+      "begin": "2026-01-29 19:00:00",
+      "end": "2026-01-29 21:00:00",
+      "location": "Haus der Vereine",
+      "color": "#3b82f6"
+    },
+    {
+      "id": 20,
+      "type": "concert",
+      "title": "Spring Concert",
+      "begin": "2026-03-15 19:00:00",
+      "end": "2026-03-15 21:00:00",
+      "location": "Concert Hall",
+      "color": "#10b981"
+    }
+  ]
 }
 ```
 
@@ -770,6 +800,7 @@ Authenticated. Returns the current user's stable calendar subscription token and
 If no token exists yet, it is created on first call.
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -785,6 +816,7 @@ If no token exists yet, it is created on first call.
 ```
 
 Notes:
+
 - `subscriptionUrlWebcal` is the URL used by the **Subscribe** button.
 - The token is user-specific and stays stable until explicitly regenerated.
 
@@ -803,6 +835,7 @@ Authenticated. Rotates the current user's calendar token and invalidates old URL
 Public ICS feed endpoint (token-authenticated, no session required).
 
 Behavior:
+
 - Validates the token and requires the linked user to be active.
 - Returns `text/calendar` content (`.ics`), optionally as attachment when `download=1`.
 - Includes **past + future** events for the user.
@@ -821,6 +854,7 @@ Behavior:
 Public JSON feed endpoint for website integrations.
 
 Behavior:
+
 - Requires `token` query parameter (64-char hex). Missing/invalid token returns **403** with `error: public_concerts_feed_token_invalid`.
 - Feed can be disabled via configuration (`public_gigs_feed_enabled`); disabled returns **403** with `error: public_concerts_feed_disabled`.
 - Includes CORS headers for browser integrations:
@@ -857,6 +891,7 @@ Behavior:
 List tasks.
 
 **Query Parameters:**
+
 - `assigned_to` - Filter by assignee ID
 - `created_by` - Filter by creator ID
 - `is_complete` - Filter by completion (true/false)
@@ -864,30 +899,31 @@ List tasks.
 - `due_to` - Filter to due date
 
 **Response (200):**
+
 ```json
 {
-    "success": true,
-    "data": [
-        {
-            "id": 15,
-            "title": "Prepare program",
-            "description": "Create program for spring concert",
-            "created_at": "2026-01-20 10:00:00",
-            "created_by": {
-                "id": 5,
-                "name": "John",
-                "surname": "Doe"
-            },
-            "due_at": "2026-02-01 23:59:59",
-            "assigned_to": {
-                "id": 10,
-                "name": "Franz",
-                "surname": "Schledorn"
-            },
-            "is_complete": false,
-            "completed_at": null
-        }
-    ]
+  "success": true,
+  "data": [
+    {
+      "id": 15,
+      "title": "Prepare program",
+      "description": "Create program for spring concert",
+      "created_at": "2026-01-20 10:00:00",
+      "created_by": {
+        "id": 5,
+        "name": "John",
+        "surname": "Doe"
+      },
+      "due_at": "2026-02-01 23:59:59",
+      "assigned_to": {
+        "id": 10,
+        "name": "Franz",
+        "surname": "Schledorn"
+      },
+      "is_complete": false,
+      "completed_at": null
+    }
+  ]
 }
 ```
 
@@ -904,12 +940,13 @@ Get single task.
 Create new task.
 
 **Request:**
+
 ```json
 {
-    "title": "Prepare program",
-    "description": "Create program for spring concert",
-    "due_at": "2026-02-01 23:59:59",
-    "assigned_to": 10
+  "title": "Prepare program",
+  "description": "Create program for spring concert",
+  "due_at": "2026-02-01 23:59:59",
+  "assigned_to": 10
 }
 ```
 
@@ -932,21 +969,23 @@ Delete task.
 Mark task as complete.
 
 **Request:**
+
 ```json
 {
-    "is_complete": true
+  "is_complete": true
 }
 ```
 
 **Response (200):**
+
 ```json
 {
-    "success": true,
-    "data": {
-        "id": 15,
-        "is_complete": true,
-        "completed_at": "2026-01-25 12:00:00"
-    }
+  "success": true,
+  "data": {
+    "id": 15,
+    "is_complete": true,
+    "completed_at": "2026-01-25 12:00:00"
+  }
 }
 ```
 
@@ -959,29 +998,31 @@ Mark task as complete.
 List messages/news.
 
 **Query Parameters:**
+
 - `type` - Filter by type (message, news, discussion)
 - `related_type` - Filter by related object type (R, C, etc.)
 - `related_id` - Filter by related object ID
 
 **Response (200):**
+
 ```json
 {
-    "success": true,
-    "data": [
-        {
-            "id": 8,
-            "title": "Important Announcement",
-            "message": "Please note...",
-            "author": {
-                "id": 5,
-                "name": "John",
-                "surname": "Doe"
-            },
-            "created_at": "2026-01-20 10:00:00",
-            "related_type": "R",
-            "related_id": 42
-        }
-    ]
+  "success": true,
+  "data": [
+    {
+      "id": 8,
+      "title": "Important Announcement",
+      "message": "Please note...",
+      "author": {
+        "id": 5,
+        "name": "John",
+        "surname": "Doe"
+      },
+      "created_at": "2026-01-20 10:00:00",
+      "related_type": "R",
+      "related_id": 42
+    }
+  ]
 }
 ```
 
@@ -998,12 +1039,13 @@ Get single message.
 Create new message.
 
 **Request:**
+
 ```json
 {
-    "title": "Important Announcement",
-    "message": "Please note...",
-    "related_type": "R",
-    "related_id": 42
+  "title": "Important Announcement",
+  "message": "Please note...",
+  "related_type": "R",
+  "related_id": 42
 }
 ```
 
@@ -1014,9 +1056,10 @@ Create new message.
 Add comment to message/discussion.
 
 **Request:**
+
 ```json
 {
-    "message": "I agree with this"
+  "message": "I agree with this"
 }
 ```
 
@@ -1029,28 +1072,29 @@ Add comment to message/discussion.
 List all programs/setlists.
 
 **Response (200):**
+
 ```json
 {
-    "success": true,
-    "data": [
+  "success": true,
+  "data": [
+    {
+      "id": 5,
+      "name": "Spring Program",
+      "notes": "Program for spring concert",
+      "is_template": false,
+      "songs": [
         {
-            "id": 5,
-            "name": "Spring Program",
-            "notes": "Program for spring concert",
-            "is_template": false,
-            "songs": [
-                {
-                    "id": 15,
-                    "rank": 1,
-                    "title": "Symphony No. 5",
-                    "composer": "Beethoven",
-                    "length": "30:00",
-                    "notes": ""
-                }
-            ],
-            "total_length": "90:00"
+          "id": 15,
+          "rank": 1,
+          "title": "Symphony No. 5",
+          "composer": "Beethoven",
+          "length": "30:00",
+          "notes": ""
         }
-    ]
+      ],
+      "total_length": "90:00"
+    }
+  ]
 }
 ```
 
@@ -1067,11 +1111,12 @@ Get single program with songs.
 Create new program.
 
 **Request:**
+
 ```json
 {
-    "name": "Spring Program",
-    "notes": "Program for spring concert",
-    "is_template": false
+  "name": "Spring Program",
+  "notes": "Program for spring concert",
+  "is_template": false
 }
 ```
 
@@ -1100,11 +1145,12 @@ Get program songs.
 Add song to program.
 
 **Request:**
+
 ```json
 {
-    "song": 15,
-    "rank": 1,
-    "notes": ""
+  "song": 15,
+  "rank": 1,
+  "notes": ""
 }
 ```
 
@@ -1121,13 +1167,14 @@ Remove song from program.
 Reorder program songs.
 
 **Request:**
+
 ```json
 {
-    "songs": [
-        { "id": 15, "rank": 1 },
-        { "id": 20, "rank": 2 },
-        { "id": 18, "rank": 3 }
-    ]
+  "songs": [
+    { "id": 15, "rank": 1 },
+    { "id": 20, "rank": 2 },
+    { "id": 18, "rank": 3 }
+  ]
 }
 ```
 
@@ -1150,6 +1197,7 @@ List members (contacts in member group).
 List receipts.
 
 **Query Parameters:**
+
 - `from` - Filter from date
 - `to` - Filter to date
 - `contact` - Filter by contact ID
@@ -1195,6 +1243,7 @@ Create equipment item.
 List songs.
 
 **Query Parameters:**
+
 - `search` - Search by title/composer
 - `genre` - Filter by genre ID
 
@@ -1240,6 +1289,7 @@ Create location.
 List groups.
 
 **Response (200):**
+
 ```json
 {
     "success": true,
@@ -1283,21 +1333,22 @@ Create group.
 List instruments.
 
 **Response (200):**
+
 ```json
 {
-    "success": true,
-    "data": [
-        {
-            "id": 1,
-            "name": "Violin",
-            "rank": 1
-        },
-        {
-            "id": 2,
-            "name": "Viola",
-            "rank": 2
-        }
-    ]
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "name": "Violin",
+      "rank": 1
+    },
+    {
+      "id": 2,
+      "name": "Viola",
+      "rank": 2
+    }
+  ]
 }
 ```
 
@@ -1324,10 +1375,11 @@ Get vote with options and results.
 Submit vote.
 
 **Request:**
+
 ```json
 {
-    "option": 5,  // Option ID
-    "choice": "yes"  // yes, no, maybe
+  "option": 5, // Option ID
+  "choice": "yes" // yes, no, maybe
 }
 ```
 
@@ -1347,6 +1399,7 @@ Comments (chat) for rehearsals, concerts, and votes. Requires `discussion_on` co
 - `oid`: Entity ID
 
 **Response (200):**
+
 ```json
 [
   {
@@ -1387,6 +1440,7 @@ For rehearsal/concert discussion access, the same precedence applies: module per
 Only the comment author can delete. Returns 404 if comment not found, 403 if not author.
 
 **Response (200):**
+
 ```json
 { "deleted": true }
 ```
@@ -1446,6 +1500,7 @@ List outfits.
 List files.
 
 **Query Parameters:**
+
 - `path` - Directory path
 - `type` - Filter by type (file/folder)
 
@@ -1456,6 +1511,7 @@ List files.
 Upload file.
 
 **Request:** (multipart/form-data)
+
 - `file` - File data
 - `path` - Target directory
 - `name` - File name
@@ -1483,6 +1539,7 @@ Delete file.
 Check whether the current user can access Wrapped.
 
 **Notes:**
+
 - Requires authenticated user
 - Requires `wrapped_module_enabled = 1`
 - Requires Wrapped module permission
@@ -1494,9 +1551,11 @@ Check whether the current user can access Wrapped.
 Get wrapped data for one year.
 
 **Query Parameters:**
+
 - `year` - Year to load
 
 **Response Highlights:**
+
 - `personal` summary (responses, events, top month)
 - `personal.responses.deadlineGapHours` (signed average hours: reply time minus deadline; lower means earlier)
 - `personal.vibePersona` (`id`, `score`, `variant`, `proof`)
@@ -1505,6 +1564,7 @@ Get wrapped data for one year.
 - `achievements.bandLeaderboard` (top attendance + lowest attendance, with minimum event threshold)
 
 **Compatibility Notes:**
+
 - `personal.avgLeadHours` remains available as a legacy field during transition.
 - `personal.funFacts.favoriteType` and `personal.funFacts.responseStyle` remain available as legacy fields.
 
@@ -1513,6 +1573,7 @@ Get wrapped data for one year.
 Get all available Wrapped years for the current user (descending).
 
 **Response Highlights:**
+
 - `years` (e.g. `[2026, 2025, ...]`)
 - `startYear` (earliest year with data)
 - `endYear` (current year)
@@ -1526,15 +1587,16 @@ Get all available Wrapped years for the current user (descending).
 Get statistics overview.
 
 **Response (200):**
+
 ```json
 {
-    "success": true,
-    "data": {
-        "total_members": 50,
-        "total_rehearsals": 150,
-        "total_concerts": 20,
-        "attendance_rate": 85.5
-    }
+  "success": true,
+  "data": {
+    "total_members": 50,
+    "total_rehearsals": 150,
+    "total_concerts": 20,
+    "attendance_rate": 85.5
+  }
 }
 ```
 
@@ -1543,6 +1605,7 @@ Get statistics overview.
 Next Gen stats dashboard payload used by the frontend stats module.
 
 **Overview fields include:**
+
 - `criticalEvents`
 - `pendingResponses`
 - `participationRate`
@@ -1585,10 +1648,11 @@ List modules with permissions.
 Grant permission.
 
 **Request:**
+
 ```json
 {
-    "user": 5,
-    "module": 3
+  "user": 5,
+  "module": 3
 }
 ```
 
@@ -1601,21 +1665,23 @@ Grant permission.
 Get configuration.
 
 **Response (200):**
+
 ```json
 {
-    "success": true,
-    "data": {
-        "company_name": "My Orchestra",
-        "currency": "EUR",
-        "theme": "default",
-        "user_registration": true
-    }
+  "success": true,
+  "data": {
+    "company_name": "My Orchestra",
+    "currency": "EUR",
+    "theme": "default",
+    "user_registration": true
+  }
 }
 ```
 
 ---
 
 For Next Gen `api/index.php?module=configuration&action=getConfig`, response also includes:
+
 - `derived.publicConcertsFeedUrl` (absolute URL for `api/public-concerts.json.php`)
 - `derived.publicConcertsFeedTokenizedUrl` (absolute URL including `?token=...`)
 
@@ -1645,6 +1711,7 @@ Update configuration.
 Authenticated beta bug report endpoint. Feature must be enabled via configuration.
 
 **Request body (JSON):**
+
 ```json
 {
   "message": "Save button does nothing",
@@ -1656,6 +1723,7 @@ Authenticated beta bug report endpoint. Feature must be enabled via configuratio
 ```
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -1667,6 +1735,7 @@ Authenticated beta bug report endpoint. Feature must be enabled via configuratio
 ```
 
 **Errors:**
+
 - `403` `bug_report_feature_disabled`
 - `400` `bug_report_recipient_not_configured`
 - `400` `bug_report_required_fields_missing`
@@ -1677,6 +1746,7 @@ Authenticated beta bug report endpoint. Feature must be enabled via configuratio
 - `500` `bug_report_send_failed: ...`
 
 **Notes:**
+
 - Current reporter identity is always resolved server-side from session.
 - Sensitive values in diagnostics are redacted before mail rendering.
 - Current rate limit: **5 successful sends / 15 minutes** per **IP + user**.
@@ -1691,6 +1761,7 @@ Authenticated beta bug report endpoint. Feature must be enabled via configuratio
 Admin/configuration-permission endpoint for system + build metadata used by the in-app System Information page.
 
 **Response (200):**
+
 - `company` (string)
 - `lang` (string)
 - `country` (string|null, ISO alpha-2 when available)
@@ -1706,12 +1777,14 @@ Admin/configuration-permission endpoint for system + build metadata used by the 
 Authenticated endpoint for beta changelog entries used by changelog/What's New surfaces.
 
 **Response (200):**
+
 - `releaseId` (string)
 - `generatedAt` (ISO timestamp string)
 - `build` object: `version`, `buildId`, `commit`, `fullCommit`, `buildTime`
 - `entries[]`: `bugId` (nullable), `changeType` (`added|fixed|changed|removed`), `title`, `date` (optional)
 
 **Notes:**
+
 - Changelog source is hybrid: commit-derived `BUG-...` bugfix entries plus optional curated overrides.
 - Curated override entries are intended for non-bug user-visible release outcomes.
 - Endpoint returns an empty `entries` array if no generated artifact is available.
@@ -1721,19 +1794,23 @@ Authenticated endpoint for beta changelog entries used by changelog/What's New s
 ## Other Modules
 
 ### Rehearsal Phases
+
 - `GET /api/v1/rehearsal-phases`
 - `POST /api/v1/rehearsal-phases`
 - etc.
 
 ### Custom Fields
+
 - `GET /api/v1/custom-fields?type=c` (c=contact, r=rehearsal, etc.)
 - `POST /api/v1/custom-fields`
 - etc.
 
 ### Genres
+
 - `GET /api/v1/genres`
 
 ### Website
+
 - `GET /api/v1/website/pages`
 - `POST /api/v1/website/pages`
 - etc.
@@ -1745,6 +1822,7 @@ Authenticated endpoint for beta changelog entries used by changelog/What's New s
 ### Pagination
 
 All list endpoints support pagination:
+
 ```
 GET /api/v1/{resource}?page=1&limit=50
 ```
@@ -1752,6 +1830,7 @@ GET /api/v1/{resource}?page=1&limit=50
 ### Filtering
 
 Filter by field:
+
 ```
 GET /api/v1/{resource}?filter[field]=value
 ```
@@ -1759,6 +1838,7 @@ GET /api/v1/{resource}?filter[field]=value
 ### Sorting
 
 Sort by field:
+
 ```
 GET /api/v1/{resource}?sort=field&order=asc
 ```
@@ -1766,6 +1846,7 @@ GET /api/v1/{resource}?sort=field&order=asc
 ### Field Selection
 
 Select specific fields:
+
 ```
 GET /api/v1/{resource}?fields=id,name,email
 ```
@@ -1773,6 +1854,7 @@ GET /api/v1/{resource}?fields=id,name,email
 ### Search
 
 Full-text search:
+
 ```
 GET /api/v1/{resource}?search=query
 ```
@@ -1785,21 +1867,22 @@ All endpoints return errors in this format:
 
 ```json
 {
-    "success": false,
-    "error": {
-        "code": "ERROR_CODE",
-        "message": "Human-readable message",
-        "details": [
-            {
-                "field": "begin",
-                "message": "Begin date is required"
-            }
-        ]
-    }
+  "success": false,
+  "error": {
+    "code": "ERROR_CODE",
+    "message": "Human-readable message",
+    "details": [
+      {
+        "field": "begin",
+        "message": "Begin date is required"
+      }
+    ]
+  }
 }
 ```
 
 **Common Error Codes:**
+
 - `AUTH_REQUIRED` (401)
 - `AUTH_FORBIDDEN` (403)
 - `RESOURCE_NOT_FOUND` (404)

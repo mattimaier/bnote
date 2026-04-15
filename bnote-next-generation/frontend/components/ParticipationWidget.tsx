@@ -21,6 +21,7 @@ interface ParticipationWidgetProps {
   onStatusChange?: () => void;
   disabled?: boolean;
   initialState?: ParticipationState;
+  queryMode?: "default" | "cache-first";
 }
 
 export function ParticipationWidget({
@@ -29,17 +30,15 @@ export function ParticipationWidget({
   onStatusChange,
   disabled = false,
   initialState,
+  queryMode = "default",
 }: ParticipationWidgetProps) {
   const { t } = useI18n();
   const { showToast } = useToast();
   const queryClient = useQueryClient();
   const type = eventType === "R" || eventType === "C" ? eventType : null;
-  const { data, isPending } = useParticipationStatusQuery(
-    eventId,
-    (type ?? "R"),
-    Boolean(type),
-    initialState
-  );
+  const { data, isPending } = useParticipationStatusQuery(eventId, type ?? "R", Boolean(type), initialState, {
+    cacheFirst: queryMode === "cache-first",
+  });
   const [status, setStatus] = useState<ParticipationStatus>(data?.status ?? "undecided");
   const [allowMaybe, setAllowMaybe] = useState(Boolean(data?.allow_maybe));
   const [isLocked, setIsLocked] = useState(Boolean(data?.is_locked));
@@ -140,9 +139,7 @@ export function ParticipationWidget({
   if (loading) {
     return (
       <div className="flex flex-col gap-2 items-end">
-        <p className="text-xs font-medium opacity-50 text-base-content/60">
-          {t("js.event.participation")}
-        </p>
+        <p className="text-xs font-medium opacity-50 text-base-content/60">{t("js.event.participation")}</p>
         <div className="h-10 w-10 rounded-full border-2 border-base-300 animate-pulse" />
       </div>
     );
@@ -170,9 +167,7 @@ export function ParticipationWidget({
   return (
     <>
       <div className="flex flex-col gap-2 items-end shrink-0">
-        <p className="text-xs font-medium text-base-content/60">
-          {t("js.event.participation")}
-        </p>
+        <p className="text-xs font-medium text-base-content/60">{t("js.event.participation")}</p>
         <div className="flex items-center gap-3 justify-end">
           {showYes && (
             <button
@@ -196,7 +191,12 @@ export function ParticipationWidget({
               aria-label={t("js.participation.maybe")}
             >
               <svg className="h-5 w-5 md:h-6 md:w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
             </button>
           )}

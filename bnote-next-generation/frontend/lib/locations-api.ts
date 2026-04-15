@@ -47,17 +47,9 @@ export const locationsApi = {
   getEvents: (id: number, signal?: AbortSignal) =>
     api.get<LocationEventItem[]>("locations", "events", { id: String(id) }, { signal }),
   create: (data: Partial<LocationDetail>) =>
-    api.post<{ success: boolean; id: number; message: string }>(
-      "locations",
-      "create",
-      data as Record<string, unknown>
-    ),
+    api.post<{ success: boolean; id: number; message: string }>("locations", "create", data as Record<string, unknown>),
   update: (id: number, data: Partial<LocationDetail>) =>
-    api.post<{ success: boolean; message: string }>(
-      "locations",
-      "update",
-      { id, ...data } as Record<string, unknown>
-    ),
+    api.post<{ success: boolean; message: string }>("locations", "update", { id, ...data } as Record<string, unknown>),
   delete: (id: number) =>
     api.post<{ success: boolean; message: string }>("locations", "delete", {
       id,

@@ -8,12 +8,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import {
-  mapOtypeToEventType,
-  formatEventDate,
-  formatEventTime,
-  getEventTypeConfig,
-} from "@/lib/event-utils";
+import { mapOtypeToEventType, formatEventDate, formatEventTime, getEventTypeConfig } from "@/lib/event-utils";
 import { getEntityPath } from "@/lib/entities/paths";
 import { ParticipationWidget } from "./ParticipationWidget";
 import { getIcon } from "@/components/icons";
@@ -59,6 +54,7 @@ interface EventCardProps {
   t: (k: string) => string;
   lang: string;
   showParticipation?: boolean;
+  participationQueryMode?: "default" | "cache-first";
   isLast?: boolean;
   onParticipationChange?: () => void;
   onTaskComplete?: () => void;
@@ -94,12 +90,7 @@ function extractLocation(event: InboxEvent): string | null {
   if (event.otype === "V" || event.otype === "T") return null;
   const loc = event.location;
   if (typeof loc === "string") return loc;
-  return (
-    loc?.name ??
-    event.locationName ??
-    (event.locationData as { name?: string } | undefined)?.name ??
-    "TBA"
-  );
+  return loc?.name ?? event.locationName ?? (event.locationData as { name?: string } | undefined)?.name ?? "TBA";
 }
 
 export function EventCard({
@@ -107,6 +98,7 @@ export function EventCard({
   t,
   lang,
   showParticipation = false,
+  participationQueryMode = "default",
   isLast = false,
   onParticipationChange,
   onTaskComplete,
@@ -122,7 +114,13 @@ export function EventCard({
   const isTask = event.otype === "T";
   const title = notesToPlainText(event.title ?? "") || t("js.event.event");
   const hideTitleWhenDuplicate = title === typeConfig.label;
-  const isClickable = event.otype === "R" || event.otype === "C" || event.otype === "V" || event.otype === "T" || event.otype === "RS" || event.otype === "AP";
+  const isClickable =
+    event.otype === "R" ||
+    event.otype === "C" ||
+    event.otype === "V" ||
+    event.otype === "T" ||
+    event.otype === "RS" ||
+    event.otype === "AP";
   const entityType =
     event.otype === "C"
       ? "concert"
@@ -138,8 +136,7 @@ export function EventCard({
   const href = isClickable ? getEntityPath(entityType, event.oid) : "#";
   const hasParticipation =
     showParticipation && (event.otype === "R" || event.otype === "C") && event.oid && event.otype;
-  const hasTaskCheckbox =
-    showParticipation && isTask && event.oid && (event.is_complete ?? 0) === 0;
+  const hasTaskCheckbox = showParticipation && isTask && event.oid && (event.is_complete ?? 0) === 0;
   const TASK_COMPLETE_DELAY_MS = 2000;
   const handleTaskCheck = async (e: React.ChangeEvent<HTMLInputElement>) => {
     e.stopPropagation();
@@ -168,8 +165,7 @@ export function EventCard({
   const replyUntilIso = toIsoString(event.replyUntil || event.dueDate || null);
   const now = Date.now();
   const computedLocked = Boolean(
-    (replyUntilIso && Date.parse(replyUntilIso) < now) ||
-    (eventBeginIso && Date.parse(eventBeginIso) < now)
+    (replyUntilIso && Date.parse(replyUntilIso) < now) || (eventBeginIso && Date.parse(eventBeginIso) < now)
   );
   const initialParticipationState: ParticipationState | undefined = hasParticipation
     ? {
@@ -186,18 +182,15 @@ export function EventCard({
       onStatusChange={onParticipationChange}
       disabled={isCancelled}
       initialState={initialParticipationState}
+      queryMode={participationQueryMode}
     />
   ) : null;
 
   /* Desktop: timeline + card. Mobile: compact list item without timeline */
   const desktopContent = (
     <>
-      {!isLast && (
-        <div className="absolute left-[15px] top-9 h-[calc(100%-12px)] w-0.5 timeline-connector" />
-      )}
-      <div
-        className="relative z-10 mt-0.5"
-      >
+      {!isLast && <div className="absolute left-[15px] top-9 h-[calc(100%-12px)] w-0.5 timeline-connector" />}
+      <div className="relative z-10 mt-0.5">
         <SquircleIconBadge
           Icon={DotIcon}
           color={markerColor}
@@ -368,9 +361,7 @@ export function EventCard({
       {isDesktop ? (
         <div className="relative gap-3 w-full flex">{desktopContent}</div>
       ) : (
-        <div
-          className={`relative w-full group ${!isLast ? "border-b border-base-300/50 pb-3 mb-3" : ""}`}
-        >
+        <div className={`relative w-full group ${!isLast ? "border-b border-base-300/50 pb-3 mb-3" : ""}`}>
           {mobileContent}
         </div>
       )}
@@ -388,9 +379,5 @@ export function EventCard({
     );
   }
 
-  return (
-    <div className="relative flex flex-col md:flex-row md:gap-3 w-full">
-      {content}
-    </div>
-  );
+  return <div className="relative flex flex-col md:flex-row md:gap-3 w-full">{content}</div>;
 }

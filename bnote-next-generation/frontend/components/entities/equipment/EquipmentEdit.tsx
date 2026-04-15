@@ -53,16 +53,12 @@ export function EquipmentEdit() {
         setName(eq.name ?? "");
         setMake(eq.make ?? "");
         setModel(eq.model ?? "");
-        setQuantity(
-          eq.quantity != null ? String(eq.quantity) : ""
-        );
+        setQuantity(eq.quantity != null ? String(eq.quantity) : "");
         setPurchasePrice(eq.purchase_price ?? "");
         setCurrentValue(eq.current_value ?? "");
         setNotes(eq.notes ?? "");
       })
-      .catch((err) =>
-        setError(getErrorMessage(err, t, "js.common.failedToLoad"))
-      )
+      .catch((err) => setError(getErrorMessage(err, t, "js.common.failedToLoad")))
       .finally(() => setLoading(false));
   }, [id, isNew]);
 
@@ -89,20 +85,13 @@ export function EquipmentEdit() {
       if (isNew) {
         const res = await equipmentApi.create(payload);
         showToast(
-          t("js.equipment.created") !== "js.equipment.created"
-            ? t("js.equipment.created")
-            : "Equipment created",
+          t("js.equipment.created") !== "js.equipment.created" ? t("js.equipment.created") : "Equipment created",
           "success"
         );
         router.replace(getEntityPath("equipment", res.id, "view"));
       } else {
         await equipmentApi.update(parseInt(id, 10), payload);
-        showToast(
-          t("js.common.saved") !== "js.common.saved"
-            ? t("js.common.saved")
-            : "Saved",
-          "success"
-        );
+        showToast(t("js.common.saved") !== "js.common.saved" ? t("js.common.saved") : "Saved", "success");
         router.replace(getEntityPath("equipment", id, "view"));
       }
     } catch (err) {
@@ -167,22 +156,14 @@ export function EquipmentEdit() {
     <div className={PAGE_CONTENT_CLASS}>
       <form id="equipment-edit-form" onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div
-            className="rounded-lg border border-error bg-error/15 px-4 py-3 text-sm text-error"
-          >
-            {error}
-          </div>
+          <div className="rounded-lg border border-error bg-error/15 px-4 py-3 text-sm text-error">{error}</div>
         )}
 
-        <div
-          className="rounded-none border-0 shadow-none p-4 md:rounded-box md:border md:border-base-300 md:shadow-sm md:p-6 bg-base-100 md:bg-base-100 text-base-content"
-        >
+        <div className="rounded-none border-0 shadow-none p-4 md:rounded-box md:border md:border-base-300 md:shadow-sm md:p-6 bg-base-100 md:bg-base-100 text-base-content">
           <div className="space-y-4">
             <div>
               <label className="mb-1 block text-sm font-medium">
-                {t("js.equipment.name") !== "js.equipment.name"
-                  ? t("js.equipment.name")
-                  : "Name"}
+                {t("js.equipment.name") !== "js.equipment.name" ? t("js.equipment.name") : "Name"}
               </label>
               <input
                 type="text"
@@ -194,9 +175,7 @@ export function EquipmentEdit() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="mb-1 block text-sm font-medium">
-                  {t("js.equipment.make") !== "js.equipment.make"
-                    ? t("js.equipment.make")
-                    : "Make"}
+                  {t("js.equipment.make") !== "js.equipment.make" ? t("js.equipment.make") : "Make"}
                 </label>
                 <input
                   type="text"
@@ -207,9 +186,7 @@ export function EquipmentEdit() {
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium">
-                  {t("js.equipment.model") !== "js.equipment.model"
-                    ? t("js.equipment.model")
-                    : "Model"}
+                  {t("js.equipment.model") !== "js.equipment.model" ? t("js.equipment.model") : "Model"}
                 </label>
                 <input
                   type="text"
@@ -221,9 +198,7 @@ export function EquipmentEdit() {
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium">
-                {t("js.equipment.quantity") !== "js.equipment.quantity"
-                  ? t("js.equipment.quantity")
-                  : "Quantity"}
+                {t("js.equipment.quantity") !== "js.equipment.quantity" ? t("js.equipment.quantity") : "Quantity"}
               </label>
               <input
                 type="number"
@@ -263,9 +238,7 @@ export function EquipmentEdit() {
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium">
-                {t("js.equipment.notes") !== "js.equipment.notes"
-                  ? t("js.equipment.notes")
-                  : "Notes"}
+                {t("js.equipment.notes") !== "js.equipment.notes" ? t("js.equipment.notes") : "Notes"}
               </label>
               <NotesEditor
                 value={notes}

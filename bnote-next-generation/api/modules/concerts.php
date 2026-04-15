@@ -21,175 +21,181 @@
 /**
  * Concerts API module
  * Handles concert detail endpoints with participants grouped by instruments and all metadata
- * 
+ *
  * Note: This file is loaded after api/index.php has changed working directory to project root
  */
 // Use BNOTE_ROOT constant from paths.php (loaded by api/index.php)
-require_once BNOTE_ROOT . '/src/data/modules/konzertedata.php';
-require_once BNOTE_ROOT . '/src/data/modules/startdata.php';
-require_once BNOTE_ROOT . '/src/data/modules/locationsdata.php';
-require_once BNOTE_ROOT . '/src/data/modules/gruppendata.php';
-require_once BNOTE_ROOT . '/src/data/modules/programdata.php';
-require_once BNOTE_ROOT . '/src/data/modules/outfitsdata.php';
-require_once BNOTE_ROOT . '/src/data/modules/equipmentdata.php';
-require_once BNOTE_ROOT . '/src/data/modules/kontaktedata.php';
-require_once BNOTE_ROOT . '/src/data/database.php';
-require_once __DIR__ . '/../response.php';
-require_once __DIR__ . '/../auth.php';
-require_once __DIR__ . '/../text_normalizer.php';
-require_once __DIR__ . '/../mail/EventParticipantNotifier.php';
-require_once __DIR__ . '/../mail/EventInfoMailService.php';
-require_once __DIR__ . '/../mail/EscalationAlertService.php';
-require_once __DIR__ . '/../nextgen_public_event_visibility.php';
+require_once BNOTE_ROOT . "/src/data/modules/konzertedata.php";
+require_once BNOTE_ROOT . "/src/data/modules/startdata.php";
+require_once BNOTE_ROOT . "/src/data/modules/locationsdata.php";
+require_once BNOTE_ROOT . "/src/data/modules/gruppendata.php";
+require_once BNOTE_ROOT . "/src/data/modules/programdata.php";
+require_once BNOTE_ROOT . "/src/data/modules/outfitsdata.php";
+require_once BNOTE_ROOT . "/src/data/modules/equipmentdata.php";
+require_once BNOTE_ROOT . "/src/data/modules/kontaktedata.php";
+require_once BNOTE_ROOT . "/src/data/database.php";
+require_once __DIR__ . "/../response.php";
+require_once __DIR__ . "/../auth.php";
+require_once __DIR__ . "/../text_normalizer.php";
+require_once __DIR__ . "/../mail/EventParticipantNotifier.php";
+require_once __DIR__ . "/../mail/EventInfoMailService.php";
+require_once __DIR__ . "/../mail/EscalationAlertService.php";
+require_once __DIR__ . "/../nextgen_public_event_visibility.php";
 
-class ConcertsModule {
-    private $data;
-    
-    public function __construct() {
-        // Check authentication
-        if (!Auth::check()) {
-            Response::error('Authentication required', 401);
-        }
-        
-        // Module permission is not required for read access (GET concert).
-        // Write actions (getMeta, update) check permission in handle().
-        $this->data = new KonzerteData();
-    }
-    
-    public function handle() {
-        $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
-        $action = $_GET['action'] ?? $_POST['action'] ?? null;
-        $id = $_GET['id'] ?? null;
-        
-        // If no action specified but ID is provided, treat as GET request
-        if ($method === 'GET' && $id && ($action === null || $action === '')) {
-            return $this->normalizeResponse($this->getConcert($id), 'get');
-        }
-        
-        if ($action === 'list') {
-            return $this->normalizeResponse($this->listConcerts(), $action);
-        }
-        
-        if ($action === 'meta') {
-            $this->requireConcertsModulePermission();
-            return $this->normalizeResponse($this->getMeta(), $action);
-        }
+class ConcertsModule
+{
+  private $data;
 
-        if ($action === 'update') {
-            $this->requireConcertsModulePermission();
-            return $this->normalizeResponse($this->updateConcert(), $action);
-        }
-        
-        if ($action === 'create') {
-            $this->requireConcertsModulePermission();
-            return $this->normalizeResponse($this->createConcert(), $action);
-        }
-
-        if ($action === 'delete') {
-            $this->requireConcertsModulePermission();
-            return $this->normalizeResponse($this->deleteConcert(), $action);
-        }
-
-        if ($action === 'emailInfoDraft') {
-            $this->requireConcertsModulePermission();
-            return $this->normalizeResponse($this->emailInfoDraft(), $action);
-        }
-
-        if ($action === 'emailInfoPreview') {
-            $this->requireConcertsModulePermission();
-            return $this->emailInfoPreview();
-        }
-
-        if ($action === 'emailInfoSend') {
-            $this->requireConcertsModulePermission();
-            return $this->normalizeResponse($this->emailInfoSend(), $action);
-        }
-
-        if ($action === 'acceptEscalationRisk') {
-            $this->requireConcertsModulePermission();
-            return $this->normalizeResponse($this->acceptEscalationRisk(), $action);
-        }
-
-        if ($action === 'resetEscalationRisk') {
-            $this->requireConcertsModulePermission();
-            return $this->normalizeResponse($this->resetEscalationRisk(), $action);
-        }
-
-        // Handle explicit actions if needed in the future
-        if ($action) {
-            Response::error('Unknown action: ' . $action, 400);
-        }
-        
-        Response::error('Method not supported or missing ID', 400);
+  public function __construct()
+  {
+    // Check authentication
+    if (!Auth::check()) {
+      Response::error("Authentication required", 401);
     }
 
-    private function normalizeResponse($payload, $action) {
-        $stats = ['count' => 0, 'samples' => []];
-        $normalized = TextNormalizer::normalizeAllStringsRecursive($payload, $stats, true);
-        TextNormalizer::logStats('concerts', $action, $stats);
-        return $normalized;
-    }
-    
-    /**
-     * List concerts the current user can see (future only, access-controlled via adp).
-     */
-    private function listConcerts() {
-        $userId = Auth::getUserId();
-        $canManageWarnings = $this->canManageConcertParticipation($userId);
-        $concerts = $this->getAccessibleConcerts($userId);
-        $list = [];
-        if (is_array($concerts)) {
-            for ($i = 1; $i < count($concerts); $i++) {
-                $c = $concerts[$i];
-                $participationStats = $this->getParticipationStatsForConcert($c['id'] ?? null);
-                $warning = $canManageWarnings ? $this->getEscalationWarningForEvent('C', intval($c['id'] ?? 0)) : null;
-                $list[] = [
-                    'id' => intval($c['id']),
-                    'title' => $c['title'] ?? '',
-                    'begin' => $c['begin'] ?? '',
-                    'end' => $c['end'] ?? '',
-                    'approve_until' => $c['approve_until'] ?? '',
-                    'location_name' => $c['location_name'] ?? '',
-                    'notes' => $c['notes'] ?? '',
-                    'status' => $c['status'] ?? '',
-                    'participationStats' => $participationStats,
-                    'escalationWarning' => $warning,
-                ];
-            }
-        }
-        return $list;
+    // Module permission is not required for read access (GET concert).
+    // Write actions (getMeta, update) check permission in handle().
+    $this->data = new KonzerteData();
+  }
+
+  public function handle()
+  {
+    $method = $_SERVER["REQUEST_METHOD"] ?? "GET";
+    $action = $_GET["action"] ?? ($_POST["action"] ?? null);
+    $id = $_GET["id"] ?? null;
+
+    // If no action specified but ID is provided, treat as GET request
+    if ($method === "GET" && $id && ($action === null || $action === "")) {
+      return $this->normalizeResponse($this->getConcert($id), "get");
     }
 
-    private function getAccessibleConcerts($userId) {
-        global $system_data;
-        $uid = intval($userId);
-        $moduleId = $system_data->getModuleId('Konzerte');
-        $hasConcertsModule = $moduleId ? $system_data->userHasPermission($moduleId) : false;
-        if ($system_data->isUserSuperUser($uid) || $hasConcertsModule) {
-            $query = "SELECT c.id, c.title, c.begin, c.end, c.approve_until, c.notes, c.status, l.name as location_name
+    if ($action === "list") {
+      return $this->normalizeResponse($this->listConcerts(), $action);
+    }
+
+    if ($action === "meta") {
+      $this->requireConcertsModulePermission();
+      return $this->normalizeResponse($this->getMeta(), $action);
+    }
+
+    if ($action === "update") {
+      $this->requireConcertsModulePermission();
+      return $this->normalizeResponse($this->updateConcert(), $action);
+    }
+
+    if ($action === "create") {
+      $this->requireConcertsModulePermission();
+      return $this->normalizeResponse($this->createConcert(), $action);
+    }
+
+    if ($action === "delete") {
+      $this->requireConcertsModulePermission();
+      return $this->normalizeResponse($this->deleteConcert(), $action);
+    }
+
+    if ($action === "emailInfoDraft") {
+      $this->requireConcertsModulePermission();
+      return $this->normalizeResponse($this->emailInfoDraft(), $action);
+    }
+
+    if ($action === "emailInfoPreview") {
+      $this->requireConcertsModulePermission();
+      return $this->emailInfoPreview();
+    }
+
+    if ($action === "emailInfoSend") {
+      $this->requireConcertsModulePermission();
+      return $this->normalizeResponse($this->emailInfoSend(), $action);
+    }
+
+    if ($action === "acceptEscalationRisk") {
+      $this->requireConcertsModulePermission();
+      return $this->normalizeResponse($this->acceptEscalationRisk(), $action);
+    }
+
+    if ($action === "resetEscalationRisk") {
+      $this->requireConcertsModulePermission();
+      return $this->normalizeResponse($this->resetEscalationRisk(), $action);
+    }
+
+    // Handle explicit actions if needed in the future
+    if ($action) {
+      Response::error("Unknown action: " . $action, 400);
+    }
+
+    Response::error("Method not supported or missing ID", 400);
+  }
+
+  private function normalizeResponse($payload, $action)
+  {
+    $stats = ["count" => 0, "samples" => []];
+    $normalized = TextNormalizer::normalizeAllStringsRecursive($payload, $stats, true);
+    TextNormalizer::logStats("concerts", $action, $stats);
+    return $normalized;
+  }
+
+  /**
+   * List concerts the current user can see (future only, access-controlled via adp).
+   */
+  private function listConcerts()
+  {
+    $userId = Auth::getUserId();
+    $canManageWarnings = $this->canManageConcertParticipation($userId);
+    $concerts = $this->getAccessibleConcerts($userId);
+    $list = [];
+    if (is_array($concerts)) {
+      for ($i = 1; $i < count($concerts); $i++) {
+        $c = $concerts[$i];
+        $participationStats = $this->getParticipationStatsForConcert($c["id"] ?? null);
+        $warning = $canManageWarnings ? $this->getEscalationWarningForEvent("C", intval($c["id"] ?? 0)) : null;
+        $list[] = [
+          "id" => intval($c["id"]),
+          "title" => $c["title"] ?? "",
+          "begin" => $c["begin"] ?? "",
+          "end" => $c["end"] ?? "",
+          "approve_until" => $c["approve_until"] ?? "",
+          "location_name" => $c["location_name"] ?? "",
+          "notes" => $c["notes"] ?? "",
+          "status" => $c["status"] ?? "",
+          "participationStats" => $participationStats,
+          "escalationWarning" => $warning,
+        ];
+      }
+    }
+    return $list;
+  }
+
+  private function getAccessibleConcerts($userId)
+  {
+    global $system_data;
+    $uid = intval($userId);
+    $moduleId = getLegacyModuleId($system_data, LegacyModuleKey::CONCERTS);
+    $hasConcertsModule = $moduleId ? $system_data->userHasPermission($moduleId) : false;
+    if ($system_data->isUserSuperUser($uid) || $hasConcertsModule) {
+      $query = "SELECT c.id, c.title, c.begin, c.end, c.approve_until, c.notes, c.status, l.name as location_name
                       FROM concert c
                       LEFT JOIN location l ON c.location = l.id
                       ORDER BY c.begin DESC";
-            return $system_data->dbcon->getSelection($query);
-        }
+      return $system_data->dbcon->getSelection($query);
+    }
 
-        $phases = $this->data->adp()->getUsersPhases($uid);
-        $params = [];
-        if (count($phases) > 0) {
-            $phaseWhere = [];
-            foreach ($phases as $p) {
-                $phaseWhere[] = 'rehearsalphase = ?';
-                $params[] = ['i', $p];
-            }
-            $phaseQuery = "SELECT concert FROM rehearsalphase_concert WHERE " . join(' OR ', $phaseWhere);
-        } else {
-            $phaseQuery = "SELECT concert FROM rehearsalphase_concert WHERE 0 = 1";
-        }
+    $phases = $this->data->adp()->getUsersPhases($uid);
+    $params = [];
+    if (count($phases) > 0) {
+      $phaseWhere = [];
+      foreach ($phases as $p) {
+        $phaseWhere[] = "rehearsalphase = ?";
+        $params[] = ["i", $p];
+      }
+      $phaseQuery = "SELECT concert FROM rehearsalphase_concert WHERE " . join(" OR ", $phaseWhere);
+    } else {
+      $phaseQuery = "SELECT concert FROM rehearsalphase_concert WHERE 0 = 1";
+    }
 
-        $contactId = $this->data->adp()->getUserContact($uid);
-        $params[] = ['i', $contactId];
+    $contactId = $this->data->adp()->getUserContact($uid);
+    $params[] = ["i", $contactId];
 
-        $query = "SELECT DISTINCT c.id, c.title, c.begin, c.end, c.approve_until, c.notes, c.status, l.name as location_name
+    $query = "SELECT DISTINCT c.id, c.title, c.begin, c.end, c.approve_until, c.notes, c.status, l.name as location_name
                   FROM concert c
                   LEFT JOIN location l ON c.location = l.id
                   JOIN (
@@ -198,22 +204,23 @@ class ConcertsModule {
                     SELECT concert FROM concert_contact WHERE contact = ?
                   ) AS concerts ON c.id = concerts.concert
                   ORDER BY c.begin DESC";
-        return $system_data->dbcon->getSelection($query, $params);
-    }
+    return $system_data->dbcon->getSelection($query, $params);
+  }
 
-    private function getParticipationStatsForConcert($concertId) {
-        global $system_data;
-        if (!$concertId || !is_numeric($concertId)) {
-            return [
-                'yes' => 0,
-                'maybe' => 0,
-                'no' => 0,
-                'pending' => 0,
-                'total' => 0
-            ];
-        }
-        $cid = intval($concertId);
-        $query = "SELECT 
+  private function getParticipationStatsForConcert($concertId)
+  {
+    global $system_data;
+    if (!$concertId || !is_numeric($concertId)) {
+      return [
+        "yes" => 0,
+        "maybe" => 0,
+        "no" => 0,
+        "pending" => 0,
+        "total" => 0,
+      ];
+    }
+    $cid = intval($concertId);
+    $query = "SELECT 
                     SUM(CASE WHEN cu.participate = 1 THEN 1 ELSE 0 END) as yes,
                     SUM(CASE WHEN cu.participate = 2 THEN 1 ELSE 0 END) as maybe,
                     SUM(CASE WHEN cu.participate = 0 THEN 1 ELSE 0 END) as no,
@@ -223,324 +230,332 @@ class ConcertsModule {
                   JOIN user u ON u.contact = ct.id
                   LEFT JOIN concert_user cu ON cu.user = u.id AND cu.concert = ?
                   WHERE cc.concert = ?";
-        $rows = $system_data->dbcon->getSelection($query, [['i', $cid], ['i', $cid]]);
-        $row = is_array($rows) && isset($rows[1]) ? $rows[1] : null;
-        $yes = isset($row['yes']) ? intval($row['yes']) : 0;
-        $maybe = isset($row['maybe']) ? intval($row['maybe']) : 0;
-        $no = isset($row['no']) ? intval($row['no']) : 0;
-        $pending = isset($row['pending']) ? intval($row['pending']) : 0;
-        $total = $yes + $maybe + $no + $pending;
-        return [
-            'yes' => $yes,
-            'maybe' => $maybe,
-            'no' => $no,
-            'pending' => $pending,
-            'total' => $total
-        ];
+    $rows = $system_data->dbcon->getSelection($query, [["i", $cid], ["i", $cid]]);
+    $row = is_array($rows) && isset($rows[1]) ? $rows[1] : null;
+    $yes = isset($row["yes"]) ? intval($row["yes"]) : 0;
+    $maybe = isset($row["maybe"]) ? intval($row["maybe"]) : 0;
+    $no = isset($row["no"]) ? intval($row["no"]) : 0;
+    $pending = isset($row["pending"]) ? intval($row["pending"]) : 0;
+    $total = $yes + $maybe + $no + $pending;
+    return [
+      "yes" => $yes,
+      "maybe" => $maybe,
+      "no" => $no,
+      "pending" => $pending,
+      "total" => $total,
+    ];
+  }
+
+  /**
+   * @return array<string,int>
+   */
+  private function loadInstrumentMinimums()
+  {
+    global $system_data;
+    $raw = (string) ($system_data->getDynamicConfigParameter("instrument_minimums") ?? "");
+    if ($raw === "") {
+      return [];
+    }
+    $decoded = json_decode($raw, true);
+    if (!is_array($decoded)) {
+      return [];
+    }
+    if (isset($decoded["rehearsal"]) || isset($decoded["concert"])) {
+      $decoded = is_array($decoded["concert"] ?? null) ? $decoded["concert"] : [];
+    }
+    $out = [];
+    foreach ($decoded as $instrumentId => $minimum) {
+      $key = trim((string) $instrumentId);
+      $min = is_numeric($minimum) ? max(0, (int) $minimum) : 0;
+      if ($min < 1 || $key === "") {
+        continue;
+      }
+      if (is_numeric($key) && (int) $key > 0) {
+        $out[(string) ((int) $key)] = $min;
+        continue;
+      }
+    }
+    return $out;
+  }
+
+  /**
+   * @return array<string,array{id:string,name:string}>
+   */
+  private function loadInstrumentSectionsByInstrument()
+  {
+    global $system_data;
+    if ((string) ($system_data->getDynamicConfigParameter("beta_section_coverage_enabled") ?? "") !== "1") {
+      return [];
+    }
+    $sectionsRaw = (string) ($system_data->getDynamicConfigParameter("nextgen_instrument_sections") ?? "");
+    if ($sectionsRaw === "") {
+      return [];
+    }
+    $sectionsDecoded = json_decode($sectionsRaw, true);
+    if (!is_array($sectionsDecoded)) {
+      return [];
+    }
+    $map = [];
+    foreach ($sectionsDecoded as $section) {
+      if (!is_array($section)) {
+        continue;
+      }
+      $sectionId = trim((string) ($section["id"] ?? ""));
+      $sectionName = trim((string) ($section["name"] ?? ""));
+      if ($sectionId === "" || $sectionName === "") {
+        continue;
+      }
+      $instrumentIds = [];
+      $rawInstrumentIds =
+        isset($section["instrument_ids"]) && is_array($section["instrument_ids"]) ? $section["instrument_ids"] : [];
+      foreach ($rawInstrumentIds as $rawId) {
+        $instrumentId = (int) $rawId;
+        if ($instrumentId > 0) {
+          $instrumentIds[] = $instrumentId;
+        }
+      }
+      foreach ($section["concert_instrument_targets"] ?? [] as $target) {
+        if (!is_array($target)) {
+          continue;
+        }
+        $targetInstrumentId = (int) ($target["instrument_id"] ?? 0);
+        if ($targetInstrumentId > 0) {
+          $instrumentIds[] = $targetInstrumentId;
+        }
+      }
+      $instrumentIds = array_values(array_unique($instrumentIds));
+      foreach ($instrumentIds as $instrumentId) {
+        $key = (string) $instrumentId;
+        if (!isset($map[$key])) {
+          $map[$key] = [
+            "id" => $sectionId,
+            "name" => $sectionName,
+          ];
+        }
+      }
+    }
+    return $map;
+  }
+
+  /**
+   * Require Concerts (Konzerte) module permission for write operations.
+   * Users without the module still have read access to concerts they are allowed to see.
+   */
+  private function requireConcertsModulePermission()
+  {
+    $userId = Auth::getUserId();
+    if (!$this->canManageConcertParticipation($userId)) {
+      Response::error("Access denied to Concerts", 403);
+    }
+  }
+
+  private function hasConcertsModulePermission()
+  {
+    global $system_data;
+    $moduleId = getLegacyModuleId($system_data, LegacyModuleKey::CONCERTS);
+    return $moduleId ? $system_data->userHasPermission($moduleId) : false;
+  }
+
+  private function canManageConcertParticipation($userId)
+  {
+    global $system_data;
+    $uid = intval($userId);
+    return $system_data->isUserSuperUser($uid) ||
+      $system_data->isUserMemberGroup(1, $uid) ||
+      $this->hasConcertsModulePermission();
+  }
+
+  private function isUserInvitedToConcert($concertId, $userId)
+  {
+    global $system_data;
+    $cid = intval($concertId);
+    $uid = intval($userId);
+    if ($cid <= 0 || $uid <= 0) {
+      return false;
     }
 
-    /**
-     * @return array<string,int>
-     */
-    private function loadInstrumentMinimums() {
-        global $system_data;
-        $raw = (string) ($system_data->getDynamicConfigParameter('instrument_minimums') ?? '');
-        if ($raw === '') {
-            return [];
-        }
-        $decoded = json_decode($raw, true);
-        if (!is_array($decoded)) {
-            return [];
-        }
-        if (isset($decoded['rehearsal']) || isset($decoded['concert'])) {
-            $decoded = is_array($decoded['concert'] ?? null) ? $decoded['concert'] : [];
-        }
-        $out = [];
-        foreach ($decoded as $instrumentId => $minimum) {
-            $key = trim((string) $instrumentId);
-            $min = is_numeric($minimum) ? max(0, (int) $minimum) : 0;
-            if ($min < 1 || $key === '') {
-                continue;
-            }
-            if (is_numeric($key) && (int) $key > 0) {
-                $out[(string) ((int) $key)] = $min;
-                continue;
-            }
-        }
-        return $out;
-    }
-
-    /**
-     * @return array<string,array{id:string,name:string}>
-     */
-    private function loadInstrumentSectionsByInstrument() {
-        global $system_data;
-        if ((string) ($system_data->getDynamicConfigParameter('beta_section_coverage_enabled') ?? '') !== '1') {
-            return [];
-        }
-        $sectionsRaw = (string) ($system_data->getDynamicConfigParameter('nextgen_instrument_sections') ?? '');
-        if ($sectionsRaw === '') {
-            return [];
-        }
-        $sectionsDecoded = json_decode($sectionsRaw, true);
-        if (!is_array($sectionsDecoded)) {
-            return [];
-        }
-        $map = [];
-        foreach ($sectionsDecoded as $section) {
-            if (!is_array($section)) {
-                continue;
-            }
-            $sectionId = trim((string) ($section['id'] ?? ''));
-            $sectionName = trim((string) ($section['name'] ?? ''));
-            if ($sectionId === '' || $sectionName === '') {
-                continue;
-            }
-            $instrumentIds = [];
-            $rawInstrumentIds = isset($section['instrument_ids']) && is_array($section['instrument_ids']) ? $section['instrument_ids'] : [];
-            foreach ($rawInstrumentIds as $rawId) {
-                $instrumentId = (int) $rawId;
-                if ($instrumentId > 0) {
-                    $instrumentIds[] = $instrumentId;
-                }
-            }
-            foreach (($section['concert_instrument_targets'] ?? []) as $target) {
-                if (!is_array($target)) {
-                    continue;
-                }
-                $targetInstrumentId = (int) ($target['instrument_id'] ?? 0);
-                if ($targetInstrumentId > 0) {
-                    $instrumentIds[] = $targetInstrumentId;
-                }
-            }
-            $instrumentIds = array_values(array_unique($instrumentIds));
-            foreach ($instrumentIds as $instrumentId) {
-                $key = (string) $instrumentId;
-                if (!isset($map[$key])) {
-                    $map[$key] = [
-                        'id' => $sectionId,
-                        'name' => $sectionName,
-                    ];
-                }
-            }
-        }
-        return $map;
-    }
-    
-    /**
-     * Require Concerts (Konzerte) module permission for write operations.
-     * Users without the module still have read access to concerts they are allowed to see.
-     */
-    private function requireConcertsModulePermission() {
-        $userId = Auth::getUserId();
-        if (!$this->canManageConcertParticipation($userId)) {
-            Response::error('Access denied to Concerts', 403);
-        }
-    }
-
-    private function hasConcertsModulePermission() {
-        global $system_data;
-        $moduleId = $system_data->getModuleId('Konzerte');
-        return $moduleId ? $system_data->userHasPermission($moduleId) : false;
-    }
-
-    private function canManageConcertParticipation($userId) {
-        global $system_data;
-        $uid = intval($userId);
-        return $system_data->isUserSuperUser($uid)
-            || $system_data->isUserMemberGroup(1, $uid)
-            || $this->hasConcertsModulePermission();
-    }
-
-    private function isUserInvitedToConcert($concertId, $userId) {
-        global $system_data;
-        $cid = intval($concertId);
-        $uid = intval($userId);
-        if ($cid <= 0 || $uid <= 0) {
-            return false;
-        }
-
-        $count = $system_data->dbcon->colValue(
-            "SELECT COUNT(*) AS cnt
+    $count = $system_data->dbcon->colValue(
+      "SELECT COUNT(*) AS cnt
              FROM concert_contact cc
              JOIN user u ON u.contact = cc.contact
              WHERE cc.concert = ? AND u.id = ?",
-            "cnt",
-            [['i', $cid], ['i', $uid]]
-        );
-        return intval($count) > 0;
+      "cnt",
+      [["i", $cid], ["i", $uid]],
+    );
+    return intval($count) > 0;
+  }
+
+  /**
+   * Get single concert with full details including participants grouped by instruments
+   * GET /api/index.php?module=concerts&id={id}
+   */
+  private function getConcert($id)
+  {
+    global $system_data;
+
+    // Validate ID
+    if (!is_numeric($id)) {
+      Response::error("Invalid concert ID", 400);
     }
-    
-    /**
-     * Get single concert with full details including participants grouped by instruments
-     * GET /api/index.php?module=concerts&id={id}
-     */
-    private function getConcert($id) {
-        global $system_data;
-        
-        // Validate ID
-        if (!is_numeric($id)) {
-            Response::error('Invalid concert ID', 400);
-        }
-        $id = intval($id);
-        
-        // Get concert data
-        $concert = $this->data->getConcert($id);
-        if (!$concert) {
-            Response::error('Concert not found', 404);
-        }
-        
-        // Check user access
-        $userId = Auth::getUserId();
-        if (!$this->userHasAccessToConcert($id, $userId)) {
-            Response::error('Access denied to this concert', 403);
-        }
-        
-        $canEdit = $this->canManageConcertParticipation($userId);
-        $canEditParticipation = $this->canManageConcertParticipation($userId);
+    $id = intval($id);
 
-        // Get location with address
-        $location = null;
-        if ($concert['location']) {
-            $locData = new LocationsData();
-            $loc = $locData->findByIdNoRef($concert['location']);
-            if ($loc) {
-                $address = $locData->getAddress($loc['address']);
-                $location = [
-                    'id' => intval($loc['id']),
-                    'name' => $loc['name'],
-                    'address' => [
-                        'street' => $address['street'] ?? null,
-                        'city' => $address['city'] ?? null,
-                        'zip' => $address['zip'] ?? null,
-                        'state' => $address['state'] ?? null,
-                        'country' => $address['country'] ?? null
-                    ]
-                ];
-            }
-        }
-        
-        // Get contact
-        $contact = null;
-        if ($concert['contact'] && $concert['contact'] > 0) {
-            $contactData = $this->data->getContact($concert['contact']);
-            if ($contactData) {
-                $firstName = $contactData['name'] ?? null;
-                $lastName = $contactData['surname'] ?? null;
-                $fullName = trim(($firstName ?? '') . ' ' . ($lastName ?? ''));
-                $contact = [
-                    'id' => intval($concert['contact']),
-                    'name' => $contactData['name'] ?? null,
-                    'firstname' => $firstName,
-                    'surname' => $lastName,
-                    'fullname' => $fullName !== '' ? $fullName : ($contactData['name'] ?? null),
-                    'phone' => $contactData['phone'] ?? null,
-                    'mobile' => $contactData['mobile'] ?? null,
-                    'email' => $contactData['email'] ?? null
-                ];
-            }
-        }
-        
-        // Get program
-        $program = null;
-        if ($concert['program'] && $concert['program'] > 0) {
-            $programData = $this->data->getProgram($concert['program']);
-            if ($programData) {
-                $program = [
-                    'id' => intval($concert['program']),
-                    'name' => $programData['name'] ?? null,
-                    'notes' => $programData['notes'] ?? null
-                ];
-            }
-        }
-        
-        // Get outfit
-        $outfit = null;
-        if ($concert['outfit'] && $concert['outfit'] > 0) {
-            $outfitData = $this->data->getOutfit($concert['outfit']);
-            if ($outfitData) {
-                $outfit = [
-                    'id' => intval($concert['outfit']),
-                    'name' => $outfitData['name'] ?? null
-                ];
-            }
-        }
-        
-        // Get equipment
-        $equipment = [];
-        $equipmentData = $this->data->getConcertEquipment($id);
-        unset($equipmentData[0]); // Remove header
-        foreach ($equipmentData as $eq) {
-            $equipment[] = [
-                'id' => intval($eq['id']),
-                'name' => $eq['name'] ?? null
-            ];
-        }
-        
-        // Get groups (occupation/besetzung)
-        $groups = [];
-        $groupsData = $this->data->getConcertGroups($id);
-        unset($groupsData[0]); // Remove header
-        foreach ($groupsData as $group) {
-            $groups[] = [
-                'id' => intval($group['id']),
-                'name' => $group['name'] ?? null
-            ];
-        }
+    // Get concert data
+    $concert = $this->data->getConcert($id);
+    if (!$concert) {
+      Response::error("Concert not found", 404);
+    }
 
-        // Get event contacts
-        $eventContacts = [];
-        $contacts = $this->data->getConcertContacts($id);
-        unset($contacts[0]); // Remove header
-        foreach ($contacts as $contactRow) {
-            $eventContacts[] = [
-                'id' => intval($contactRow['id']),
-                'name' => $contactRow['fullname'] ?? null
-            ];
-        }
-        
-        // Get accommodation
-        $accommodation = null;
-        if ($concert['accommodation'] && $concert['accommodation'] > 0) {
-            $accData = $this->data->adp()->getAccommodationLocation($concert['accommodation']);
-            if ($accData) {
-                $accommodation = [
-                    'id' => intval($concert['accommodation']),
-                    'name' => $accData['name'] ?? null,
-                    'address' => [
-                        'street' => $accData['street'] ?? null,
-                        'city' => $accData['city'] ?? null,
-                        'zip' => $accData['zip'] ?? null,
-                        'state' => $accData['state'] ?? null,
-                        'country' => $accData['country'] ?? null
-                    ]
-                ];
-            }
-        }
-        
-        // Get all instruments used with category information
-        global $system_data;
-        $query = "SELECT DISTINCT i.id, i.name, i.rank, i.category as category_id, c.name as category_name 
+    // Check user access
+    $userId = Auth::getUserId();
+    if (!$this->userHasAccessToConcert($id, $userId)) {
+      Response::error("Access denied to this concert", 403);
+    }
+
+    $canEdit = $this->canManageConcertParticipation($userId);
+    $canEditParticipation = $this->canManageConcertParticipation($userId);
+
+    // Get location with address
+    $location = null;
+    if ($concert["location"]) {
+      $locData = new LocationsData();
+      $loc = $locData->findByIdNoRef($concert["location"]);
+      if ($loc) {
+        $address = $locData->getAddress($loc["address"]);
+        $location = [
+          "id" => intval($loc["id"]),
+          "name" => $loc["name"],
+          "address" => [
+            "street" => $address["street"] ?? null,
+            "city" => $address["city"] ?? null,
+            "zip" => $address["zip"] ?? null,
+            "state" => $address["state"] ?? null,
+            "country" => $address["country"] ?? null,
+          ],
+        ];
+      }
+    }
+
+    // Get contact
+    $contact = null;
+    if ($concert["contact"] && $concert["contact"] > 0) {
+      $contactData = $this->data->getContact($concert["contact"]);
+      if ($contactData) {
+        $firstName = $contactData["name"] ?? null;
+        $lastName = $contactData["surname"] ?? null;
+        $fullName = trim(($firstName ?? "") . " " . ($lastName ?? ""));
+        $contact = [
+          "id" => intval($concert["contact"]),
+          "name" => $contactData["name"] ?? null,
+          "firstname" => $firstName,
+          "surname" => $lastName,
+          "fullname" => $fullName !== "" ? $fullName : $contactData["name"] ?? null,
+          "phone" => $contactData["phone"] ?? null,
+          "mobile" => $contactData["mobile"] ?? null,
+          "email" => $contactData["email"] ?? null,
+        ];
+      }
+    }
+
+    // Get program
+    $program = null;
+    if ($concert["program"] && $concert["program"] > 0) {
+      $programData = $this->data->getProgram($concert["program"]);
+      if ($programData) {
+        $program = [
+          "id" => intval($concert["program"]),
+          "name" => $programData["name"] ?? null,
+          "notes" => $programData["notes"] ?? null,
+        ];
+      }
+    }
+
+    // Get outfit
+    $outfit = null;
+    if ($concert["outfit"] && $concert["outfit"] > 0) {
+      $outfitData = $this->data->getOutfit($concert["outfit"]);
+      if ($outfitData) {
+        $outfit = [
+          "id" => intval($concert["outfit"]),
+          "name" => $outfitData["name"] ?? null,
+        ];
+      }
+    }
+
+    // Get equipment
+    $equipment = [];
+    $equipmentData = $this->data->getConcertEquipment($id);
+    unset($equipmentData[0]); // Remove header
+    foreach ($equipmentData as $eq) {
+      $equipment[] = [
+        "id" => intval($eq["id"]),
+        "name" => $eq["name"] ?? null,
+      ];
+    }
+
+    // Get groups (occupation/besetzung)
+    $groups = [];
+    $groupsData = $this->data->getConcertGroups($id);
+    unset($groupsData[0]); // Remove header
+    foreach ($groupsData as $group) {
+      $groups[] = [
+        "id" => intval($group["id"]),
+        "name" => $group["name"] ?? null,
+      ];
+    }
+
+    // Get event contacts
+    $eventContacts = [];
+    $contacts = $this->data->getConcertContacts($id);
+    unset($contacts[0]); // Remove header
+    foreach ($contacts as $contactRow) {
+      $eventContacts[] = [
+        "id" => intval($contactRow["id"]),
+        "name" => $contactRow["fullname"] ?? null,
+      ];
+    }
+
+    // Get accommodation
+    $accommodation = null;
+    if ($concert["accommodation"] && $concert["accommodation"] > 0) {
+      $accData = $this->data->adp()->getAccommodationLocation($concert["accommodation"]);
+      if ($accData) {
+        $accommodation = [
+          "id" => intval($concert["accommodation"]),
+          "name" => $accData["name"] ?? null,
+          "address" => [
+            "street" => $accData["street"] ?? null,
+            "city" => $accData["city"] ?? null,
+            "zip" => $accData["zip"] ?? null,
+            "state" => $accData["state"] ?? null,
+            "country" => $accData["country"] ?? null,
+          ],
+        ];
+      }
+    }
+
+    // Get all instruments used with category information
+    global $system_data;
+    $query = "SELECT DISTINCT i.id, i.name, i.rank, i.category as category_id, c.name as category_name 
                   FROM instrument i 
                   JOIN contact ct ON ct.instrument = i.id
                   JOIN concert_contact cc ON cc.contact = ct.id
                   LEFT JOIN category c ON i.category = c.id
                   WHERE cc.concert = ?
                   ORDER BY i.rank, i.name";
-        $usedInstruments = $system_data->dbcon->getSelection($query, [['i', $id]]);
-        unset($usedInstruments[0]); // Remove header
-        
-        // Group participants by instrument
-        $participantsByInstrument = [];
-        $totalStats = ['yes' => 0, 'maybe' => 0, 'no' => 0, 'pending' => 0];
-        $instrumentMinimums = $this->loadInstrumentMinimums();
-        $instrumentSections = $this->loadInstrumentSectionsByInstrument();
-        
-        foreach ($usedInstruments as $instrument) {
-            $instrumentId = $instrument['id'];
-            
-            // Custom query to get participants with reason and category info
-            $partQuery = "SELECT i.id as instrument_id, i.name as instrument, i.category as category_id, c.name as category_name,
+    $usedInstruments = $system_data->dbcon->getSelection($query, [["i", $id]]);
+    unset($usedInstruments[0]); // Remove header
+
+    // Group participants by instrument
+    $participantsByInstrument = [];
+    $totalStats = ["yes" => 0, "maybe" => 0, "no" => 0, "pending" => 0];
+    $instrumentMinimums = $this->loadInstrumentMinimums();
+    $instrumentSections = $this->loadInstrumentSectionsByInstrument();
+
+    foreach ($usedInstruments as $instrument) {
+      $instrumentId = $instrument["id"];
+
+      // Custom query to get participants with reason and category info
+      $partQuery = "SELECT i.id as instrument_id, i.name as instrument, i.category as category_id, c.name as category_name,
                          ct.id as contact_id, CONCAT(ct.name, ' ', ct.surname) as contactname, ct.email as contact_email,
                          u.id as user_id, IFNULL(cu.participate, -1) as participate, cu.reason
                          FROM concert_contact cc
@@ -551,802 +566,825 @@ class ConcertsModule {
                          LEFT OUTER JOIN concert_user cu ON cu.user = u.id AND cu.concert = ?
                          WHERE cc.concert = ? AND ct.instrument = ?
                          ORDER BY instrument, contactname";
-            $participants = $system_data->dbcon->getSelection($partQuery, [
-                ['i', $id],
-                ['i', $id],
-                ['i', $instrumentId]
-            ]);
-            unset($participants[0]); // Remove header
-            
-            if (count($participants) > 0) {
-                $instrumentParticipants = [];
-                $instrumentStats = ['yes' => 0, 'maybe' => 0, 'no' => 0, 'pending' => 0];
-                
-                foreach ($participants as $participant) {
-                    $participate = $participant['participate'];
-                    if ($participate === null || $participate === '' || $participate < 0) {
-                        $participate = null; // Pending
-                        $instrumentStats['pending']++;
-                        $totalStats['pending']++;
-                    } else {
-                        $participate = intval($participate);
-                        if ($participate === 1) {
-                            $instrumentStats['yes']++;
-                            $totalStats['yes']++;
-                        } elseif ($participate === 2) {
-                            $instrumentStats['maybe']++;
-                            $totalStats['maybe']++;
-                        } else {
-                            $instrumentStats['no']++;
-                            $totalStats['no']++;
-                        }
-                    }
-                    
-                    $instrumentParticipants[] = [
-                        'id' => intval($participant['contact_id']),
-                        'userId' => intval($participant['user_id']),
-                        'name' => $participant['contactname'],
-                        'email' => $participant['contact_email'] ?? null,
-                        'participate' => $participate,
-                        'reason' => $participant['reason'] ?? null
-                    ];
-                }
-                
-                $participantsByInstrument[] = [
-                    'instrument' => [
-                        'id' => intval($instrumentId),
-                        'name' => $instrument['name'],
-                        'minimumRequired' => $instrumentMinimums[(string) intval($instrumentId)] ?? 0,
-                        'section' => $instrumentSections[(string) intval($instrumentId)] ?? null,
-                        'category' => [
-                            'id' => intval($instrument['category_id'] ?? 0),
-                            'name' => $instrument['category_name'] ?? 'Uncategorized'
-                        ]
-                    ],
-                    'participants' => $instrumentParticipants,
-                    'stats' => $instrumentStats
-                ];
-            }
-        }
-        
-        // Format response
-        $response = [
-            'id' => intval($concert['id']),
-            'type' => 'C',
-            'title' => $concert['title'] ?? null,
-            'begin' => $concert['begin'],
-            'end' => $concert['end'] ?? null,
-            'meetingtime' => $concert['meetingtime'] ?? null,
-            'approve_until' => $concert['approve_until'] ?? null,
-            'status' => $concert['status'] ?? 'planned',
-            'isPublished' => NextGenPublicEventVisibility::isPublished($system_data->dbcon, 'C', $id),
-            'notes' => $concert['notes'] ?? null,
-            'organizer' => $concert['organizer'] ?? null,
-            'payment' => $concert['payment'] ?? null ? floatval($concert['payment']) : null,
-            'conditions' => $concert['conditions'] ?? null,
-            'location' => $location,
-            'contact' => $contact,
-            'program' => $program,
-            'outfit' => $outfit,
-            'equipment' => $equipment,
-            'groups' => $groups,
-            'accommodation' => $accommodation,
-            'participantsByInstrument' => $participantsByInstrument,
-            'eventContacts' => $eventContacts,
-            'canEdit' => $canEdit,
-            'canEditParticipation' => $canEditParticipation,
-            'participationStats' => [
-                'yes' => $totalStats['yes'],
-                'maybe' => $totalStats['maybe'],
-                'no' => $totalStats['no'],
-                'pending' => $totalStats['pending'],
-                'total' => $totalStats['yes'] + $totalStats['maybe'] + $totalStats['no'] + $totalStats['pending']
-            ],
-            'escalationWarning' => $canEdit ? $this->getEscalationWarningForEvent('C', $id) : null,
-        ];
-        
-        return $response;
-    }
+      $participants = $system_data->dbcon->getSelection($partQuery, [["i", $id], ["i", $id], ["i", $instrumentId]]);
+      unset($participants[0]); // Remove header
 
-    /**
-     * @return null|array<string,mixed>
-     */
-    private function getEscalationWarningForEvent(string $otype, int $oid) {
-        global $system_data;
-        if ($oid < 1) {
-            return null;
-        }
-        try {
-            return EscalationAlertService::getWarningForEvent($system_data, $otype, $oid);
-        } catch (Throwable $e) {
-            error_log('concert escalation warning failed: ' . $e->getMessage());
-            return null;
-        }
-    }
+      if (count($participants) > 0) {
+        $instrumentParticipants = [];
+        $instrumentStats = ["yes" => 0, "maybe" => 0, "no" => 0, "pending" => 0];
 
-    /**
-     * @return array<string,mixed>
-     */
-    private function acceptEscalationRisk(): array {
-        global $system_data;
-        $payload = $this->getRequestData();
-        $id = (int) ($payload['id'] ?? 0);
-        if ($id < 1) {
-            Response::error('Invalid concert ID', 400);
-        }
-        $userId = Auth::getUserId();
-        if (!$this->userHasAccessToConcert($id, $userId)) {
-            Response::error('Access denied to this concert', 403);
-        }
-        $user = Auth::getUserInfo();
-        $acceptedByName = trim((string) (($user['name'] ?? '') . ' ' . ($user['surname'] ?? '')));
-        if ($acceptedByName === '') {
-            $acceptedByName = (string) ($user['username'] ?? ('#' . (string) $userId));
-        }
-        return EscalationAlertService::acceptRiskForEvent(
-            $system_data,
-            'C',
-            $id,
-            (int) $userId,
-            $acceptedByName
-        );
-    }
-
-    /**
-     * @return array<string,mixed>
-     */
-    private function resetEscalationRisk(): array {
-        global $system_data;
-        $payload = $this->getRequestData();
-        $id = (int) ($payload['id'] ?? 0);
-        if ($id < 1) {
-            Response::error('Invalid concert ID', 400);
-        }
-        $userId = Auth::getUserId();
-        if (!$this->userHasAccessToConcert($id, $userId)) {
-            Response::error('Access denied to this concert', 403);
-        }
-        return EscalationAlertService::resetRiskAcceptanceForEvent($system_data, 'C', $id);
-    }
-
-    private function getMeta() {
-        global $system_data;
-
-        $locationsData = new LocationsData();
-        $groupData = new GruppenData();
-        $programData = new ProgramData();
-        $outfitData = new OutfitsData();
-        $equipmentData = new EquipmentData();
-        $contactData = new KontakteData();
-
-        $locationsSel = $locationsData->findAllNoRef();
-        $groupsSel = $groupData->findAllNoRef();
-        $programsSel = $programData->findAllNoRef();
-        $outfitsSel = $outfitData->findAllNoRef();
-        $equipmentSel = $equipmentData->findAllNoRef();
-        $contactsSel = $contactData->getAllContacts();
-
-        $locations = [];
-        for ($i = 1; $i < count($locationsSel); $i++) {
-            $locations[] = [
-                'id' => intval($locationsSel[$i]['id']),
-                'name' => $locationsSel[$i]['name'] ?? null
-            ];
-        }
-
-        $groups = [];
-        for ($i = 1; $i < count($groupsSel); $i++) {
-            $groups[] = [
-                'id' => intval($groupsSel[$i]['id']),
-                'name' => $groupsSel[$i]['name'] ?? null
-            ];
-        }
-
-        $programs = [];
-        for ($i = 1; $i < count($programsSel); $i++) {
-            $programs[] = [
-                'id' => intval($programsSel[$i]['id']),
-                'name' => $programsSel[$i]['name'] ?? null
-            ];
-        }
-
-        $outfits = [];
-        for ($i = 1; $i < count($outfitsSel); $i++) {
-            $outfits[] = [
-                'id' => intval($outfitsSel[$i]['id']),
-                'name' => $outfitsSel[$i]['name'] ?? null
-            ];
-        }
-
-        $equipment = [];
-        for ($i = 1; $i < count($equipmentSel); $i++) {
-            $equipment[] = [
-                'id' => intval($equipmentSel[$i]['id']),
-                'name' => $equipmentSel[$i]['name'] ?? null
-            ];
-        }
-
-        $contacts = [];
-        for ($i = 1; $i < count($contactsSel); $i++) {
-            $c = $contactsSel[$i];
-            $instrumentName = null;
-            $instrumentId = $c['instrument'] ?? null;
-            if ($instrumentId && $instrumentId > 0) {
-                $instrumentName = $system_data->dbcon->colValue(
-                    "SELECT name FROM instrument WHERE id = ?",
-                    "name",
-                    [['i', $instrumentId]]
-                );
-            }
-            $contacts[] = [
-                'id' => intval($c['id']),
-                'name' => trim(($c['name'] ?? '') . ' ' . ($c['surname'] ?? '')),
-                'subtitle' => $instrumentName,
-                'email' => $c['email'] ?? null,
-                'instrument' => $instrumentName,
-            ];
-        }
-
-        $groupMembers = [];
-        $groupMembersSel = $system_data->dbcon->getSelection(
-            "SELECT `group` as group_id, contact as contact_id FROM contact_group",
-            []
-        );
-        unset($groupMembersSel[0]);
-        foreach ($groupMembersSel as $row) {
-            $groupId = intval($row['group_id'] ?? 0);
-            $contactId = intval($row['contact_id'] ?? 0);
-            if ($groupId <= 0 || $contactId <= 0) {
-                continue;
-            }
-            if (!array_key_exists(strval($groupId), $groupMembers)) {
-                $groupMembers[strval($groupId)] = [];
-            }
-            $groupMembers[strval($groupId)][] = $contactId;
-        }
-
-        return [
-            'locations' => $locations,
-            'groups' => $groups,
-            'programs' => $programs,
-            'outfits' => $outfits,
-            'equipment' => $equipment,
-            'contacts' => $contacts,
-            'statusOptions' => $this->data->getStatusOptions(),
-            'groupMembers' => $groupMembers
-        ];
-    }
-
-    private function updateConcert() {
-        global $system_data;
-
-        $payload = $this->getRequestData();
-        $id = $payload['id'] ?? null;
-        if (!$id || !is_numeric($id)) {
-            Response::error('Invalid concert ID', 400);
-        }
-        $id = intval($id);
-        $before = $this->data->findByIdNoRef($id);
-        $beforeStatus = trim((string) ($before['status'] ?? ''));
-
-        $userId = Auth::getUserId();
-        if (!$this->userHasAccessToConcert($id, $userId)) {
-            Response::error('Access denied to this concert', 403);
-        }
-
-        $fields = $payload['fields'] ?? [];
-        $values = [
-            'title' => $fields['title'] ?? '',
-            'begin' => $fields['begin'] ?? '',
-            'end' => $fields['end'] ?? '',
-            'meetingtime' => $fields['meetingtime'] ?? '',
-            'approve_until' => $fields['approve_until'] ?? '',
-            'status' => $fields['status'] ?? 'planned',
-            'notes' => $fields['notes'] ?? '',
-            'organizer' => $fields['organizer'] ?? '',
-            'payment' => $fields['payment'] ?? '',
-            'conditions' => $fields['conditions'] ?? '',
-            'location' => $fields['location'] ?? 0,
-            'contact' => $fields['contact'] ?? 0,
-            'program' => $fields['program'] ?? 0,
-            'outfit' => $fields['outfit'] ?? 0,
-            'accommodation' => $fields['accommodation'] ?? 0
-        ];
-
-        if ($values['payment'] === '' || $values['payment'] === null) {
-            $values['payment'] = 0;
-        }
-        if (empty($values['meetingtime']) && empty($values['approve_until']) && !empty($values['begin'])) {
-            $values['meetingtime'] = $values['begin'];
-            $values['approve_until'] = $values['begin'];
-        }
-        if (empty($values['approve_until']) && !empty($values['begin'])) {
-            $values['approve_until'] = $values['begin'];
-        }
-
-        // Legacy KonzertData::validate uses Regex::isText() which rejects " and \ (EditorJS JSON).
-        // Validate with notes/conditions cleared, then restore so update() stores the real values.
-        $notesBackup = $values['notes'];
-        $conditionsBackup = $values['conditions'];
-        $values['notes'] = '';
-        $values['conditions'] = '';
-        $this->data->validate($values);
-        $values['notes'] = $notesBackup;
-        $values['conditions'] = $conditionsBackup;
-        $this->data->update($id, $values);
-        $afterStatus = trim((string) ($values['status'] ?? ''));
-        if ($beforeStatus !== '' && $afterStatus !== '' && $beforeStatus !== $afterStatus) {
-            try {
-                EscalationAlertService::resetRiskAcceptanceForEvent($system_data, 'C', $id);
-            } catch (Throwable $e) {
-                error_log('ConcertsModule escalation acceptance reset hook failed: ' . $e->getMessage());
-            }
-        }
-
-        if (array_key_exists('groups', $payload)) {
-            $groups = array_map('intval', $payload['groups'] ?? []);
-            $system_data->dbcon->execute("DELETE FROM concert_group WHERE concert = ?", [['i', $id]]);
-            if (count($groups) > 0) {
-                $tuples = [];
-                $params = [];
-                foreach ($groups as $groupId) {
-                    $tuples[] = "(?, ?)";
-                    $params[] = ['i', $id];
-                    $params[] = ['i', $groupId];
-                }
-                $query = "INSERT INTO concert_group (concert, `group`) VALUES " . join(",", $tuples);
-                $system_data->dbcon->execute($query, $params);
-            }
-        }
-
-        if (array_key_exists('equipment', $payload)) {
-            $equipment = array_map('intval', $payload['equipment'] ?? []);
-            $system_data->dbcon->execute("DELETE FROM concert_equipment WHERE concert = ?", [['i', $id]]);
-            if (count($equipment) > 0) {
-                $tuples = [];
-                $params = [];
-                foreach ($equipment as $equipmentId) {
-                    $tuples[] = "(?, ?)";
-                    $params[] = ['i', $id];
-                    $params[] = ['i', $equipmentId];
-                }
-                $query = "INSERT INTO concert_equipment (concert, `equipment`) VALUES " . join(",", $tuples);
-                $system_data->dbcon->execute($query, $params);
-            }
-        }
-
-        if (array_key_exists('contacts', $payload)) {
-            $previousContactIds = $this->concertContactIds($id);
-            $contacts = array_map('intval', $payload['contacts'] ?? []);
-            $system_data->dbcon->execute("DELETE FROM concert_contact WHERE concert = ?", [['i', $id]]);
-            if (count($contacts) > 0) {
-                $tuples = [];
-                $params = [];
-                foreach ($contacts as $contactId) {
-                    $tuples[] = "(?, ?)";
-                    $params[] = ['i', $id];
-                    $params[] = ['i', $contactId];
-                }
-                $query = "INSERT INTO concert_contact VALUES " . join(",", $tuples);
-                $system_data->dbcon->execute($query, $params);
-            }
-
-            if (count($contacts) > 0) {
-                $placeholders = implode(",", array_fill(0, count($contacts), "?"));
-                $params = [['i', $id]];
-                foreach ($contacts as $contactId) {
-                    $params[] = ['i', $contactId];
-                }
-                $query = "DELETE cu FROM concert_user cu JOIN user u ON cu.user = u.id WHERE cu.concert = ? AND u.contact NOT IN ($placeholders)";
-                $system_data->dbcon->execute($query, $params);
+        foreach ($participants as $participant) {
+          $participate = $participant["participate"];
+          if ($participate === null || $participate === "" || $participate < 0) {
+            $participate = null; // Pending
+            $instrumentStats["pending"]++;
+            $totalStats["pending"]++;
+          } else {
+            $participate = intval($participate);
+            if ($participate === 1) {
+              $instrumentStats["yes"]++;
+              $totalStats["yes"]++;
+            } elseif ($participate === 2) {
+              $instrumentStats["maybe"]++;
+              $totalStats["maybe"]++;
             } else {
-                $system_data->dbcon->execute("DELETE FROM concert_user WHERE concert = ?", [['i', $id]]);
+              $instrumentStats["no"]++;
+              $totalStats["no"]++;
             }
+          }
 
-            $addedContacts = array_values(array_diff($contacts, $previousContactIds));
-            if (count($addedContacts) > 0) {
-                EventParticipantNotifier::sendSafe($system_data, new StartData(), 'C', $id, $addedContacts);
-            }
+          $instrumentParticipants[] = [
+            "id" => intval($participant["contact_id"]),
+            "userId" => intval($participant["user_id"]),
+            "name" => $participant["contactname"],
+            "email" => $participant["contact_email"] ?? null,
+            "participate" => $participate,
+            "reason" => $participant["reason"] ?? null,
+          ];
         }
 
-        if (array_key_exists('participants', $payload)) {
-            $participants = $payload['participants'] ?? [];
-            foreach ($participants as $participant) {
-                $userId = intval($participant['userId'] ?? 0);
-                if ($userId <= 0) continue;
-                if (!$this->isUserInvitedToConcert($id, $userId)) continue;
-                $participate = $participant['participate'] ?? null;
-                if ($participate === null || $participate === '') {
-                    $system_data->dbcon->execute(
-                        "DELETE FROM concert_user WHERE concert = ? AND user = ?",
-                        [['i', $id], ['i', $userId]]
-                    );
-                    continue;
-                }
-                $participate = intval($participate);
-                $exists = $system_data->dbcon->colValue(
-                    "SELECT count(*) as cnt FROM concert_user WHERE concert = ? AND user = ?",
-                    "cnt",
-                    [['i', $id], ['i', $userId]]
-                );
-                if (intval($exists) > 0) {
-                    $system_data->dbcon->execute(
-                        "UPDATE concert_user SET participate = ? WHERE concert = ? AND user = ?",
-                        [['i', $participate], ['i', $id], ['i', $userId]]
-                    );
-                } else {
-                    $system_data->dbcon->execute(
-                        "INSERT INTO concert_user (participate, user, concert, replyon) VALUES (?, ?, ?, NOW())",
-                        [['i', $participate], ['i', $userId], ['i', $id]]
-                    );
-                }
-            }
-        }
-
-        if (array_key_exists('isPublished', $fields)) {
-            NextGenPublicEventVisibility::setPublished(
-                $system_data->dbcon,
-                'C',
-                $id,
-                $this->toBoolean($fields['isPublished'] ?? false),
-                Auth::getUserId()
-            );
-        }
-
-        return ['success' => true];
-    }
-
-    private function createConcert() {
-        global $system_data;
-
-        $payload = $this->getRequestData();
-        $fields = $payload['fields'] ?? [];
-        $values = [
-            'title' => $fields['title'] ?? '',
-            'begin' => $fields['begin'] ?? '',
-            'end' => $fields['end'] ?? '',
-            'meetingtime' => $fields['meetingtime'] ?? '',
-            'approve_until' => $fields['approve_until'] ?? '',
-            'status' => $fields['status'] ?? 'planned',
-            'notes' => $fields['notes'] ?? '',
-            'organizer' => $fields['organizer'] ?? '',
-            'payment' => $fields['payment'] ?? '',
-            'conditions' => $fields['conditions'] ?? '',
-            'location' => $fields['location'] ?? 0,
-            'contact' => $fields['contact'] ?? 0,
-            'program' => $fields['program'] ?? 0,
-            'outfit' => $fields['outfit'] ?? 0,
-            'accommodation' => $fields['accommodation'] ?? 0
+        $participantsByInstrument[] = [
+          "instrument" => [
+            "id" => intval($instrumentId),
+            "name" => $instrument["name"],
+            "minimumRequired" => $instrumentMinimums[(string) intval($instrumentId)] ?? 0,
+            "section" => $instrumentSections[(string) intval($instrumentId)] ?? null,
+            "category" => [
+              "id" => intval($instrument["category_id"] ?? 0),
+              "name" => $instrument["category_name"] ?? "Uncategorized",
+            ],
+          ],
+          "participants" => $instrumentParticipants,
+          "stats" => $instrumentStats,
         ];
+      }
+    }
 
-        if ($values['payment'] === '' || $values['payment'] === null) {
-            $values['payment'] = 0;
-        }
-        if (empty($values['meetingtime']) && empty($values['approve_until']) && !empty($values['begin'])) {
-            $values['meetingtime'] = $values['begin'];
-            $values['approve_until'] = $values['begin'];
-        }
-        if (empty($values['approve_until']) && !empty($values['begin'])) {
-            $values['approve_until'] = $values['begin'];
-        }
+    // Format response
+    $response = [
+      "id" => intval($concert["id"]),
+      "type" => "C",
+      "title" => $concert["title"] ?? null,
+      "begin" => $concert["begin"],
+      "end" => $concert["end"] ?? null,
+      "meetingtime" => $concert["meetingtime"] ?? null,
+      "approve_until" => $concert["approve_until"] ?? null,
+      "status" => $concert["status"] ?? "planned",
+      "isPublished" => NextGenPublicEventVisibility::isPublished($system_data->dbcon, "C", $id),
+      "notes" => $concert["notes"] ?? null,
+      "organizer" => $concert["organizer"] ?? null,
+      "payment" => $concert["payment"] ?? null ? floatval($concert["payment"]) : null,
+      "conditions" => $concert["conditions"] ?? null,
+      "location" => $location,
+      "contact" => $contact,
+      "program" => $program,
+      "outfit" => $outfit,
+      "equipment" => $equipment,
+      "groups" => $groups,
+      "accommodation" => $accommodation,
+      "participantsByInstrument" => $participantsByInstrument,
+      "eventContacts" => $eventContacts,
+      "canEdit" => $canEdit,
+      "canEditParticipation" => $canEditParticipation,
+      "participationStats" => [
+        "yes" => $totalStats["yes"],
+        "maybe" => $totalStats["maybe"],
+        "no" => $totalStats["no"],
+        "pending" => $totalStats["pending"],
+        "total" => $totalStats["yes"] + $totalStats["maybe"] + $totalStats["no"] + $totalStats["pending"],
+      ],
+      "escalationWarning" => $canEdit ? $this->getEscalationWarningForEvent("C", $id) : null,
+    ];
 
-        // Legacy KonzertData::validate uses Regex::isText() which rejects " and \ (EditorJS JSON).
-        // Validate with notes/conditions cleared, then restore so insert stores the real values.
-        $notesBackup = $values['notes'];
-        $conditionsBackup = $values['conditions'];
-        $values['notes'] = '';
-        $values['conditions'] = '';
-        $this->data->validate($values);
-        $values['notes'] = $notesBackup;
-        $values['conditions'] = $conditionsBackup;
+    return $response;
+  }
 
-        $newId = $system_data->dbcon->prepStatement(
-            "INSERT INTO concert (title, begin, end, meetingtime, approve_until, status, notes, organizer, payment, conditions, location, contact, program, outfit, accommodation)
+  /**
+   * @return null|array<string,mixed>
+   */
+  private function getEscalationWarningForEvent(string $otype, int $oid)
+  {
+    global $system_data;
+    if ($oid < 1) {
+      return null;
+    }
+    try {
+      return EscalationAlertService::getWarningForEvent($system_data, $otype, $oid);
+    } catch (Throwable $e) {
+      error_log("concert escalation warning failed: " . $e->getMessage());
+      return null;
+    }
+  }
+
+  /**
+   * @return array<string,mixed>
+   */
+  private function acceptEscalationRisk(): array
+  {
+    global $system_data;
+    $payload = $this->getRequestData();
+    $id = (int) ($payload["id"] ?? 0);
+    if ($id < 1) {
+      Response::error("Invalid concert ID", 400);
+    }
+    $userId = Auth::getUserId();
+    if (!$this->userHasAccessToConcert($id, $userId)) {
+      Response::error("Access denied to this concert", 403);
+    }
+    $user = Auth::getUserInfo();
+    $acceptedByName = trim((string) (($user["name"] ?? "") . " " . ($user["surname"] ?? "")));
+    if ($acceptedByName === "") {
+      $acceptedByName = (string) ($user["username"] ?? "#" . (string) $userId);
+    }
+    return EscalationAlertService::acceptRiskForEvent($system_data, "C", $id, (int) $userId, $acceptedByName);
+  }
+
+  /**
+   * @return array<string,mixed>
+   */
+  private function resetEscalationRisk(): array
+  {
+    global $system_data;
+    $payload = $this->getRequestData();
+    $id = (int) ($payload["id"] ?? 0);
+    if ($id < 1) {
+      Response::error("Invalid concert ID", 400);
+    }
+    $userId = Auth::getUserId();
+    if (!$this->userHasAccessToConcert($id, $userId)) {
+      Response::error("Access denied to this concert", 403);
+    }
+    return EscalationAlertService::resetRiskAcceptanceForEvent($system_data, "C", $id);
+  }
+
+  private function getMeta()
+  {
+    global $system_data;
+
+    $locationsData = new LocationsData();
+    $groupData = new GruppenData();
+    $programData = new ProgramData();
+    $outfitData = new OutfitsData();
+    $equipmentData = new EquipmentData();
+    $contactData = new KontakteData();
+
+    $locationsSel = $locationsData->findAllNoRef();
+    $groupsSel = $groupData->findAllNoRef();
+    $programsSel = $programData->findAllNoRef();
+    $outfitsSel = $outfitData->findAllNoRef();
+    $equipmentSel = $equipmentData->findAllNoRef();
+    $contactsSel = $contactData->getAllContacts();
+
+    $locations = [];
+    for ($i = 1; $i < count($locationsSel); $i++) {
+      $locations[] = [
+        "id" => intval($locationsSel[$i]["id"]),
+        "name" => $locationsSel[$i]["name"] ?? null,
+      ];
+    }
+
+    $groups = [];
+    for ($i = 1; $i < count($groupsSel); $i++) {
+      $groups[] = [
+        "id" => intval($groupsSel[$i]["id"]),
+        "name" => $groupsSel[$i]["name"] ?? null,
+      ];
+    }
+
+    $programs = [];
+    for ($i = 1; $i < count($programsSel); $i++) {
+      $programs[] = [
+        "id" => intval($programsSel[$i]["id"]),
+        "name" => $programsSel[$i]["name"] ?? null,
+      ];
+    }
+
+    $outfits = [];
+    for ($i = 1; $i < count($outfitsSel); $i++) {
+      $outfits[] = [
+        "id" => intval($outfitsSel[$i]["id"]),
+        "name" => $outfitsSel[$i]["name"] ?? null,
+      ];
+    }
+
+    $equipment = [];
+    for ($i = 1; $i < count($equipmentSel); $i++) {
+      $equipment[] = [
+        "id" => intval($equipmentSel[$i]["id"]),
+        "name" => $equipmentSel[$i]["name"] ?? null,
+      ];
+    }
+
+    $contacts = [];
+    for ($i = 1; $i < count($contactsSel); $i++) {
+      $c = $contactsSel[$i];
+      $instrumentName = null;
+      $instrumentId = $c["instrument"] ?? null;
+      if ($instrumentId && $instrumentId > 0) {
+        $instrumentName = $system_data->dbcon->colValue("SELECT name FROM instrument WHERE id = ?", "name", [
+          ["i", $instrumentId],
+        ]);
+      }
+      $contacts[] = [
+        "id" => intval($c["id"]),
+        "name" => trim(($c["name"] ?? "") . " " . ($c["surname"] ?? "")),
+        "subtitle" => $instrumentName,
+        "email" => $c["email"] ?? null,
+        "instrument" => $instrumentName,
+      ];
+    }
+
+    $groupMembers = [];
+    $groupMembersSel = $system_data->dbcon->getSelection(
+      "SELECT `group` as group_id, contact as contact_id FROM contact_group",
+      [],
+    );
+    unset($groupMembersSel[0]);
+    foreach ($groupMembersSel as $row) {
+      $groupId = intval($row["group_id"] ?? 0);
+      $contactId = intval($row["contact_id"] ?? 0);
+      if ($groupId <= 0 || $contactId <= 0) {
+        continue;
+      }
+      if (!array_key_exists(strval($groupId), $groupMembers)) {
+        $groupMembers[strval($groupId)] = [];
+      }
+      $groupMembers[strval($groupId)][] = $contactId;
+    }
+
+    return [
+      "locations" => $locations,
+      "groups" => $groups,
+      "programs" => $programs,
+      "outfits" => $outfits,
+      "equipment" => $equipment,
+      "contacts" => $contacts,
+      "statusOptions" => $this->data->getStatusOptions(),
+      "groupMembers" => $groupMembers,
+    ];
+  }
+
+  private function updateConcert()
+  {
+    global $system_data;
+
+    $payload = $this->getRequestData();
+    $id = $payload["id"] ?? null;
+    if (!$id || !is_numeric($id)) {
+      Response::error("Invalid concert ID", 400);
+    }
+    $id = intval($id);
+    $before = $this->data->findByIdNoRef($id);
+    $beforeStatus = trim((string) ($before["status"] ?? ""));
+
+    $userId = Auth::getUserId();
+    if (!$this->userHasAccessToConcert($id, $userId)) {
+      Response::error("Access denied to this concert", 403);
+    }
+
+    $fields = $payload["fields"] ?? [];
+    $values = [
+      "title" => $fields["title"] ?? "",
+      "begin" => $fields["begin"] ?? "",
+      "end" => $fields["end"] ?? "",
+      "meetingtime" => $fields["meetingtime"] ?? "",
+      "approve_until" => $fields["approve_until"] ?? "",
+      "status" => $fields["status"] ?? "planned",
+      "notes" => $fields["notes"] ?? "",
+      "organizer" => $fields["organizer"] ?? "",
+      "payment" => $fields["payment"] ?? "",
+      "conditions" => $fields["conditions"] ?? "",
+      "location" => $fields["location"] ?? 0,
+      "contact" => $fields["contact"] ?? 0,
+      "program" => $fields["program"] ?? 0,
+      "outfit" => $fields["outfit"] ?? 0,
+      "accommodation" => $fields["accommodation"] ?? 0,
+    ];
+
+    if ($values["payment"] === "" || $values["payment"] === null) {
+      $values["payment"] = 0;
+    }
+    if (empty($values["meetingtime"]) && empty($values["approve_until"]) && !empty($values["begin"])) {
+      $values["meetingtime"] = $values["begin"];
+      $values["approve_until"] = $values["begin"];
+    }
+    if (empty($values["approve_until"]) && !empty($values["begin"])) {
+      $values["approve_until"] = $values["begin"];
+    }
+
+    // Legacy KonzertData::validate uses Regex::isText() which rejects " and \ (EditorJS JSON).
+    // Validate with notes/conditions cleared, then restore so update() stores the real values.
+    $notesBackup = $values["notes"];
+    $conditionsBackup = $values["conditions"];
+    $values["notes"] = "";
+    $values["conditions"] = "";
+    $this->data->validate($values);
+    $values["notes"] = $notesBackup;
+    $values["conditions"] = $conditionsBackup;
+    $this->data->update($id, $values);
+    $afterStatus = trim((string) ($values["status"] ?? ""));
+    if ($beforeStatus !== "" && $afterStatus !== "" && $beforeStatus !== $afterStatus) {
+      try {
+        EscalationAlertService::resetRiskAcceptanceForEvent($system_data, "C", $id);
+      } catch (Throwable $e) {
+        error_log("ConcertsModule escalation acceptance reset hook failed: " . $e->getMessage());
+      }
+    }
+
+    if (array_key_exists("groups", $payload)) {
+      $groups = array_map("intval", $payload["groups"] ?? []);
+      $system_data->dbcon->execute("DELETE FROM concert_group WHERE concert = ?", [["i", $id]]);
+      if (count($groups) > 0) {
+        $tuples = [];
+        $params = [];
+        foreach ($groups as $groupId) {
+          $tuples[] = "(?, ?)";
+          $params[] = ["i", $id];
+          $params[] = ["i", $groupId];
+        }
+        $query = "INSERT INTO concert_group (concert, `group`) VALUES " . join(",", $tuples);
+        $system_data->dbcon->execute($query, $params);
+      }
+    }
+
+    if (array_key_exists("equipment", $payload)) {
+      $equipment = array_map("intval", $payload["equipment"] ?? []);
+      $system_data->dbcon->execute("DELETE FROM concert_equipment WHERE concert = ?", [["i", $id]]);
+      if (count($equipment) > 0) {
+        $tuples = [];
+        $params = [];
+        foreach ($equipment as $equipmentId) {
+          $tuples[] = "(?, ?)";
+          $params[] = ["i", $id];
+          $params[] = ["i", $equipmentId];
+        }
+        $query = "INSERT INTO concert_equipment (concert, `equipment`) VALUES " . join(",", $tuples);
+        $system_data->dbcon->execute($query, $params);
+      }
+    }
+
+    if (array_key_exists("contacts", $payload)) {
+      $previousContactIds = $this->concertContactIds($id);
+      $contacts = array_map("intval", $payload["contacts"] ?? []);
+      $system_data->dbcon->execute("DELETE FROM concert_contact WHERE concert = ?", [["i", $id]]);
+      if (count($contacts) > 0) {
+        $tuples = [];
+        $params = [];
+        foreach ($contacts as $contactId) {
+          $tuples[] = "(?, ?)";
+          $params[] = ["i", $id];
+          $params[] = ["i", $contactId];
+        }
+        $query = "INSERT INTO concert_contact VALUES " . join(",", $tuples);
+        $system_data->dbcon->execute($query, $params);
+      }
+
+      if (count($contacts) > 0) {
+        $placeholders = implode(",", array_fill(0, count($contacts), "?"));
+        $params = [["i", $id]];
+        foreach ($contacts as $contactId) {
+          $params[] = ["i", $contactId];
+        }
+        $query = "DELETE cu FROM concert_user cu JOIN user u ON cu.user = u.id WHERE cu.concert = ? AND u.contact NOT IN ($placeholders)";
+        $system_data->dbcon->execute($query, $params);
+      } else {
+        $system_data->dbcon->execute("DELETE FROM concert_user WHERE concert = ?", [["i", $id]]);
+      }
+
+      $addedContacts = array_values(array_diff($contacts, $previousContactIds));
+      if (count($addedContacts) > 0) {
+        EventParticipantNotifier::sendSafe($system_data, new StartData(), "C", $id, $addedContacts);
+      }
+    }
+
+    if (array_key_exists("participants", $payload)) {
+      $participants = $payload["participants"] ?? [];
+      foreach ($participants as $participant) {
+        $userId = intval($participant["userId"] ?? 0);
+        if ($userId <= 0) {
+          continue;
+        }
+        if (!$this->isUserInvitedToConcert($id, $userId)) {
+          continue;
+        }
+        $participate = $participant["participate"] ?? null;
+        if ($participate === null || $participate === "") {
+          $system_data->dbcon->execute("DELETE FROM concert_user WHERE concert = ? AND user = ?", [
+            ["i", $id],
+            ["i", $userId],
+          ]);
+          continue;
+        }
+        $participate = intval($participate);
+        $exists = $system_data->dbcon->colValue(
+          "SELECT count(*) as cnt FROM concert_user WHERE concert = ? AND user = ?",
+          "cnt",
+          [["i", $id], ["i", $userId]],
+        );
+        if (intval($exists) > 0) {
+          $system_data->dbcon->execute("UPDATE concert_user SET participate = ? WHERE concert = ? AND user = ?", [
+            ["i", $participate],
+            ["i", $id],
+            ["i", $userId],
+          ]);
+        } else {
+          $system_data->dbcon->execute(
+            "INSERT INTO concert_user (participate, user, concert, replyon) VALUES (?, ?, ?, NOW())",
+            [["i", $participate], ["i", $userId], ["i", $id]],
+          );
+        }
+      }
+    }
+
+    if (array_key_exists("isPublished", $fields)) {
+      NextGenPublicEventVisibility::setPublished(
+        $system_data->dbcon,
+        "C",
+        $id,
+        $this->toBoolean($fields["isPublished"] ?? false),
+        Auth::getUserId(),
+      );
+    }
+
+    return ["success" => true];
+  }
+
+  private function createConcert()
+  {
+    global $system_data;
+
+    $payload = $this->getRequestData();
+    $fields = $payload["fields"] ?? [];
+    $values = [
+      "title" => $fields["title"] ?? "",
+      "begin" => $fields["begin"] ?? "",
+      "end" => $fields["end"] ?? "",
+      "meetingtime" => $fields["meetingtime"] ?? "",
+      "approve_until" => $fields["approve_until"] ?? "",
+      "status" => $fields["status"] ?? "planned",
+      "notes" => $fields["notes"] ?? "",
+      "organizer" => $fields["organizer"] ?? "",
+      "payment" => $fields["payment"] ?? "",
+      "conditions" => $fields["conditions"] ?? "",
+      "location" => $fields["location"] ?? 0,
+      "contact" => $fields["contact"] ?? 0,
+      "program" => $fields["program"] ?? 0,
+      "outfit" => $fields["outfit"] ?? 0,
+      "accommodation" => $fields["accommodation"] ?? 0,
+    ];
+
+    if ($values["payment"] === "" || $values["payment"] === null) {
+      $values["payment"] = 0;
+    }
+    if (empty($values["meetingtime"]) && empty($values["approve_until"]) && !empty($values["begin"])) {
+      $values["meetingtime"] = $values["begin"];
+      $values["approve_until"] = $values["begin"];
+    }
+    if (empty($values["approve_until"]) && !empty($values["begin"])) {
+      $values["approve_until"] = $values["begin"];
+    }
+
+    // Legacy KonzertData::validate uses Regex::isText() which rejects " and \ (EditorJS JSON).
+    // Validate with notes/conditions cleared, then restore so insert stores the real values.
+    $notesBackup = $values["notes"];
+    $conditionsBackup = $values["conditions"];
+    $values["notes"] = "";
+    $values["conditions"] = "";
+    $this->data->validate($values);
+    $values["notes"] = $notesBackup;
+    $values["conditions"] = $conditionsBackup;
+
+    $newId = $system_data->dbcon->prepStatement(
+      "INSERT INTO concert (title, begin, end, meetingtime, approve_until, status, notes, organizer, payment, conditions, location, contact, program, outfit, accommodation)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            [
-                ['s', $values['title']],
-                ['s', $values['begin']],
-                ['s', $values['end']],
-                ['s', $values['meetingtime']],
-                ['s', $values['approve_until']],
-                ['s', $values['status']],
-                ['s', $values['notes']],
-                ['s', $values['organizer']],
-                ['d', floatval($values['payment'])],
-                ['s', $values['conditions']],
-                ['i', intval($values['location'])],
-                ['i', intval($values['contact'])],
-                ['i', intval($values['program'])],
-                ['i', intval($values['outfit'])],
-                ['i', intval($values['accommodation'])],
-            ]
+      [
+        ["s", $values["title"]],
+        ["s", $values["begin"]],
+        ["s", $values["end"]],
+        ["s", $values["meetingtime"]],
+        ["s", $values["approve_until"]],
+        ["s", $values["status"]],
+        ["s", $values["notes"]],
+        ["s", $values["organizer"]],
+        ["d", floatval($values["payment"])],
+        ["s", $values["conditions"]],
+        ["i", intval($values["location"])],
+        ["i", intval($values["contact"])],
+        ["i", intval($values["program"])],
+        ["i", intval($values["outfit"])],
+        ["i", intval($values["accommodation"])],
+      ],
+    );
+    if (!$newId || intval($newId) <= 0) {
+      Response::error("Failed to create concert", 500);
+    }
+    $newId = intval($newId);
+
+    if (array_key_exists("groups", $payload)) {
+      $groups = array_map("intval", $payload["groups"] ?? []);
+      if (count($groups) > 0) {
+        $tuples = [];
+        $params = [];
+        foreach ($groups as $groupId) {
+          $tuples[] = "(?, ?)";
+          $params[] = ["i", $newId];
+          $params[] = ["i", $groupId];
+        }
+        $query = "INSERT INTO concert_group (concert, `group`) VALUES " . join(",", $tuples);
+        $system_data->dbcon->execute($query, $params);
+      }
+    }
+
+    if (array_key_exists("equipment", $payload)) {
+      $equipment = array_map("intval", $payload["equipment"] ?? []);
+      if (count($equipment) > 0) {
+        $tuples = [];
+        $params = [];
+        foreach ($equipment as $equipmentId) {
+          $tuples[] = "(?, ?)";
+          $params[] = ["i", $newId];
+          $params[] = ["i", $equipmentId];
+        }
+        $query = "INSERT INTO concert_equipment (concert, `equipment`) VALUES " . join(",", $tuples);
+        $system_data->dbcon->execute($query, $params);
+      }
+    }
+
+    if (array_key_exists("contacts", $payload)) {
+      $contacts = array_map("intval", $payload["contacts"] ?? []);
+      if (count($contacts) > 0) {
+        $tuples = [];
+        $params = [];
+        foreach ($contacts as $contactId) {
+          $tuples[] = "(?, ?)";
+          $params[] = ["i", $newId];
+          $params[] = ["i", $contactId];
+        }
+        $query = "INSERT INTO concert_contact VALUES " . join(",", $tuples);
+        $system_data->dbcon->execute($query, $params);
+      }
+    }
+
+    if (array_key_exists("participants", $payload)) {
+      $participants = $payload["participants"] ?? [];
+      foreach ($participants as $participant) {
+        $userId = intval($participant["userId"] ?? 0);
+        if ($userId <= 0) {
+          continue;
+        }
+        if (!$this->isUserInvitedToConcert($newId, $userId)) {
+          continue;
+        }
+        $participate = $participant["participate"] ?? null;
+        if ($participate === null || $participate === "") {
+          continue;
+        }
+        $participate = intval($participate);
+        $system_data->dbcon->execute(
+          "INSERT INTO concert_user (participate, user, concert, replyon) VALUES (?, ?, ?, NOW())",
+          [["i", $participate], ["i", $userId], ["i", $newId]],
         );
-        if (!$newId || intval($newId) <= 0) {
-            Response::error('Failed to create concert', 500);
-        }
-        $newId = intval($newId);
-
-        if (array_key_exists('groups', $payload)) {
-            $groups = array_map('intval', $payload['groups'] ?? []);
-            if (count($groups) > 0) {
-                $tuples = [];
-                $params = [];
-                foreach ($groups as $groupId) {
-                    $tuples[] = "(?, ?)";
-                    $params[] = ['i', $newId];
-                    $params[] = ['i', $groupId];
-                }
-                $query = "INSERT INTO concert_group (concert, `group`) VALUES " . join(",", $tuples);
-                $system_data->dbcon->execute($query, $params);
-            }
-        }
-
-        if (array_key_exists('equipment', $payload)) {
-            $equipment = array_map('intval', $payload['equipment'] ?? []);
-            if (count($equipment) > 0) {
-                $tuples = [];
-                $params = [];
-                foreach ($equipment as $equipmentId) {
-                    $tuples[] = "(?, ?)";
-                    $params[] = ['i', $newId];
-                    $params[] = ['i', $equipmentId];
-                }
-                $query = "INSERT INTO concert_equipment (concert, `equipment`) VALUES " . join(",", $tuples);
-                $system_data->dbcon->execute($query, $params);
-            }
-        }
-
-        if (array_key_exists('contacts', $payload)) {
-            $contacts = array_map('intval', $payload['contacts'] ?? []);
-            if (count($contacts) > 0) {
-                $tuples = [];
-                $params = [];
-                foreach ($contacts as $contactId) {
-                    $tuples[] = "(?, ?)";
-                    $params[] = ['i', $newId];
-                    $params[] = ['i', $contactId];
-                }
-                $query = "INSERT INTO concert_contact VALUES " . join(",", $tuples);
-                $system_data->dbcon->execute($query, $params);
-            }
-        }
-
-        if (array_key_exists('participants', $payload)) {
-            $participants = $payload['participants'] ?? [];
-            foreach ($participants as $participant) {
-                $userId = intval($participant['userId'] ?? 0);
-                if ($userId <= 0) continue;
-                if (!$this->isUserInvitedToConcert($newId, $userId)) continue;
-                $participate = $participant['participate'] ?? null;
-                if ($participate === null || $participate === '') continue;
-                $participate = intval($participate);
-                $system_data->dbcon->execute(
-                    "INSERT INTO concert_user (participate, user, concert, replyon) VALUES (?, ?, ?, NOW())",
-                    [['i', $participate], ['i', $userId], ['i', $newId]]
-                );
-            }
-        }
-
-        if (array_key_exists('isPublished', $fields)) {
-            NextGenPublicEventVisibility::setPublished(
-                $system_data->dbcon,
-                'C',
-                $newId,
-                $this->toBoolean($fields['isPublished'] ?? false),
-                Auth::getUserId()
-            );
-        }
-
-        EventParticipantNotifier::sendSafe($system_data, new StartData(), 'C', $newId, null);
-
-        return ['id' => $newId];
+      }
     }
 
-    /** @return list<int> */
-    private function concertContactIds(int $concertId): array {
-        global $system_data;
-        $sel = $system_data->dbcon->getSelection(
-            'SELECT contact FROM concert_contact WHERE concert = ?',
-            [['i', $concertId]]
-        );
-        if (!is_array($sel) || count($sel) < 2) {
-            return [];
-        }
-        $ids = [];
-        for ($i = 1; $i < count($sel); $i++) {
-            $ids[] = (int) ($sel[$i]['contact'] ?? 0);
-        }
-
-        return $ids;
+    if (array_key_exists("isPublished", $fields)) {
+      NextGenPublicEventVisibility::setPublished(
+        $system_data->dbcon,
+        "C",
+        $newId,
+        $this->toBoolean($fields["isPublished"] ?? false),
+        Auth::getUserId(),
+      );
     }
 
-    private function deleteConcert() {
-        global $system_data;
-        $payload = $this->getRequestData();
-        $id = intval($payload['id'] ?? 0);
-        if ($id <= 0) {
-            Response::error('Invalid concert ID', 400);
-        }
+    EventParticipantNotifier::sendSafe($system_data, new StartData(), "C", $newId, null);
 
-        $userId = Auth::getUserId();
-        if (!$this->userHasAccessToConcert($id, $userId)) {
-            Response::error('Access denied to this concert', 403);
-        }
+    return ["id" => $newId];
+  }
 
-        $system_data->dbcon->execute("DELETE FROM concert_group WHERE concert = ?", [['i', $id]]);
-        $system_data->dbcon->execute("DELETE FROM concert_contact WHERE concert = ?", [['i', $id]]);
-        $system_data->dbcon->execute("DELETE FROM concert_equipment WHERE concert = ?", [['i', $id]]);
-        $system_data->dbcon->execute("DELETE FROM concert_user WHERE concert = ?", [['i', $id]]);
-        $system_data->dbcon->execute("DELETE FROM concert WHERE id = ?", [['i', $id]]);
-        NextGenPublicEventVisibility::deleteForEvent($system_data->dbcon, 'C', $id);
-
-        return ['success' => true];
+  /** @return list<int> */
+  private function concertContactIds(int $concertId): array
+  {
+    global $system_data;
+    $sel = $system_data->dbcon->getSelection("SELECT contact FROM concert_contact WHERE concert = ?", [
+      ["i", $concertId],
+    ]);
+    if (!is_array($sel) || count($sel) < 2) {
+      return [];
+    }
+    $ids = [];
+    for ($i = 1; $i < count($sel); $i++) {
+      $ids[] = (int) ($sel[$i]["contact"] ?? 0);
     }
 
-    private function toBoolean($value): bool {
-        if (is_bool($value)) {
-            return $value;
-        }
-        if (is_numeric($value)) {
-            return intval($value) !== 0;
-        }
-        $normalized = strtolower(trim((string) $value));
-        return $normalized === '1' || $normalized === 'true' || $normalized === 'yes' || $normalized === 'on';
+    return $ids;
+  }
+
+  private function deleteConcert()
+  {
+    global $system_data;
+    $payload = $this->getRequestData();
+    $id = intval($payload["id"] ?? 0);
+    if ($id <= 0) {
+      Response::error("Invalid concert ID", 400);
     }
 
-    private function getRequestData() {
-        $rawInput = file_get_contents('php://input');
-        $data = json_decode($rawInput, true);
-        if (!$data) {
-            $data = $_POST;
-        }
-        return $data;
+    $userId = Auth::getUserId();
+    if (!$this->userHasAccessToConcert($id, $userId)) {
+      Response::error("Access denied to this concert", 403);
     }
 
-    private function emailInfoDraft() {
-        global $system_data;
-        $payload = $this->getRequestData();
-        $id = intval($payload['id'] ?? 0);
-        if ($id <= 0) {
-            Response::error('Invalid concert ID', 400);
-        }
-        $userId = Auth::getUserId();
-        if (!$this->userHasAccessToConcert($id, $userId)) {
-            Response::error('Access denied to this concert', 403);
-        }
-        $locale = trim((string) ($payload['locale'] ?? (method_exists($system_data, 'getLang') ? $system_data->getLang() : 'en')));
-        $user = Auth::getUserInfo();
-        $senderName = trim((string) (($user['name'] ?? '') . ' ' . ($user['surname'] ?? '')));
-        return EventInfoMailService::draft($system_data, 'C', $id, $locale !== '' ? $locale : 'en', $senderName);
+    $system_data->dbcon->execute("DELETE FROM concert_group WHERE concert = ?", [["i", $id]]);
+    $system_data->dbcon->execute("DELETE FROM concert_contact WHERE concert = ?", [["i", $id]]);
+    $system_data->dbcon->execute("DELETE FROM concert_equipment WHERE concert = ?", [["i", $id]]);
+    $system_data->dbcon->execute("DELETE FROM concert_user WHERE concert = ?", [["i", $id]]);
+    $system_data->dbcon->execute("DELETE FROM concert WHERE id = ?", [["i", $id]]);
+    NextGenPublicEventVisibility::deleteForEvent($system_data->dbcon, "C", $id);
+
+    return ["success" => true];
+  }
+
+  private function toBoolean($value): bool
+  {
+    if (is_bool($value)) {
+      return $value;
+    }
+    if (is_numeric($value)) {
+      return intval($value) !== 0;
+    }
+    $normalized = strtolower(trim((string) $value));
+    return $normalized === "1" || $normalized === "true" || $normalized === "yes" || $normalized === "on";
+  }
+
+  private function getRequestData()
+  {
+    $rawInput = file_get_contents("php://input");
+    $data = json_decode($rawInput, true);
+    if (!$data) {
+      $data = $_POST;
+    }
+    return $data;
+  }
+
+  private function emailInfoDraft()
+  {
+    global $system_data;
+    $payload = $this->getRequestData();
+    $id = intval($payload["id"] ?? 0);
+    if ($id <= 0) {
+      Response::error("Invalid concert ID", 400);
+    }
+    $userId = Auth::getUserId();
+    if (!$this->userHasAccessToConcert($id, $userId)) {
+      Response::error("Access denied to this concert", 403);
+    }
+    $locale = trim(
+      (string) ($payload["locale"] ?? (method_exists($system_data, "getLang") ? $system_data->getLang() : "en")),
+    );
+    $user = Auth::getUserInfo();
+    $senderName = trim((string) (($user["name"] ?? "") . " " . ($user["surname"] ?? "")));
+    return EventInfoMailService::draft($system_data, "C", $id, $locale !== "" ? $locale : "en", $senderName);
+  }
+
+  private function emailInfoPreview()
+  {
+    global $system_data;
+    $payload = $this->getRequestData();
+    $id = intval($payload["id"] ?? 0);
+    if ($id <= 0) {
+      Response::error("Invalid concert ID", 400);
+    }
+    $userId = Auth::getUserId();
+    if (!$this->userHasAccessToConcert($id, $userId)) {
+      Response::error("Access denied to this concert", 403);
+    }
+    $locale = trim(
+      (string) ($payload["locale"] ?? (method_exists($system_data, "getLang") ? $system_data->getLang() : "en")),
+    );
+    $user = Auth::getUserInfo();
+    $senderName = trim((string) (($user["name"] ?? "") . " " . ($user["surname"] ?? "")));
+    $recipientIds = array_values(
+      array_filter(array_map("intval", $payload["recipientIds"] ?? []), fn($value) => $value > 0),
+    );
+    $manualEmails = array_values(
+      array_filter(array_map("strval", $payload["manualEmails"] ?? []), fn($value) => trim($value) !== ""),
+    );
+    $subject = trim((string) ($payload["subject"] ?? ""));
+    $body = (string) ($payload["body"] ?? "");
+    try {
+      $html = EventInfoMailService::previewHtml(
+        $system_data,
+        "C",
+        $id,
+        $locale !== "" ? $locale : "en",
+        $recipientIds,
+        $manualEmails,
+        $subject,
+        $body,
+        $senderName,
+      );
+    } catch (Throwable $e) {
+      Response::error($e->getMessage(), 400);
+    }
+    return ["html" => $html];
+  }
+
+  private function emailInfoSend()
+  {
+    global $system_data;
+    $payload = $this->getRequestData();
+    $id = intval($payload["id"] ?? 0);
+    if ($id <= 0) {
+      Response::error("Invalid concert ID", 400);
+    }
+    $userId = Auth::getUserId();
+    if (!$this->userHasAccessToConcert($id, $userId)) {
+      Response::error("Access denied to this concert", 403);
+    }
+    $locale = trim(
+      (string) ($payload["locale"] ?? (method_exists($system_data, "getLang") ? $system_data->getLang() : "en")),
+    );
+    $user = Auth::getUserInfo();
+    $senderName = trim((string) (($user["name"] ?? "") . " " . ($user["surname"] ?? "")));
+    $recipientIds = array_values(
+      array_filter(array_map("intval", $payload["recipientIds"] ?? []), fn($value) => $value > 0),
+    );
+    $manualEmails = array_values(
+      array_filter(array_map("strval", $payload["manualEmails"] ?? []), fn($value) => trim($value) !== ""),
+    );
+    $subject = trim((string) ($payload["subject"] ?? ""));
+    $body = (string) ($payload["body"] ?? "");
+    if ($subject === "") {
+      Response::error("mail_subject_required", 400);
+    }
+    if (trim($body) === "") {
+      Response::error("mail_body_required", 400);
+    }
+    try {
+      return EventInfoMailService::send(
+        $system_data,
+        "C",
+        $id,
+        $locale !== "" ? $locale : "en",
+        $recipientIds,
+        $manualEmails,
+        $subject,
+        $body,
+        $senderName,
+      );
+    } catch (InvalidArgumentException $e) {
+      Response::error($e->getMessage(), 400);
+    } catch (Throwable $e) {
+      Response::error($e->getMessage(), 500);
+    }
+  }
+
+  /**
+   * Check if user has access to a concert
+   */
+  private function userHasAccessToConcert($concertId, $userId)
+  {
+    global $system_data;
+
+    $concertId = intval($concertId);
+
+    // Users with Concerts module permission can always access all concerts.
+    $moduleId = getLegacyModuleId($system_data, LegacyModuleKey::CONCERTS);
+    if ($moduleId && $system_data->userHasPermission($moduleId)) {
+      $concert = $this->data->findByIdNoRef($concertId);
+      return $concert !== null && count($concert) > 0;
     }
 
-    private function emailInfoPreview() {
-        global $system_data;
-        $payload = $this->getRequestData();
-        $id = intval($payload['id'] ?? 0);
-        if ($id <= 0) {
-            Response::error('Invalid concert ID', 400);
-        }
-        $userId = Auth::getUserId();
-        if (!$this->userHasAccessToConcert($id, $userId)) {
-            Response::error('Access denied to this concert', 403);
-        }
-        $locale = trim((string) ($payload['locale'] ?? (method_exists($system_data, 'getLang') ? $system_data->getLang() : 'en')));
-        $user = Auth::getUserInfo();
-        $senderName = trim((string) (($user['name'] ?? '') . ' ' . ($user['surname'] ?? '')));
-        $recipientIds = array_values(array_filter(array_map('intval', $payload['recipientIds'] ?? []), fn($value) => $value > 0));
-        $manualEmails = array_values(array_filter(array_map('strval', $payload['manualEmails'] ?? []), fn($value) => trim($value) !== ''));
-        $subject = trim((string) ($payload['subject'] ?? ''));
-        $body = (string) ($payload['body'] ?? '');
-        try {
-            $html = EventInfoMailService::previewHtml(
-                $system_data,
-                'C',
-                $id,
-                $locale !== '' ? $locale : 'en',
-                $recipientIds,
-                $manualEmails,
-                $subject,
-                $body,
-                $senderName
-            );
-        } catch (Throwable $e) {
-            Response::error($e->getMessage(), 400);
-        }
-        return ['html' => $html];
+    // Super users see all concerts (past and future)
+    if ($system_data->isUserSuperUser($userId)) {
+      // Check if concert exists (regardless of date)
+      $concert = $this->data->findByIdNoRef($concertId);
+      return $concert !== null && count($concert) > 0;
     }
 
-    private function emailInfoSend() {
-        global $system_data;
-        $payload = $this->getRequestData();
-        $id = intval($payload['id'] ?? 0);
-        if ($id <= 0) {
-            Response::error('Invalid concert ID', 400);
-        }
-        $userId = Auth::getUserId();
-        if (!$this->userHasAccessToConcert($id, $userId)) {
-            Response::error('Access denied to this concert', 403);
-        }
-        $locale = trim((string) ($payload['locale'] ?? (method_exists($system_data, 'getLang') ? $system_data->getLang() : 'en')));
-        $user = Auth::getUserInfo();
-        $senderName = trim((string) (($user['name'] ?? '') . ' ' . ($user['surname'] ?? '')));
-        $recipientIds = array_values(array_filter(array_map('intval', $payload['recipientIds'] ?? []), fn($value) => $value > 0));
-        $manualEmails = array_values(array_filter(array_map('strval', $payload['manualEmails'] ?? []), fn($value) => trim($value) !== ''));
-        $subject = trim((string) ($payload['subject'] ?? ''));
-        $body = (string) ($payload['body'] ?? '');
-        if ($subject === '') {
-            Response::error('mail_subject_required', 400);
-        }
-        if (trim($body) === '') {
-            Response::error('mail_body_required', 400);
-        }
-        try {
-            return EventInfoMailService::send(
-                $system_data,
-                'C',
-                $id,
-                $locale !== '' ? $locale : 'en',
-                $recipientIds,
-                $manualEmails,
-                $subject,
-                $body,
-                $senderName
-            );
-        } catch (InvalidArgumentException $e) {
-            Response::error($e->getMessage(), 400);
-        } catch (Throwable $e) {
-            Response::error($e->getMessage(), 500);
-        }
+    // Check if user has access to this concert (past or future)
+    // Check if user's contact is associated with this concert
+    try {
+      // Get user's contact ID
+      $query = "SELECT contact FROM user WHERE id = ?";
+      $user = $system_data->dbcon->fetchRow($query, [["i", $userId]]);
+      if (!$user || !$user["contact"] || intval($user["contact"]) <= 0) {
+        return false;
+      }
+      $contactId = intval($user["contact"]);
+
+      // Check if this contact is associated with the concert (regardless of date)
+      $query = "SELECT COUNT(*) as cnt FROM concert_contact WHERE concert = ? AND contact = ?";
+      $result = $system_data->dbcon->fetchRow($query, [["i", $concertId], ["i", $contactId]]);
+
+      if ($result && intval($result["cnt"]) > 0) {
+        return true;
+      }
+
+      return false;
+    } catch (Exception $e) {
+      error_log("Error checking concert access: " . $e->getMessage());
+      return false;
     }
-    
-    /**
-     * Check if user has access to a concert
-     */
-    private function userHasAccessToConcert($concertId, $userId) {
-        global $system_data;
-        
-        $concertId = intval($concertId);
-        
-        // Users with Concerts module permission can always access all concerts.
-        $moduleId = $system_data->getModuleId('Konzerte');
-        if ($moduleId && $system_data->userHasPermission($moduleId)) {
-            $concert = $this->data->findByIdNoRef($concertId);
-            return $concert !== null && count($concert) > 0;
-        }
-        
-        // Super users see all concerts (past and future)
-        if ($system_data->isUserSuperUser($userId)) {
-            // Check if concert exists (regardless of date)
-            $concert = $this->data->findByIdNoRef($concertId);
-            return $concert !== null && count($concert) > 0;
-        }
-        
-        // Check if user has access to this concert (past or future)
-        // Check if user's contact is associated with this concert
-        try {
-            // Get user's contact ID
-            $query = "SELECT contact FROM user WHERE id = ?";
-            $user = $system_data->dbcon->fetchRow($query, [['i', $userId]]);
-            if (!$user || !$user['contact'] || intval($user['contact']) <= 0) {
-                return false;
-            }
-            $contactId = intval($user['contact']);
-            
-            // Check if this contact is associated with the concert (regardless of date)
-            $query = "SELECT COUNT(*) as cnt FROM concert_contact WHERE concert = ? AND contact = ?";
-            $result = $system_data->dbcon->fetchRow($query, [
-                ['i', $concertId],
-                ['i', $contactId]
-            ]);
-            
-            if ($result && intval($result['cnt']) > 0) {
-                return true;
-            }
-            
-            return false;
-        } catch (Exception $e) {
-            error_log("Error checking concert access: " . $e->getMessage());
-            return false;
-        }
-    }
+  }
 }

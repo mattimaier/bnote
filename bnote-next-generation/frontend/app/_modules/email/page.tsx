@@ -17,7 +17,9 @@ import type { SimpleOption } from "@/lib/entities/event/types";
 type ComposerTab = "compose" | "preview";
 
 function uniqueIds(values: number[]): number[] {
-  return Array.from(new Set(values.map((value) => Number(value)).filter((value) => Number.isInteger(value) && value > 0)));
+  return Array.from(
+    new Set(values.map((value) => Number(value)).filter((value) => Number.isInteger(value) && value > 0))
+  );
 }
 
 function uniqueEmails(values: string[]): string[] {
@@ -108,12 +110,14 @@ export default function EmailModulePage() {
   }, [subject, subjectPrefix]);
 
   const bodyEmpty = !body.trim() || isEmptyEditorJson(body);
-  const sendDisabled = sending || bodyEmpty || selectedRecipientIds.length + validManualEmails.length < 1 || invalidManualCount > 0;
+  const sendDisabled =
+    sending || bodyEmpty || selectedRecipientIds.length + validManualEmails.length < 1 || invalidManualCount > 0;
 
   const selectLabel = t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Select...";
   const labelNoMatches = t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches";
   const labelClose = t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close";
-  const labelNoSelection = t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "No selection";
+  const labelNoSelection =
+    t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "No selection";
   const labelRemove = t("js.common.remove") !== "js.common.remove" ? t("js.common.remove") : "Remove";
 
   useEffect(() => {
@@ -150,7 +154,10 @@ export default function EmailModulePage() {
         setBody(draft.body ?? "");
       })
       .catch((err: unknown) => {
-        const fallback = t("js.email.loadFailed") !== "js.email.loadFailed" ? t("js.email.loadFailed") : "Failed to load email composer.";
+        const fallback =
+          t("js.email.loadFailed") !== "js.email.loadFailed"
+            ? t("js.email.loadFailed")
+            : "Failed to load email composer.";
         setError(err instanceof Error && err.message ? err.message : fallback);
       })
       .finally(() => {
@@ -178,7 +185,10 @@ export default function EmailModulePage() {
         })
         .then((res) => setPreviewHtml(res.html ?? ""))
         .catch((err: unknown) => {
-          const fallback = t("js.email.previewFailed") !== "js.email.previewFailed" ? t("js.email.previewFailed") : "Failed to build preview.";
+          const fallback =
+            t("js.email.previewFailed") !== "js.email.previewFailed"
+              ? t("js.email.previewFailed")
+              : "Failed to build preview.";
           setPreviewError(err instanceof Error && err.message ? err.message : fallback);
           setPreviewHtml("");
         })
@@ -188,7 +198,19 @@ export default function EmailModulePage() {
     return () => {
       window.clearTimeout(timer);
     };
-  }, [body, composedSubject, error, lang, loading, ready, selectedAdditionalContactIds, selectedGroupIds, tab, t, validManualEmails]);
+  }, [
+    body,
+    composedSubject,
+    error,
+    lang,
+    loading,
+    ready,
+    selectedAdditionalContactIds,
+    selectedGroupIds,
+    tab,
+    t,
+    validManualEmails,
+  ]);
 
   const addManualEmails = (rawInput: string) => {
     const parts = rawInput
@@ -213,8 +235,14 @@ export default function EmailModulePage() {
         body,
       });
       const sentLabel = t("js.email.sent") !== "js.email.sent" ? t("js.email.sent") : "Email sent";
-      const sentCountLabel = t("js.event.emailInfo.sentCount") !== "js.event.emailInfo.sentCount" ? t("js.event.emailInfo.sentCount") : "sent";
-      const skippedCountLabel = t("js.event.emailInfo.skippedCount") !== "js.event.emailInfo.skippedCount" ? t("js.event.emailInfo.skippedCount") : "skipped";
+      const sentCountLabel =
+        t("js.event.emailInfo.sentCount") !== "js.event.emailInfo.sentCount"
+          ? t("js.event.emailInfo.sentCount")
+          : "sent";
+      const skippedCountLabel =
+        t("js.event.emailInfo.skippedCount") !== "js.event.emailInfo.skippedCount"
+          ? t("js.event.emailInfo.skippedCount")
+          : "skipped";
       const suffix = ` (${res.sent} ${sentCountLabel}, ${res.skipped} ${skippedCountLabel})`;
       showToast(`${sentLabel}${suffix}`, "success");
       setManualEmails([]);
@@ -224,7 +252,8 @@ export default function EmailModulePage() {
       setPreviewHtml("");
       setTab("compose");
     } catch (err) {
-      const fallback = t("js.email.sendFailed") !== "js.email.sendFailed" ? t("js.email.sendFailed") : "Failed to send email";
+      const fallback =
+        t("js.email.sendFailed") !== "js.email.sendFailed" ? t("js.email.sendFailed") : "Failed to send email";
       showToast(err instanceof Error && err.message ? err.message : fallback, "error");
     } finally {
       setSending(false);
@@ -244,11 +273,18 @@ export default function EmailModulePage() {
       <AppPageHeader
         moduleKey="email"
         title={t("js.sidebar.email") !== "js.sidebar.email" ? t("js.sidebar.email") : "Email"}
-        subtitle={t("js.email.subtitle") !== "js.email.subtitle" ? t("js.email.subtitle") : "Compose and send emails to groups and contacts"}
+        subtitle={
+          t("js.email.subtitle") !== "js.email.subtitle"
+            ? t("js.email.subtitle")
+            : "Compose and send emails to groups and contacts"
+        }
       />
 
       {error && (
-        <div className="rounded-lg border px-4 py-3 text-sm" style={{ borderColor: "var(--destructive)", color: "var(--destructive-foreground)" }}>
+        <div
+          className="rounded-lg border px-4 py-3 text-sm"
+          style={{ borderColor: "var(--destructive)", color: "var(--destructive-foreground)" }}
+        >
           {error}
         </div>
       )}
@@ -257,11 +293,23 @@ export default function EmailModulePage() {
         <div className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex gap-2">
-              <button type="button" className={`btn ${tab === "compose" ? "btn-soft btn-primary" : "btn-soft"}`} onClick={() => setTab("compose")}>
-                {t("js.event.emailInfo.tabCompose") !== "js.event.emailInfo.tabCompose" ? t("js.event.emailInfo.tabCompose") : "Compose"}
+              <button
+                type="button"
+                className={`btn ${tab === "compose" ? "btn-soft btn-primary" : "btn-soft"}`}
+                onClick={() => setTab("compose")}
+              >
+                {t("js.event.emailInfo.tabCompose") !== "js.event.emailInfo.tabCompose"
+                  ? t("js.event.emailInfo.tabCompose")
+                  : "Compose"}
               </button>
-              <button type="button" className={`btn ${tab === "preview" ? "btn-soft btn-primary" : "btn-soft"}`} onClick={() => setTab("preview")}>
-                {t("js.event.emailInfo.tabPreview") !== "js.event.emailInfo.tabPreview" ? t("js.event.emailInfo.tabPreview") : "Preview"}
+              <button
+                type="button"
+                className={`btn ${tab === "preview" ? "btn-soft btn-primary" : "btn-soft"}`}
+                onClick={() => setTab("preview")}
+              >
+                {t("js.event.emailInfo.tabPreview") !== "js.event.emailInfo.tabPreview"
+                  ? t("js.event.emailInfo.tabPreview")
+                  : "Preview"}
               </button>
             </div>
             <button type="button" className="btn btn-primary" disabled={sendDisabled} onClick={() => void handleSend()}>
@@ -279,11 +327,14 @@ export default function EmailModulePage() {
             <div className="space-y-4">
               <section className="space-y-3 rounded-lg border border-base-300 bg-base-200/30 p-3">
                 <h3 className="text-sm font-semibold text-base-content">
-                  {t("js.event.emailInfo.recipients") !== "js.event.emailInfo.recipients" ? t("js.event.emailInfo.recipients") : "Recipients"}
+                  {t("js.event.emailInfo.recipients") !== "js.event.emailInfo.recipients"
+                    ? t("js.event.emailInfo.recipients")
+                    : "Recipients"}
                 </h3>
                 <div className="flex flex-wrap items-center gap-2 text-xs text-base-content/70">
                   <span className="rounded-full bg-base-100 px-2 py-0.5">
-                    {(t("js.email.groups") !== "js.email.groups" ? t("js.email.groups") : "Groups") + `: ${selectedGroupsCount}`}
+                    {(t("js.email.groups") !== "js.email.groups" ? t("js.email.groups") : "Groups") +
+                      `: ${selectedGroupsCount}`}
                   </span>
                   <span className="rounded-full bg-base-100 px-2 py-0.5">
                     {(t("js.event.emailInfo.additionalContacts") !== "js.event.emailInfo.additionalContacts"
@@ -291,14 +342,14 @@ export default function EmailModulePage() {
                       : "Additional contacts") + `: ${selectedContactsCount}`}
                   </span>
                   <span className="rounded-full bg-base-100 px-2 py-0.5">
-                    {(t("js.event.emailInfo.extraEmails") !== "js.event.emailInfo.extraEmails" ? t("js.event.emailInfo.extraEmails") : "Extra emails") +
-                      `: ${selectedManualCount}`}
+                    {(t("js.event.emailInfo.extraEmails") !== "js.event.emailInfo.extraEmails"
+                      ? t("js.event.emailInfo.extraEmails")
+                      : "Extra emails") + `: ${selectedManualCount}`}
                   </span>
                   <span className="rounded-full bg-base-100 px-2 py-0.5 font-medium">
-                    {(
-                      t("js.event.emailInfo.recipientCount") !== "js.event.emailInfo.recipientCount"
-                        ? t("js.event.emailInfo.recipientCount")
-                        : "{count} recipients selected"
+                    {(t("js.event.emailInfo.recipientCount") !== "js.event.emailInfo.recipientCount"
+                      ? t("js.event.emailInfo.recipientCount")
+                      : "{count} recipients selected"
                     ).replace("{count}", String(totalRecipientsCount))}
                   </span>
                 </div>
@@ -313,7 +364,11 @@ export default function EmailModulePage() {
                     onChange={setSelectedGroupIds}
                     placeholder={selectLabel}
                     showChips={false}
-                    labelSelect={t("js.email.selectGroups") !== "js.email.selectGroups" ? t("js.email.selectGroups") : "Select groups"}
+                    labelSelect={
+                      t("js.email.selectGroups") !== "js.email.selectGroups"
+                        ? t("js.email.selectGroups")
+                        : "Select groups"
+                    }
                     labelNoMatches={labelNoMatches}
                     labelClose={labelClose}
                     labelNoSelection={labelNoSelection}
@@ -347,7 +402,9 @@ export default function EmailModulePage() {
 
                 <div>
                   <label className="mb-1 block text-xs font-medium text-base-content/60">
-                    {t("js.event.emailInfo.extraEmails") !== "js.event.emailInfo.extraEmails" ? t("js.event.emailInfo.extraEmails") : "Extra emails"}
+                    {t("js.event.emailInfo.extraEmails") !== "js.event.emailInfo.extraEmails"
+                      ? t("js.event.emailInfo.extraEmails")
+                      : "Extra emails"}
                   </label>
                   <div className="input input-bordered w-full min-h-[3rem] h-auto flex flex-wrap items-center gap-2 py-2">
                     {manualEmails.map((email) => (
@@ -400,11 +457,15 @@ export default function EmailModulePage() {
 
               <section className="space-y-4 rounded-lg border border-base-300 bg-base-100 p-3">
                 <h3 className="text-sm font-semibold text-base-content">
-                  {t("js.event.emailInfo.message") !== "js.event.emailInfo.message" ? t("js.event.emailInfo.message") : "Message"}
+                  {t("js.event.emailInfo.message") !== "js.event.emailInfo.message"
+                    ? t("js.event.emailInfo.message")
+                    : "Message"}
                 </h3>
                 <div>
                   <label className="mb-1 block text-xs font-medium text-base-content/60">
-                    {t("js.event.emailInfo.subject") !== "js.event.emailInfo.subject" ? t("js.event.emailInfo.subject") : "Subject"}
+                    {t("js.event.emailInfo.subject") !== "js.event.emailInfo.subject"
+                      ? t("js.event.emailInfo.subject")
+                      : "Subject"}
                   </label>
                   <div className="input input-sm input-bordered w-full flex items-center gap-2">
                     <span className="text-base-content/60 whitespace-nowrap">{subjectPrefix || "BNote"}</span>
@@ -414,20 +475,28 @@ export default function EmailModulePage() {
                       className="flex-1 border-0 bg-transparent p-0 text-sm outline-none"
                       value={subject}
                       onChange={(event) => setSubject(event.target.value)}
-                      placeholder={t("js.email.subjectRestPlaceholder") !== "js.email.subjectRestPlaceholder" ? t("js.email.subjectRestPlaceholder") : "Your subject"}
+                      placeholder={
+                        t("js.email.subjectRestPlaceholder") !== "js.email.subjectRestPlaceholder"
+                          ? t("js.email.subjectRestPlaceholder")
+                          : "Your subject"
+                      }
                     />
                   </div>
                 </div>
                 <div>
                   <label className="mb-1 block text-xs font-medium text-base-content/60">
-                    {t("js.event.emailInfo.message") !== "js.event.emailInfo.message" ? t("js.event.emailInfo.message") : "Message"}
+                    {t("js.event.emailInfo.message") !== "js.event.emailInfo.message"
+                      ? t("js.event.emailInfo.message")
+                      : "Message"}
                   </label>
                   <NotesEditor
                     value={body}
                     onChange={setBody}
-                    placeholder={t("js.event.emailInfo.messagePlaceholder") !== "js.event.emailInfo.messagePlaceholder"
-                      ? t("js.event.emailInfo.messagePlaceholder")
-                      : "Type or paste content..."}
+                    placeholder={
+                      t("js.event.emailInfo.messagePlaceholder") !== "js.event.emailInfo.messagePlaceholder"
+                        ? t("js.event.emailInfo.messagePlaceholder")
+                        : "Type or paste content..."
+                    }
                     id="email-module-editor"
                     enableImage={false}
                     allowChecklist={false}
@@ -442,39 +511,59 @@ export default function EmailModulePage() {
                   <Spinner />
                 </div>
               )}
-              {previewError && <div className="rounded-lg border border-error bg-error/15 px-3 py-2 text-sm text-error">{previewError}</div>}
+              {previewError && (
+                <div className="rounded-lg border border-error bg-error/15 px-3 py-2 text-sm text-error">
+                  {previewError}
+                </div>
+              )}
               {!previewLoading && !previewError && previewHtml && (
                 <div className="overflow-hidden rounded-lg border border-base-300 bg-base-100">
                   <div className="border-b border-base-300 bg-base-200/40 px-4 py-3">
                     <div className="text-xs text-base-content/70">
                       <div>
                         <span className="font-medium">
-                          {t("js.event.emailInfo.previewFrom") !== "js.event.emailInfo.previewFrom" ? t("js.event.emailInfo.previewFrom") : "From"}:
+                          {t("js.event.emailInfo.previewFrom") !== "js.event.emailInfo.previewFrom"
+                            ? t("js.event.emailInfo.previewFrom")
+                            : "From"}
+                          :
                         </span>{" "}
                         {fromEmail || "-"}
                       </div>
                       <div>
                         <span className="font-medium">
-                          {t("js.event.emailInfo.previewTo") !== "js.event.emailInfo.previewTo" ? t("js.event.emailInfo.previewTo") : "To"}:
+                          {t("js.event.emailInfo.previewTo") !== "js.event.emailInfo.previewTo"
+                            ? t("js.event.emailInfo.previewTo")
+                            : "To"}
+                          :
                         </span>{" "}
                         {toEmail || "-"}
                       </div>
                       <div>
                         <span className="font-medium">
-                          {t("js.event.emailInfo.previewBcc") !== "js.event.emailInfo.previewBcc" ? t("js.event.emailInfo.previewBcc") : "BCC"}:
+                          {t("js.event.emailInfo.previewBcc") !== "js.event.emailInfo.previewBcc"
+                            ? t("js.event.emailInfo.previewBcc")
+                            : "BCC"}
+                          :
                         </span>{" "}
                         {previewBccEmails.length > 0 ? previewBccEmails.join(", ") : "-"}
                       </div>
                       <div>
                         <span className="font-medium">
-                          {t("js.event.emailInfo.subject") !== "js.event.emailInfo.subject" ? t("js.event.emailInfo.subject") : "Subject"}:
+                          {t("js.event.emailInfo.subject") !== "js.event.emailInfo.subject"
+                            ? t("js.event.emailInfo.subject")
+                            : "Subject"}
+                          :
                         </span>{" "}
                         {composedSubject || "-"}
                       </div>
                     </div>
                   </div>
                   <iframe
-                    title={t("js.event.emailInfo.previewFrameTitle") !== "js.event.emailInfo.previewFrameTitle" ? t("js.event.emailInfo.previewFrameTitle") : "Email preview"}
+                    title={
+                      t("js.event.emailInfo.previewFrameTitle") !== "js.event.emailInfo.previewFrameTitle"
+                        ? t("js.event.emailInfo.previewFrameTitle")
+                        : "Email preview"
+                    }
                     srcDoc={previewHtml}
                     className="h-[60vh] w-full bg-base-100"
                   />

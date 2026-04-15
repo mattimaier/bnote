@@ -85,15 +85,14 @@ export default function RepertoirePage() {
     router.push(getEntityPath("song", id));
   };
 
-  const filtered =
-    search.trim()
-      ? items.filter(
-          (item) =>
-            (item.title ?? "").toLowerCase().includes(search.toLowerCase()) ||
-            (item.composer ?? "").toLowerCase().includes(search.toLowerCase()) ||
-            (item.genre ?? "").toLowerCase().includes(search.toLowerCase())
-        )
-      : items;
+  const filtered = search.trim()
+    ? items.filter(
+        (item) =>
+          (item.title ?? "").toLowerCase().includes(search.toLowerCase()) ||
+          (item.composer ?? "").toLowerCase().includes(search.toLowerCase()) ||
+          (item.genre ?? "").toLowerCase().includes(search.toLowerCase())
+      )
+    : items;
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -135,34 +134,26 @@ export default function RepertoirePage() {
       <AppPageHeader
         moduleKey="repertoire"
         title={t("js.repertoire.title") !== "js.repertoire.title" ? t("js.repertoire.title") : "Repertoire"}
-        subtitle={t("js.repertoire.subtitle") !== "js.repertoire.subtitle" ? t("js.repertoire.subtitle") : "Manage songs and repertoire"}
-        actions={(
+        subtitle={
+          t("js.repertoire.subtitle") !== "js.repertoire.subtitle"
+            ? t("js.repertoire.subtitle")
+            : "Manage songs and repertoire"
+        }
+        actions={
           <ActionButton href={getEntityPath("song", "new", "edit")}>
             <Plus className="h-4 w-4" />
-            {t("js.repertoire.addSong") !== "js.repertoire.addSong"
-              ? t("js.repertoire.addSong")
-              : "Add Song"}
+            {t("js.repertoire.addSong") !== "js.repertoire.addSong" ? t("js.repertoire.addSong") : "Add Song"}
           </ActionButton>
-        )}
+        }
       />
 
-      {error && (
-        <div
-          className="rounded-lg border border-error bg-error/15 px-4 py-3 text-sm text-error"
-        >
-          {error}
-        </div>
-      )}
+      {error && <div className="rounded-lg border border-error bg-error/15 px-4 py-3 text-sm text-error">{error}</div>}
 
       <div className="flex items-center gap-2">
         <div className="flex w-full items-center gap-3 rounded-lg px-3 py-2 bg-base-200">
           <input
             type="search"
-            placeholder={
-              t("js.common.search") !== "js.common.search"
-                ? t("js.common.search")
-                : "Search…"
-            }
+            placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full bg-transparent px-0 py-1 text-sm outline-none text-base-content"
@@ -186,7 +177,14 @@ export default function RepertoirePage() {
               const Icon = getIcon("music");
               return (
                 <EntityListRow
-                  icon={<span className="rounded-full flex items-center justify-center w-6 h-6 text-white" style={{ ...dotStyle, background: pillStyle.backgroundColor, color: pillStyle.color }}><Icon className="h-3.5 w-3.5" /></span>}
+                  icon={
+                    <span
+                      className="rounded-full flex items-center justify-center w-6 h-6 text-white"
+                      style={{ ...dotStyle, background: pillStyle.backgroundColor, color: pillStyle.color }}
+                    >
+                      <Icon className="h-3.5 w-3.5" />
+                    </span>
+                  }
                   primary={item.title ?? emptyText}
                   secondary={item.composer ? <span>{item.composer}</span> : undefined}
                   onClick={() => handleRowClick(item.id)}
@@ -195,15 +193,27 @@ export default function RepertoirePage() {
             }}
             onRowClick={(item) => handleRowClick(item.id)}
             emptyMessage={
-              t("js.repertoire.noSongs") !== "js.repertoire.noSongs"
-                ? t("js.repertoire.noSongs")
-                : "No songs found"
+              t("js.repertoire.noSongs") !== "js.repertoire.noSongs" ? t("js.repertoire.noSongs") : "No songs found"
             }
             sortOptions={[
-              { key: "title", label: t("js.repertoire.songTitle") !== "js.repertoire.songTitle" ? t("js.repertoire.songTitle") : "Title" },
-              { key: "composer", label: t("js.repertoire.composer") !== "js.repertoire.composer" ? t("js.repertoire.composer") : "Composer" },
-              { key: "genre", label: t("js.repertoire.genre") !== "js.repertoire.genre" ? t("js.repertoire.genre") : "Genre" },
-              { key: "status", label: t("js.repertoire.status") !== "js.repertoire.status" ? t("js.repertoire.status") : "Status" },
+              {
+                key: "title",
+                label:
+                  t("js.repertoire.songTitle") !== "js.repertoire.songTitle" ? t("js.repertoire.songTitle") : "Title",
+              },
+              {
+                key: "composer",
+                label:
+                  t("js.repertoire.composer") !== "js.repertoire.composer" ? t("js.repertoire.composer") : "Composer",
+              },
+              {
+                key: "genre",
+                label: t("js.repertoire.genre") !== "js.repertoire.genre" ? t("js.repertoire.genre") : "Genre",
+              },
+              {
+                key: "status",
+                label: t("js.repertoire.status") !== "js.repertoire.status" ? t("js.repertoire.status") : "Status",
+              },
             ]}
             sortKey={sortKey}
             sortDir={sortDir}
@@ -247,11 +257,7 @@ export default function RepertoirePage() {
                     onSort={handleSort}
                   />
                   <SortableTh
-                    label={
-                      t("js.repertoire.genre") !== "js.repertoire.genre"
-                        ? t("js.repertoire.genre")
-                        : "Genre"
-                    }
+                    label={t("js.repertoire.genre") !== "js.repertoire.genre" ? t("js.repertoire.genre") : "Genre"}
                     columnId="genre"
                     sortKey="genre"
                     currentSortKey={sortKey}
@@ -259,11 +265,7 @@ export default function RepertoirePage() {
                     onSort={handleSort}
                   />
                   <SortableTh
-                    label={
-                      t("js.repertoire.status") !== "js.repertoire.status"
-                        ? t("js.repertoire.status")
-                        : "Status"
-                    }
+                    label={t("js.repertoire.status") !== "js.repertoire.status" ? t("js.repertoire.status") : "Status"}
                     columnId="status"
                     sortKey="status"
                     currentSortKey={sortKey}
@@ -271,24 +273,17 @@ export default function RepertoirePage() {
                     onSort={handleSort}
                   />
                   <ResizableTh columnId="length">
-                    {t("js.repertoire.length") !== "js.repertoire.length"
-                      ? t("js.repertoire.length")
-                      : "Length"}
+                    {t("js.repertoire.length") !== "js.repertoire.length" ? t("js.repertoire.length") : "Length"}
                   </ResizableTh>
                   <ResizableTh columnId="active">
-                    {t("js.repertoire.isActive") !== "js.repertoire.isActive"
-                      ? t("js.repertoire.isActive")
-                      : "Active"}
+                    {t("js.repertoire.isActive") !== "js.repertoire.isActive" ? t("js.repertoire.isActive") : "Active"}
                   </ResizableTh>
                 </tr>
               </thead>
               <tbody>
                 {sorted.length === 0 ? (
                   <tr>
-                    <td
-                      colSpan={7}
-                      className="p-8 text-center text-base-content/60"
-                    >
+                    <td colSpan={7} className="p-8 text-center text-base-content/60">
                       {t("js.repertoire.noSongs") !== "js.repertoire.noSongs"
                         ? t("js.repertoire.noSongs")
                         : "No songs found"}
@@ -359,11 +354,7 @@ function SortableTh({
   onSort: (k: SortKey) => void;
 }) {
   const active = currentSortKey === sortKey;
-  const Icon = active
-    ? sortDir === "asc"
-      ? ArrowUp
-      : ArrowDown
-    : ArrowUpDown;
+  const Icon = active ? (sortDir === "asc" ? ArrowUp : ArrowDown) : ArrowUpDown;
   return (
     <ResizableTh columnId={columnId}>
       <button

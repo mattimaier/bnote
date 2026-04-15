@@ -30,17 +30,13 @@ export function EventEntityHeader({
       <div className="flex items-center gap-2">
         <SquircleIconBadge Icon={EventIcon} color={iconColor} />
         <div className="flex flex-wrap items-center gap-2 min-w-0">
-          <h1 className="text-2xl font-bold text-base-content break-words whitespace-normal leading-tight">
-            {title}
-          </h1>
+          <h1 className="text-2xl font-bold text-base-content break-words whitespace-normal leading-tight">{title}</h1>
           {badgeLabel ? <span className={`event-badge ${badgeClassName}`}>{badgeLabel}</span> : null}
         </div>
       </div>
       <div className="mt-2 space-y-1">
         {dateTimeLine ? <p className="text-sm text-base-content/60">{dateTimeLine}</p> : null}
-        {locationLine && (
-          <p className="text-sm text-base-content/60">{locationLine}</p>
-        )}
+        {locationLine && <p className="text-sm text-base-content/60">{locationLine}</p>}
       </div>
     </div>
   );

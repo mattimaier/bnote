@@ -1,12 +1,12 @@
 {
-  "name": "bnote/bnote-next-generation-api",
-  "description": "Next Generation API dependencies (isolated from legacy BNote/composer.json)",
-  "require": {
-    "php": ">=8.1",
-    "phpmailer/phpmailer": "^6.9",
-    "sabre/vobject": "^4.0"
-  },
   "config": {
     "sort-packages": true
+  },
+  "description": "Next Generation API dependencies (isolated from legacy BNote/composer.json)",
+  "name": "bnote/bnote-next-generation-api",
+  "require": {
+    "php": ">=8.3",
+    "phpmailer/phpmailer": "^6.9",
+    "sabre/vobject": "^4.0"
   }
 }

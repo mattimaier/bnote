@@ -23,10 +23,15 @@ export interface ParticipationBatchItem {
 
 export const participationApi = {
   getStatus: (eventId: string | number, eventType: string, signal?: AbortSignal) =>
-    api.get<ParticipationState>("participation", "get", {
-      event_id: String(eventId),
-      event_type: eventType,
-    }, { signal }),
+    api.get<ParticipationState>(
+      "participation",
+      "get",
+      {
+        event_id: String(eventId),
+        event_type: eventType,
+      },
+      { signal }
+    ),
 
   batchGet: async (events: ParticipationBatchItem[], signal?: AbortSignal) => {
     const res = await api.post<{ items: Record<string, ParticipationState> }>(
@@ -45,10 +50,15 @@ export const participationApi = {
     reason?: string,
     signal?: AbortSignal
   ) =>
-    api.post<unknown>("participation", "save", {
-      event_id: String(eventId),
-      event_type: eventType,
-      status,
-      reason: reason ?? "",
-    }, { signal }),
+    api.post<unknown>(
+      "participation",
+      "save",
+      {
+        event_id: String(eventId),
+        event_type: eventType,
+        status,
+        reason: reason ?? "",
+      },
+      { signal }
+    ),
 };

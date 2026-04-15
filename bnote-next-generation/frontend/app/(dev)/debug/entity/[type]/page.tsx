@@ -5,7 +5,12 @@
  */
 
 import Link from "next/link";
-import { ALL_DEBUG_ENTITY_TYPES, getEntityTypeLabel, hasFullMockView, isDebugEntityType } from "@/lib/entities/debug/entity-types";
+import {
+  ALL_DEBUG_ENTITY_TYPES,
+  getEntityTypeLabel,
+  hasFullMockView,
+  isDebugEntityType,
+} from "@/lib/entities/debug/entity-types";
 import { DebugPageShell, DebugSection } from "@/components/debug/DebugChrome";
 
 interface PageProps {
@@ -66,12 +71,7 @@ export default async function DebugEntityTypePage(props: PageProps) {
       <DebugSection title="View">
         <div className="flex flex-wrap gap-2">
           {MOCK_IDS.map((id) => (
-            <Link
-              key={id}
-              href={`/debug/entity/${type}/${id}/`}
-              className="btn btn-soft btn-sm"
-              prefetch={false}
-            >
+            <Link key={id} href={`/debug/entity/${type}/${id}/`} className="btn btn-soft btn-sm" prefetch={false}>
               View id={id}
             </Link>
           ))}
@@ -80,12 +80,7 @@ export default async function DebugEntityTypePage(props: PageProps) {
       <DebugSection title="Edit">
         <div className="flex flex-wrap gap-2">
           {MOCK_IDS.map((id) => (
-            <Link
-              key={id}
-              href={`/debug/entity/${type}/${id}/edit/`}
-              className="btn btn-soft btn-sm"
-              prefetch={false}
-            >
+            <Link key={id} href={`/debug/entity/${type}/${id}/edit/`} className="btn btn-soft btn-sm" prefetch={false}>
               Edit id={id}
             </Link>
           ))}

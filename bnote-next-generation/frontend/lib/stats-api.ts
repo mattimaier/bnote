@@ -124,8 +124,14 @@ export interface StatsDashboardData {
     totalEvents: number;
   };
   userRankings?: {
-    positive: Record<string, Array<{ userId: number; name: string; surname: string; instrument: string; value: number }>>;
-    negative: Record<string, Array<{ userId: number; name: string; surname: string; instrument: string; value: number }>>;
+    positive: Record<
+      string,
+      Array<{ userId: number; name: string; surname: string; instrument: string; value: number }>
+    >;
+    negative: Record<
+      string,
+      Array<{ userId: number; name: string; surname: string; instrument: string; value: number }>
+    >;
     thresholds: { minInvited: number; minReplied: number };
   };
   eventsByMonth: Array<{

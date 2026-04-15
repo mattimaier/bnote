@@ -61,7 +61,9 @@ export async function apiRequest<T>(
   requestOptions: ApiRequestOptions = {}
 ): Promise<T> {
   const apiUrl = getApiUrl();
-  const url = apiUrl.startsWith("http") ? new URL(apiUrl) : new URL(apiUrl, typeof window !== "undefined" ? window.location.origin : "http://localhost");
+  const url = apiUrl.startsWith("http")
+    ? new URL(apiUrl)
+    : new URL(apiUrl, typeof window !== "undefined" ? window.location.origin : "http://localhost");
   url.searchParams.set("module", module);
   if (action) url.searchParams.set("action", action);
   Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));

@@ -83,16 +83,15 @@ export default function EquipmentPage() {
     router.push(getEntityPath("equipment", id));
   };
 
-  const filtered =
-    search.trim()
-      ? items.filter(
-          (item) =>
-            (item.name ?? "").toLowerCase().includes(search.toLowerCase()) ||
-            (item.make ?? "").toLowerCase().includes(search.toLowerCase()) ||
-            (item.model ?? "").toLowerCase().includes(search.toLowerCase()) ||
-            (item.notes ?? "").toLowerCase().includes(search.toLowerCase())
-        )
-      : items;
+  const filtered = search.trim()
+    ? items.filter(
+        (item) =>
+          (item.name ?? "").toLowerCase().includes(search.toLowerCase()) ||
+          (item.make ?? "").toLowerCase().includes(search.toLowerCase()) ||
+          (item.model ?? "").toLowerCase().includes(search.toLowerCase()) ||
+          (item.notes ?? "").toLowerCase().includes(search.toLowerCase())
+      )
+    : items;
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -115,11 +114,7 @@ export default function EquipmentPage() {
             case "model":
               return compareString(a.model ?? "", b.model ?? "", sortDir);
             case "quantity":
-              return compareNumber(
-                a.quantity ?? 0,
-                b.quantity ?? 0,
-                sortDir
-              );
+              return compareNumber(a.quantity ?? 0, b.quantity ?? 0, sortDir);
             case "current_value": {
               const va = parseFloat(String(a.current_value ?? 0)) || 0;
               const vb = parseFloat(String(b.current_value ?? 0)) || 0;
@@ -143,34 +138,28 @@ export default function EquipmentPage() {
       <AppPageHeader
         moduleKey="equipment"
         title={t("js.equipment.title") !== "js.equipment.title" ? t("js.equipment.title") : "Equipment"}
-        subtitle={t("js.equipment.subtitle") !== "js.equipment.subtitle" ? t("js.equipment.subtitle") : "Manage inventory and assets"}
-        actions={(
+        subtitle={
+          t("js.equipment.subtitle") !== "js.equipment.subtitle"
+            ? t("js.equipment.subtitle")
+            : "Manage inventory and assets"
+        }
+        actions={
           <ActionButton href={getEntityPath("equipment", "new", "edit")}>
             <Plus className="h-4 w-4" />
             {t("js.equipment.addEquipment") !== "js.equipment.addEquipment"
               ? t("js.equipment.addEquipment")
               : "Add Equipment"}
           </ActionButton>
-        )}
+        }
       />
 
-      {error && (
-        <div
-          className="rounded-lg border border-error bg-error/15 px-4 py-3 text-sm text-error"
-        >
-          {error}
-        </div>
-      )}
+      {error && <div className="rounded-lg border border-error bg-error/15 px-4 py-3 text-sm text-error">{error}</div>}
 
       <div className="flex items-center gap-2">
         <div className="flex w-full items-center gap-3 rounded-lg bg-base-200 px-3 py-2">
           <input
             type="search"
-            placeholder={
-              t("js.common.search") !== "js.common.search"
-                ? t("js.common.search")
-                : "Search…"
-            }
+            placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full bg-transparent px-0 py-1 text-sm outline-none text-base-content"
@@ -178,9 +167,7 @@ export default function EquipmentPage() {
         </div>
       </div>
 
-      <div
-        className="overflow-hidden rounded-xl border border-base-300 bg-base-100 text-base-content"
-      >
+      <div className="overflow-hidden rounded-xl border border-base-300 bg-base-100 text-base-content">
         {loading ? (
           <div className="flex items-center justify-center py-12">
             <Spinner />
@@ -198,7 +185,10 @@ export default function EquipmentPage() {
               return (
                 <EntityListRow
                   icon={
-                    <span className="rounded-full flex items-center justify-center w-6 h-6 text-white" style={{ ...dotStyle, background: pillStyle.backgroundColor, color: pillStyle.color }}>
+                    <span
+                      className="rounded-full flex items-center justify-center w-6 h-6 text-white"
+                      style={{ ...dotStyle, background: pillStyle.backgroundColor, color: pillStyle.color }}
+                    >
                       <Icon className="h-3.5 w-3.5" />
                     </span>
                   }
@@ -217,9 +207,21 @@ export default function EquipmentPage() {
             sortOptions={[
               { key: "name", label: t("js.equipment.name") !== "js.equipment.name" ? t("js.equipment.name") : "Name" },
               { key: "make", label: t("js.equipment.make") !== "js.equipment.make" ? t("js.equipment.make") : "Make" },
-              { key: "model", label: t("js.equipment.model") !== "js.equipment.model" ? t("js.equipment.model") : "Model" },
-              { key: "quantity", label: t("js.equipment.quantity") !== "js.equipment.quantity" ? t("js.equipment.quantity") : "Qty" },
-              { key: "current_value", label: t("js.equipment.current_value") !== "js.equipment.current_value" ? t("js.equipment.current_value") : "Value" },
+              {
+                key: "model",
+                label: t("js.equipment.model") !== "js.equipment.model" ? t("js.equipment.model") : "Model",
+              },
+              {
+                key: "quantity",
+                label: t("js.equipment.quantity") !== "js.equipment.quantity" ? t("js.equipment.quantity") : "Qty",
+              },
+              {
+                key: "current_value",
+                label:
+                  t("js.equipment.current_value") !== "js.equipment.current_value"
+                    ? t("js.equipment.current_value")
+                    : "Value",
+              },
             ]}
             sortKey={sortKey}
             sortDir={sortDir}
@@ -238,11 +240,7 @@ export default function EquipmentPage() {
               <thead>
                 <tr className="border-b border-base-300 bg-base-200/50">
                   <SortableTh
-                    label={
-                      t("js.equipment.name") !== "js.equipment.name"
-                        ? t("js.equipment.name")
-                        : "Name"
-                    }
+                    label={t("js.equipment.name") !== "js.equipment.name" ? t("js.equipment.name") : "Name"}
                     columnId="name"
                     sortKey="name"
                     currentSortKey={sortKey}
@@ -250,11 +248,7 @@ export default function EquipmentPage() {
                     onSort={handleSort}
                   />
                   <SortableTh
-                    label={
-                      t("js.equipment.make") !== "js.equipment.make"
-                        ? t("js.equipment.make")
-                        : "Make"
-                    }
+                    label={t("js.equipment.make") !== "js.equipment.make" ? t("js.equipment.make") : "Make"}
                     columnId="make"
                     sortKey="make"
                     currentSortKey={sortKey}
@@ -262,11 +256,7 @@ export default function EquipmentPage() {
                     onSort={handleSort}
                   />
                   <SortableTh
-                    label={
-                      t("js.equipment.model") !== "js.equipment.model"
-                        ? t("js.equipment.model")
-                        : "Model"
-                    }
+                    label={t("js.equipment.model") !== "js.equipment.model" ? t("js.equipment.model") : "Model"}
                     columnId="model"
                     sortKey="model"
                     currentSortKey={sortKey}
@@ -274,11 +264,7 @@ export default function EquipmentPage() {
                     onSort={handleSort}
                   />
                   <SortableTh
-                    label={
-                      t("js.equipment.quantity") !== "js.equipment.quantity"
-                        ? t("js.equipment.quantity")
-                        : "Qty"
-                    }
+                    label={t("js.equipment.quantity") !== "js.equipment.quantity" ? t("js.equipment.quantity") : "Qty"}
                     columnId="quantity"
                     sortKey="quantity"
                     currentSortKey={sortKey}
@@ -348,11 +334,7 @@ function SortableTh({
   onSort: (k: SortKey) => void;
 }) {
   const active = currentSortKey === sortKey;
-  const Icon = active
-    ? sortDir === "asc"
-      ? ArrowUp
-      : ArrowDown
-    : ArrowUpDown;
+  const Icon = active ? (sortDir === "asc" ? ArrowUp : ArrowDown) : ArrowUpDown;
   return (
     <ResizableTh columnId={columnId}>
       <button

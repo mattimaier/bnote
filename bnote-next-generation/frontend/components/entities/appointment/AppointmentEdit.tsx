@@ -90,21 +90,44 @@ export function AppointmentEdit() {
 
   useEffect(() => {
     if (!ready) return;
-    locationsApi.list().then((list) => {
-      const opts = (list ?? []).map((l) => ({ id: l.id, name: l.name }));
-      setLocations([{ id: 0, name: t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "—" }, ...opts]);
-    }).catch(() => setLocations([{ id: 0, name: "—" }]));
-    tasksApi.getContacts().then((list) => {
-      const opts = (list ?? []).map((c) => ({ id: c.id, name: c.name ?? "", email: c.email ?? null, instrument: c.instrument ?? null }));
-      setContacts([{ id: 0, name: t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "—" }, ...opts]);
-    }).catch(() => setContacts([{ id: 0, name: "—" }]));
-    tasksApi.getGroups().then((list) => setGroups(list ?? [])).catch(() => setGroups([]));
+    locationsApi
+      .list()
+      .then((list) => {
+        const opts = (list ?? []).map((l) => ({ id: l.id, name: l.name }));
+        setLocations([
+          { id: 0, name: t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "—" },
+          ...opts,
+        ]);
+      })
+      .catch(() => setLocations([{ id: 0, name: "—" }]));
+    tasksApi
+      .getContacts()
+      .then((list) => {
+        const opts = (list ?? []).map((c) => ({
+          id: c.id,
+          name: c.name ?? "",
+          email: c.email ?? null,
+          instrument: c.instrument ?? null,
+        }));
+        setContacts([
+          { id: 0, name: t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "—" },
+          ...opts,
+        ]);
+      })
+      .catch(() => setContacts([{ id: 0, name: "—" }]));
+    tasksApi
+      .getGroups()
+      .then((list) => setGroups(list ?? []))
+      .catch(() => setGroups([]));
   }, [ready, t]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
-      const msg = t("js.calendar.nameRequired") !== "js.calendar.nameRequired" ? t("js.calendar.nameRequired") : "Name is required";
+      const msg =
+        t("js.calendar.nameRequired") !== "js.calendar.nameRequired"
+          ? t("js.calendar.nameRequired")
+          : "Name is required";
       setError(msg);
       showToast(msg, "error");
       return;
@@ -120,7 +143,10 @@ export function AppointmentEdit() {
     const beginVal = toApiDatetime(begin);
     const endVal = end ? toApiDatetime(end) : beginVal;
     if (!beginVal) {
-      const msg = t("js.calendar.beginRequired") !== "js.calendar.beginRequired" ? t("js.calendar.beginRequired") : "Start time is required";
+      const msg =
+        t("js.calendar.beginRequired") !== "js.calendar.beginRequired"
+          ? t("js.calendar.beginRequired")
+          : "Start time is required";
       setError(msg);
       showToast(msg, "error");
       return;
@@ -139,7 +165,12 @@ export function AppointmentEdit() {
       };
       if (isNew) {
         const res = await appointmentsApi.create(payload);
-        showToast(t("js.calendar.appointmentCreated") !== "js.calendar.appointmentCreated" ? t("js.calendar.appointmentCreated") : "Appointment created", "success");
+        showToast(
+          t("js.calendar.appointmentCreated") !== "js.calendar.appointmentCreated"
+            ? t("js.calendar.appointmentCreated")
+            : "Appointment created",
+          "success"
+        );
         if (res.item) setPendingAppointment(res.item);
         router.replace(getEntityPath("appointment", res.id));
       } else {
@@ -214,9 +245,7 @@ export function AppointmentEdit() {
     <div className={PAGE_CONTENT_CLASS}>
       <form id="appointment-edit-form" onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div className="rounded-box border border-error bg-error/15 px-4 py-3 text-sm text-error">
-            {error}
-          </div>
+          <div className="rounded-box border border-error bg-error/15 px-4 py-3 text-sm text-error">{error}</div>
         )}
         <div className="rounded-none border-0 shadow-none p-4 md:rounded-box md:border md:border-base-300 md:shadow-sm md:p-6 bg-base-100 text-base-content">
           <div className="space-y-4">
@@ -306,13 +335,7 @@ export function AppointmentEdit() {
             </div>
           </div>
         </div>
-        {!isNew && (
-          <DetailDeleteSection
-            canDelete
-            entityTitle={name || undefined}
-            onDelete={handleDelete}
-          />
-        )}
+        {!isNew && <DetailDeleteSection canDelete entityTitle={name || undefined} onDelete={handleDelete} />}
       </form>
     </div>
   );

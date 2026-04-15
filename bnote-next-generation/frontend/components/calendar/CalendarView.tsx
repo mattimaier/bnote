@@ -20,10 +20,7 @@ import { getPillStyle, getColorForBnoteType } from "@/lib/entity-config";
 import type { CalendarEvent } from "@/lib/calendar-api";
 import { notesToPlainText } from "@/lib/editorjs-notes";
 
-const FullCalendar = dynamic(
-  () => import("@fullcalendar/react").then((mod) => mod.default),
-  { ssr: false }
-);
+const FullCalendar = dynamic(() => import("@fullcalendar/react").then((mod) => mod.default), { ssr: false });
 
 const PLUGINS = [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin];
 
@@ -34,12 +31,7 @@ interface CalendarViewProps {
   canEdit: boolean;
 }
 
-export function CalendarView({
-  events,
-  onEventClick,
-  onSelectRange,
-  canEdit,
-}: CalendarViewProps) {
+export function CalendarView({ events, onEventClick, onSelectRange, canEdit }: CalendarViewProps) {
   const { t, lang } = useI18n();
   const [isMobile, setIsMobile] = useState(false);
   const fcLocale = (lang ?? "en").split("-")[0]?.toLowerCase() || "en";
@@ -139,13 +131,7 @@ export function CalendarView({
             className="fc-event-main-frame flex items-start gap-1.5 overflow-visible rounded px-1 py-0.5 border"
             style={eventStyle}
           >
-            <Avatar
-              email={ext.avatarEmail}
-              name={arg.event.title}
-              size={24}
-              variant="birthday"
-              className="shrink-0"
-            />
+            <Avatar email={ext.avatarEmail} name={arg.event.title} size={24} variant="birthday" className="shrink-0" />
             <CakeIcon className="h-4 w-4 shrink-0 opacity-80 mt-0.5" aria-hidden />
             <span className="text-xs break-words leading-tight flex-1 min-w-0">{arg.event.title}</span>
           </div>
@@ -159,7 +145,9 @@ export function CalendarView({
           style={eventStyle}
         >
           <EventIcon className={`shrink-0 opacity-80 ${isMobile ? "h-3 w-3 mt-0" : "h-4 w-4 mt-0.5"}`} aria-hidden />
-          <span className={`text-xs leading-tight flex-1 min-w-0 ${isMobile ? "truncate whitespace-nowrap" : "break-words"}`}>
+          <span
+            className={`text-xs leading-tight flex-1 min-w-0 ${isMobile ? "truncate whitespace-nowrap" : "break-words"}`}
+          >
             {arg.event.title}
           </span>
         </div>

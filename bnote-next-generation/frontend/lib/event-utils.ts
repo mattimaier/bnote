@@ -46,10 +46,7 @@ export interface EventTypeConfig {
 }
 
 /** Uses entity-config for icon/color; returns shape expected by EventCard etc. */
-export function getEventTypeConfig(
-  type: EventDisplayType,
-  t: (k: string) => string
-): EventTypeConfig {
+export function getEventTypeConfig(type: EventDisplayType, t: (k: string) => string): EventTypeConfig {
   const c = getEventTypeConfigFromEntity(type, t);
   return {
     labelKey: c.labelKey,

@@ -39,11 +39,19 @@ export default function DebugEntityIndexPage() {
                   <Link href={`/debug/entity/${type}/1/`} className="btn btn-soft btn-xs sm:btn-sm" prefetch={false}>
                     View
                   </Link>
-                  <Link href={`/debug/entity/${type}/1/edit/`} className="btn btn-soft btn-xs sm:btn-sm" prefetch={false}>
+                  <Link
+                    href={`/debug/entity/${type}/1/edit/`}
+                    className="btn btn-soft btn-xs sm:btn-sm"
+                    prefetch={false}
+                  >
                     Edit
                   </Link>
                   {fullMock ? (
-                    <Link href={`/debug/entity/${type}/new/edit/`} className="btn btn-soft btn-xs sm:btn-sm btn-primary" prefetch={false}>
+                    <Link
+                      href={`/debug/entity/${type}/new/edit/`}
+                      className="btn btn-soft btn-xs sm:btn-sm btn-primary"
+                      prefetch={false}
+                    >
                       Create
                     </Link>
                   ) : null}

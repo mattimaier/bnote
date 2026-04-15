@@ -58,8 +58,7 @@ export function VoteEligibleVotersCard({ voteId }: VoteEligibleVotersCardProps) 
       .finally(() => setLoading(false));
   }, [voteId]);
 
-  const title =
-    t("js.votes.voters") !== "js.votes.voters" ? t("js.votes.voters") : "Eligible voters";
+  const title = t("js.votes.voters") !== "js.votes.voters" ? t("js.votes.voters") : "Eligible voters";
 
   if (loading) {
     return (
@@ -86,9 +85,7 @@ export function VoteEligibleVotersCard({ voteId }: VoteEligibleVotersCardProps) 
       <h2 className="text-base font-semibold text-base-content/60 mb-3">{title}</h2>
       <ParticipantOverview
         participantsByInstrument={participantsByInstrument}
-        getEntityHref={(entityType, entityId) =>
-          entityType === "contact" ? getEntityPath("contact", entityId) : null
-        }
+        getEntityHref={(entityType, entityId) => (entityType === "contact" ? getEntityPath("contact", entityId) : null)}
       />
     </DetailCard>
   );

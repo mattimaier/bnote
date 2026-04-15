@@ -21,14 +21,7 @@ export interface EntityLinkProps {
 }
 
 /** Renders name as link to entity when user has view permission, else plain text. */
-export function EntityLink({
-  entityType,
-  id,
-  name,
-  modules,
-  children,
-  emptyLabel = "",
-}: EntityLinkProps) {
+export function EntityLink({ entityType, id, name, modules, children, emptyLabel = "" }: EntityLinkProps) {
   const text = (children ?? name) || emptyLabel;
   if (!id || !canViewEntityType(entityType, modules)) return <span>{text}</span>;
   return (

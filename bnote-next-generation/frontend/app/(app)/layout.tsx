@@ -7,10 +7,6 @@
  * Copyright (C) 2026 BNote Contributors
  */
 
-export default function AppLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function AppLayout({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }

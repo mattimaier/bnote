@@ -41,14 +41,7 @@ export function PasswordStrengthField({
   }, [value, userInputs, lang]);
 
   const score = result?.score ?? 0;
-  const barClass =
-    score <= 1
-      ? "bg-error"
-      : score === 2
-        ? "bg-warning"
-        : score >= 3
-          ? "bg-success"
-          : "bg-base-300";
+  const barClass = score <= 1 ? "bg-error" : score === 2 ? "bg-warning" : score >= 3 ? "bg-success" : "bg-base-300";
 
   const idx = Math.min(4, Math.max(0, score));
   const label = t(`js.register.passwordScore${idx}`);
@@ -76,9 +69,7 @@ export function PasswordStrengthField({
             />
           </div>
           <p className="text-xs text-base-content/70">{label}</p>
-          {warning ? (
-            <p className="text-xs text-warning">{warning}</p>
-          ) : null}
+          {warning ? <p className="text-xs text-warning">{warning}</p> : null}
           {suggestions.length > 0 ? (
             <ul className="list-inside list-disc text-xs text-base-content/60">
               {suggestions.map((s) => (

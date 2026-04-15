@@ -1,70 +1,70 @@
 {
   "entries": [
     {
-      "title": "Participation traffic-light icons in event invite and reminder emails now render consistently as circular controls across mail clients.",
       "changeType": "fixed",
-      "date": "2026-04-13"
+      "date": "2026-04-13",
+      "title": "Participation traffic-light icons in event invite and reminder emails now render consistently as circular controls across mail clients."
     },
     {
-      "title": "Next Generation now adds global keyboard shortcuts (edit/help/navigation), a dedicated Help page in the profile menu, and improved Escape behavior for closing overlays and leaving edit mode.",
       "changeType": "changed",
-      "date": "2026-04-13"
+      "date": "2026-04-13",
+      "title": "Next Generation now adds global keyboard shortcuts (edit/help/navigation), a dedicated Help page in the profile menu, and improved Escape behavior for closing overlays and leaving edit mode."
     },
     {
-      "title": "Public concerts feed now supports secure tokenized sharing with CORS access, date-range filtering, and per-concert visible/private feed visibility.",
       "changeType": "changed",
-      "date": "2026-04-13"
+      "date": "2026-04-13",
+      "title": "Public concerts feed now supports secure tokenized sharing with CORS access, date-range filtering, and per-concert visible/private feed visibility."
     },
     {
-      "title": "Weekly reminder emails now render the rehearsal icon again and use the intended squircle event icon with round participation traffic lights.",
       "changeType": "fixed",
-      "date": "2026-04-13"
+      "date": "2026-04-13",
+      "title": "Weekly reminder emails now render the rehearsal icon again and use the intended squircle event icon with round participation traffic lights."
     },
     {
-      "title": "App and module header icons now use the refreshed squircle style with improved light/dark contrast, thicker app-icon border, and build-generated SVG/PNG/ICO assets.",
       "changeType": "changed",
-      "date": "2026-04-09"
+      "date": "2026-04-09",
+      "title": "App and module header icons now use the refreshed squircle style with improved light/dark contrast, thicker app-icon border, and build-generated SVG/PNG/ICO assets."
     },
     {
-      "title": "Empty notes from the rich text editor are now saved as empty values instead of persisted EditorJS JSON placeholders.",
       "changeType": "fixed",
-      "date": "2026-04-09"
+      "date": "2026-04-09",
+      "title": "Empty notes from the rich text editor are now saved as empty values instead of persisted EditorJS JSON placeholders."
     },
     {
-      "title": "Next Generation now keeps users signed in with secure long-lived login tokens by default and rotates tokens after automatic session restore.",
       "changeType": "changed",
-      "date": "2026-04-09"
+      "date": "2026-04-09",
+      "title": "Next Generation now keeps users signed in with secure long-lived login tokens by default and rotates tokens after automatic session restore."
     },
     {
-      "title": "Next Generation-only modules (starting with Wrapped) are now kept out of legacy app navigation while remaining available in Next Generation with normal permission checks.",
       "changeType": "fixed",
-      "date": "2026-04-09"
+      "date": "2026-04-09",
+      "title": "Next Generation-only modules (starting with Wrapped) are now kept out of legacy app navigation while remaining available in Next Generation with normal permission checks."
     },
     {
-      "title": "Escalation cards on rehearsal and concert detail pages now let authorized users accept current risk (pausing escalation emails) and reset escalation, with automatic reset when risk profile changes.",
       "changeType": "changed",
-      "date": "2026-04-08"
+      "date": "2026-04-08",
+      "title": "Escalation cards on rehearsal and concert detail pages now let authorized users accept current risk (pausing escalation emails) and reset escalation, with automatic reset when risk profile changes."
     },
     {
-      "title": "Event detail actions now stack vertically on narrower desktop widths to prevent clipped controls in rehearsal and concert headers.",
+      "bugId": "BUG-20260408-085533-67e4",
       "changeType": "fixed",
       "date": "2026-04-08",
-      "bugId": "BUG-20260408-085533-67e4"
+      "title": "Event detail actions now stack vertically on narrower desktop widths to prevent clipped controls in rehearsal and concert headers."
     },
     {
-      "title": "Vote results popover now uses the shared person/contact row layout, fixing broken voter list rendering and improving readability on smaller screens.",
       "changeType": "fixed",
-      "date": "2026-04-08"
+      "date": "2026-04-08",
+      "title": "Vote results popover now uses the shared person/contact row layout, fixing broken voter list rendering and improving readability on smaller screens."
     },
     {
-      "title": "Escalation minimums now support configurable combined instrument pairings with shared rehearsal and concert thresholds.",
       "changeType": "changed",
-      "date": "2026-04-07"
+      "date": "2026-04-07",
+      "title": "Escalation minimums now support configurable combined instrument pairings with shared rehearsal and concert thresholds."
     },
     {
-      "title": "Escalation now sends a follow-up resolved email when an at-risk event returns to a healthy state, including immediate checks after participation or member assignment changes.",
       "changeType": "changed",
-      "date": "2026-04-07"
+      "date": "2026-04-07",
+      "title": "Escalation now sends a follow-up resolved email when an at-risk event returns to a healthy state, including immediate checks after participation or member assignment changes."
     }
   ]
 }

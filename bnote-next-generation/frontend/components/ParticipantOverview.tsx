@@ -63,9 +63,7 @@ function groupByCategory(groups: InstrumentGroup[]): InstrumentGroup[] {
           category: g.instrument.category ?? { id: 0, name: catName },
         },
         participants: [...g.participants],
-        stats: g.stats
-          ? { ...g.stats }
-          : { yes: 0, maybe: 0, no: 0, pending: 0 },
+        stats: g.stats ? { ...g.stats } : { yes: 0, maybe: 0, no: 0, pending: 0 },
       });
     } else {
       existing.participants.push(...g.participants);
@@ -98,9 +96,7 @@ function groupBySection(groups: InstrumentGroup[]): InstrumentGroup[] {
           category: g.instrument.category,
         },
         participants: [...g.participants],
-        stats: g.stats
-          ? { ...g.stats }
-          : { yes: 0, maybe: 0, no: 0, pending: 0 },
+        stats: g.stats ? { ...g.stats } : { yes: 0, maybe: 0, no: 0, pending: 0 },
       });
     } else {
       existing.participants.push(...g.participants);
@@ -168,23 +164,13 @@ function ParticipantRow({
 
   return (
     <div className="flex items-start gap-3 px-3 py-3 text-base-content md:rounded-md md:border md:border-base-300/60 md:bg-base-100 md:px-2 md:py-2 md:hover:bg-base-200/70 md:transition-colors">
-      <Avatar
-        email={participant.email}
-        name={participant.name}
-        size={32}
-        variant="soft"
-        className="shrink-0"
-      />
+      <Avatar email={participant.email} name={participant.name} size={32} variant="soft" className="shrink-0" />
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between gap-2">
           {nameNode}
           <StatusIcon participate={participant.participate} />
         </div>
-        {participant.reason?.trim() && (
-          <p className="mt-1 text-xs italic text-base-content/70">
-            {participant.reason}
-          </p>
-        )}
+        {participant.reason?.trim() && <p className="mt-1 text-xs italic text-base-content/70">{participant.reason}</p>}
       </div>
     </div>
   );
@@ -241,7 +227,9 @@ export function ParticipantOverview({ participantsByInstrument, getEntityHref }:
           onClick={() => setGroupMode("instrument")}
           className={`filter-bubble ${groupMode === "instrument" ? "filter-bubble-performance selected" : "filter-bubble-performance"}`}
         >
-          {t("js.participants.instrument") !== "js.participants.instrument" ? t("js.participants.instrument") : "Instrument"}
+          {t("js.participants.instrument") !== "js.participants.instrument"
+            ? t("js.participants.instrument")
+            : "Instrument"}
         </button>
         {hasSectionData ? (
           <button
@@ -249,7 +237,9 @@ export function ParticipantOverview({ participantsByInstrument, getEntityHref }:
             onClick={() => setGroupMode("section")}
             className={`filter-bubble ${groupMode === "section" ? "filter-bubble-performance selected" : "filter-bubble-performance"}`}
           >
-            {t("js.event.share.sectionFallback") !== "js.event.share.sectionFallback" ? t("js.event.share.sectionFallback") : "Section"}
+            {t("js.event.share.sectionFallback") !== "js.event.share.sectionFallback"
+              ? t("js.event.share.sectionFallback")
+              : "Section"}
           </button>
         ) : null}
       </div>
@@ -300,11 +290,7 @@ export function ParticipantOverview({ participantsByInstrument, getEntityHref }:
               )}
               <div className="divide-y divide-base-300/60 bg-transparent md:space-y-2 md:divide-y-0 md:border-0 md:bg-transparent">
                 {group.participants?.map((p) => (
-                  <ParticipantRow
-                    key={`${p.id}-${p.userId ?? p.name}`}
-                    participant={p}
-                    getEntityHref={getEntityHref}
-                  />
+                  <ParticipantRow key={`${p.id}-${p.userId ?? p.name}`} participant={p} getEntityHref={getEntityHref} />
                 ))}
               </div>
             </div>

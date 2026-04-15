@@ -34,7 +34,9 @@ export function DeveloperSurfacesGuard({ children }: { children: React.ReactNode
 
   if (allowed === false) {
     return (
-      <div className="flex min-h-[30vh] items-center justify-center px-4 text-sm text-base-content/60">Redirecting…</div>
+      <div className="flex min-h-[30vh] items-center justify-center px-4 text-sm text-base-content/60">
+        Redirecting…
+      </div>
     );
   }
   if (allowed !== true) {

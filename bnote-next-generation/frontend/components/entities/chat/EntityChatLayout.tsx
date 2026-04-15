@@ -45,12 +45,7 @@ export interface EntityChatLayoutProps {
   children: React.ReactNode;
 }
 
-export function EntityChatLayout({
-  entityType,
-  entityId,
-  currentUserId,
-  children,
-}: EntityChatLayoutProps) {
+export function EntityChatLayout({ entityType, entityId, currentUserId, children }: EntityChatLayoutProps) {
   const { t } = useI18n();
   const searchParams = useSearchParams();
   const emailInfoMode = searchParams?.get("emailInfo") === "1";
@@ -102,16 +97,8 @@ export function EntityChatLayout({
   const commentsSection = discussionOn === true && (
     <>
       <div id="entity-discussion-comments" ref={commentsAnchorRef} className="scroll-mt-4" />
-      <h2 className="text-lg font-semibold text-base-content mb-2 px-0 md:px-6">
-        {commentsTitle}
-      </h2>
-      <EventChatPanel
-        otype={otype!}
-        oid={entityId}
-        currentUserId={currentUserId}
-        discussionOn={true}
-        hideTitle
-      />
+      <h2 className="text-lg font-semibold text-base-content mb-2 px-0 md:px-6">{commentsTitle}</h2>
+      <EventChatPanel otype={otype!} oid={entityId} currentUserId={currentUserId} discussionOn={true} hideTitle />
     </>
   );
 
@@ -135,30 +122,26 @@ export function EntityChatLayout({
       <section aria-label={commentsTitle}>{commentsSection}</section>
     ) : (
       <section aria-label={commentsTitle}>
-        <div className="rounded-xl border border-base-300 shadow-sm bg-base-200 py-4 md:py-6">
-          {commentsSection}
-        </div>
+        <div className="rounded-xl border border-base-300 shadow-sm bg-base-200 py-4 md:py-6">{commentsSection}</div>
       </section>
     ));
 
   const canInject =
-    commentsCard &&
-    React.isValidElement(children) &&
-    (children.type as React.ComponentType) !== React.Suspense;
+    commentsCard && React.isValidElement(children) && (children.type as React.ComponentType) !== React.Suspense;
 
   return (
     <div className="flex flex-col min-h-0 flex-1 w-full max-w-none md:max-w-7xl md:mx-auto">
       <div className="min-w-0">
-        {canInject
-          ? React.cloneElement(children as React.ReactElement<{ renderAfterContent?: React.ReactNode }>, {
-              renderAfterContent: commentsCard,
-            })
-          : (
-            <>
-              {children}
-              {commentsCard}
-            </>
-          )}
+        {canInject ? (
+          React.cloneElement(children as React.ReactElement<{ renderAfterContent?: React.ReactNode }>, {
+            renderAfterContent: commentsCard,
+          })
+        ) : (
+          <>
+            {children}
+            {commentsCard}
+          </>
+        )}
       </div>
     </div>
   );

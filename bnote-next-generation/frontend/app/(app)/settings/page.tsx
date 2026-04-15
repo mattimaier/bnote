@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useI18n } from "@/contexts/I18nContext";
 import { useToast } from "@/contexts/ToastContext";
-import { kontaktdatenApi } from "@/lib/kontaktdaten-api";
+import { profileApi } from "@/lib/profile-api";
 import { AppPageHeader } from "@/components/AppPageHeader";
 import { DetailSection } from "@/components/DetailSection";
 import { Spinner } from "@/components/Spinner";
@@ -21,7 +21,7 @@ export default function SettingsPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const prefs = await kontaktdatenApi.getUserPreferences();
+      const prefs = await profileApi.getUserPreferences();
       setEmailNotification(Boolean(prefs?.email_notification));
     } catch (err) {
       showToast(getErrorMessage(err, t, "js.settings.loadError"), "error");
@@ -38,7 +38,7 @@ export default function SettingsPage() {
   async function persist(next: boolean) {
     setSaving(true);
     try {
-      await kontaktdatenApi.updateUserPreferences({ email_notification: next });
+      await profileApi.updateUserPreferences({ email_notification: next });
       setEmailNotification(next);
       showToast(label("js.settings.saved", "Saved"), "success");
     } catch (err) {
@@ -59,10 +59,7 @@ export default function SettingsPage() {
 
   return (
     <div className={PAGE_CONTENT_CLASS}>
-      <AppPageHeader
-        moduleKey="settings"
-        title={label("js.settings.title", "Preferences")}
-      />
+      <AppPageHeader moduleKey="settings" title={label("js.settings.title", "Preferences")} />
       <DetailSection className="space-y-4">
         <div>
           <span className="text-xs font-medium text-base-content/60">
@@ -82,13 +79,19 @@ export default function SettingsPage() {
                 {label("js.settings.emailNotificationsLabel", "Email me about activity")}
               </span>
               <span className="text-sm text-base-content/70 block leading-snug">
-                {label("js.settings.emailNotificationsHelp", "Task updates, discussion messages, and similar notices. You can turn this off anytime.")}
+                {label(
+                  "js.settings.emailNotificationsHelp",
+                  "Task updates, discussion messages, and similar notices. You can turn this off anytime."
+                )}
               </span>
             </span>
           </label>
         </div>
         <p className="text-xs text-base-content/50 leading-relaxed">
-          {label("js.settings.footerNote", "Account emails (sign-up, password reset, activation) may still be sent when required.")}
+          {label(
+            "js.settings.footerNote",
+            "Account emails (sign-up, password reset, activation) may still be sent when required."
+          )}
         </p>
       </DetailSection>
     </div>

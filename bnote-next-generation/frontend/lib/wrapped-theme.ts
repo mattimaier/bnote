@@ -17,10 +17,10 @@ function getYearPalette(year: number) {
   const concertHue = (year * 199 + 73) % 360;
   const rehearsalStrength = 62 + ((year * 17) % 17); // 62..78
   const concertStrength = 60 + ((year * 29) % 19); // 60..78
-  const rehearsalL = (0.74 + (((year * 31) % 9) / 100)).toFixed(2); // 0.74..0.82
-  const concertL = (0.73 + (((year * 37) % 9) / 100)).toFixed(2); // 0.73..0.81
-  const rehearsalC = (0.14 + (((year * 41) % 7) / 100)).toFixed(2); // 0.14..0.20
-  const concertC = (0.13 + (((year * 43) % 8) / 100)).toFixed(2); // 0.13..0.20
+  const rehearsalL = (0.74 + ((year * 31) % 9) / 100).toFixed(2); // 0.74..0.82
+  const concertL = (0.73 + ((year * 37) % 9) / 100).toFixed(2); // 0.73..0.81
+  const rehearsalC = (0.14 + ((year * 41) % 7) / 100).toFixed(2); // 0.14..0.20
+  const concertC = (0.13 + ((year * 43) % 8) / 100).toFixed(2); // 0.13..0.20
 
   return {
     rehearsalAnchor: `oklch(${rehearsalL} ${rehearsalC} ${rehearsalHue})`,

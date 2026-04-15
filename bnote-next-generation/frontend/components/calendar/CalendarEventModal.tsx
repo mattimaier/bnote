@@ -95,10 +95,7 @@ export function CalendarEventModal({
           {Object.keys(details).length > 0 && (
             <dl className="space-y-2 text-sm">
               {Object.entries(details)
-                .filter(
-                  ([key]) =>
-                    !/abst\.?end|end_vote|Abst\.?End/i.test(key)
-                )
+                .filter(([key]) => !/abst\.?end|end_vote|Abst\.?End/i.test(key))
                 .map(([key, value]) => (
                   <div key={key} className="flex gap-2">
                     <dt className="text-base-content/60 shrink-0">{key}:</dt>
@@ -109,14 +106,8 @@ export function CalendarEventModal({
           )}
 
           <div className="flex flex-wrap gap-2">
-            <Link
-              href={link}
-              className="btn btn-primary btn-sm"
-              onClick={onClose}
-            >
-              {t("js.common.details") !== "js.common.details"
-                ? t("js.common.details")
-                : "Details"}
+            <Link href={link} className="btn btn-primary btn-sm" onClick={onClose}>
+              {t("js.common.details") !== "js.common.details" ? t("js.common.details") : "Details"}
             </Link>
             {isCalendarNative && (
               <>

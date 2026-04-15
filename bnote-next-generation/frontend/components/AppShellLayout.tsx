@@ -34,11 +34,7 @@ function isPublicPath(pathname: string | null): boolean {
   return PUBLIC_PATHS.some((pub) => p === pub || p.startsWith(`${pub}/`));
 }
 
-export default function AppShellLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function AppShellLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const publicRoute = isPublicPath(pathname ?? null);
 

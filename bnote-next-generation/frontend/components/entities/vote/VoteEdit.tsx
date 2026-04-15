@@ -67,9 +67,7 @@ export function VoteEdit() {
         setIsDate(v.is_date ?? false);
         setIsMulti(v.is_multi ?? false);
       })
-      .catch((err) =>
-        setError(getErrorMessage(err, t, "js.common.failedToLoad"))
-      )
+      .catch((err) => setError(getErrorMessage(err, t, "js.common.failedToLoad")))
       .finally(() => setLoading(false));
   }, [id, isNew]);
 
@@ -105,16 +103,16 @@ export function VoteEdit() {
 
   useEffect(() => {
     if (!ready || !isNew) return;
-    contactsApi.getGroups().then(setGroups).catch(() => setGroups([]));
+    contactsApi
+      .getGroups()
+      .then(setGroups)
+      .catch(() => setGroups([]));
   }, [ready, isNew]);
 
   const addPendingOption = () => {
     if (isDate) {
       if (!newOptionDate.trim()) return;
-      setPendingOptions((prev) => [
-        ...prev,
-        { id: crypto.randomUUID(), odate: newOptionDate.trim() + "T00:00:00" },
-      ]);
+      setPendingOptions((prev) => [...prev, { id: crypto.randomUUID(), odate: newOptionDate.trim() + "T00:00:00" }]);
       setNewOptionDate("");
     } else {
       if (!newOptionName.trim()) return;
@@ -176,12 +174,7 @@ export function VoteEdit() {
             await votesApi.addOption(res.id, { name: opt.name });
           }
         }
-        showToast(
-          t("js.votes.created") !== "js.votes.created"
-            ? t("js.votes.created")
-            : "Vote created",
-          "success"
-        );
+        showToast(t("js.votes.created") !== "js.votes.created" ? t("js.votes.created") : "Vote created", "success");
         router.replace(getEntityPath("vote", res.id, "view"));
       } else {
         const voteId = parseInt(id, 10);
@@ -190,12 +183,7 @@ export function VoteEdit() {
         if (canEditVote) {
           await votesApi.setVoters(voteId, voterUserIds);
         }
-        showToast(
-          t("js.common.saved") !== "js.common.saved"
-            ? t("js.common.saved")
-            : "Saved",
-          "success"
-        );
+        showToast(t("js.common.saved") !== "js.common.saved" ? t("js.common.saved") : "Saved", "success");
         router.replace(getEntityPath("vote", id, "view"));
       }
     } catch (err) {
@@ -222,13 +210,13 @@ export function VoteEdit() {
       loadVote();
     } catch (err) {
       showToast(
-          err instanceof Error
-            ? err.message
-            : t("js.votes.addOptionFailed") !== "js.votes.addOptionFailed"
-              ? t("js.votes.addOptionFailed")
-              : "Add option failed",
-          "error"
-        );
+        err instanceof Error
+          ? err.message
+          : t("js.votes.addOptionFailed") !== "js.votes.addOptionFailed"
+            ? t("js.votes.addOptionFailed")
+            : "Add option failed",
+        "error"
+      );
     }
   };
 
@@ -241,13 +229,13 @@ export function VoteEdit() {
       loadVote();
     } catch (err) {
       showToast(
-          err instanceof Error
-            ? err.message
-            : t("js.votes.addOptionFailed") !== "js.votes.addOptionFailed"
-              ? t("js.votes.addOptionFailed")
-              : "Add option failed",
-          "error"
-        );
+        err instanceof Error
+          ? err.message
+          : t("js.votes.addOptionFailed") !== "js.votes.addOptionFailed"
+            ? t("js.votes.addOptionFailed")
+            : "Add option failed",
+        "error"
+      );
     }
   };
 
@@ -257,13 +245,13 @@ export function VoteEdit() {
       loadVote();
     } catch (err) {
       showToast(
-          err instanceof Error
-            ? err.message
-            : t("js.votes.removeFailed") !== "js.votes.removeFailed"
-              ? t("js.votes.removeFailed")
-              : "Remove failed",
-          "error"
-        );
+        err instanceof Error
+          ? err.message
+          : t("js.votes.removeFailed") !== "js.votes.removeFailed"
+            ? t("js.votes.removeFailed")
+            : "Remove failed",
+        "error"
+      );
     }
   };
 
@@ -317,7 +305,9 @@ export function VoteEdit() {
   }
 
   const pageTitle = isNew
-    ? (t("js.votes.addVote") !== "js.votes.addVote" ? t("js.votes.addVote") : "Add Vote")
+    ? t("js.votes.addVote") !== "js.votes.addVote"
+      ? t("js.votes.addVote")
+      : "Add Vote"
     : (item?.name ?? (t("js.common.edit") !== "js.common.edit" ? t("js.common.edit") : "Edit"));
   const pageSubtitle = t("js.votes.subtitle") !== "js.votes.subtitle" ? t("js.votes.subtitle") : "Polls and voting";
   const canEditVote = isNew || Boolean(item?.can_edit ?? item?.is_author);
@@ -344,9 +334,7 @@ export function VoteEdit() {
       </div>
       <form id="vote-edit-form" onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div className="rounded-box border border-error bg-error/15 px-4 py-3 text-sm text-error">
-            {error}
-          </div>
+          <div className="rounded-box border border-error bg-error/15 px-4 py-3 text-sm text-error">{error}</div>
         )}
 
         <div className="rounded-none border-0 shadow-none p-4 md:rounded-box md:border md:border-base-300 md:shadow-sm md:p-6 bg-base-100 md:bg-base-100 text-base-content">
@@ -416,8 +404,12 @@ export function VoteEdit() {
                     }
                     return `${count} selected`;
                   }}
-                  labelNoSelection={t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "No selection"}
-                  labelNoMatches={t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"}
+                  labelNoSelection={
+                    t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "No selection"
+                  }
+                  labelNoMatches={
+                    t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"
+                  }
                   labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close"}
                   labelRemove={t("js.common.remove") !== "js.common.remove" ? t("js.common.remove") : "Remove"}
                 />
@@ -441,11 +433,7 @@ export function VoteEdit() {
               {isNew
                 ? pendingOptions.map((opt) => (
                     <li key={opt.id} className="list-group-item flex items-center justify-between gap-2 py-2">
-                      <span>
-                        {opt.odate
-                          ? formatDateShortDisplay(opt.odate, lang)
-                          : (opt.name ?? emptyText)}
-                      </span>
+                      <span>{opt.odate ? formatDateShortDisplay(opt.odate, lang) : (opt.name ?? emptyText)}</span>
                       <RemoveOptionButton
                         onClick={() => removePendingOption(opt.id)}
                         ariaLabel={t("js.common.remove") !== "js.common.remove" ? t("js.common.remove") : "Remove"}
@@ -473,10 +461,7 @@ export function VoteEdit() {
                       setNewOptionDate(val);
                       if (val) {
                         if (isNew) {
-                          setPendingOptions((prev) => [
-                            ...prev,
-                            { id: crypto.randomUUID(), odate: val + "T00:00:00" },
-                          ]);
+                          setPendingOptions((prev) => [...prev, { id: crypto.randomUUID(), odate: val + "T00:00:00" }]);
                           setNewOptionDate("");
                         } else {
                           handleAddOptionForDate(val);
@@ -503,7 +488,9 @@ export function VoteEdit() {
                           }
                         }
                       }}
-                      placeholder={t("js.votes.optionName") !== "js.votes.optionName" ? t("js.votes.optionName") : "Option"}
+                      placeholder={
+                        t("js.votes.optionName") !== "js.votes.optionName" ? t("js.votes.optionName") : "Option"
+                      }
                       className="input input-sm join-item flex-1 text-base-content"
                     />
                     <button
@@ -539,8 +526,12 @@ export function VoteEdit() {
                   showChips={false}
                   labelSelect={t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Select…"}
                   labelSelectedCount={selectedCountLabel}
-                  labelNoSelection={t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "No selection"}
-                  labelNoMatches={t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"}
+                  labelNoSelection={
+                    t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "No selection"
+                  }
+                  labelNoMatches={
+                    t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"
+                  }
                   labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close"}
                   labelRemove={t("js.common.remove") !== "js.common.remove" ? t("js.common.remove") : "Remove"}
                 />

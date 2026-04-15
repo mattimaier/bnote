@@ -92,11 +92,7 @@ export function MobileNavDrawer({ open, onClose }: MobileNavDrawerProps) {
       aria-label={t("js.common.menu") !== "js.common.menu" ? t("js.common.menu") : "Menu"}
     >
       {/* Backdrop — keep below the panel so taps hit the sheet first */}
-      <div
-        className="fixed inset-0 z-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
-        aria-hidden
-      />
+      <div className="fixed inset-0 z-0 bg-black/50 backdrop-blur-sm" onClick={onClose} aria-hidden />
       {/* Panel: full-screen on mobile */}
       <div className="fixed inset-0 z-[1] flex flex-col bg-base-100 text-base-content">
         <div className="grid h-16 shrink-0 grid-cols-[minmax(0,1fr)_auto] items-stretch gap-2 border-b border-base-300 px-3">
@@ -105,11 +101,7 @@ export function MobileNavDrawer({ open, onClose }: MobileNavDrawerProps) {
             prefetch={false}
             onClick={onClose}
             className="flex h-full min-h-0 w-full min-w-0 items-center gap-3 rounded-box px-3 py-2.5 transition-colors duration-200 hover:bg-base-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-            aria-label={
-              t("js.sidebar.dashboard") !== "js.sidebar.dashboard"
-                ? t("js.sidebar.dashboard")
-                : "Dashboard"
-            }
+            aria-label={t("js.sidebar.dashboard") !== "js.sidebar.dashboard" ? t("js.sidebar.dashboard") : "Dashboard"}
           >
             <BNoteLogo size="sm" />
             <span className="font-semibold text-sm">BNote</span>

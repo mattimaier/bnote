@@ -80,50 +80,43 @@ export function DashboardTile({
       <div className="stat py-3 px-3 md:py-5 md:px-5">
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2 flex-1 min-w-0">
-            {icon && (() => {
-              const IconComponent = getIcon(icon);
-              return (
-                <div
-                  className={`stat-figure shrink-0 ${iconClass} hidden sm:block`}
-                  aria-hidden
-                >
-                  <IconComponent className="h-6 w-6" />
-                </div>
-              );
-            })()}
+            {icon &&
+              (() => {
+                const IconComponent = getIcon(icon);
+                return (
+                  <div className={`stat-figure shrink-0 ${iconClass} hidden sm:block`} aria-hidden>
+                    <IconComponent className="h-6 w-6" />
+                  </div>
+                );
+              })()}
             <div className="stat-title text-sm md:text-base truncate">
               {title}
-              {showBadge && (
-                <span className={`badge badge-sm ml-2 ${badgeClass}`}>
-                  {count}
-                </span>
-              )}
+              {showBadge && <span className={`badge badge-sm ml-2 ${badgeClass}`}>{count}</span>}
             </div>
           </div>
           {headerExtra}
-          {dragHandleProps && (() => {
-            const GripIcon = getIcon("grip-vertical");
-            return (
-              <button
-                type="button"
-                className="btn btn-soft btn-xs btn-square shrink-0 cursor-grab active:cursor-grabbing"
-                aria-label={t("js.common.dragToReorder")}
-                {...dragHandleProps}
-              >
-                <GripIcon className="h-4 w-4" />
-              </button>
-            );
-          })()}
+          {dragHandleProps &&
+            (() => {
+              const GripIcon = getIcon("grip-vertical");
+              return (
+                <button
+                  type="button"
+                  className="btn btn-soft btn-xs btn-square shrink-0 cursor-grab active:cursor-grabbing"
+                  aria-label={t("js.common.dragToReorder")}
+                  {...dragHandleProps}
+                >
+                  <GripIcon className="h-4 w-4" />
+                </button>
+              );
+            })()}
         </div>
         {statValue !== undefined && statValue !== null && (
-          <div className="stat-value text-2xl md:text-3xl mt-1">
-            {statValue}
-          </div>
+          <div className="stat-value text-2xl md:text-3xl mt-1">{statValue}</div>
         )}
-        {statDesc && (
-          <div className="stat-desc text-xs hidden md:block">{statDesc}</div>
+        {statDesc && <div className="stat-desc text-xs hidden md:block">{statDesc}</div>}
+        {children && (
+          <div className="mt-3 text-sm space-y-1.5 max-h-36 overflow-y-auto overscroll-contain">{children}</div>
         )}
-        {children && <div className="mt-3 text-sm space-y-1.5 max-h-36 overflow-y-auto overscroll-contain">{children}</div>}
         {href && (
           <div className="stat-actions mt-2">
             <Link href={href} className="btn btn-sm btn-soft btn-primary">

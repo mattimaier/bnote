@@ -74,7 +74,9 @@ function uniqueEmails(values: string[]): string[] {
 }
 
 function uniqueIds(values: number[]): number[] {
-  return Array.from(new Set(values.map((value) => Number(value)).filter((value) => Number.isInteger(value) && value > 0)));
+  return Array.from(
+    new Set(values.map((value) => Number(value)).filter((value) => Number.isInteger(value) && value > 0))
+  );
 }
 
 export function EventInfoEmailComposerModal({
@@ -143,9 +145,11 @@ export function EventInfoEmailComposerModal({
   const selectedParticipantsCount = selectedRecipientIds.length;
   const selectedContactsCount = selectedAdditionalContactIds.length;
   const selectedManualCount = validManualEmails.length;
-  const totalRecipientsCount = selectedRecipientIds.length + selectedAdditionalContactIds.length + validManualEmails.length;
+  const totalRecipientsCount =
+    selectedRecipientIds.length + selectedAdditionalContactIds.length + validManualEmails.length;
   const bodyEmpty = !body.trim() || isEmptyEditorJson(body);
-  const sendDisabled = sending || subject.trim().length === 0 || bodyEmpty || totalRecipientsCount < 1 || invalidManualCount > 0;
+  const sendDisabled =
+    sending || subject.trim().length === 0 || bodyEmpty || totalRecipientsCount < 1 || invalidManualCount > 0;
 
   const labelSelectRecipients =
     t("js.event.emailInfo.selectRecipients") !== "js.event.emailInfo.selectRecipients"
@@ -153,15 +157,16 @@ export function EventInfoEmailComposerModal({
       : "Select recipients";
   const labelNoMatches = t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches";
   const labelClose = t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close";
-  const labelNoSelection = t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "No selection";
+  const labelNoSelection =
+    t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "No selection";
   const labelRemove = t("js.common.remove") !== "js.common.remove" ? t("js.common.remove") : "Remove";
   const labelSearch = t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search...";
   const customHintPlaceholder =
     t("mail.eventInfo.defaultCustomTextHint") !== "mail.eventInfo.defaultCustomTextHint"
       ? t("mail.eventInfo.defaultCustomTextHint")
-      : (t("js.event.emailInfo.messagePlaceholder") !== "js.event.emailInfo.messagePlaceholder"
-          ? t("js.event.emailInfo.messagePlaceholder")
-          : "Type or paste content...");
+      : t("js.event.emailInfo.messagePlaceholder") !== "js.event.emailInfo.messagePlaceholder"
+        ? t("js.event.emailInfo.messagePlaceholder")
+        : "Type or paste content...";
   const active = embedded || open;
 
   useEffect(() => {
@@ -240,7 +245,19 @@ export function EventInfoEmailComposerModal({
     return () => {
       window.clearTimeout(timer);
     };
-  }, [active, tab, eventId, locale, module, selectedRecipientIds, selectedAdditionalContactIds, validManualEmails, subject, body, t]);
+  }, [
+    active,
+    tab,
+    eventId,
+    locale,
+    module,
+    selectedRecipientIds,
+    selectedAdditionalContactIds,
+    validManualEmails,
+    subject,
+    body,
+    t,
+  ]);
 
   useEffect(() => {
     if (declinedSelectableIds.length < 1) return;
@@ -274,7 +291,8 @@ export function EventInfoEmailComposerModal({
         subject,
         body,
       });
-      const sentLabel = t("js.event.emailInfo.sent") !== "js.event.emailInfo.sent" ? t("js.event.emailInfo.sent") : "Email sent";
+      const sentLabel =
+        t("js.event.emailInfo.sent") !== "js.event.emailInfo.sent" ? t("js.event.emailInfo.sent") : "Email sent";
       const skippedSuffix =
         res.skipped > 0
           ? ` (${res.sent} ${t("js.event.emailInfo.sentCount") !== "js.event.emailInfo.sentCount" ? t("js.event.emailInfo.sentCount") : "sent"}, ${res.skipped} ${t("js.event.emailInfo.skippedCount") !== "js.event.emailInfo.skippedCount" ? t("js.event.emailInfo.skippedCount") : "skipped"})`
@@ -282,7 +300,10 @@ export function EventInfoEmailComposerModal({
       showToast(`${sentLabel}${skippedSuffix}`, "success");
       onClose();
     } catch (error) {
-      const fallback = t("js.event.emailInfo.sendFailed") !== "js.event.emailInfo.sendFailed" ? t("js.event.emailInfo.sendFailed") : "Failed to send email";
+      const fallback =
+        t("js.event.emailInfo.sendFailed") !== "js.event.emailInfo.sendFailed"
+          ? t("js.event.emailInfo.sendFailed")
+          : "Failed to send email";
       showToast(error instanceof Error && error.message ? error.message : fallback, "error");
     } finally {
       setSending(false);
@@ -290,289 +311,326 @@ export function EventInfoEmailComposerModal({
   };
 
   const content = (
-      <div className={`flex flex-col ${embedded ? "h-[100dvh]" : "max-h-[88dvh]"}`}>
-        <div className="border-b border-base-300 px-4 pt-3">
-          <div className="mb-3 rounded-lg border border-base-300 bg-base-200/40 p-3">
-            <EventEntityHeader
-              title={title}
-              iconName={eventIconName ?? "calendar"}
-              iconColor={module === "rehearsals" ? "var(--color-primary)" : "var(--color-accent)"}
-              badgeLabel={eventBadgeLabel ?? ""}
-              badgeClassName={eventBadgeClassName ?? ""}
-              dateTimeLine={eventMetaLine ?? ""}
-              locationLine={eventLocation ?? undefined}
-            />
-          </div>
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-lg font-semibold text-base-content">
-              {t("js.event.emailInfo.modalTitle") !== "js.event.emailInfo.modalTitle" ? t("js.event.emailInfo.modalTitle") : "Send event info"}
-            </h2>
-            <div className="flex items-center gap-2">
-              <button type="button" className="btn btn-primary" onClick={() => void sendEmail()} disabled={sendDisabled}>
-                {sending
-                  ? t("js.event.emailInfo.sending") !== "js.event.emailInfo.sending"
-                    ? t("js.event.emailInfo.sending")
-                    : "Sending..."
-                  : t("js.event.emailInfo.sendNow") !== "js.event.emailInfo.sendNow"
-                    ? t("js.event.emailInfo.sendNow")
-                    : "Send email"}
-              </button>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              className={`btn ${tab === "compose" ? "btn-soft btn-primary" : "btn-soft"}`}
-              onClick={() => setTab("compose")}
-            >
-              {t("js.event.emailInfo.tabCompose") !== "js.event.emailInfo.tabCompose" ? t("js.event.emailInfo.tabCompose") : "Compose"}
-            </button>
-            <button
-              type="button"
-              className={`btn ${tab === "preview" ? "btn-soft btn-primary" : "btn-soft"}`}
-              onClick={() => setTab("preview")}
-            >
-              {t("js.event.emailInfo.tabPreview") !== "js.event.emailInfo.tabPreview" ? t("js.event.emailInfo.tabPreview") : "Preview"}
-            </button>
-          </div>
-          <div className="pb-3" />
+    <div className={`flex flex-col ${embedded ? "h-[100dvh]" : "max-h-[88dvh]"}`}>
+      <div className="border-b border-base-300 px-4 pt-3">
+        <div className="mb-3 rounded-lg border border-base-300 bg-base-200/40 p-3">
+          <EventEntityHeader
+            title={title}
+            iconName={eventIconName ?? "calendar"}
+            iconColor={module === "rehearsals" ? "var(--color-primary)" : "var(--color-accent)"}
+            badgeLabel={eventBadgeLabel ?? ""}
+            badgeClassName={eventBadgeClassName ?? ""}
+            dateTimeLine={eventMetaLine ?? ""}
+            locationLine={eventLocation ?? undefined}
+          />
         </div>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-lg font-semibold text-base-content">
+            {t("js.event.emailInfo.modalTitle") !== "js.event.emailInfo.modalTitle"
+              ? t("js.event.emailInfo.modalTitle")
+              : "Send event info"}
+          </h2>
+          <div className="flex items-center gap-2">
+            <button type="button" className="btn btn-primary" onClick={() => void sendEmail()} disabled={sendDisabled}>
+              {sending
+                ? t("js.event.emailInfo.sending") !== "js.event.emailInfo.sending"
+                  ? t("js.event.emailInfo.sending")
+                  : "Sending..."
+                : t("js.event.emailInfo.sendNow") !== "js.event.emailInfo.sendNow"
+                  ? t("js.event.emailInfo.sendNow")
+                  : "Send email"}
+            </button>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            className={`btn ${tab === "compose" ? "btn-soft btn-primary" : "btn-soft"}`}
+            onClick={() => setTab("compose")}
+          >
+            {t("js.event.emailInfo.tabCompose") !== "js.event.emailInfo.tabCompose"
+              ? t("js.event.emailInfo.tabCompose")
+              : "Compose"}
+          </button>
+          <button
+            type="button"
+            className={`btn ${tab === "preview" ? "btn-soft btn-primary" : "btn-soft"}`}
+            onClick={() => setTab("preview")}
+          >
+            {t("js.event.emailInfo.tabPreview") !== "js.event.emailInfo.tabPreview"
+              ? t("js.event.emailInfo.tabPreview")
+              : "Preview"}
+          </button>
+        </div>
+        <div className="pb-3" />
+      </div>
 
-        <div className="flex-1 overflow-y-auto p-4">
-          {loadingDraft ? (
-            <div className="flex items-center justify-center py-10">
-              <Spinner />
-            </div>
-          ) : draftError ? (
-            <div className="rounded-lg border border-error bg-error/15 px-3 py-2 text-sm text-error">{draftError}</div>
-          ) : tab === "compose" ? (
-            <div className="space-y-4">
-              <section className="space-y-3 rounded-lg border border-base-300 bg-base-200/30 p-3">
-                <h3 className="text-sm font-semibold text-base-content">
-                  {t("js.event.emailInfo.recipients") !== "js.event.emailInfo.recipients" ? t("js.event.emailInfo.recipients") : "Recipients"}
-                </h3>
-                <div className="flex flex-wrap items-center gap-2 text-xs text-base-content/70">
-                  <span className="rounded-full bg-base-100 px-2 py-0.5">
-                    {(t("js.event.emailInfo.recipients") !== "js.event.emailInfo.recipients" ? t("js.event.emailInfo.recipients") : "Recipients") +
-                      `: ${selectedParticipantsCount}`}
-                  </span>
-                  <span className="rounded-full bg-base-100 px-2 py-0.5">
-                    {(t("js.event.emailInfo.additionalContacts") !== "js.event.emailInfo.additionalContacts"
-                      ? t("js.event.emailInfo.additionalContacts")
-                      : "Additional contacts") + `: ${selectedContactsCount}`}
-                  </span>
-                  <span className="rounded-full bg-base-100 px-2 py-0.5">
-                    {(t("js.event.emailInfo.extraEmails") !== "js.event.emailInfo.extraEmails" ? t("js.event.emailInfo.extraEmails") : "Extra emails") +
-                      `: ${selectedManualCount}`}
-                  </span>
-                  <span className="rounded-full bg-base-100 px-2 py-0.5 font-medium">
-                    {(
-                      t("js.event.emailInfo.recipientCount") !== "js.event.emailInfo.recipientCount"
-                        ? t("js.event.emailInfo.recipientCount")
-                        : "{count} recipients selected"
-                    ).replace("{count}", String(totalRecipientsCount))}
-                  </span>
-                </div>
-                <label
-                  className={`inline-flex items-center gap-2 pt-1 text-sm ${
-                    declinedSelectableIds.length > 0 ? "text-base-content" : "text-base-content/50"
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    className={CHECKBOX_ROW_INPUT_CLASS}
-                    checked={includeDeclinedRecipients}
-                    disabled={declinedSelectableIds.length < 1}
-                    onChange={(event) => setIncludeDeclinedRecipients(event.target.checked)}
-                  />
-                  <span>
-                    {t("js.event.emailInfo.includeDeclined") !== "js.event.emailInfo.includeDeclined"
-                      ? t("js.event.emailInfo.includeDeclined")
-                      : "Include declined contacts"}
-                  </span>
+      <div className="flex-1 overflow-y-auto p-4">
+        {loadingDraft ? (
+          <div className="flex items-center justify-center py-10">
+            <Spinner />
+          </div>
+        ) : draftError ? (
+          <div className="rounded-lg border border-error bg-error/15 px-3 py-2 text-sm text-error">{draftError}</div>
+        ) : tab === "compose" ? (
+          <div className="space-y-4">
+            <section className="space-y-3 rounded-lg border border-base-300 bg-base-200/30 p-3">
+              <h3 className="text-sm font-semibold text-base-content">
+                {t("js.event.emailInfo.recipients") !== "js.event.emailInfo.recipients"
+                  ? t("js.event.emailInfo.recipients")
+                  : "Recipients"}
+              </h3>
+              <div className="flex flex-wrap items-center gap-2 text-xs text-base-content/70">
+                <span className="rounded-full bg-base-100 px-2 py-0.5">
+                  {(t("js.event.emailInfo.recipients") !== "js.event.emailInfo.recipients"
+                    ? t("js.event.emailInfo.recipients")
+                    : "Recipients") + `: ${selectedParticipantsCount}`}
+                </span>
+                <span className="rounded-full bg-base-100 px-2 py-0.5">
+                  {(t("js.event.emailInfo.additionalContacts") !== "js.event.emailInfo.additionalContacts"
+                    ? t("js.event.emailInfo.additionalContacts")
+                    : "Additional contacts") + `: ${selectedContactsCount}`}
+                </span>
+                <span className="rounded-full bg-base-100 px-2 py-0.5">
+                  {(t("js.event.emailInfo.extraEmails") !== "js.event.emailInfo.extraEmails"
+                    ? t("js.event.emailInfo.extraEmails")
+                    : "Extra emails") + `: ${selectedManualCount}`}
+                </span>
+                <span className="rounded-full bg-base-100 px-2 py-0.5 font-medium">
+                  {(t("js.event.emailInfo.recipientCount") !== "js.event.emailInfo.recipientCount"
+                    ? t("js.event.emailInfo.recipientCount")
+                    : "{count} recipients selected"
+                  ).replace("{count}", String(totalRecipientsCount))}
+                </span>
+              </div>
+              <label
+                className={`inline-flex items-center gap-2 pt-1 text-sm ${
+                  declinedSelectableIds.length > 0 ? "text-base-content" : "text-base-content/50"
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  className={CHECKBOX_ROW_INPUT_CLASS}
+                  checked={includeDeclinedRecipients}
+                  disabled={declinedSelectableIds.length < 1}
+                  onChange={(event) => setIncludeDeclinedRecipients(event.target.checked)}
+                />
+                <span>
+                  {t("js.event.emailInfo.includeDeclined") !== "js.event.emailInfo.includeDeclined"
+                    ? t("js.event.emailInfo.includeDeclined")
+                    : "Include declined contacts"}
+                </span>
+              </label>
+
+              <div>
+                <label className="mb-1 block text-xs font-medium text-base-content/60">
+                  {t("js.event.emailInfo.recipients") !== "js.event.emailInfo.recipients"
+                    ? t("js.event.emailInfo.recipients")
+                    : "Recipients"}
                 </label>
+                <MultiSelect
+                  options={recipientOptions}
+                  selected={selectedRecipientIds}
+                  onChange={setSelectedRecipientIds}
+                  placeholder={labelSearch}
+                  showChips={false}
+                  labelSelect={labelSelectRecipients}
+                  labelNoMatches={labelNoMatches}
+                  labelClose={labelClose}
+                  labelNoSelection={labelNoSelection}
+                  labelRemove={labelRemove}
+                />
+              </div>
 
-                <div>
-                  <label className="mb-1 block text-xs font-medium text-base-content/60">
-                    {t("js.event.emailInfo.recipients") !== "js.event.emailInfo.recipients" ? t("js.event.emailInfo.recipients") : "Recipients"}
-                  </label>
-                  <MultiSelect
-                    options={recipientOptions}
-                    selected={selectedRecipientIds}
-                    onChange={setSelectedRecipientIds}
-                    placeholder={labelSearch}
-                    showChips={false}
-                    labelSelect={labelSelectRecipients}
-                    labelNoMatches={labelNoMatches}
-                    labelClose={labelClose}
-                    labelNoSelection={labelNoSelection}
-                    labelRemove={labelRemove}
-                  />
-                </div>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-base-content/60">
+                  {t("js.event.emailInfo.additionalContacts") !== "js.event.emailInfo.additionalContacts"
+                    ? t("js.event.emailInfo.additionalContacts")
+                    : "Additional contacts"}
+                </label>
+                <MultiSelect
+                  options={additionalContactOptions}
+                  selected={selectedAdditionalContactIds}
+                  onChange={setSelectedAdditionalContactIds}
+                  placeholder={labelSearch}
+                  showChips={false}
+                  labelSelect={
+                    t("js.event.emailInfo.selectAdditionalContacts") !== "js.event.emailInfo.selectAdditionalContacts"
+                      ? t("js.event.emailInfo.selectAdditionalContacts")
+                      : "Select additional contacts"
+                  }
+                  labelNoMatches={labelNoMatches}
+                  labelClose={labelClose}
+                  labelNoSelection={labelNoSelection}
+                  labelRemove={labelRemove}
+                />
+              </div>
 
-                <div>
-                  <label className="mb-1 block text-xs font-medium text-base-content/60">
-                    {t("js.event.emailInfo.additionalContacts") !== "js.event.emailInfo.additionalContacts"
-                      ? t("js.event.emailInfo.additionalContacts")
-                      : "Additional contacts"}
-                  </label>
-                  <MultiSelect
-                    options={additionalContactOptions}
-                    selected={selectedAdditionalContactIds}
-                    onChange={setSelectedAdditionalContactIds}
-                    placeholder={labelSearch}
-                    showChips={false}
-                    labelSelect={
-                      t("js.event.emailInfo.selectAdditionalContacts") !== "js.event.emailInfo.selectAdditionalContacts"
-                        ? t("js.event.emailInfo.selectAdditionalContacts")
-                        : "Select additional contacts"
-                    }
-                    labelNoMatches={labelNoMatches}
-                    labelClose={labelClose}
-                    labelNoSelection={labelNoSelection}
-                    labelRemove={labelRemove}
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-1 block text-xs font-medium text-base-content/60">
-                    {t("js.event.emailInfo.extraEmails") !== "js.event.emailInfo.extraEmails" ? t("js.event.emailInfo.extraEmails") : "Extra emails"}
-                  </label>
-                  <div className="input input-bordered w-full min-h-[3rem] h-auto flex flex-wrap items-center gap-2 py-2">
-                    {manualEmails.map((email) => (
-                      <span
-                        key={email}
-                        className={`inline-flex items-center gap-2 rounded-full border px-2 py-1 text-xs ${
-                          isValidEmail(email) ? "border-base-300" : "border-error text-error"
-                        }`}
+              <div>
+                <label className="mb-1 block text-xs font-medium text-base-content/60">
+                  {t("js.event.emailInfo.extraEmails") !== "js.event.emailInfo.extraEmails"
+                    ? t("js.event.emailInfo.extraEmails")
+                    : "Extra emails"}
+                </label>
+                <div className="input input-bordered w-full min-h-[3rem] h-auto flex flex-wrap items-center gap-2 py-2">
+                  {manualEmails.map((email) => (
+                    <span
+                      key={email}
+                      className={`inline-flex items-center gap-2 rounded-full border px-2 py-1 text-xs ${
+                        isValidEmail(email) ? "border-base-300" : "border-error text-error"
+                      }`}
+                    >
+                      {email}
+                      <button
+                        type="button"
+                        className="inline-flex h-6 w-6 items-center justify-center rounded-md text-base-content/60 transition-colors hover:bg-base-200 hover:text-base-content"
+                        onClick={() => setManualEmails((prev) => prev.filter((value) => value !== email))}
+                        aria-label={labelRemove}
                       >
-                        {email}
-                        <button
-                          type="button"
-                          className="inline-flex h-6 w-6 items-center justify-center rounded-md text-base-content/60 transition-colors hover:bg-base-200 hover:text-base-content"
-                          onClick={() => setManualEmails((prev) => prev.filter((value) => value !== email))}
-                          aria-label={labelRemove}
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      </span>
-                    ))}
-                    <input
-                      type="text"
-                      value={manualEmailInput}
-                      onChange={(event) => setManualEmailInput(event.target.value)}
-                      onBlur={() => addManualEmails(manualEmailInput)}
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter" || event.key === "," || event.key === ";") {
-                          event.preventDefault();
-                          addManualEmails(manualEmailInput);
-                        }
-                      }}
-                      className="flex-1 min-w-[200px] border-0 bg-transparent p-0 text-sm outline-none"
-                      placeholder={
-                        manualEmails.length < 1
-                          ? (t("js.event.emailInfo.extraEmailsPlaceholder") !== "js.event.emailInfo.extraEmailsPlaceholder"
-                              ? t("js.event.emailInfo.extraEmailsPlaceholder")
-                              : "name@example.com, name2@example.com")
-                          : ""
-                      }
-                    />
-                  </div>
-                  {invalidManualCount > 0 && (
-                    <p className="mt-2 text-xs text-error">
-                      {(
-                        t("js.event.emailInfo.invalidEmailCount") !== "js.event.emailInfo.invalidEmailCount"
-                          ? t("js.event.emailInfo.invalidEmailCount")
-                          : "{count} invalid email(s)"
-                      ).replace("{count}", String(invalidManualCount))}
-                    </p>
-                  )}
-                </div>
-              </section>
-
-              <section className="space-y-4 rounded-lg border border-base-300 bg-base-100 p-3">
-                <h3 className="text-sm font-semibold text-base-content">
-                  {t("js.event.emailInfo.message") !== "js.event.emailInfo.message" ? t("js.event.emailInfo.message") : "Message"}
-                </h3>
-                <div>
-                  <label className="mb-1 block text-xs font-medium text-base-content/60">
-                    {t("js.event.emailInfo.subject") !== "js.event.emailInfo.subject" ? t("js.event.emailInfo.subject") : "Subject"}
-                  </label>
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </span>
+                  ))}
                   <input
                     type="text"
-                    value={subject}
-                    onChange={(event) => setSubject(event.target.value)}
-                    className="input input-sm input-bordered w-full"
+                    value={manualEmailInput}
+                    onChange={(event) => setManualEmailInput(event.target.value)}
+                    onBlur={() => addManualEmails(manualEmailInput)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === "," || event.key === ";") {
+                        event.preventDefault();
+                        addManualEmails(manualEmailInput);
+                      }
+                    }}
+                    className="flex-1 min-w-[200px] border-0 bg-transparent p-0 text-sm outline-none"
+                    placeholder={
+                      manualEmails.length < 1
+                        ? t("js.event.emailInfo.extraEmailsPlaceholder") !== "js.event.emailInfo.extraEmailsPlaceholder"
+                          ? t("js.event.emailInfo.extraEmailsPlaceholder")
+                          : "name@example.com, name2@example.com"
+                        : ""
+                    }
                   />
                 </div>
+                {invalidManualCount > 0 && (
+                  <p className="mt-2 text-xs text-error">
+                    {(t("js.event.emailInfo.invalidEmailCount") !== "js.event.emailInfo.invalidEmailCount"
+                      ? t("js.event.emailInfo.invalidEmailCount")
+                      : "{count} invalid email(s)"
+                    ).replace("{count}", String(invalidManualCount))}
+                  </p>
+                )}
+              </div>
+            </section>
 
-                <div>
-                  <label className="mb-1 block text-xs font-medium text-base-content/60">
-                    {t("js.event.emailInfo.message") !== "js.event.emailInfo.message" ? t("js.event.emailInfo.message") : "Message"}
-                  </label>
-                  <NotesEditor
-                    value={body}
-                    onChange={setBody}
-                    placeholder={customHintPlaceholder}
-                    id={`event-info-email-editor-${module}-${eventId}`}
-                    enableImage={false}
-                    allowChecklist={false}
-                  />
-                </div>
-              </section>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {previewLoading && (
-                <div className="flex items-center justify-center py-6">
-                  <Spinner />
-                </div>
-              )}
-              {previewError && <div className="rounded-lg border border-error bg-error/15 px-3 py-2 text-sm text-error">{previewError}</div>}
-              {!previewLoading && !previewError && previewHtml && (
-                <div className="overflow-hidden rounded-lg border border-base-300 bg-base-100">
-                  <div className="border-b border-base-300 bg-base-200/40 px-4 py-3">
-                    <div className="text-xs text-base-content/60">
-                      <div className="grid gap-1">
-                        <div>
-                          <span className="font-medium">
-                            {t("js.event.emailInfo.previewFrom") !== "js.event.emailInfo.previewFrom" ? t("js.event.emailInfo.previewFrom") : "From"}:
-                          </span>{" "}
-                          {fromEmail || "-"}
-                        </div>
-                        <div>
-                          <span className="font-medium">
-                            {t("js.event.emailInfo.previewTo") !== "js.event.emailInfo.previewTo" ? t("js.event.emailInfo.previewTo") : "To"}:
-                          </span>{" "}
-                          {toEmail || "-"}
-                        </div>
-                        <div>
-                          <span className="font-medium">
-                            {t("js.event.emailInfo.previewBcc") !== "js.event.emailInfo.previewBcc" ? t("js.event.emailInfo.previewBcc") : "BCC"}:
-                          </span>{" "}
-                          {previewBccEmails.length > 0 ? previewBccEmails.join(", ") : "-"}
-                        </div>
-                        <div>
-                          <span className="font-medium">
-                            {t("js.event.emailInfo.subject") !== "js.event.emailInfo.subject" ? t("js.event.emailInfo.subject") : "Subject"}:
-                          </span>{" "}
-                          {subject || "-"}
-                        </div>
+            <section className="space-y-4 rounded-lg border border-base-300 bg-base-100 p-3">
+              <h3 className="text-sm font-semibold text-base-content">
+                {t("js.event.emailInfo.message") !== "js.event.emailInfo.message"
+                  ? t("js.event.emailInfo.message")
+                  : "Message"}
+              </h3>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-base-content/60">
+                  {t("js.event.emailInfo.subject") !== "js.event.emailInfo.subject"
+                    ? t("js.event.emailInfo.subject")
+                    : "Subject"}
+                </label>
+                <input
+                  type="text"
+                  value={subject}
+                  onChange={(event) => setSubject(event.target.value)}
+                  className="input input-sm input-bordered w-full"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1 block text-xs font-medium text-base-content/60">
+                  {t("js.event.emailInfo.message") !== "js.event.emailInfo.message"
+                    ? t("js.event.emailInfo.message")
+                    : "Message"}
+                </label>
+                <NotesEditor
+                  value={body}
+                  onChange={setBody}
+                  placeholder={customHintPlaceholder}
+                  id={`event-info-email-editor-${module}-${eventId}`}
+                  enableImage={false}
+                  allowChecklist={false}
+                />
+              </div>
+            </section>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {previewLoading && (
+              <div className="flex items-center justify-center py-6">
+                <Spinner />
+              </div>
+            )}
+            {previewError && (
+              <div className="rounded-lg border border-error bg-error/15 px-3 py-2 text-sm text-error">
+                {previewError}
+              </div>
+            )}
+            {!previewLoading && !previewError && previewHtml && (
+              <div className="overflow-hidden rounded-lg border border-base-300 bg-base-100">
+                <div className="border-b border-base-300 bg-base-200/40 px-4 py-3">
+                  <div className="text-xs text-base-content/60">
+                    <div className="grid gap-1">
+                      <div>
+                        <span className="font-medium">
+                          {t("js.event.emailInfo.previewFrom") !== "js.event.emailInfo.previewFrom"
+                            ? t("js.event.emailInfo.previewFrom")
+                            : "From"}
+                          :
+                        </span>{" "}
+                        {fromEmail || "-"}
+                      </div>
+                      <div>
+                        <span className="font-medium">
+                          {t("js.event.emailInfo.previewTo") !== "js.event.emailInfo.previewTo"
+                            ? t("js.event.emailInfo.previewTo")
+                            : "To"}
+                          :
+                        </span>{" "}
+                        {toEmail || "-"}
+                      </div>
+                      <div>
+                        <span className="font-medium">
+                          {t("js.event.emailInfo.previewBcc") !== "js.event.emailInfo.previewBcc"
+                            ? t("js.event.emailInfo.previewBcc")
+                            : "BCC"}
+                          :
+                        </span>{" "}
+                        {previewBccEmails.length > 0 ? previewBccEmails.join(", ") : "-"}
+                      </div>
+                      <div>
+                        <span className="font-medium">
+                          {t("js.event.emailInfo.subject") !== "js.event.emailInfo.subject"
+                            ? t("js.event.emailInfo.subject")
+                            : "Subject"}
+                          :
+                        </span>{" "}
+                        {subject || "-"}
                       </div>
                     </div>
                   </div>
-                  <iframe
-                    title={t("js.event.emailInfo.previewFrameTitle") !== "js.event.emailInfo.previewFrameTitle" ? t("js.event.emailInfo.previewFrameTitle") : "Email preview"}
-                    srcDoc={previewHtml}
-                    className="h-[56vh] w-full bg-base-100"
-                  />
                 </div>
-              )}
-            </div>
-          )}
-        </div>
-
+                <iframe
+                  title={
+                    t("js.event.emailInfo.previewFrameTitle") !== "js.event.emailInfo.previewFrameTitle"
+                      ? t("js.event.emailInfo.previewFrameTitle")
+                      : "Email preview"
+                  }
+                  srcDoc={previewHtml}
+                  className="h-[56vh] w-full bg-base-100"
+                />
+              </div>
+            )}
+          </div>
+        )}
       </div>
+    </div>
   );
   if (embedded) {
     return <div className="h-[100dvh] w-full bg-base-100">{content}</div>;
@@ -580,9 +638,7 @@ export function EventInfoEmailComposerModal({
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 bg-base-content/20 p-4">
-      <div className="mx-auto w-full max-w-5xl rounded-box border border-base-300 bg-base-100 shadow-xl">
-        {content}
-      </div>
+      <div className="mx-auto w-full max-w-5xl rounded-box border border-base-300 bg-base-100 shadow-xl">{content}</div>
     </div>
   );
 }

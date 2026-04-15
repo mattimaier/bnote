@@ -1,6 +1,7 @@
 "use client";
 
 import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMemo } from "react";
 import { participationApi, type ParticipationBatchItem, type ParticipationState } from "@/lib/participation";
 import { queryKeys } from "@/lib/query/keys";
 import { QUERY_STALE_TIMES } from "@/lib/query/stale-times";
@@ -16,28 +17,52 @@ function normalize(refs: ParticipationEventRef[]): ParticipationEventRef[] {
     if (!ref?.eventId || (ref.eventType !== "R" && ref.eventType !== "C")) continue;
     dedup.set(`${ref.eventType}:${ref.eventId}`, ref);
   }
-  return [...dedup.values()];
+  return [...dedup.values()].sort((a, b) => {
+    const typeOrder = a.eventType.localeCompare(b.eventType);
+    if (typeOrder !== 0) return typeOrder;
+    return a.eventId - b.eventId;
+  });
+}
+
+export interface ParticipationStatusQueryOptions {
+  cacheFirst?: boolean;
 }
 
 export function useParticipationStatusQuery(
   eventId: number,
   eventType: "R" | "C",
   enabled: boolean,
-  initialState?: ParticipationState
+  initialState?: ParticipationState,
+  options: ParticipationStatusQueryOptions = {}
 ) {
+  const queryClient = useQueryClient();
+  const queryKey = queryKeys.participation.status(eventType, eventId);
+  const staleTime = QUERY_STALE_TIMES.participationMs;
+  const useCacheFirst = options.cacheFirst === true;
   return useQuery({
-    queryKey: queryKeys.participation.status(eventType, eventId),
-    queryFn: ({ signal }) => participationApi.getStatus(eventId, eventType, signal),
+    queryKey,
+    queryFn: ({ signal }) => {
+      if (useCacheFirst) {
+        const state = queryClient.getQueryState<ParticipationState>(queryKey);
+        const cached = state?.data;
+        const age = state?.dataUpdatedAt ? Date.now() - state.dataUpdatedAt : Number.POSITIVE_INFINITY;
+        if (cached && age <= staleTime) {
+          return cached;
+        }
+      }
+      return participationApi.getStatus(eventId, eventType, signal);
+    },
     enabled,
-    staleTime: QUERY_STALE_TIMES.participationMs,
+    staleTime,
     initialData: initialState,
+    refetchOnMount: useCacheFirst ? false : true,
     placeholderData: keepPreviousData,
   });
 }
 
 export function usePrefetchParticipationBatch(refs: ParticipationEventRef[], enabled: boolean) {
   const queryClient = useQueryClient();
-  const normalized = normalize(refs);
+  const normalized = useMemo(() => normalize(refs), [refs]);
   const eventKeys = normalized.map((x) => `${x.eventType}:${x.eventId}`).sort();
   const batchEnabled = process.env.NEXT_PUBLIC_ENABLE_PARTICIPATION_BATCH !== "0";
   return useQuery({
@@ -45,7 +70,10 @@ export function usePrefetchParticipationBatch(refs: ParticipationEventRef[], ena
     enabled: batchEnabled && enabled && normalized.length > 0,
     staleTime: QUERY_STALE_TIMES.participationMs,
     queryFn: async ({ signal }) => {
-      const payload: ParticipationBatchItem[] = normalized.map((x) => ({ event_id: x.eventId, event_type: x.eventType }));
+      const payload: ParticipationBatchItem[] = normalized.map((x) => ({
+        event_id: x.eventId,
+        event_type: x.eventType,
+      }));
       const items = await participationApi.batchGet(payload, signal);
       for (const [key, value] of Object.entries(items)) {
         const [type, idRaw] = key.split(":");

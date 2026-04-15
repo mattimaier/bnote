@@ -13,7 +13,7 @@ import { useI18n } from "@/contexts/I18nContext";
 import { useToast } from "@/contexts/ToastContext";
 import { useEditingBar } from "@/contexts/EditingBarContext";
 import { contactsApi, type ContactDetail, type ContactGroup } from "@/lib/contacts-api";
-import { kontaktdatenApi, type InstrumentOption } from "@/lib/kontaktdaten-api";
+import { profileApi, type InstrumentOption } from "@/lib/profile-api";
 import { PAGE_CONTENT_CLASS } from "@/lib/layout";
 import { getEntityPath } from "@/lib/entities/paths";
 import { DetailDeleteSection } from "@/components/DetailDeleteSection";
@@ -71,7 +71,7 @@ export function ContactEdit() {
   }, []);
 
   const loadInstruments = useCallback(() => {
-    kontaktdatenApi
+    profileApi
       .getInstruments()
       .then((list) => setInstruments(list ?? []))
       .catch(() => setInstruments([]));
@@ -163,10 +163,7 @@ export function ContactEdit() {
         router.replace(getEntityPath("contact", res.id, "view"));
       } else {
         await contactsApi.update(parseInt(id, 10), payload);
-        showToast(
-          t("js.common.saved") !== "js.common.saved" ? t("js.common.saved") : "Saved",
-          "success"
-        );
+        showToast(t("js.common.saved") !== "js.common.saved" ? t("js.common.saved") : "Saved", "success");
         router.replace(getEntityPath("contact", id, "view"));
       }
     } catch (err) {
@@ -207,10 +204,7 @@ export function ContactEdit() {
     if (isNew) return;
     try {
       await contactsApi.delete(parseInt(id, 10));
-      showToast(
-        t("js.common.deleted") !== "js.common.deleted" ? t("js.common.deleted") : "Deleted",
-        "success"
-      );
+      showToast(t("js.common.deleted") !== "js.common.deleted" ? t("js.common.deleted") : "Deleted", "success");
       router.replace("/contacts");
     } catch (err) {
       showToast(getErrorMessage(err, t, "js.common.deleteFailed"), "error");
@@ -247,22 +241,14 @@ export function ContactEdit() {
     <div className={PAGE_CONTENT_CLASS}>
       <form id="contact-edit-form" onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div
-            className="rounded-lg border border-error bg-error/15 px-4 py-3 text-sm text-error"
-          >
-            {error}
-          </div>
+          <div className="rounded-lg border border-error bg-error/15 px-4 py-3 text-sm text-error">{error}</div>
         )}
 
-        <div
-          className="rounded-none border-0 shadow-none p-4 md:rounded-box md:border md:border-base-300 md:shadow-sm md:p-6 bg-base-100 md:bg-base-100 text-base-content"
-        >
+        <div className="rounded-none border-0 shadow-none p-4 md:rounded-box md:border md:border-base-300 md:shadow-sm md:p-6 bg-base-100 md:bg-base-100 text-base-content">
           <div className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  {t("js.contacts.firstName")}
-                </label>
+                <label className="block text-sm font-medium mb-1">{t("js.contacts.firstName")}</label>
                 <input
                   name="name"
                   type="text"
@@ -272,9 +258,7 @@ export function ContactEdit() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  {t("js.contacts.lastName")}
-                </label>
+                <label className="block text-sm font-medium mb-1">{t("js.contacts.lastName")}</label>
                 <input
                   name="surname"
                   type="text"
@@ -286,9 +270,7 @@ export function ContactEdit() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">
-                {t("js.contacts.nickname")}
-              </label>
+              <label className="block text-sm font-medium mb-1">{t("js.contacts.nickname")}</label>
               <input
                 name="nickname"
                 type="text"
@@ -299,9 +281,7 @@ export function ContactEdit() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">
-                {t("js.contacts.email")}
-              </label>
+              <label className="block text-sm font-medium mb-1">{t("js.contacts.email")}</label>
               <input
                 name="email"
                 type="email"
@@ -313,9 +293,7 @@ export function ContactEdit() {
 
             <div>
               <label className="block text-sm font-medium mb-1">
-                {t("js.contacts.birthday") !== "js.contacts.birthday"
-                  ? t("js.contacts.birthday")
-                  : "Birthday"}
+                {t("js.contacts.birthday") !== "js.contacts.birthday" ? t("js.contacts.birthday") : "Birthday"}
               </label>
               <DatePicker
                 value={birthday}
@@ -328,49 +306,31 @@ export function ContactEdit() {
 
             <div>
               <label className="block text-sm font-medium mb-1">
-                {t("js.contacts.instrument") !== "js.contacts.instrument"
-                  ? t("js.contacts.instrument")
-                  : "Instrument"}
+                {t("js.contacts.instrument") !== "js.contacts.instrument" ? t("js.contacts.instrument") : "Instrument"}
               </label>
               {instruments.length > 0 ? (
                 <SelectPicker
                   options={[
                     {
                       id: 0,
-                      name:
-                        t("js.common.select") !== "js.common.select"
-                          ? t("js.common.select")
-                          : "Auswählen…",
+                      name: t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Auswählen…",
                     },
                     ...instruments,
                   ]}
                   value={instrumentId}
                   onChange={setInstrumentId}
                   emptyLabel={emptyText}
-                  labelSelect={
-                    t("js.common.select") !== "js.common.select"
-                      ? t("js.common.select")
-                      : "Auswählen…"
-                  }
+                  labelSelect={t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Auswählen…"}
                   labelNoMatches={
-                    t("js.common.noMatches") !== "js.common.noMatches"
-                      ? t("js.common.noMatches")
-                      : "Keine Treffer"
+                    t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "Keine Treffer"
                   }
-                  labelClose={
-                    t("js.common.close") !== "js.common.close"
-                      ? t("js.common.close")
-                      : "Schließen"
-                  }
+                  labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Schließen"}
                 />
               ) : (
-                <div
-                  className="rounded-md border border-base-300 bg-base-200/50 px-3 py-2 text-sm text-base-content/60"
-                >
+                <div className="rounded-md border border-base-300 bg-base-200/50 px-3 py-2 text-sm text-base-content/60">
                   {instrumentName || emptyText}
                   <p className="text-xs mt-1">
-                    {t("js.profile.instrumentsEmpty") !==
-                    "js.profile.instrumentsEmpty"
+                    {t("js.profile.instrumentsEmpty") !== "js.profile.instrumentsEmpty"
                       ? t("js.profile.instrumentsEmpty")
                       : "Keine Instrumente hinterlegt. Ein Administrator kann Instrumente in der Konfiguration anlegen."}
                   </p>
@@ -380,9 +340,7 @@ export function ContactEdit() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  {t("js.contacts.phone")}
-                </label>
+                <label className="block text-sm font-medium mb-1">{t("js.contacts.phone")}</label>
                 <input
                   name="phone"
                   type="text"
@@ -392,9 +350,7 @@ export function ContactEdit() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  {t("js.contacts.mobile")}
-                </label>
+                <label className="block text-sm font-medium mb-1">{t("js.contacts.mobile")}</label>
                 <input
                   name="mobile"
                   type="text"
@@ -407,9 +363,7 @@ export function ContactEdit() {
 
             <div>
               <label className="block text-sm font-medium mb-1">
-                {t("js.contacts.company") !== "js.contacts.company"
-                  ? t("js.contacts.company")
-                  : "Company"}
+                {t("js.contacts.company") !== "js.contacts.company" ? t("js.contacts.company") : "Company"}
               </label>
               <input
                 name="company"
@@ -422,9 +376,7 @@ export function ContactEdit() {
 
             <div>
               <label className="block text-sm font-medium mb-1">
-                {t("js.contacts.business") !== "js.contacts.business"
-                  ? t("js.contacts.business")
-                  : "Business"}
+                {t("js.contacts.business") !== "js.contacts.business" ? t("js.contacts.business") : "Business"}
               </label>
               <input
                 name="business"
@@ -437,9 +389,7 @@ export function ContactEdit() {
 
             <div>
               <label className="block text-sm font-medium mb-1">
-                {t("js.contacts.web") !== "js.contacts.web"
-                  ? t("js.contacts.web")
-                  : "Website"}
+                {t("js.contacts.web") !== "js.contacts.web" ? t("js.contacts.web") : "Website"}
               </label>
               <input
                 name="web"
@@ -451,9 +401,7 @@ export function ContactEdit() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">
-                {t("js.contacts.street")}
-              </label>
+              <label className="block text-sm font-medium mb-1">{t("js.contacts.street")}</label>
               <input
                 name="street"
                 type="text"
@@ -465,9 +413,7 @@ export function ContactEdit() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  {t("js.contacts.zip")}
-                </label>
+                <label className="block text-sm font-medium mb-1">{t("js.contacts.zip")}</label>
                 <input
                   name="zip"
                   type="text"
@@ -477,9 +423,7 @@ export function ContactEdit() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  {t("js.contacts.city")}
-                </label>
+                <label className="block text-sm font-medium mb-1">{t("js.contacts.city")}</label>
                 <input
                   name="city"
                   type="text"
@@ -491,9 +435,7 @@ export function ContactEdit() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">
-                {t("js.contacts.notes")}
-              </label>
+              <label className="block text-sm font-medium mb-1">{t("js.contacts.notes")}</label>
               <NotesEditor
                 value={notes}
                 onChange={setNotes}
@@ -584,9 +526,7 @@ export function ContactEdit() {
 
             {groupOptions.length > 0 && (
               <div>
-                <label className="block text-sm font-medium mb-2">
-                  {t("js.contacts.groups")}
-                </label>
+                <label className="block text-sm font-medium mb-2">{t("js.contacts.groups")}</label>
                 <MultiSelect
                   options={groupOptions.map((g) => ({ id: g.id, name: g.name }))}
                   selected={selectedGroups}
@@ -601,8 +541,12 @@ export function ContactEdit() {
                     }
                     return `${count} selected`;
                   }}
-                  labelNoSelection={t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "No selection"}
-                  labelNoMatches={t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"}
+                  labelNoSelection={
+                    t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "No selection"
+                  }
+                  labelNoMatches={
+                    t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"
+                  }
                   labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close"}
                   labelRemove={t("js.common.remove") !== "js.common.remove" ? t("js.common.remove") : "Remove"}
                 />

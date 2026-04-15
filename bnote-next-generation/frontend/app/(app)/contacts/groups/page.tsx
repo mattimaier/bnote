@@ -3,11 +3,7 @@
 import { useCallback, useEffect, useMemo, useState, type Dispatch, type SetStateAction } from "react";
 import { useI18n } from "@/contexts/I18nContext";
 import { useToast } from "@/contexts/ToastContext";
-import {
-  contactsApi,
-  type Contact,
-  type ContactGroupListItem,
-} from "@/lib/contacts-api";
+import { contactsApi, type Contact, type ContactGroupListItem } from "@/lib/contacts-api";
 import { PAGE_CONTENT_CLASS } from "@/lib/layout";
 import { getErrorMessage } from "@/lib/error-utils";
 import { AppPageHeader } from "@/components/AppPageHeader";
@@ -25,11 +21,7 @@ const PROTECTED_GROUP_ID = 2;
 function isProtectedGroup(group: ContactGroupListItem | null): boolean {
   if (!group) return false;
   const normalized = (group.name ?? "").trim().toLowerCase();
-  return (
-    group.id === PROTECTED_GROUP_ID ||
-    normalized === "games participants" ||
-    normalized === "mitglieder"
-  );
+  return group.id === PROTECTED_GROUP_ID || normalized === "games participants" || normalized === "mitglieder";
 }
 
 function sortedNumeric(values: Iterable<number>): number[] {
@@ -129,10 +121,7 @@ export default function ContactsGroupsPage() {
     setSelectedToRemove(new Set());
   }, [ready, selectedGroupId, loadGroupMembers]);
 
-  const selectedGroup = useMemo(
-    () => groups.find((g) => g.id === selectedGroupId) ?? null,
-    [groups, selectedGroupId]
-  );
+  const selectedGroup = useMemo(() => groups.find((g) => g.id === selectedGroupId) ?? null, [groups, selectedGroupId]);
   const selectedGroupProtected = isProtectedGroup(selectedGroup);
 
   const filteredGroups = useMemo(() => {
@@ -141,10 +130,7 @@ export default function ContactsGroupsPage() {
     return groups.filter((g) => g.name.toLowerCase().includes(q));
   }, [groups, qGroups]);
 
-  const members = useMemo(
-    () => allContacts.filter((c) => groupMemberIds.has(c.id)),
-    [allContacts, groupMemberIds]
-  );
+  const members = useMemo(() => allContacts.filter((c) => groupMemberIds.has(c.id)), [allContacts, groupMemberIds]);
   const availableContacts = useMemo(
     () => allContacts.filter((c) => !groupMemberIds.has(c.id)),
     [allContacts, groupMemberIds]
@@ -154,11 +140,7 @@ export default function ContactsGroupsPage() {
     const q = qMembers.trim().toLowerCase();
     if (!q) return members;
     return members.filter((c) =>
-      [c.name, c.surname, c.nickname, c.email, c.instrumentname]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase()
-        .includes(q)
+      [c.name, c.surname, c.nickname, c.email, c.instrumentname].filter(Boolean).join(" ").toLowerCase().includes(q)
     );
   }, [members, qMembers]);
 
@@ -166,11 +148,7 @@ export default function ContactsGroupsPage() {
     const q = qAvailable.trim().toLowerCase();
     if (!q) return availableContacts;
     return availableContacts.filter((c) =>
-      [c.name, c.surname, c.nickname, c.email, c.instrumentname]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase()
-        .includes(q)
+      [c.name, c.surname, c.nickname, c.email, c.instrumentname].filter(Boolean).join(" ").toLowerCase().includes(q)
     );
   }, [availableContacts, qAvailable]);
 
@@ -183,11 +161,7 @@ export default function ContactsGroupsPage() {
     });
   };
 
-  const toggleAllSetValues = (
-    setter: Dispatch<SetStateAction<Set<number>>>,
-    ids: number[],
-    checked: boolean
-  ) => {
+  const toggleAllSetValues = (setter: Dispatch<SetStateAction<Set<number>>>, ids: number[], checked: boolean) => {
     setter((prev) => {
       const next = new Set(prev);
       if (checked) ids.forEach((id) => next.add(id));
@@ -241,15 +215,15 @@ export default function ContactsGroupsPage() {
       showToast(
         changed > 0
           ? mode === "add"
-            ? (t("js.contacts.groupsManager.membersAdded") !== "js.contacts.groupsManager.membersAdded"
+            ? t("js.contacts.groupsManager.membersAdded") !== "js.contacts.groupsManager.membersAdded"
               ? t("js.contacts.groupsManager.membersAdded")
-              : "Members added.")
-            : (t("js.contacts.groupsManager.membersRemoved") !== "js.contacts.groupsManager.membersRemoved"
+              : "Members added."
+            : t("js.contacts.groupsManager.membersRemoved") !== "js.contacts.groupsManager.membersRemoved"
               ? t("js.contacts.groupsManager.membersRemoved")
-              : "Members removed.")
-          : (t("js.contacts.groupsManager.noChanges") !== "js.contacts.groupsManager.noChanges"
+              : "Members removed."
+          : t("js.contacts.groupsManager.noChanges") !== "js.contacts.groupsManager.noChanges"
             ? t("js.contacts.groupsManager.noChanges")
-            : "No changes to save."),
+            : "No changes to save.",
         "success"
       );
       await Promise.all([loadGroupMembers(selectedGroupId), loadGroups()]);
@@ -344,9 +318,7 @@ export default function ContactsGroupsPage() {
       />
 
       {error ? (
-        <div className="rounded-lg border border-error bg-error/15 px-4 py-3 text-sm text-error">
-          {error}
-        </div>
+        <div className="rounded-lg border border-error bg-error/15 px-4 py-3 text-sm text-error">{error}</div>
       ) : null}
 
       <section className="rounded-lg border border-base-300 bg-base-100 p-3">
@@ -370,10 +342,12 @@ export default function ContactsGroupsPage() {
           <ActionButton onClick={createGroup} disabled={creatingGroup}>
             <Plus className="h-4 w-4" />
             {creatingGroup
-              ? (t("js.common.loading") !== "js.common.loading" ? t("js.common.loading") : "Loading...")
-              : (t("js.contacts.groupsManager.addGroup") !== "js.contacts.groupsManager.addGroup"
+              ? t("js.common.loading") !== "js.common.loading"
+                ? t("js.common.loading")
+                : "Loading..."
+              : t("js.contacts.groupsManager.addGroup") !== "js.contacts.groupsManager.addGroup"
                 ? t("js.contacts.groupsManager.addGroup")
-                : "Add Group")}
+                : "Add Group"}
           </ActionButton>
         </div>
       </section>
@@ -390,9 +364,9 @@ export default function ContactsGroupsPage() {
               disabled={selectedGroup == null || selectedGroupProtected}
               title={
                 selectedGroupProtected
-                  ? (t("js.contacts.groupsManager.protectedGroupHint") !== "js.contacts.groupsManager.protectedGroupHint"
+                  ? t("js.contacts.groupsManager.protectedGroupHint") !== "js.contacts.groupsManager.protectedGroupHint"
                     ? t("js.contacts.groupsManager.protectedGroupHint")
-                    : "This default group cannot be removed.")
+                    : "This default group cannot be removed."
                   : undefined
               }
             >
@@ -422,16 +396,12 @@ export default function ContactsGroupsPage() {
                       type="button"
                       onClick={() => setSelectedGroupId(group.id)}
                       className={`w-full rounded-lg border px-3 py-2 text-left transition-colors ${
-                        selected
-                          ? "border-primary bg-primary/10"
-                          : "border-base-300 hover:bg-base-200/60"
+                        selected ? "border-primary bg-primary/10" : "border-base-300 hover:bg-base-200/60"
                       }`}
                     >
                       <span className="flex items-center justify-between gap-3">
                         <span className="truncate font-medium">{group.name}</span>
-                        <span className="shrink-0 text-xs text-base-content/60">
-                          {group.memberCount ?? 0}
-                        </span>
+                        <span className="shrink-0 text-xs text-base-content/60">{group.memberCount ?? 0}</span>
                       </span>
                       {protectedGroup ? (
                         <span className="mt-1 inline-flex rounded-full border border-base-300 px-2 py-0.5 text-xs text-base-content/70">
@@ -476,8 +446,18 @@ export default function ContactsGroupsPage() {
               {filteredMembers.length > 0 ? (
                 <CheckboxSelectAllRow
                   checked={filteredMembers.every((m) => selectedToRemove.has(m.id))}
-                  onChange={(on) => toggleAllSetValues(setSelectedToRemove, filteredMembers.map((m) => m.id), on)}
-                  label={t("js.contacts.integrationSelectAll") !== "js.contacts.integrationSelectAll" ? t("js.contacts.integrationSelectAll") : "Select all"}
+                  onChange={(on) =>
+                    toggleAllSetValues(
+                      setSelectedToRemove,
+                      filteredMembers.map((m) => m.id),
+                      on
+                    )
+                  }
+                  label={
+                    t("js.contacts.integrationSelectAll") !== "js.contacts.integrationSelectAll"
+                      ? t("js.contacts.integrationSelectAll")
+                      : "Select all"
+                  }
                 />
               ) : null}
               {filteredMembers.length < 1 ? (
@@ -492,12 +472,17 @@ export default function ContactsGroupsPage() {
                     const fullName = [m.name ?? "", m.surname ?? ""].filter(Boolean).join(" ") || emptyText;
                     return (
                       <li key={m.id}>
-                        <CheckboxRow checked={selectedToRemove.has(m.id)} onToggle={() => toggleSetValue(setSelectedToRemove, m.id)}>
+                        <CheckboxRow
+                          checked={selectedToRemove.has(m.id)}
+                          onToggle={() => toggleSetValue(setSelectedToRemove, m.id)}
+                        >
                           <span className="flex items-center gap-3 min-w-0 flex-1">
                             <Avatar email={m.email} name={fullName} size={32} variant="soft" className="shrink-0" />
                             <span className="flex flex-col min-w-0 flex-1">
                               <span className="truncate font-medium">{fullName}</span>
-                              {m.instrumentname ? <span className="text-xs text-base-content/60 truncate">{m.instrumentname}</span> : null}
+                              {m.instrumentname ? (
+                                <span className="text-xs text-base-content/60 truncate">{m.instrumentname}</span>
+                              ) : null}
                             </span>
                           </span>
                         </CheckboxRow>
@@ -537,13 +522,24 @@ export default function ContactsGroupsPage() {
               {filteredAvailable.length > 0 ? (
                 <CheckboxSelectAllRow
                   checked={filteredAvailable.every((m) => selectedToAdd.has(m.id))}
-                  onChange={(on) => toggleAllSetValues(setSelectedToAdd, filteredAvailable.map((m) => m.id), on)}
-                  label={t("js.contacts.integrationSelectAll") !== "js.contacts.integrationSelectAll" ? t("js.contacts.integrationSelectAll") : "Select all"}
+                  onChange={(on) =>
+                    toggleAllSetValues(
+                      setSelectedToAdd,
+                      filteredAvailable.map((m) => m.id),
+                      on
+                    )
+                  }
+                  label={
+                    t("js.contacts.integrationSelectAll") !== "js.contacts.integrationSelectAll"
+                      ? t("js.contacts.integrationSelectAll")
+                      : "Select all"
+                  }
                 />
               ) : null}
               {filteredAvailable.length < 1 ? (
                 <p className="text-sm text-base-content/50 py-2 px-3">
-                  {t("js.contacts.groupsManager.noAvailableContacts") !== "js.contacts.groupsManager.noAvailableContacts"
+                  {t("js.contacts.groupsManager.noAvailableContacts") !==
+                  "js.contacts.groupsManager.noAvailableContacts"
                     ? t("js.contacts.groupsManager.noAvailableContacts")
                     : "No available contacts."}
                 </p>
@@ -553,12 +549,17 @@ export default function ContactsGroupsPage() {
                     const fullName = [m.name ?? "", m.surname ?? ""].filter(Boolean).join(" ") || emptyText;
                     return (
                       <li key={m.id}>
-                        <CheckboxRow checked={selectedToAdd.has(m.id)} onToggle={() => toggleSetValue(setSelectedToAdd, m.id)}>
+                        <CheckboxRow
+                          checked={selectedToAdd.has(m.id)}
+                          onToggle={() => toggleSetValue(setSelectedToAdd, m.id)}
+                        >
                           <span className="flex items-center gap-3 min-w-0 flex-1">
                             <Avatar email={m.email} name={fullName} size={32} variant="soft" className="shrink-0" />
                             <span className="flex flex-col min-w-0 flex-1">
                               <span className="truncate font-medium">{fullName}</span>
-                              {m.instrumentname ? <span className="text-xs text-base-content/60 truncate">{m.instrumentname}</span> : null}
+                              {m.instrumentname ? (
+                                <span className="text-xs text-base-content/60 truncate">{m.instrumentname}</span>
+                              ) : null}
                             </span>
                           </span>
                         </CheckboxRow>

@@ -27,10 +27,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
       if (cancelled) return;
       if (!session.authenticated) {
         const path = pathname || "/";
-        const fullPath =
-          typeof window !== "undefined" && window.location.search
-            ? path + window.location.search
-            : path;
+        const fullPath = typeof window !== "undefined" && window.location.search ? path + window.location.search : path;
         const redirect = `/login?redirect=${encodeURIComponent(fullPath)}`;
         router.replace(redirect);
         return;

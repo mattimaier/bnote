@@ -34,8 +34,7 @@ export function DashboardGreeting({
   todayConcerts,
 }: DashboardGreetingProps) {
   const { t } = useI18n();
-  const countKey = (baseKey: string, count: number): string =>
-    `${baseKey}.${count === 1 ? "one" : "other"}`;
+  const countKey = (baseKey: string, count: number): string => `${baseKey}.${count === 1 ? "one" : "other"}`;
   const [selectedSubtitleKey, setSelectedSubtitleKey] = useState<string | null>(null);
 
   const greeting = useMemo(() => {
@@ -56,31 +55,46 @@ export function DashboardGreeting({
       { key: "default", text: t("js.dashboard.dynamicSubtitle.default", [companyName]), kind: "fallback" as const },
       {
         key: "pendingOpen",
-        text: t(countKey("js.dashboard.dynamicSubtitle.pendingOpen", pendingResponses), [companyName, String(pendingResponses)]),
+        text: t(countKey("js.dashboard.dynamicSubtitle.pendingOpen", pendingResponses), [
+          companyName,
+          String(pendingResponses),
+        ]),
         enabled: pendingResponses > 0,
         kind: "signal" as const,
       },
       {
         key: "confirmToday",
-        text: t(countKey("js.dashboard.dynamicSubtitle.confirmToday", pendingResponses), [companyName, String(pendingResponses)]),
+        text: t(countKey("js.dashboard.dynamicSubtitle.confirmToday", pendingResponses), [
+          companyName,
+          String(pendingResponses),
+        ]),
         enabled: pendingResponses > 0,
         kind: "signal" as const,
       },
       {
         key: "upcomingRehearsals",
-        text: t(countKey("js.dashboard.dynamicSubtitle.upcomingRehearsals", upcomingRehearsals), [companyName, String(upcomingRehearsals)]),
+        text: t(countKey("js.dashboard.dynamicSubtitle.upcomingRehearsals", upcomingRehearsals), [
+          companyName,
+          String(upcomingRehearsals),
+        ]),
         enabled: upcomingRehearsals > 0,
         kind: "signal" as const,
       },
       {
         key: "upcomingConcerts",
-        text: t(countKey("js.dashboard.dynamicSubtitle.upcomingConcerts", upcomingConcerts), [companyName, String(upcomingConcerts)]),
+        text: t(countKey("js.dashboard.dynamicSubtitle.upcomingConcerts", upcomingConcerts), [
+          companyName,
+          String(upcomingConcerts),
+        ]),
         enabled: upcomingConcerts > 0,
         kind: "signal" as const,
       },
       {
         key: "upcomingEvents",
-        text: t(countKey("js.dashboard.dynamicSubtitle.upcomingEvents", upcomingEvents), [companyName, String(upcomingEvents)]),
+        text: t(countKey("js.dashboard.dynamicSubtitle.upcomingEvents", upcomingEvents), [
+          companyName,
+          String(upcomingEvents),
+        ]),
         enabled: upcomingEvents > 0,
         kind: "signal" as const,
       },
@@ -103,25 +117,15 @@ export function DashboardGreeting({
 
   const selectedSubtitle = eligibleSubtitles.find((variant) => variant.key === selectedSubtitleKey);
   const baseSubtitle =
-    selectedSubtitle?.text ||
-    eligibleSubtitles[0]?.text ||
-    t("js.dashboard.dynamicSubtitle.default", [companyName]);
+    selectedSubtitle?.text || eligibleSubtitles[0]?.text || t("js.dashboard.dynamicSubtitle.default", [companyName]);
 
   const todayParts: string[] = [];
   if (todayDueTasks > 0) todayParts.push(t("js.dashboard.todayHighlight.tasks", [String(todayDueTasks)]));
   if (todayRehearsals > 0) todayParts.push(t("js.dashboard.todayHighlight.rehearsals", [String(todayRehearsals)]));
   if (todayConcerts > 0) todayParts.push(t("js.dashboard.todayHighlight.concerts", [String(todayConcerts)]));
 
-  const todayLine =
-    todayParts.length > 0
-      ? `${t("js.dashboard.todayHighlight.prefix")} ${todayParts.join(" · ")}`
-      : "";
+  const todayLine = todayParts.length > 0 ? `${t("js.dashboard.todayHighlight.prefix")} ${todayParts.join(" · ")}` : "";
   const subtitle = todayLine ? `${baseSubtitle}. ${todayLine}` : baseSubtitle;
 
-  return (
-    <AppPageHeader
-      title={`${greeting}, ${firstName}`}
-      subtitle={subtitle}
-    />
-  );
+  return <AppPageHeader title={`${greeting}, ${firstName}`} subtitle={subtitle} />;
 }

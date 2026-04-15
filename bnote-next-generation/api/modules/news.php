@@ -24,63 +24,69 @@
  *
  * Note: This file is loaded after api/index.php has changed working directory to project root
  */
-require_once BNOTE_ROOT . '/src/data/modules/nachrichtendata.php';
-require_once __DIR__ . '/../response.php';
-require_once __DIR__ . '/../auth.php';
-require_once __DIR__ . '/../text_normalizer.php';
+require_once BNOTE_ROOT . "/src/data/modules/nachrichtendata.php";
+require_once __DIR__ . "/../response.php";
+require_once __DIR__ . "/../auth.php";
+require_once __DIR__ . "/../text_normalizer.php";
 
-class NewsModule {
-    /** @var NachrichtenData */
-    private $newsData;
+class NewsModule
+{
+  /** @var NachrichtenData */
+  private $newsData;
 
-    public function __construct() {
-        global $system_data;
-        $moduleId = $system_data->getModuleId('Nachrichten');
-        if (!$moduleId || !$system_data->userHasPermission($moduleId)) {
-            Response::error('Access denied to News', 403);
-        }
-        $this->newsData = new NachrichtenData($GLOBALS['dir_prefix'] ?? '');
+  public function __construct()
+  {
+    global $system_data;
+    $moduleId = getLegacyModuleId($system_data, LegacyModuleKey::NEWS);
+    if (!$moduleId || !$system_data->userHasPermission($moduleId)) {
+      Response::error("Access denied to News", 403);
     }
+    $this->newsData = new NachrichtenData($GLOBALS["dir_prefix"] ?? "");
+  }
 
-    public function handle() {
-        $action = $_GET['action'] ?? $_POST['action'] ?? 'get';
+  public function handle()
+  {
+    $action = $_GET["action"] ?? ($_POST["action"] ?? "get");
 
-        switch ($action) {
-            case 'get':
-                return $this->normalizeResponse($this->get(), $action);
-            case 'save':
-                return $this->normalizeResponse($this->save(), $action);
-            default:
-                Response::error('Unknown action: ' . $action, 400);
-        }
+    switch ($action) {
+      case "get":
+        return $this->normalizeResponse($this->get(), $action);
+      case "save":
+        return $this->normalizeResponse($this->save(), $action);
+      default:
+        Response::error("Unknown action: " . $action, 400);
     }
+  }
 
-    private function normalizeResponse($payload, $action) {
-        $textFields = ['content'];
-        $stats = ['count' => 0, 'samples' => []];
-        $normalized = TextNormalizer::normalizeFieldsRecursive($payload, $textFields, $stats, true);
-        TextNormalizer::logStats('news', $action, $stats);
-        return $normalized;
-    }
+  private function normalizeResponse($payload, $action)
+  {
+    $textFields = ["content"];
+    $stats = ["count" => 0, "samples" => []];
+    $normalized = TextNormalizer::normalizeFieldsRecursive($payload, $textFields, $stats, true);
+    TextNormalizer::logStats("news", $action, $stats);
+    return $normalized;
+  }
 
-    /** Return raw content for the editor (no preparedContent). */
-    private function get() {
-        $content = $this->newsData->fetchContent();
-        return ['content' => $content !== false ? $content : ''];
-    }
+  /** Return raw content for the editor (no preparedContent). */
+  private function get()
+  {
+    $content = $this->newsData->fetchContent();
+    return ["content" => $content !== false ? $content : ""];
+  }
 
-    /** Save content from POST body (JSON). */
-    private function save() {
-        $rawInput = file_get_contents('php://input');
-        $body = is_string($rawInput) && $rawInput !== '' ? json_decode($rawInput, true) : null;
-        if (!is_array($body) || !array_key_exists('content', $body)) {
-            Response::error('Missing content', 400);
-        }
-        $content = $body['content'];
-        if (!is_string($content)) {
-            Response::error('Content must be a string', 400);
-        }
-        $this->newsData->storeContent($content);
-        return ['ok' => true];
+  /** Save content from POST body (JSON). */
+  private function save()
+  {
+    $rawInput = file_get_contents("php://input");
+    $body = is_string($rawInput) && $rawInput !== "" ? json_decode($rawInput, true) : null;
+    if (!is_array($body) || !array_key_exists("content", $body)) {
+      Response::error("Missing content", 400);
     }
+    $content = $body["content"];
+    if (!is_string($content)) {
+      Response::error("Content must be a string", 400);
+    }
+    $this->newsData->storeContent($content);
+    return ["ok" => true];
+  }
 }

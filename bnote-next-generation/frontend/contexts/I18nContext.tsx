@@ -11,13 +11,7 @@
 
 "use client";
 
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { formatDateShort, formatDateTimeShort, formatTimeShort } from "@/lib/date-time";
 
@@ -91,17 +85,26 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
     [state.translations]
   );
 
-  const formatDate = useCallback((date: Date) => {
-    return formatDateShort(date, state.lang) ?? date.toLocaleDateString();
-  }, [state.lang]);
+  const formatDate = useCallback(
+    (date: Date) => {
+      return formatDateShort(date, state.lang) ?? date.toLocaleDateString();
+    },
+    [state.lang]
+  );
 
-  const formatTime = useCallback((date: Date) => {
-    return formatTimeShort(date, state.lang) ?? date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  }, [state.lang]);
+  const formatTime = useCallback(
+    (date: Date) => {
+      return formatTimeShort(date, state.lang) ?? date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    },
+    [state.lang]
+  );
 
-  const formatDateTime = useCallback((date: Date) => {
-    return formatDateTimeShort(date, state.lang) ?? date.toLocaleString();
-  }, [state.lang]);
+  const formatDateTime = useCallback(
+    (date: Date) => {
+      return formatDateTimeShort(date, state.lang) ?? date.toLocaleString();
+    },
+    [state.lang]
+  );
 
   return (
     <I18nContext.Provider

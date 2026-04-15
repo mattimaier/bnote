@@ -33,9 +33,7 @@ export default function RehearsalsPage() {
   const loading = isPending && !data;
   const errorMessage = error ? getErrorMessage(error, t, "js.common.failedToLoad") : "";
   const [search, setSearch] = useState("");
-  const [upcomingSortKey, setUpcomingSortKey] = useState<
-    "begin" | "status" | "location" | "notes" | null
-  >("begin");
+  const [upcomingSortKey, setUpcomingSortKey] = useState<"begin" | "status" | "location" | "notes" | null>("begin");
   const [upcomingSortDir, setUpcomingSortDir] = useState<SortDirection>("asc");
   const [pastSortState, setPastSortState] = useState<
     Record<number, { key: "begin" | "status" | "location" | "notes" | null; dir: SortDirection }>
@@ -50,10 +48,7 @@ export default function RehearsalsPage() {
     }
   };
 
-  const handlePastSort = (
-    year: number,
-    key: "begin" | "status" | "location" | "notes"
-  ) => {
+  const handlePastSort = (year: number, key: "begin" | "status" | "location" | "notes") => {
     setPastSortState((prev) => {
       const current = prev[year] ?? { key: "begin", dir: "desc" as SortDirection };
       if (current.key === key) {
@@ -67,12 +62,7 @@ export default function RehearsalsPage() {
     const query = search.trim().toLowerCase();
     if (!query) return items;
     return items.filter((item) => {
-      const haystack = [
-        item.location_name,
-        item.status,
-        item.notes,
-        item.begin,
-      ]
+      const haystack = [item.location_name, item.status, item.notes, item.begin]
         .filter(Boolean)
         .join(" ")
         .toLowerCase();
@@ -124,7 +114,7 @@ export default function RehearsalsPage() {
       <AppPageHeader
         moduleKey="rehearsal"
         title={t("js.sidebar.rehearsals") !== "js.sidebar.rehearsals" ? t("js.sidebar.rehearsals") : "Rehearsals"}
-        actions={(
+        actions={
           <>
             <ActionButton variant="outline" href="/rehearsals/series">
               <CalendarDays className="h-4 w-4" />
@@ -139,7 +129,7 @@ export default function RehearsalsPage() {
                 : "Add Rehearsal"}
             </ActionButton>
           </>
-        )}
+        }
       />
 
       {errorMessage && (
@@ -166,14 +156,16 @@ export default function RehearsalsPage() {
       </div>
 
       <RehearsalsTable
-        title={t("js.rehearsals.upcoming") !== "js.rehearsals.upcoming"
-          ? t("js.rehearsals.upcoming")
-          : "Upcoming rehearsals"}
+        title={
+          t("js.rehearsals.upcoming") !== "js.rehearsals.upcoming" ? t("js.rehearsals.upcoming") : "Upcoming rehearsals"
+        }
         items={upcomingItems}
         loading={loading}
-        emptyLabel={t("js.rehearsals.noRehearsals") !== "js.rehearsals.noRehearsals"
-          ? t("js.rehearsals.noRehearsals")
-          : "No rehearsals"}
+        emptyLabel={
+          t("js.rehearsals.noRehearsals") !== "js.rehearsals.noRehearsals"
+            ? t("js.rehearsals.noRehearsals")
+            : "No rehearsals"
+        }
         formatDateTime={formatDateTime}
         onRowClick={(id) => router.push(getEntityPath("rehearsal", id))}
         emptyText={emptyText}
@@ -191,7 +183,10 @@ export default function RehearsalsPage() {
           {t("js.common.history") !== "js.common.history" ? t("js.common.history") : "History"}
         </h2>
         {pastByYear.years.length === 0 ? (
-          <div className="mt-3 rounded-xl border p-8 text-center text-sm" style={{ color: "var(--muted-foreground)", borderColor: "var(--border)", background: "var(--card)" }}>
+          <div
+            className="mt-3 rounded-xl border p-8 text-center text-sm"
+            style={{ color: "var(--muted-foreground)", borderColor: "var(--border)", background: "var(--card)" }}
+          >
             {t("js.rehearsals.noHistory") !== "js.rehearsals.noHistory"
               ? t("js.rehearsals.noHistory")
               : "No past rehearsals"}
@@ -206,9 +201,11 @@ export default function RehearsalsPage() {
                   title={`${year}`}
                   items={pastByYear.groups.get(year) ?? []}
                   loading={loading}
-                  emptyLabel={t("js.rehearsals.noHistory") !== "js.rehearsals.noHistory"
-                    ? t("js.rehearsals.noHistory")
-                    : "No past rehearsals"}
+                  emptyLabel={
+                    t("js.rehearsals.noHistory") !== "js.rehearsals.noHistory"
+                      ? t("js.rehearsals.noHistory")
+                      : "No past rehearsals"
+                  }
                   formatDateTime={formatDateTime}
                   onRowClick={(id) => router.push(getEntityPath("rehearsal", id))}
                   emptyText={emptyText}

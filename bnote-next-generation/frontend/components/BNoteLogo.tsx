@@ -14,10 +14,7 @@ export type BNoteLogoSize = "sm" | "lg";
 /** Inner padding: "default" | "tight" (less space between container and logo). */
 export type BNoteLogoPadding = "default" | "tight";
 
-const sizeClasses: Record<
-  BNoteLogoSize,
-  Record<BNoteLogoPadding, { container: string; logo: string }>
-> = {
+const sizeClasses: Record<BNoteLogoSize, Record<BNoteLogoPadding, { container: string; logo: string }>> = {
   sm: {
     default: { container: "h-9 w-9", logo: "h-9 w-9" },
     tight: { container: "h-9 w-9", logo: "h-9 w-9" },
@@ -120,7 +117,9 @@ export function BNoteLogo({
       dark: ExplicitPalette | DerivedPalette;
     };
   };
-  const palette = resolvePalette(forceLight ? tokens.palette.light : forceDark || isDark ? tokens.palette.dark : tokens.palette.light);
+  const palette = resolvePalette(
+    forceLight ? tokens.palette.light : forceDark || isDark ? tokens.palette.dark : tokens.palette.light
+  );
   const squircleFillPath = buildSquirclePath(
     tokens.geometry.canvasSize,
     0,
@@ -169,7 +168,9 @@ export function BNoteLogo({
           strokeWidth={tokens.geometry.borderWidth}
           strokeLinejoin="round"
         />
-        <g transform={`translate(${tokens.geometry.glyphTranslate},${tokens.geometry.glyphTranslate}) scale(${tokens.geometry.glyphScale})`}>
+        <g
+          transform={`translate(${tokens.geometry.glyphTranslate},${tokens.geometry.glyphTranslate}) scale(${tokens.geometry.glyphScale})`}
+        >
           <path
             fill={palette.glyph}
             fillRule="evenodd"

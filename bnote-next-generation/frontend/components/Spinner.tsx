@@ -11,10 +11,8 @@ import { useI18n } from "@/contexts/I18nContext";
 export type SpinnerVariant = "primary" | "muted";
 
 const variantClasses: Record<SpinnerVariant, string> = {
-  primary:
-    "border-2 border-primary border-t-transparent",
-  muted:
-    "border-2 border-base-content/40 border-t-transparent",
+  primary: "border-2 border-primary border-t-transparent",
+  muted: "border-2 border-base-content/40 border-t-transparent",
 };
 
 export interface SpinnerProps {
@@ -30,17 +28,10 @@ const sizeClasses = {
   sm: "h-5 w-5",
 };
 
-export function Spinner({
-  variant = "primary",
-  size = "default",
-  className = "",
-}: SpinnerProps) {
+export function Spinner({ variant = "primary", size = "default", className = "" }: SpinnerProps) {
   const { t } = useI18n();
   const loadingLabel = t("js.common.loading") !== "js.common.loading" ? t("js.common.loading") : "Loading";
-  const borderClass =
-    variant === "primary"
-      ? variantClasses.primary
-      : variantClasses.muted;
+  const borderClass = variant === "primary" ? variantClasses.primary : variantClasses.muted;
   return (
     <div
       className={`animate-spin rounded-full ${sizeClasses[size]} ${borderClass} ${className}`.trim()}

@@ -224,7 +224,7 @@ Routing uses the Next.js App Router (static export). Module pages under **`front
 
 Each file is one **`?module=`** handler (see **[docs/API_ARCHITECTURE.md](docs/API_ARCHITECTURE.md)**):
 
-- **Core:** `auth`, `dashboard`, `users`, `contacts`, `translations`, `search`, `participation`, `kontaktdaten`
+- **Core:** `auth`, `dashboard`, `users`, `contacts`, `translations`, `search`, `participation`, `profile`
 - **Events & scheduling:** `rehearsals`, `concerts`, `calendar`, `appointments`, `reservations`
 - **Tasks & collaboration:** `tasks`, `comments`, `votes`, `news`, `email`, `reminders`
 - **Resources:** `locations`, `equipment`, `outfits`, `repertoire`, `share`

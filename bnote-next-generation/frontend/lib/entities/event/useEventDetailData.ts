@@ -60,17 +60,14 @@ export function useEventDetailData(
   });
 
   const data =
-    initialData ?? (isNew ? ({ canEdit: true, canEditParticipation: true } as Record<string, unknown>) : detailQuery.data ?? null);
+    initialData ??
+    (isNew ? ({ canEdit: true, canEditParticipation: true } as Record<string, unknown>) : (detailQuery.data ?? null));
   const queryError = detailQuery.error ? getErrorMessage(detailQuery.error, t, "js.common.failedToLoad") : "";
   const error = manualError || queryError;
   const isInitialLoading = detailEnabled ? detailQuery.isPending && !detailQuery.data : !ready && !initialData;
   const isFetching = detailQuery.isFetching;
   const isResolvedNotFound =
-    !isInitialLoading &&
-    !data &&
-    Boolean(
-      (detailQuery.error as { status?: number } | null)?.status === 404
-    );
+    !isInitialLoading && !data && Boolean((detailQuery.error as { status?: number } | null)?.status === 404);
 
   return {
     data,

@@ -21,7 +21,10 @@ const DISALLOWED_TAGS = new Set([
 const URL_ATTRS = new Set(["href", "src", "xlink:href", "action", "formaction"]);
 
 function isSafeUrl(raw: string): boolean {
-  const value = raw.trim().replace(/[\u0000-\u001f\u007f\s]+/g, "").toLowerCase();
+  const value = raw
+    .trim()
+    .replace(/[\u0000-\u001f\u007f\s]+/g, "")
+    .toLowerCase();
   if (!value) return true;
   if (
     value.startsWith("javascript:") ||

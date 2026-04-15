@@ -52,5 +52,7 @@ export function persistTheme(theme: ThemeMode) {
 export function isThemeApplied(theme: ThemeMode): boolean {
   const html = document.documentElement;
   const expectedThemeName = theme === "dark" ? DARK_THEME_NAME : LIGHT_THEME_NAME;
-  return html.classList.contains("dark") === (theme === "dark") && html.getAttribute("data-theme") === expectedThemeName;
+  return (
+    html.classList.contains("dark") === (theme === "dark") && html.getAttribute("data-theme") === expectedThemeName
+  );
 }

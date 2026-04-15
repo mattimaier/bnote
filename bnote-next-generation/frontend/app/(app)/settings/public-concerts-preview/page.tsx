@@ -45,9 +45,7 @@ export default function PublicConcertsPreviewPage() {
     try {
       const cfg = await configurationApi.getConfig();
       const configuredUrl = String(
-        cfg?.derived?.publicConcertsFeedTokenizedUrl
-        ?? cfg?.derived?.publicConcertsFeedUrl
-        ?? ""
+        cfg?.derived?.publicConcertsFeedTokenizedUrl ?? cfg?.derived?.publicConcertsFeedUrl ?? ""
       ).trim();
       const effectiveUrl = configuredUrl !== "" ? configuredUrl : `${getApiPhpDirectoryUrl()}/public-concerts.json.php`;
       setFeedUrl(effectiveUrl);
@@ -85,7 +83,7 @@ export default function PublicConcertsPreviewPage() {
       <AppPageHeader
         moduleKey="configuration"
         title={label("js.configuration.publicConcerts.previewTitle", "Public concerts preview")}
-        actions={(
+        actions={
           <div className="flex flex-wrap gap-2">
             <button type="button" className="btn btn-soft" onClick={() => void load()}>
               {label("js.common.refresh", "Refresh")}
@@ -96,7 +94,10 @@ export default function PublicConcertsPreviewPage() {
               onClick={async () => {
                 try {
                   await navigator.clipboard.writeText(feedUrl);
-                  showToast(label("js.configuration.publicConcerts.copySuccess", "Public concerts feed URL copied."), "success");
+                  showToast(
+                    label("js.configuration.publicConcerts.copySuccess", "Public concerts feed URL copied."),
+                    "success"
+                  );
                 } catch {
                   showToast(label("js.configuration.publicConcerts.copyFailed", "Copy failed"), "error");
                 }
@@ -105,7 +106,7 @@ export default function PublicConcertsPreviewPage() {
               {label("js.configuration.publicConcerts.copyUrl", "Copy URL")}
             </button>
           </div>
-        )}
+        }
       />
 
       <DetailSection className="space-y-3">
@@ -148,8 +149,7 @@ export default function PublicConcertsPreviewPage() {
             </li>
           </ul>
           <p className="mt-2 text-xs text-base-content/70">
-            {label("js.configuration.publicConcerts.paramsExample", "Example:")}{" "}
-            <code>{feedRangeExampleUrl}</code>
+            {label("js.configuration.publicConcerts.paramsExample", "Example:")} <code>{feedRangeExampleUrl}</code>
           </p>
         </div>
         {error ? (

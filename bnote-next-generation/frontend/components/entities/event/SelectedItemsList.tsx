@@ -31,9 +31,7 @@ export function SelectedItemsList({
   if (selected.length === 0) {
     return (
       <div className={className}>
-        <span className="text-sm text-base-content/60">
-          {emptyLabel}
-        </span>
+        <span className="text-sm text-base-content/60">{emptyLabel}</span>
       </div>
     );
   }
@@ -50,18 +48,9 @@ export function SelectedItemsList({
           >
             <div className="flex flex-col">
               <span className="font-medium">{opt.name}</span>
-              {opt.subtitle ? (
-                <span className="text-xs text-base-content/60">
-                  {opt.subtitle}
-                </span>
-              ) : null}
+              {opt.subtitle ? <span className="text-xs text-base-content/60">{opt.subtitle}</span> : null}
             </div>
-            {removable ? (
-              <RemoveOptionButton
-                onClick={() => onRemove(id)}
-                ariaLabel={labelRemove}
-              />
-            ) : null}
+            {removable ? <RemoveOptionButton onClick={() => onRemove(id)} ariaLabel={labelRemove} /> : null}
           </div>
         );
       })}

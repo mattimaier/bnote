@@ -1,1 +1,148 @@
-{"features":{"showQuickActions":false},"entities":{"developer":{"color":"#7C3AED","icon":"terminal"},"imprint":{"color":"#64748B","icon":"building"},"privacy":{"color":"#0D9488","icon":"shield-check"},"stats":{"color":"#3399FF","icon":"chart-bar"},"wrapped":{"color":"var(--chart-4)","icon":"confetti"},"rehearsal":{"color":"#3399FF","icon":"music"},"concert":{"color":"oklch(0.68 0.20 80)","icon":"mic-vocal"},"contact":{"color":"#14B8A6","icon":"user-circle"},"location":{"color":"#F97316","icon":"map-pin"},"user":{"color":"#3B82F6","icon":"user"},"song":{"color":"#6366F1","icon":"music"},"repertoire":{"color":"#6366F1","icon":"file-music"},"task":{"color":"#25A65A","icon":"check-square"},"meeting":{"color":"oklch(0.62 0.18 150)","icon":"users"},"appointment":{"color":"#8b6914","icon":"calendar"},"equipment":{"color":"#6B7280","icon":"package"},"tour":{"color":"oklch(0.65 0.15 300)","icon":"map"},"outfit":{"color":"#EC4899","icon":"shirt"},"vote":{"color":"#A855F7","icon":"vote"},"reservation":{"color":"#F97316","icon":"calendar-check"},"calendar":{"color":"#0EA5E9","icon":"calendar-days"},"news":{"color":"#F59E0B","icon":"newspaper"},"share":{"color":"#06B6D4","icon":"share-2"},"email":{"color":"#8B5CF6","icon":"mail"},"settings":{"color":"#6B7280","icon":"settings"},"configuration":{"color":"#9A3412","icon":"key"},"terms":{"color":"#64748B","icon":"file-text"},"changelog":{"color":"#0EA5E9","icon":"file-text"},"system-information":{"color":"#0EA5E9","icon":"info"},"help":{"color":"#0EA5E9","icon":"help-circle"},"search":{"color":"#0EA5E9","icon":"search"}},"statuses":{"planned":{"color":"var(--muted-foreground)"},"confirmed":{"color":"var(--success)"},"cancelled":{"color":"var(--destructive)"},"active":{"color":"var(--success)"},"inactive":{"color":"var(--destructive)"}}}
+{
+  "entities": {
+    "appointment": {
+      "color": "#8b6914",
+      "icon": "calendar"
+    },
+    "calendar": {
+      "color": "#0EA5E9",
+      "icon": "calendar-days"
+    },
+    "changelog": {
+      "color": "#0EA5E9",
+      "icon": "file-text"
+    },
+    "concert": {
+      "color": "oklch(0.68 0.20 80)",
+      "icon": "mic-vocal"
+    },
+    "configuration": {
+      "color": "#9A3412",
+      "icon": "key"
+    },
+    "contact": {
+      "color": "#14B8A6",
+      "icon": "user-circle"
+    },
+    "developer": {
+      "color": "#7C3AED",
+      "icon": "terminal"
+    },
+    "email": {
+      "color": "#8B5CF6",
+      "icon": "mail"
+    },
+    "equipment": {
+      "color": "#6B7280",
+      "icon": "package"
+    },
+    "help": {
+      "color": "#0EA5E9",
+      "icon": "help-circle"
+    },
+    "imprint": {
+      "color": "#64748B",
+      "icon": "building"
+    },
+    "location": {
+      "color": "#F97316",
+      "icon": "map-pin"
+    },
+    "meeting": {
+      "color": "oklch(0.62 0.18 150)",
+      "icon": "users"
+    },
+    "news": {
+      "color": "#F59E0B",
+      "icon": "newspaper"
+    },
+    "outfit": {
+      "color": "#EC4899",
+      "icon": "shirt"
+    },
+    "privacy": {
+      "color": "#0D9488",
+      "icon": "shield-check"
+    },
+    "rehearsal": {
+      "color": "#3399FF",
+      "icon": "music"
+    },
+    "repertoire": {
+      "color": "#6366F1",
+      "icon": "file-music"
+    },
+    "reservation": {
+      "color": "#F97316",
+      "icon": "calendar-check"
+    },
+    "search": {
+      "color": "#0EA5E9",
+      "icon": "search"
+    },
+    "settings": {
+      "color": "#6B7280",
+      "icon": "settings"
+    },
+    "share": {
+      "color": "#06B6D4",
+      "icon": "share-2"
+    },
+    "song": {
+      "color": "#6366F1",
+      "icon": "music"
+    },
+    "stats": {
+      "color": "#3399FF",
+      "icon": "chart-bar"
+    },
+    "system-information": {
+      "color": "#0EA5E9",
+      "icon": "info"
+    },
+    "task": {
+      "color": "#25A65A",
+      "icon": "check-square"
+    },
+    "terms": {
+      "color": "#64748B",
+      "icon": "file-text"
+    },
+    "tour": {
+      "color": "oklch(0.65 0.15 300)",
+      "icon": "map"
+    },
+    "user": {
+      "color": "#3B82F6",
+      "icon": "user"
+    },
+    "vote": {
+      "color": "#A855F7",
+      "icon": "vote"
+    },
+    "wrapped": {
+      "color": "var(--chart-4)",
+      "icon": "confetti"
+    }
+  },
+  "features": {
+    "showQuickActions": false
+  },
+  "statuses": {
+    "active": {
+      "color": "var(--success)"
+    },
+    "cancelled": {
+      "color": "var(--destructive)"
+    },
+    "confirmed": {
+      "color": "var(--success)"
+    },
+    "inactive": {
+      "color": "var(--destructive)"
+    },
+    "planned": {
+      "color": "var(--muted-foreground)"
+    }
+  }
+}

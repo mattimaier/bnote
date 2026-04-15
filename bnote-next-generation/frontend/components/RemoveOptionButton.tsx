@@ -13,10 +13,7 @@ export interface RemoveOptionButtonProps {
   ariaLabel?: string;
 }
 
-export function RemoveOptionButton({
-  onClick,
-  ariaLabel = "Remove",
-}: RemoveOptionButtonProps) {
+export function RemoveOptionButton({ onClick, ariaLabel = "Remove" }: RemoveOptionButtonProps) {
   return (
     <button
       type="button"

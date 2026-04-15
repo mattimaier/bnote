@@ -108,9 +108,7 @@ const curatedEntries = normalizeCuratedEntries(overrides?.entries ?? []);
 
 const seenBugIds = new Set();
 const bugEntries = [];
-const gitLog = safeExec(
-  `git -C "${repoRoot}" log --date=iso-strict --pretty=format:%H%x09%h%x09%cI%x09%s`
-);
+const gitLog = safeExec(`git -C "${repoRoot}" log --date=iso-strict --pretty=format:%H%x09%h%x09%cI%x09%s`);
 const lines = gitLog ? gitLog.split("\n") : [];
 for (const line of lines) {
   const [, , date = "", ...subjectParts] = line.split("\t");
@@ -175,7 +173,9 @@ const payload = {
 
 const shouldWrite =
   String(process.env.BETA_CHANGELOG_WRITE ?? "").trim() === "1" ||
-  String(process.env.CI ?? "").trim().toLowerCase() === "true" ||
+  String(process.env.CI ?? "")
+    .trim()
+    .toLowerCase() === "true" ||
   !existsSync(outputPath);
 
 if (!shouldWrite) {

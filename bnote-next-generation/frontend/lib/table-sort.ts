@@ -30,7 +30,11 @@ export function compareString(a: string | null | undefined, b: string | null | u
  * Compare two date-like values (ISO string or Date). Sorts by timestamp.
  * null/undefined/invalid dates sort to the end in asc, to the start in desc (so "no date" appears last when ascending).
  */
-export function compareDate(a: string | Date | null | undefined, b: string | Date | null | undefined, dir: SortDirection): number {
+export function compareDate(
+  a: string | Date | null | undefined,
+  b: string | Date | null | undefined,
+  dir: SortDirection
+): number {
   const parse = (v: string | Date | null | undefined): number | null => {
     if (v == null) return null;
     if (v instanceof Date) return v.getTime();

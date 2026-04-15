@@ -68,11 +68,7 @@ export function AppSidebar() {
           href="/dashboard/"
           prefetch={false}
           className="flex min-h-0 w-full min-w-0 items-center gap-3 rounded-box px-3 py-2.5 transition-colors hover:bg-base-300/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-          aria-label={
-            t("js.sidebar.dashboard") !== "js.sidebar.dashboard"
-              ? t("js.sidebar.dashboard")
-              : "Dashboard"
-          }
+          aria-label={t("js.sidebar.dashboard") !== "js.sidebar.dashboard" ? t("js.sidebar.dashboard") : "Dashboard"}
         >
           <BNoteLogo size="sm" />
           <span className="font-semibold text-sm text-base-content">BNote</span>

@@ -23,7 +23,8 @@ interface ThemeToggleProps {
 export function ThemeToggle({ inline = false }: ThemeToggleProps) {
   const { t } = useI18n();
   const [dark, setDark] = useState(false);
-  const toggleLabel = t("js.common.toggleTheme") !== "js.common.toggleTheme" ? t("js.common.toggleTheme") : "Toggle theme";
+  const toggleLabel =
+    t("js.common.toggleTheme") !== "js.common.toggleTheme" ? t("js.common.toggleTheme") : "Toggle theme";
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -66,12 +67,7 @@ export function ThemeToggle({ inline = false }: ThemeToggleProps) {
       aria-label={toggleLabel}
     >
       {dark ? (
-        <svg
-          className="h-5 w-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
+        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -80,12 +76,7 @@ export function ThemeToggle({ inline = false }: ThemeToggleProps) {
           />
         </svg>
       ) : (
-        <svg
-          className="h-5 w-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
+        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             strokeLinecap="round"
             strokeLinejoin="round"

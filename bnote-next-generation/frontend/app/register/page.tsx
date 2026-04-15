@@ -154,21 +154,7 @@ function RegisterFormInner() {
     if (!registerPasswordValid(pw1)) return false;
     if (pw1 !== pw2) return false;
     return true;
-  }, [
-    name,
-    surname,
-    email,
-    street,
-    zip,
-    city,
-    birthday,
-    phone,
-    instrumentId,
-    countryRowId,
-    terms,
-    pw1,
-    pw2,
-  ]);
+  }, [name, surname, email, street, zip, city, birthday, phone, instrumentId, countryRowId, terms, pw1, pw2]);
 
   function validateClient(): boolean {
     const fe: Record<string, string> = {};
@@ -200,8 +186,7 @@ function RegisterFormInner() {
     e.preventDefault();
     setSubmitError("");
     if (!validateClient()) return;
-    const countryCode =
-      options && countryRowId > 0 ? options.countries[countryRowId - 1]?.code ?? "" : "";
+    const countryCode = options && countryRowId > 0 ? (options.countries[countryRowId - 1]?.code ?? "") : "";
     setSubmitting(true);
     try {
       const data = await api.post<RegisterSuccess>("auth", "register", {
@@ -312,8 +297,7 @@ function RegisterFormInner() {
   ];
 
   const pwdInputs = [email, name, surname].filter(Boolean);
-  const emailIssue =
-    fieldErrors.email || (emailSyntaxWarning ? t("js.register.error.emailInvalid") : "");
+  const emailIssue = fieldErrors.email || (emailSyntaxWarning ? t("js.register.error.emailInvalid") : "");
 
   return (
     <div className="w-full max-w-2xl pb-24 sm:mx-4 sm:pb-0">
@@ -350,9 +334,7 @@ function RegisterFormInner() {
                 onChange={(e) => setName(e.target.value)}
                 className="input input-md w-full"
               />
-              {fieldErrors.name ? (
-                <p className="mt-1 text-xs text-error">{fieldErrors.name}</p>
-              ) : null}
+              {fieldErrors.name ? <p className="mt-1 text-xs text-error">{fieldErrors.name}</p> : null}
             </div>
             <div>
               <label htmlFor="reg-surname" className="mb-1 block text-sm font-medium">
@@ -366,9 +348,7 @@ function RegisterFormInner() {
                 onChange={(e) => setSurname(e.target.value)}
                 className="input input-md w-full"
               />
-              {fieldErrors.surname ? (
-                <p className="mt-1 text-xs text-error">{fieldErrors.surname}</p>
-              ) : null}
+              {fieldErrors.surname ? <p className="mt-1 text-xs text-error">{fieldErrors.surname}</p> : null}
             </div>
           </div>
 
@@ -394,9 +374,7 @@ function RegisterFormInner() {
               className={`input input-md w-full${emailIssue ? " input-error" : ""}`}
               aria-invalid={emailIssue ? true : undefined}
             />
-            {emailIssue ? (
-              <p className="mt-1 text-xs text-error">{emailIssue}</p>
-            ) : null}
+            {emailIssue ? <p className="mt-1 text-xs text-error">{emailIssue}</p> : null}
           </div>
 
           <div>
@@ -412,9 +390,7 @@ function RegisterFormInner() {
               onChange={(e) => setPhone(e.target.value)}
               className={`input input-md w-full${fieldErrors.phone ? " input-error" : ""}`}
             />
-            {fieldErrors.phone ? (
-              <p className="mt-1 text-xs text-error">{fieldErrors.phone}</p>
-            ) : null}
+            {fieldErrors.phone ? <p className="mt-1 text-xs text-error">{fieldErrors.phone}</p> : null}
           </div>
 
           <div>
@@ -429,9 +405,7 @@ function RegisterFormInner() {
               onChange={(e) => setStreet(e.target.value)}
               className="input input-md w-full"
             />
-            {fieldErrors.street ? (
-              <p className="mt-1 text-xs text-error">{fieldErrors.street}</p>
-            ) : null}
+            {fieldErrors.street ? <p className="mt-1 text-xs text-error">{fieldErrors.street}</p> : null}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -447,9 +421,7 @@ function RegisterFormInner() {
                 onChange={(e) => setZip(e.target.value)}
                 className="input input-md w-full"
               />
-              {fieldErrors.zip ? (
-                <p className="mt-1 text-xs text-error">{fieldErrors.zip}</p>
-              ) : null}
+              {fieldErrors.zip ? <p className="mt-1 text-xs text-error">{fieldErrors.zip}</p> : null}
             </div>
             <div>
               <label htmlFor="reg-city" className="mb-1 block text-sm font-medium">
@@ -463,9 +435,7 @@ function RegisterFormInner() {
                 onChange={(e) => setCity(e.target.value)}
                 className="input input-md w-full"
               />
-              {fieldErrors.city ? (
-                <p className="mt-1 text-xs text-error">{fieldErrors.city}</p>
-              ) : null}
+              {fieldErrors.city ? <p className="mt-1 text-xs text-error">{fieldErrors.city}</p> : null}
             </div>
           </div>
 
@@ -479,9 +449,7 @@ function RegisterFormInner() {
               labelNoMatches={t("js.common.noMatches")}
               labelClose={t("js.common.close")}
             />
-            {fieldErrors.country ? (
-              <p className="mt-1 text-xs text-error">{fieldErrors.country}</p>
-            ) : null}
+            {fieldErrors.country ? <p className="mt-1 text-xs text-error">{fieldErrors.country}</p> : null}
           </div>
 
           <div>
@@ -498,9 +466,7 @@ function RegisterFormInner() {
               autoComplete="bday"
               className={`input input-md w-full${fieldErrors.birthday ? " input-error" : ""}`}
             />
-            {fieldErrors.birthday ? (
-              <p className="mt-1 text-xs text-error">{fieldErrors.birthday}</p>
-            ) : null}
+            {fieldErrors.birthday ? <p className="mt-1 text-xs text-error">{fieldErrors.birthday}</p> : null}
           </div>
 
           <div className="w-full min-w-0 [&_div.relative]:max-w-none">
@@ -514,9 +480,7 @@ function RegisterFormInner() {
               labelClose={t("js.common.close")}
               passwordManagerIgnore
             />
-            {fieldErrors.instrument ? (
-              <p className="mt-1 text-xs text-error">{fieldErrors.instrument}</p>
-            ) : null}
+            {fieldErrors.instrument ? <p className="mt-1 text-xs text-error">{fieldErrors.instrument}</p> : null}
           </div>
 
           <div>
@@ -531,9 +495,7 @@ function RegisterFormInner() {
               placeholder={t("js.register.passwordPlaceholder")}
               userInputs={pwdInputs}
             />
-            {fieldErrors.pw1 ? (
-              <p className="mt-1 text-xs text-error">{fieldErrors.pw1}</p>
-            ) : null}
+            {fieldErrors.pw1 ? <p className="mt-1 text-xs text-error">{fieldErrors.pw1}</p> : null}
           </div>
 
           <div>
@@ -549,9 +511,7 @@ function RegisterFormInner() {
               placeholder={t("js.register.passwordConfirmPlaceholder")}
               className="input input-md w-full"
             />
-            {fieldErrors.pw2 ? (
-              <p className="mt-1 text-xs text-error">{fieldErrors.pw2}</p>
-            ) : null}
+            {fieldErrors.pw2 ? <p className="mt-1 text-xs text-error">{fieldErrors.pw2}</p> : null}
           </div>
 
           <div className="flex items-start gap-2">
@@ -574,9 +534,7 @@ function RegisterFormInner() {
               </label>
             </div>
           </div>
-          {fieldErrors.terms ? (
-            <p className="text-xs text-error">{fieldErrors.terms}</p>
-          ) : null}
+          {fieldErrors.terms ? <p className="text-xs text-error">{fieldErrors.terms}</p> : null}
 
           {submitError ? (
             <div className="rounded-lg border border-error/20 bg-error/10 px-4 py-3 text-sm text-error">
@@ -584,11 +542,7 @@ function RegisterFormInner() {
             </div>
           ) : null}
 
-          <button
-            type="submit"
-            disabled={submitting || !canSubmit}
-            className="btn btn-primary btn-lg btn-block"
-          >
+          <button type="submit" disabled={submitting || !canSubmit} className="btn btn-primary btn-lg btn-block">
             {submitting ? t("js.register.submitting") : t("js.register.submit")}
           </button>
         </form>

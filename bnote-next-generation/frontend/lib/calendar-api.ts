@@ -37,8 +37,7 @@ export interface CalendarSubscriptionLink {
 }
 
 export const calendarApi = {
-  getEvents: (from: string, to: string) =>
-    api.get<CalendarEvent[]>("calendar", "getEvents", { from, to }),
+  getEvents: (from: string, to: string) => api.get<CalendarEvent[]>("calendar", "getEvents", { from, to }),
   getCapabilities: () => api.get<CalendarCapabilities>("calendar", "getCapabilities"),
   getSubscriptionLink: async (): Promise<CalendarSubscriptionLink> => {
     const res = await api.post<{

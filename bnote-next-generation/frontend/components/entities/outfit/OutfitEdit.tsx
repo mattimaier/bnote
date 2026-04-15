@@ -46,9 +46,7 @@ export function OutfitEdit() {
         setName(o.name ?? "");
         setDescription(o.description ?? "");
       })
-      .catch((err) =>
-        setError(getErrorMessage(err, t, "js.common.failedToLoad"))
-      )
+      .catch((err) => setError(getErrorMessage(err, t, "js.common.failedToLoad")))
       .finally(() => setLoading(false));
   }, [id, isNew]);
 
@@ -66,28 +64,18 @@ export function OutfitEdit() {
       if (isNew) {
         const res = await outfitsApi.create(payload);
         showToast(
-          t("js.outfits.created") !== "js.outfits.created"
-            ? t("js.outfits.created")
-            : "Outfit created",
+          t("js.outfits.created") !== "js.outfits.created" ? t("js.outfits.created") : "Outfit created",
           "success"
         );
         router.replace(getEntityPath("outfit", res.id, "view"));
       } else {
         await outfitsApi.update(parseInt(id, 10), payload);
-        showToast(
-          t("js.common.saved") !== "js.common.saved"
-            ? t("js.common.saved")
-            : "Saved",
-          "success"
-        );
+        showToast(t("js.common.saved") !== "js.common.saved" ? t("js.common.saved") : "Saved", "success");
         router.replace(getEntityPath("outfit", id, "view"));
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Save failed");
-      showToast(
-        err instanceof Error ? err.message : "Save failed",
-        "error"
-      );
+      showToast(err instanceof Error ? err.message : "Save failed", "error");
     } finally {
       setSaving(false);
     }
@@ -146,22 +134,14 @@ export function OutfitEdit() {
     <div className={PAGE_CONTENT_CLASS}>
       <form id="outfit-edit-form" onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div
-            className="rounded-lg border border-error bg-error/15 px-4 py-3 text-sm text-error"
-          >
-            {error}
-          </div>
+          <div className="rounded-lg border border-error bg-error/15 px-4 py-3 text-sm text-error">{error}</div>
         )}
 
-        <div
-          className="rounded-none border-0 shadow-none p-4 md:rounded-box md:border md:border-base-300 md:shadow-sm md:p-6 bg-base-100 md:bg-base-100 text-base-content"
-        >
+        <div className="rounded-none border-0 shadow-none p-4 md:rounded-box md:border md:border-base-300 md:shadow-sm md:p-6 bg-base-100 md:bg-base-100 text-base-content">
           <div className="space-y-4">
             <div>
               <label className="mb-1 block text-sm font-medium">
-                {t("js.outfits.name") !== "js.outfits.name"
-                  ? t("js.outfits.name")
-                  : "Name"}
+                {t("js.outfits.name") !== "js.outfits.name" ? t("js.outfits.name") : "Name"}
               </label>
               <input
                 type="text"
@@ -172,9 +152,7 @@ export function OutfitEdit() {
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium">
-                {t("js.outfits.description") !== "js.outfits.description"
-                  ? t("js.outfits.description")
-                  : "Description"}
+                {t("js.outfits.description") !== "js.outfits.description" ? t("js.outfits.description") : "Description"}
               </label>
               <textarea
                 rows={4}

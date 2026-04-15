@@ -10,11 +10,7 @@ export type TranslateFn = (key: string) => string;
  * Returns a user-facing error message from an unknown error and optional i18n.
  * Uses fallbackKey (e.g. "js.common.failedToLoad") when error has no message.
  */
-export function getErrorMessage(
-  err: unknown,
-  t: TranslateFn,
-  fallbackKey: string
-): string {
+export function getErrorMessage(err: unknown, t: TranslateFn, fallbackKey: string): string {
   if (err instanceof Error && err.message?.trim()) {
     const raw = err.message.trim();
     const translated = t(raw);

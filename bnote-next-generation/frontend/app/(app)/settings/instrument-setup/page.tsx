@@ -8,10 +8,7 @@ import { ConfirmModal } from "@/components/ConfirmModal";
 import { Spinner } from "@/components/Spinner";
 import { useI18n } from "@/contexts/I18nContext";
 import { useToast } from "@/contexts/ToastContext";
-import {
-  configurationApi,
-  type InstrumentSectionConfig,
-} from "@/lib/configuration-api";
+import { configurationApi, type InstrumentSectionConfig } from "@/lib/configuration-api";
 import { getErrorMessage } from "@/lib/error-utils";
 import { PAGE_CONTENT_CLASS } from "@/lib/layout";
 import { useSectionAutosave } from "@/lib/use-section-autosave";
@@ -66,12 +63,16 @@ export default function InstrumentSetupPage() {
     setLoading(true);
     try {
       const cfgRes = await configurationApi.getConfig();
-      const sectionCoverageEnabled = cfgRes?.values?.beta_section_coverage_enabled === true
-        || cfgRes?.values?.beta_section_coverage_enabled === 1
-        || cfgRes?.values?.beta_section_coverage_enabled === "1";
+      const sectionCoverageEnabled =
+        cfgRes?.values?.beta_section_coverage_enabled === true ||
+        cfgRes?.values?.beta_section_coverage_enabled === 1 ||
+        cfgRes?.values?.beta_section_coverage_enabled === "1";
       if (!sectionCoverageEnabled) {
         showToast(
-          label("js.configuration.instruments.setupDisabled", "Section setup is disabled. You were redirected to instrument minimums."),
+          label(
+            "js.configuration.instruments.setupDisabled",
+            "Section setup is disabled. You were redirected to instrument minimums."
+          ),
           "default"
         );
         router.replace("/settings/instrument-minimums");
@@ -101,7 +102,9 @@ export default function InstrumentSetupPage() {
       setInstruments(nextInstruments);
       setSections(nextSections);
       setConfirmedSections(nextSections);
-      setSelectedSectionId((prev) => (prev && nextSections.some((section) => section.id === prev) ? prev : (nextSections[0]?.id ?? null)));
+      setSelectedSectionId((prev) =>
+        prev && nextSections.some((section) => section.id === prev) ? prev : (nextSections[0]?.id ?? null)
+      );
     } catch (err) {
       showToast(getErrorMessage(err, t, "js.common.failedToLoad"), "error");
     } finally {
@@ -156,9 +159,7 @@ export default function InstrumentSetupPage() {
   function deleteConcertTarget(sectionId: string, index: number) {
     const section = sections.find((entry) => entry.id === sectionId);
     if (!section) return;
-    const nextTargets = (section.concert_instrument_targets ?? []).filter(
-      (_, targetIndex) => targetIndex !== index
-    );
+    const nextTargets = (section.concert_instrument_targets ?? []).filter((_, targetIndex) => targetIndex !== index);
     updateSection(sectionId, { concert_instrument_targets: nextTargets });
   }
 
@@ -168,7 +169,11 @@ export default function InstrumentSetupPage() {
     save: async (nextSectionsInput) => {
       const sanitized = nextSectionsInput
         .map((section) => ({
-          id: String(section.id ?? "").trim().startsWith("tmp_") ? "" : String(section.id ?? "").trim(),
+          id: String(section.id ?? "")
+            .trim()
+            .startsWith("tmp_")
+            ? ""
+            : String(section.id ?? "").trim(),
           name: String(section.name ?? "").trim(),
           instrument_ids: (section.instrument_ids ?? []).map((id) => Number(id)).filter((id) => id > 0),
           rehearsal_min_total: Math.max(0, Math.floor(Number(section.rehearsal_min_total) || 0)),
@@ -185,7 +190,9 @@ export default function InstrumentSetupPage() {
       const nextSections = Array.isArray(res?.sections) ? res.sections : sanitized;
       setSections(nextSections);
       setConfirmedSections(nextSections);
-      setSelectedSectionId((prev) => (prev && nextSections.some((section) => section.id === prev) ? prev : (nextSections[0]?.id ?? null)));
+      setSelectedSectionId((prev) =>
+        prev && nextSections.some((section) => section.id === prev) ? prev : (nextSections[0]?.id ?? null)
+      );
     },
     onError: (err) => {
       showToast(getErrorMessage(err, t, "js.common.saveFailed"), "error");
@@ -318,9 +325,12 @@ export default function InstrumentSetupPage() {
                   onClick={() => setSelectedSectionId(section.id)}
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <span className="font-medium text-sm">{section.name || label("js.common.untitled", "Untitled")}</span>
+                    <span className="font-medium text-sm">
+                      {section.name || label("js.common.untitled", "Untitled")}
+                    </span>
                     <span className="text-xs text-base-content/60">
-                      {Math.max(0, Number(section.rehearsal_min_total || 0))} / {Math.max(0, Number(section.concert_min_total || 0))}
+                      {Math.max(0, Number(section.rehearsal_min_total || 0))} /{" "}
+                      {Math.max(0, Number(section.concert_min_total || 0))}
                     </span>
                   </div>
                 </button>
@@ -429,7 +439,9 @@ export default function InstrumentSetupPage() {
                                     const nextMap = instrumentCountMap(selectedSection.instrument_ids);
                                     if (nextCount <= 0) nextMap.delete(instrument.id);
                                     else nextMap.set(instrument.id, nextCount);
-                                    updateSection(selectedSection.id, { instrument_ids: expandInstrumentCounts(nextMap) });
+                                    updateSection(selectedSection.id, {
+                                      instrument_ids: expandInstrumentCounts(nextMap),
+                                    });
                                   }}
                                   onBlur={() => void sectionsAutosave.flush()}
                                 />
@@ -473,12 +485,16 @@ export default function InstrumentSetupPage() {
                                     instrument_id: nextInstrumentId,
                                   };
                                   updateSection(selectedSection.id, {
-                                    concert_instrument_targets: nextTargets.filter((item) => item.instrument_id > 0 && item.required > 0),
+                                    concert_instrument_targets: nextTargets.filter(
+                                      (item) => item.instrument_id > 0 && item.required > 0
+                                    ),
                                   });
                                 }}
                                 onBlur={() => void sectionsAutosave.flush()}
                               >
-                                <option value={0}>{label("js.configuration.instruments.selectInstrument", "Select instrument")}</option>
+                                <option value={0}>
+                                  {label("js.configuration.instruments.selectInstrument", "Select instrument")}
+                                </option>
                                 {instrumentOptions.map((instrument) => (
                                   <option key={instrument.id} value={instrument.id}>
                                     {instrument.name}
@@ -534,7 +550,10 @@ export default function InstrumentSetupPage() {
                     type="button"
                     className="btn btn-soft btn-primary btn-sm"
                     onClick={() => {
-                      const next = [...(selectedSection.concert_instrument_targets ?? []), { instrument_id: 0, required: 1 }];
+                      const next = [
+                        ...(selectedSection.concert_instrument_targets ?? []),
+                        { instrument_id: 0, required: 1 },
+                      ];
                       updateSection(selectedSection.id, { concert_instrument_targets: next });
                     }}
                   >
@@ -584,10 +603,7 @@ export default function InstrumentSetupPage() {
         cancelLabel={label("js.common.cancel", "Cancel")}
         onConfirm={() => {
           if (!pendingConcertTargetDelete) return;
-          deleteConcertTarget(
-            pendingConcertTargetDelete.sectionId,
-            pendingConcertTargetDelete.index
-          );
+          deleteConcertTarget(pendingConcertTargetDelete.sectionId, pendingConcertTargetDelete.index);
           setPendingConcertTargetDelete(null);
         }}
         variant="danger"

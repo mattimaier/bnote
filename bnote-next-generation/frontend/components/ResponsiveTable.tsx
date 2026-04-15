@@ -84,74 +84,65 @@ export function ResponsiveTable<TRow, TSortKey extends string = string>({
   const useCustomRow = typeof renderMobileRow === "function";
   const sortAscTitle = t("js.table.ascending") !== "js.table.ascending" ? t("js.table.ascending") : "Ascending";
   const sortDescTitle = t("js.table.descending") !== "js.table.descending" ? t("js.table.descending") : "Descending";
-  const sortAscLabel = t("js.table.sortAscending") !== "js.table.sortAscending" ? t("js.table.sortAscending") : "Sort ascending";
-  const sortDescLabel = t("js.table.sortDescending") !== "js.table.sortDescending" ? t("js.table.sortDescending") : "Sort descending";
+  const sortAscLabel =
+    t("js.table.sortAscending") !== "js.table.sortAscending" ? t("js.table.sortAscending") : "Sort ascending";
+  const sortDescLabel =
+    t("js.table.sortDescending") !== "js.table.sortDescending" ? t("js.table.sortDescending") : "Sort descending";
 
   return (
     <>
       <div className="hidden md:block overflow-x-auto">{children}</div>
       <div className="md:hidden flex flex-col px-0 pb-3 overflow-x-hidden">
-      {sortOptions.length > 0 && onSort && (
-        <div className="flex items-center justify-end gap-2 px-1.5 py-2">
-          <select
-            value={sortKey ?? sortOptions[0]?.key ?? ""}
-            onChange={(e) => onSort(e.target.value as TSortKey)}
-            className="input input-sm h-8 min-h-8"
-          >
-            {sortOptions.map((opt) => (
-              <option key={opt.key} value={opt.key}>
-                {opt.label}
-              </option>
+        {sortOptions.length > 0 && onSort && (
+          <div className="flex items-center justify-end gap-2 px-1.5 py-2">
+            <select
+              value={sortKey ?? sortOptions[0]?.key ?? ""}
+              onChange={(e) => onSort(e.target.value as TSortKey)}
+              className="input input-sm h-8 min-h-8"
+            >
+              {sortOptions.map((opt) => (
+                <option key={opt.key} value={opt.key}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+            {sortKey != null && onSort && (
+              <button
+                type="button"
+                onClick={() => onSort(sortKey)}
+                className="p-1 rounded-field transition-opacity hover:opacity-80 text-base-content"
+                title={sortDir === "asc" ? sortAscTitle : sortDescTitle}
+                aria-label={sortDir === "asc" ? sortAscLabel : sortDescLabel}
+              >
+                {sortDir === "asc" ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />}
+              </button>
+            )}
+          </div>
+        )}
+        {rows.length === 0 ? (
+          <div className="py-8 text-center text-sm text-base-content/60">{emptyMessage}</div>
+        ) : (
+          <ul className="list-none p-0 m-0 space-y-1 overflow-x-hidden">
+            {rows.map((row, index) => (
+              <li key={getRowKey(row)} className={index < rows.length - 1 ? "border-b border-base-300" : ""}>
+                {useCustomRow ? (
+                  renderMobileRow(row)
+                ) : (
+                  <button
+                    type="button"
+                    className="w-full text-left cursor-pointer py-3 transition-colors hover:bg-base-200/50"
+                    onClick={() => onRowClick(row)}
+                  >
+                    <div className="font-semibold text-sm text-base-content">{getMobileTitle!(row)}</div>
+                    <div className="text-sm mt-0.5 text-base-content/60">
+                      {normalizeSubtitle(getMobileSubtitle!(row))}
+                    </div>
+                  </button>
+                )}
+              </li>
             ))}
-          </select>
-          {sortKey != null && onSort && (
-            <button
-              type="button"
-              onClick={() => onSort(sortKey)}
-              className="p-1 rounded-field transition-opacity hover:opacity-80 text-base-content"
-              title={sortDir === "asc" ? sortAscTitle : sortDescTitle}
-              aria-label={sortDir === "asc" ? sortAscLabel : sortDescLabel}
-            >
-              {sortDir === "asc" ? (
-                <ArrowUp className="h-4 w-4" />
-              ) : (
-                <ArrowDown className="h-4 w-4" />
-              )}
-            </button>
-          )}
-        </div>
-      )}
-      {rows.length === 0 ? (
-        <div className="py-8 text-center text-sm text-base-content/60">
-          {emptyMessage}
-        </div>
-      ) : (
-        <ul className="list-none p-0 m-0 space-y-1 overflow-x-hidden">
-          {rows.map((row, index) => (
-            <li
-              key={getRowKey(row)}
-              className={index < rows.length - 1 ? "border-b border-base-300" : ""}
-            >
-              {useCustomRow ? (
-                renderMobileRow(row)
-              ) : (
-                <button
-                  type="button"
-                  className="w-full text-left cursor-pointer py-3 transition-colors hover:bg-base-200/50"
-                  onClick={() => onRowClick(row)}
-                >
-                  <div className="font-semibold text-sm text-base-content">
-                    {getMobileTitle!(row)}
-                  </div>
-                  <div className="text-sm mt-0.5 text-base-content/60">
-                    {normalizeSubtitle(getMobileSubtitle!(row))}
-                  </div>
-                </button>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
+          </ul>
+        )}
       </div>
     </>
   );

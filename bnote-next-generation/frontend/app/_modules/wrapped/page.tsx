@@ -28,8 +28,10 @@ function formatMonthLabel(value: string, lang: string): string {
 }
 
 function medalCircleTone(level: BadgeLevel): string {
-  if (level === "gold") return "bg-gradient-to-br from-[#f8de83]/35 to-[#d4af37]/20 text-[#b38712] dark:text-[#f0d27a] border-[#d4af37]/45";
-  if (level === "silver") return "bg-gradient-to-br from-[#e4e8ef]/45 to-[#b7bcc5]/22 text-[#7f8794] dark:text-[#d6dbe3] border-[#b7bcc5]/45";
+  if (level === "gold")
+    return "bg-gradient-to-br from-[#f8de83]/35 to-[#d4af37]/20 text-[#b38712] dark:text-[#f0d27a] border-[#d4af37]/45";
+  if (level === "silver")
+    return "bg-gradient-to-br from-[#e4e8ef]/45 to-[#b7bcc5]/22 text-[#7f8794] dark:text-[#d6dbe3] border-[#b7bcc5]/45";
   return "bg-gradient-to-br from-[#e1b186]/40 to-[#b87333]/22 text-[#9b5b22] dark:text-[#d8a77a] border-[#b87333]/45";
 }
 
@@ -113,7 +115,7 @@ export default function WrappedModulePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [shareOpen, setShareOpen] = useState(false);
-  const revealStyle = (delay: number): CSSProperties => ({ "--wrapped-delay": `${delay}ms` } as CSSProperties);
+  const revealStyle = (delay: number): CSSProperties => ({ "--wrapped-delay": `${delay}ms` }) as CSSProperties;
   const themeStyle = useMemo(() => getWrappedThemeStyle(year), [year]);
 
   const wrappedTitle = data?.profile.bandName ? `${data.profile.bandName} Wrapped` : t("js.wrapped.title");
@@ -186,8 +188,12 @@ export default function WrappedModulePage() {
         <AppPageHeader
           moduleKey="wrapped"
           title={t("js.sidebar.wrapped") !== "js.sidebar.wrapped" ? t("js.sidebar.wrapped") : "Wrapped"}
-          subtitle={t("js.wrapped.subtitle") !== "js.wrapped.subtitle" ? t("js.wrapped.subtitle") : "Your personal year in music"}
-          actions={(
+          subtitle={
+            t("js.wrapped.subtitle") !== "js.wrapped.subtitle"
+              ? t("js.wrapped.subtitle")
+              : "Your personal year in music"
+          }
+          actions={
             <div className="flex w-full sm:w-auto flex-col sm:flex-row items-stretch sm:items-center gap-2">
               <select
                 className="select select-bordered h-11 min-h-11 w-full sm:w-auto text-sm font-medium"
@@ -209,7 +215,7 @@ export default function WrappedModulePage() {
                 {t("js.wrapped.share.button")}
               </ActionButton>
             </div>
-          )}
+          }
         />
       </div>
 
@@ -246,13 +252,18 @@ export default function WrappedModulePage() {
         {!loading && data ? (
           <>
             <section className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div className="card bg-base-100 border border-base-300 md:col-span-2 wrapped-reveal" style={revealStyle(80)}>
+              <div
+                className="card bg-base-100 border border-base-300 md:col-span-2 wrapped-reveal"
+                style={revealStyle(80)}
+              >
                 <div className="card-body p-4 md:p-5">
                   <div className="flex items-center justify-between">
                     <p className="text-sm text-base-content/70">{t("js.wrapped.cards.events")}</p>
                     <TablerIconByName name="calendar-days" className="h-5 w-5 text-primary" />
                   </div>
-                  <p className="wrapped-display mt-1 md:mt-2 text-4xl md:text-5xl font-semibold">{data.personal.events.total}</p>
+                  <p className="wrapped-display mt-1 md:mt-2 text-4xl md:text-5xl font-semibold">
+                    {data.personal.events.total}
+                  </p>
                   <p className="text-xs text-base-content/70">
                     {t("js.wrapped.cards.eventsBreakdown", [
                       String(data.personal.events.rehearsals),
@@ -308,7 +319,9 @@ export default function WrappedModulePage() {
                     <p className="font-semibold text-base-content">{vibeHeadline}</p>
                     <p className="mt-1">{vibeHype}</p>
                   </div>
-                  <p className="mt-3 rounded-full px-3 py-1.5 text-xs font-semibold wrapped-chip-primary">{vibeProofLine}</p>
+                  <p className="mt-3 rounded-full px-3 py-1.5 text-xs font-semibold wrapped-chip-primary">
+                    {vibeProofLine}
+                  </p>
                   {showLowerIsBetterHint ? (
                     <p className="mt-2 text-xs text-base-content/70">{t("js.wrapped.metric.deadlineGap.hint")}</p>
                   ) : null}
@@ -329,7 +342,10 @@ export default function WrappedModulePage() {
               </div>
             </section>
 
-            <section className="rounded-3xl border border-base-300 bg-base-200/40 wrapped-reveal" style={revealStyle(360)}>
+            <section
+              className="rounded-3xl border border-base-300 bg-base-200/40 wrapped-reveal"
+              style={revealStyle(360)}
+            >
               <div className="p-4 md:p-5 space-y-3">
                 <div className="flex items-center justify-between gap-2">
                   <h2 className="card-title text-base">{t("js.wrapped.achievements.title")}</h2>
@@ -343,7 +359,10 @@ export default function WrappedModulePage() {
                         <p className="text-sm font-semibold text-base-content truncate">
                           {t(`js.wrapped.achievements.badge.${badge.id}.title`)}
                         </p>
-                        <span className="inline-flex items-center" aria-label={t(`js.wrapped.achievements.level.${badge.level}`)}>
+                        <span
+                          className="inline-flex items-center"
+                          aria-label={t(`js.wrapped.achievements.level.${badge.level}`)}
+                        >
                           <span
                             className={`inline-flex h-10 w-10 items-center justify-center rounded-full border shadow-sm ${medalCircleTone(
                               badge.level
@@ -366,18 +385,28 @@ export default function WrappedModulePage() {
                     <div className="flex items-center justify-between gap-2">
                       <h3 className="font-semibold text-sm">{t("js.wrapped.achievements.band.topTitle")}</h3>
                       <span className="text-xs text-base-content/70">
-                        {t("js.wrapped.achievements.band.minEvents", [String(data.achievements.bandLeaderboard.minEvents)])}
+                        {t("js.wrapped.achievements.band.minEvents", [
+                          String(data.achievements.bandLeaderboard.minEvents),
+                        ])}
                       </span>
                     </div>
                     <div className="mt-2 space-y-2">
                       {data.achievements.bandLeaderboard.topAttendance.map((row, idx) => (
-                        <div key={`${row.firstName}-${row.surname}-${idx}`} className="rounded-xl border border-base-300 px-3 py-2 text-sm">
+                        <div
+                          key={`${row.firstName}-${row.surname}-${idx}`}
+                          className="rounded-xl border border-base-300 px-3 py-2 text-sm"
+                        >
                           <div className="flex items-center justify-between gap-2">
-                            <span className="font-medium truncate">{idx + 1}. {`${row.firstName} ${row.surname}`.trim()}</span>
+                            <span className="font-medium truncate">
+                              {idx + 1}. {`${row.firstName} ${row.surname}`.trim()}
+                            </span>
                             <span className="font-semibold">{row.attendanceRate.toFixed(1)}%</span>
                           </div>
                           <p className="text-xs text-base-content/70 mt-1">
-                            {t("js.wrapped.achievements.band.events", [String(row.eventCount), String(row.attendanceCount)])}
+                            {t("js.wrapped.achievements.band.events", [
+                              String(row.eventCount),
+                              String(row.attendanceCount),
+                            ])}
                           </p>
                         </div>
                       ))}
@@ -391,18 +420,28 @@ export default function WrappedModulePage() {
                     <div className="flex items-center justify-between gap-2">
                       <h3 className="font-semibold text-sm">{t("js.wrapped.achievements.band.lowTitle")}</h3>
                       <span className="text-xs text-base-content/70">
-                        {t("js.wrapped.achievements.band.minEvents", [String(data.achievements.bandLeaderboard.minEvents)])}
+                        {t("js.wrapped.achievements.band.minEvents", [
+                          String(data.achievements.bandLeaderboard.minEvents),
+                        ])}
                       </span>
                     </div>
                     <div className="mt-2 space-y-2">
                       {data.achievements.bandLeaderboard.lowestAttendance.map((row, idx) => (
-                        <div key={`${row.firstName}-${row.surname}-low-${idx}`} className="rounded-xl border border-base-300 px-3 py-2 text-sm">
+                        <div
+                          key={`${row.firstName}-${row.surname}-low-${idx}`}
+                          className="rounded-xl border border-base-300 px-3 py-2 text-sm"
+                        >
                           <div className="flex items-center justify-between gap-2">
-                            <span className="font-medium truncate">{idx + 1}. {`${row.firstName} ${row.surname}`.trim()}</span>
+                            <span className="font-medium truncate">
+                              {idx + 1}. {`${row.firstName} ${row.surname}`.trim()}
+                            </span>
                             <span className="font-semibold">{row.attendanceRate.toFixed(1)}%</span>
                           </div>
                           <p className="text-xs text-base-content/70 mt-1">
-                            {t("js.wrapped.achievements.band.events", [String(row.eventCount), String(row.attendanceCount)])}
+                            {t("js.wrapped.achievements.band.events", [
+                              String(row.eventCount),
+                              String(row.attendanceCount),
+                            ])}
                           </p>
                         </div>
                       ))}
@@ -414,7 +453,6 @@ export default function WrappedModulePage() {
                 </div>
               </div>
             </section>
-
           </>
         ) : null}
       </div>

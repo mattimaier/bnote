@@ -19,11 +19,7 @@ export default function DashboardPage() {
   const { t, ready } = useI18n();
   const queryClient = useQueryClient();
   const { data: session } = useSessionQuery();
-  const {
-    data,
-    isPending,
-    error,
-  } = useDashboardHomeQuery(ready);
+  const { data, isPending, error } = useDashboardHomeQuery(ready);
 
   const loadDashboard = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.home });

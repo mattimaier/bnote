@@ -14,7 +14,10 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  return ALL_DEBUG_ENTITY_TYPES.flatMap((type) => [{ type, id: "1" }, { type, id: "2" }]);
+  return ALL_DEBUG_ENTITY_TYPES.flatMap((type) => [
+    { type, id: "1" },
+    { type, id: "2" },
+  ]);
 }
 
 export default function DebugEntityPage(props: PageProps) {

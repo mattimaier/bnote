@@ -62,7 +62,11 @@ function HubCard({
           <span className="font-medium text-base-content">{title}</span>
           {href && (
             <span className="text-base-content/50">
-              {external ? <TablerIconByName name="external-link" className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+              {external ? (
+                <TablerIconByName name="external-link" className="h-4 w-4" />
+              ) : (
+                <ChevronRight className="h-4 w-4" />
+              )}
             </span>
           )}
         </div>
@@ -414,15 +418,51 @@ function DeveloperModulePageContent() {
   }, []);
 
   const nextItems = [
-    { key: "debugMain", href: "/debug/", icon: "file-code", title: "API & debug home", desc: "API tester, entity shortcuts, and icon grid." },
-    { key: "debugEntity", href: "/debug/entity/", icon: "layout-list", title: "Entity debug views", desc: "Mock view and edit flows for all entity types." },
-    { key: "debugIcons", href: "/debug/icons/", icon: "brush", title: "Icon previews", desc: "BNote icon variants and generated favicon/app icon outputs." },
+    {
+      key: "debugMain",
+      href: "/debug/",
+      icon: "file-code",
+      title: "API & debug home",
+      desc: "API tester, entity shortcuts, and icon grid.",
+    },
+    {
+      key: "debugEntity",
+      href: "/debug/entity/",
+      icon: "layout-list",
+      title: "Entity debug views",
+      desc: "Mock view and edit flows for all entity types.",
+    },
+    {
+      key: "debugIcons",
+      href: "/debug/icons/",
+      icon: "brush",
+      title: "Icon previews",
+      desc: "BNote icon variants and generated favicon/app icon outputs.",
+    },
   ] as const;
 
   const localMailItems = [
-    { key: "mailDebug", href: getApiDebugScriptUrl("mail_debug.php"), icon: "mail", title: "Mail template index", desc: "HTML table of transactional templates and locales." },
-    { key: "mailPreview", href: getApiDebugScriptUrl("mail_preview.php?template=password_reset&locale=en"), icon: "mail", title: "Mail preview (sample)", desc: "Single-template HTML (password reset, English)." },
-    { key: "mailConfig", href: getApiDebugScriptUrl("mail_config_check.php"), icon: "settings", title: "Mail environment (JSON)", desc: "SMTP-related env as seen by PHP plus preview links." },
+    {
+      key: "mailDebug",
+      href: getApiDebugScriptUrl("mail_debug.php"),
+      icon: "mail",
+      title: "Mail template index",
+      desc: "HTML table of transactional templates and locales.",
+    },
+    {
+      key: "mailPreview",
+      href: getApiDebugScriptUrl("mail_preview.php?template=password_reset&locale=en"),
+      icon: "mail",
+      title: "Mail preview (sample)",
+      desc: "Single-template HTML (password reset, English).",
+    },
+    {
+      key: "mailConfig",
+      href: getApiDebugScriptUrl("mail_config_check.php"),
+      icon: "settings",
+      title: "Mail environment (JSON)",
+      desc: "SMTP-related env as seen by PHP plus preview links.",
+    },
   ] as const;
 
   const remoteMailItems = [
@@ -514,10 +554,20 @@ function DeveloperModulePageContent() {
             accentColor={accent}
           >
             <div className="flex flex-wrap gap-2">
-              <button type="button" className="btn btn-soft btn-sm btn-primary" disabled={calendarSubLoading} onClick={() => void loadCalendarSubscription()}>
+              <button
+                type="button"
+                className="btn btn-soft btn-sm btn-primary"
+                disabled={calendarSubLoading}
+                onClick={() => void loadCalendarSubscription()}
+              >
                 {calendarSubLoading ? "Loading…" : "Load links"}
               </button>
-              <button type="button" className="btn btn-soft btn-sm btn-warning" disabled={calendarSubLoading} onClick={() => void regenerateCalendarSubscription()}>
+              <button
+                type="button"
+                className="btn btn-soft btn-sm btn-warning"
+                disabled={calendarSubLoading}
+                onClick={() => void regenerateCalendarSubscription()}
+              >
                 {calendarSubLoading ? "Regenerating…" : "Regenerate token"}
               </button>
             </div>
@@ -527,10 +577,19 @@ function DeveloperModulePageContent() {
                   <p className="font-semibold mb-1">Subscription (webcal)</p>
                   <p className="break-all font-mono">{calendarSubData.subscriptionUrl}</p>
                   <div className="mt-2 flex flex-wrap gap-2">
-                    <button type="button" className="btn btn-xs btn-soft" onClick={() => void copyText(calendarSubData.subscriptionUrl)}>
+                    <button
+                      type="button"
+                      className="btn btn-xs btn-soft"
+                      onClick={() => void copyText(calendarSubData.subscriptionUrl)}
+                    >
                       Copy
                     </button>
-                    <a href={calendarSubData.subscriptionUrl} className="btn btn-xs btn-soft" target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={calendarSubData.subscriptionUrl}
+                      className="btn btn-xs btn-soft"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       Open
                     </a>
                   </div>
@@ -539,10 +598,19 @@ function DeveloperModulePageContent() {
                   <p className="font-semibold mb-1">Download URL</p>
                   <p className="break-all font-mono">{calendarSubData.downloadUrl}</p>
                   <div className="mt-2 flex flex-wrap gap-2">
-                    <button type="button" className="btn btn-xs btn-soft" onClick={() => void copyText(calendarSubData.downloadUrl)}>
+                    <button
+                      type="button"
+                      className="btn btn-xs btn-soft"
+                      onClick={() => void copyText(calendarSubData.downloadUrl)}
+                    >
                       Copy
                     </button>
-                    <a href={calendarSubData.downloadUrl} className="btn btn-xs btn-soft" target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={calendarSubData.downloadUrl}
+                      className="btn btn-xs btn-soft"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       Download
                     </a>
                   </div>
@@ -550,7 +618,9 @@ function DeveloperModulePageContent() {
               </div>
             )}
             {calendarSubOutput !== null && (
-              <pre className="max-h-48 overflow-auto rounded-box bg-base-300/40 p-3 text-xs leading-relaxed whitespace-pre-wrap">{calendarSubOutput}</pre>
+              <pre className="max-h-48 overflow-auto rounded-box bg-base-300/40 p-3 text-xs leading-relaxed whitespace-pre-wrap">
+                {calendarSubOutput}
+              </pre>
             )}
           </DevPanel>
         </div>
@@ -561,7 +631,8 @@ function DeveloperModulePageContent() {
         <div className="space-y-1">
           <h3 className="text-xs font-semibold uppercase tracking-wide text-base-content/60">Local (loopback only)</h3>
           <p className="text-xs text-base-content/60">
-            These endpoints answer only on 127.0.0.1 / ::1. Set <code className="text-xs">NEXT_PUBLIC_API_BASE</code> if the API is not same-origin as this app.
+            These endpoints answer only on 127.0.0.1 / ::1. Set <code className="text-xs">NEXT_PUBLIC_API_BASE</code> if
+            the API is not same-origin as this app.
           </p>
         </div>
 
@@ -614,12 +685,19 @@ function DeveloperModulePageContent() {
                   autoComplete="email"
                 />
               </label>
-              <button type="button" className="btn btn-soft btn-sm btn-primary shrink-0" disabled={smtpLoading} onClick={() => void runSmtpTest()}>
+              <button
+                type="button"
+                className="btn btn-soft btn-sm btn-primary shrink-0"
+                disabled={smtpLoading}
+                onClick={() => void runSmtpTest()}
+              >
                 {smtpLoading ? "Sending…" : "Send test email"}
               </button>
             </div>
             {smtpOutput !== null && (
-              <pre className="max-h-48 overflow-auto rounded-box bg-base-300/40 p-3 text-xs leading-relaxed">{smtpOutput}</pre>
+              <pre className="max-h-48 overflow-auto rounded-box bg-base-300/40 p-3 text-xs leading-relaxed">
+                {smtpOutput}
+              </pre>
             )}
           </DevPanel>
 
@@ -667,7 +745,12 @@ function DeveloperModulePageContent() {
                 className="input input-bordered input-sm w-full font-mono"
               />
             </label>
-            <button type="button" className="btn btn-soft btn-sm" disabled={commentLoading} onClick={() => void runCommentRecipients()}>
+            <button
+              type="button"
+              className="btn btn-soft btn-sm"
+              disabled={commentLoading}
+              onClick={() => void runCommentRecipients()}
+            >
               {commentLoading ? "Fetching…" : "Fetch recipients (JSON)"}
             </button>
             {commentOutput !== null && (
@@ -693,9 +776,12 @@ function DeveloperModulePageContent() {
         </div>
 
         <div className="space-y-1 pt-1">
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-base-content/60">Remote (deployed server)</h3>
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+            Remote (deployed server)
+          </h3>
           <p className="text-xs text-base-content/60">
-            Use these tools against your live deployment. The remote SMTP send endpoint requires an authenticated admin session.
+            Use these tools against your live deployment. The remote SMTP send endpoint requires an authenticated admin
+            session.
           </p>
         </div>
 
@@ -748,12 +834,19 @@ function DeveloperModulePageContent() {
                   autoComplete="email"
                 />
               </label>
-              <button type="button" className="btn btn-soft btn-sm btn-primary shrink-0" disabled={remoteSmtpLoading} onClick={() => void runRemoteSmtpTest()}>
+              <button
+                type="button"
+                className="btn btn-soft btn-sm btn-primary shrink-0"
+                disabled={remoteSmtpLoading}
+                onClick={() => void runRemoteSmtpTest()}
+              >
                 {remoteSmtpLoading ? "Sending…" : "Send remote test email"}
               </button>
             </div>
             {remoteSmtpOutput !== null && (
-              <pre className="max-h-48 overflow-auto rounded-box bg-base-300/40 p-3 text-xs leading-relaxed">{remoteSmtpOutput}</pre>
+              <pre className="max-h-48 overflow-auto rounded-box bg-base-300/40 p-3 text-xs leading-relaxed">
+                {remoteSmtpOutput}
+              </pre>
             )}
           </DevPanel>
           <DevPanel
@@ -793,11 +886,18 @@ function DeveloperModulePageContent() {
               />
               <span className="text-base-content/80">Ignore limits (debug)</span>
             </label>
-            <button type="button" className="btn btn-soft btn-sm btn-primary" disabled={reminderRunLoading} onClick={() => void runReminderTrigger()}>
+            <button
+              type="button"
+              className="btn btn-soft btn-sm btn-primary"
+              disabled={reminderRunLoading}
+              onClick={() => void runReminderTrigger()}
+            >
               {reminderRunLoading ? "Running…" : "Run reminder trigger"}
             </button>
             {reminderRunOutput !== null && (
-              <pre className="max-h-56 overflow-auto rounded-box bg-base-300/40 p-3 text-xs leading-relaxed whitespace-pre-wrap">{reminderRunOutput}</pre>
+              <pre className="max-h-56 overflow-auto rounded-box bg-base-300/40 p-3 text-xs leading-relaxed whitespace-pre-wrap">
+                {reminderRunOutput}
+              </pre>
             )}
           </DevPanel>
           <DevPanel
@@ -809,7 +909,11 @@ function DeveloperModulePageContent() {
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="flex flex-col gap-1 text-sm">
                 <span className="text-base-content/80">Event type</span>
-                <select className="select select-bordered select-sm" value={escEventType} onChange={(e) => setEscEventType(e.target.value as "R" | "C")}>
+                <select
+                  className="select select-bordered select-sm"
+                  value={escEventType}
+                  onChange={(e) => setEscEventType(e.target.value as "R" | "C")}
+                >
                   <option value="R">Rehearsal (R)</option>
                   <option value="C">Concert (C)</option>
                 </select>
@@ -848,25 +952,52 @@ function DeveloperModulePageContent() {
               />
             </label>
             <div className="flex flex-wrap gap-2">
-              <button type="button" className="btn btn-soft btn-sm" disabled={escLoading} onClick={() => void runEscalationScheduledDryRun()}>
+              <button
+                type="button"
+                className="btn btn-soft btn-sm"
+                disabled={escLoading}
+                onClick={() => void runEscalationScheduledDryRun()}
+              >
                 {escLoading ? "Running…" : "Scheduled dry-run"}
               </button>
-              <button type="button" className="btn btn-soft btn-sm btn-primary" disabled={escLoading} onClick={() => void runEscalationRealForEvent()}>
+              <button
+                type="button"
+                className="btn btn-soft btn-sm btn-primary"
+                disabled={escLoading}
+                onClick={() => void runEscalationRealForEvent()}
+              >
                 {escLoading ? "Sending…" : "Real send for event (test recipients)"}
               </button>
-              <button type="button" className="btn btn-soft btn-sm" disabled={escLoading} onClick={() => void runEscalationDropoutSimulation()}>
+              <button
+                type="button"
+                className="btn btn-soft btn-sm"
+                disabled={escLoading}
+                onClick={() => void runEscalationDropoutSimulation()}
+              >
                 {escLoading ? "Simulating…" : "Simulate dropout trigger"}
               </button>
-              <button type="button" className="btn btn-soft btn-sm" disabled={escLoading} onClick={() => void runEscalationEligibility()}>
+              <button
+                type="button"
+                className="btn btn-soft btn-sm"
+                disabled={escLoading}
+                onClick={() => void runEscalationEligibility()}
+              >
                 {escLoading ? "Checking…" : "Check eligibility"}
               </button>
             </div>
             {escOutput !== null && (
-              <pre className="max-h-56 overflow-auto rounded-box bg-base-300/40 p-3 text-xs leading-relaxed whitespace-pre-wrap">{escOutput}</pre>
+              <pre className="max-h-56 overflow-auto rounded-box bg-base-300/40 p-3 text-xs leading-relaxed whitespace-pre-wrap">
+                {escOutput}
+              </pre>
             )}
             <div className="flex items-center justify-between gap-2 pt-1">
               <span className="text-xs text-base-content/70">Audit log (read-only)</span>
-              <button type="button" className="btn btn-soft btn-xs" disabled={escAuditLoading} onClick={() => void loadEscalationAudit()}>
+              <button
+                type="button"
+                className="btn btn-soft btn-xs"
+                disabled={escAuditLoading}
+                onClick={() => void loadEscalationAudit()}
+              >
                 {escAuditLoading ? "Loading…" : "Load audit"}
               </button>
             </div>
@@ -950,7 +1081,9 @@ function DeveloperModulePageContent() {
               </p>
             </div>
           </div>
-          <pre className="max-h-[min(70vh,32rem)] overflow-auto rounded-box bg-base-300/40 p-3 text-xs leading-relaxed">{tokensJson}</pre>
+          <pre className="max-h-[min(70vh,32rem)] overflow-auto rounded-box bg-base-300/40 p-3 text-xs leading-relaxed">
+            {tokensJson}
+          </pre>
         </div>
       </section>
     </PageContent>

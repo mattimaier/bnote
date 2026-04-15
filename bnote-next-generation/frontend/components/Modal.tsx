@@ -50,23 +50,16 @@ export function Modal({ open, onClose, title, children, bodyClassName = "", dial
       aria-modal="true"
       aria-labelledby="modal-title"
     >
+      <div className="absolute inset-0 bg-base-content/20" aria-hidden="true" onClick={handleBackdropClick} />
       <div
-        className="absolute inset-0 bg-base-content/20"
-        aria-hidden="true"
-        onClick={handleBackdropClick}
-      />
-      <div className={`modal-dialog modal-dialog-sm modal-middle relative z-10 w-full max-w-md ${dialogClassName}`.trim()}>
+        className={`modal-dialog modal-dialog-sm modal-middle relative z-10 w-full max-w-md ${dialogClassName}`.trim()}
+      >
         <div className="modal-content rounded-box border border-base-300 bg-base-100 shadow-xl">
           <div className="modal-header flex items-center justify-between p-4">
             <h3 id="modal-title" className="modal-title text-lg font-semibold text-base-content">
               {title}
             </h3>
-            <button
-              type="button"
-              onClick={onClose}
-              className="btn btn-soft btn-square btn-sm"
-              aria-label={closeLabel}
-            >
+            <button type="button" onClick={onClose} className="btn btn-soft btn-square btn-sm" aria-label={closeLabel}>
               <X className="h-5 w-5" />
             </button>
           </div>

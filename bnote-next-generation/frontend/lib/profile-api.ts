@@ -1,5 +1,5 @@
 /**
- * BNote Next Generation - Kontaktdaten (My Contact Data) API
+ * BNote Next Generation - Profile (My Contact Data) API
  *
  * Copyright (C) 2026 BNote Contributors
  */
@@ -41,16 +41,16 @@ export interface InstrumentOption {
   name: string;
 }
 
-export const kontaktdatenApi = {
-  getMine: () => api.get<MyContactDetail | null>("kontaktdaten", "getMine"),
+export const profileApi = {
+  getMine: () => api.get<MyContactDetail | null>("profile", "getMine"),
   updateMine: (data: Partial<MyContactDetail>) =>
-    api.post<{ success: boolean; message: string }>("kontaktdaten", "updateMine", data as Record<string, unknown>),
-  getUserPreferences: () => api.get<UserPreferences>("kontaktdaten", "getUserPreferences"),
+    api.post<{ success: boolean; message: string }>("profile", "updateMine", data as Record<string, unknown>),
+  getUserPreferences: () => api.get<UserPreferences>("profile", "getUserPreferences"),
   updateUserPreferences: (data: UserPreferences) =>
     api.post<{ success: boolean; message: string; email_notification?: boolean }>(
-      "kontaktdaten",
+      "profile",
       "updateUserPreferences",
       data as unknown as Record<string, unknown>
     ),
-  getInstruments: () => api.get<InstrumentOption[]>("kontaktdaten", "getInstruments"),
+  getInstruments: () => api.get<InstrumentOption[]>("profile", "getInstruments"),
 };

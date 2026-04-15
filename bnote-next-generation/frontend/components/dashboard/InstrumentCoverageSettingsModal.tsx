@@ -24,11 +24,7 @@ interface Instrument {
   name: string;
 }
 
-export function InstrumentCoverageSettingsModal({
-  open,
-  onClose,
-  onSaved,
-}: InstrumentCoverageSettingsModalProps) {
+export function InstrumentCoverageSettingsModal({ open, onClose, onSaved }: InstrumentCoverageSettingsModalProps) {
   const { t } = useI18n();
   const [instruments, setInstruments] = useState<Instrument[]>([]);
   const [minimums, setMinimums] = useState<Record<number, number>>({});
@@ -101,7 +97,6 @@ export function InstrumentCoverageSettingsModal({
     };
   }, [open, saving, onClose]);
 
-
   if (!open) return null;
 
   const modalContent = (
@@ -111,19 +106,13 @@ export function InstrumentCoverageSettingsModal({
       aria-modal="true"
       aria-labelledby="instrument-coverage-modal-title"
     >
-      <div
-        className="absolute inset-0 bg-base-content/20"
-        aria-hidden="true"
-        onClick={() => !saving && onClose()}
-      />
+      <div className="absolute inset-0 bg-base-content/20" aria-hidden="true" onClick={() => !saving && onClose()} />
       <div className="modal-dialog modal-dialog-sm modal-middle relative z-10 w-full max-w-md">
         <div className="modal-content rounded-box border border-base-300 bg-base-100 shadow-xl p-4">
           <h3 id="instrument-coverage-modal-title" className="font-bold text-lg mb-2">
             {t("js.bandOverview.instrumentCoverageSettings")}
           </h3>
-          <p className="text-sm text-base-content/70 py-2">
-            {t("js.bandOverview.instrumentCoverageSettingsDesc")}
-          </p>
+          <p className="text-sm text-base-content/70 py-2">{t("js.bandOverview.instrumentCoverageSettingsDesc")}</p>
           {loading ? (
             <div className="py-8 text-center">{t("js.common.loading")}</div>
           ) : (
@@ -139,29 +128,18 @@ export function InstrumentCoverageSettingsModal({
                     min={0}
                     className="input input-bordered input-sm w-20"
                     value={minimums[inst.id] ?? 0}
-                    onChange={(e) =>
-                      handleMinChange(inst.id, parseInt(e.target.value, 10) || 0)
-                    }
+                    onChange={(e) => handleMinChange(inst.id, parseInt(e.target.value, 10) || 0)}
                   />
                 </div>
               ))}
               {instruments.length === 0 && (
-                <p className="text-sm text-base-content/60">
-                  {t("js.common.empty") || "—"}
-                </p>
+                <p className="text-sm text-base-content/60">{t("js.common.empty") || "—"}</p>
               )}
             </div>
           )}
-          {error && (
-            <p className="text-sm text-error py-1">{error}</p>
-          )}
+          {error && <p className="text-sm text-error py-1">{error}</p>}
           <div className="modal-action mt-4">
-            <button
-              type="button"
-              className="btn btn-soft"
-              onClick={onClose}
-              disabled={saving}
-            >
+            <button type="button" className="btn btn-soft" onClick={onClose} disabled={saving}>
               {t("js.common.cancel")}
             </button>
             <button
@@ -178,7 +156,5 @@ export function InstrumentCoverageSettingsModal({
     </div>
   );
 
-  return typeof document !== "undefined"
-    ? createPortal(modalContent, document.body)
-    : null;
+  return typeof document !== "undefined" ? createPortal(modalContent, document.body) : null;
 }

@@ -124,18 +124,24 @@ export default function TasksPage() {
   const filteredOpen = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return openItems;
-    return openItems.filter(
-      (item) =>
-        [notesToPlainText(item.title ?? ""), item.assignee, notesToPlainText(item.description ?? "")].filter(Boolean).join(" ").toLowerCase().includes(q)
+    return openItems.filter((item) =>
+      [notesToPlainText(item.title ?? ""), item.assignee, notesToPlainText(item.description ?? "")]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase()
+        .includes(q)
     );
   }, [openItems, search]);
 
   const filteredCompleted = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return completedItems;
-    return completedItems.filter(
-      (item) =>
-        [notesToPlainText(item.title ?? ""), item.assignee, notesToPlainText(item.description ?? "")].filter(Boolean).join(" ").toLowerCase().includes(q)
+    return completedItems.filter((item) =>
+      [notesToPlainText(item.title ?? ""), item.assignee, notesToPlainText(item.description ?? "")]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase()
+        .includes(q)
     );
   }, [completedItems, search]);
 
@@ -187,7 +193,7 @@ export default function TasksPage() {
         moduleKey="task"
         title={t("js.sidebar.tasks") !== "js.sidebar.tasks" ? t("js.sidebar.tasks") : "Tasks"}
         subtitle={t("js.tasks.subtitle") !== "js.tasks.subtitle" ? t("js.tasks.subtitle") : "Assign and track tasks"}
-        actions={(
+        actions={
           <>
             <ActionButton variant="outline" href={getEntityPath("group_task", "new", "edit")}>
               {t("js.tasks.addGroupTask") !== "js.tasks.addGroupTask" ? t("js.tasks.addGroupTask") : "Add group task"}
@@ -197,7 +203,7 @@ export default function TasksPage() {
               {t("js.tasks.addTask") !== "js.tasks.addTask" ? t("js.tasks.addTask") : "Add Task"}
             </ActionButton>
           </>
-        )}
+        }
       />
 
       {error && (
@@ -328,7 +334,10 @@ function TasksTable({
           rows={items}
           sortOptions={[
             { key: "title", label: t("js.tasks.title") !== "js.tasks.title" ? t("js.tasks.title") : "Title" },
-            { key: "assignee", label: t("js.tasks.assignee") !== "js.tasks.assignee" ? t("js.tasks.assignee") : "Assignee" },
+            {
+              key: "assignee",
+              label: t("js.tasks.assignee") !== "js.tasks.assignee" ? t("js.tasks.assignee") : "Assignee",
+            },
             { key: "due_at", label: t("js.tasks.dueAt") !== "js.tasks.dueAt" ? t("js.tasks.dueAt") : "Due" },
           ]}
           getRowKey={(row) => row.id}
@@ -346,7 +355,7 @@ function TasksTable({
               secondary={
                 <span>
                   {(row.assigneeName ?? row.assignee) && `${row.assigneeName ?? row.assignee}`}
-                  {(isCompleted ? row.completed_at ?? row.due_at : row.due_at) &&
+                  {(isCompleted ? (row.completed_at ?? row.due_at) : row.due_at) &&
                     ` · ${formatDateTimeShort(isCompleted ? (row.completed_at ?? row.due_at ?? "") : (row.due_at ?? ""), lang)}`}
                 </span>
               }
@@ -360,19 +369,17 @@ function TasksTable({
           onSort={onSort}
         >
           <ResizableTable
-          className="w-full text-sm"
-          columns={[
-            ...(showCheckbox || showUncompleteCheckbox ? [{ id: "complete", width: 50, minWidth: 44 }] : []),
-            { id: "title", width: 260, minWidth: 180 },
-            { id: "assignee", width: 160, minWidth: 120 },
-            { id: "due_at", width: 160, minWidth: 120 },
-          ]}
-        >
+            className="w-full text-sm"
+            columns={[
+              ...(showCheckbox || showUncompleteCheckbox ? [{ id: "complete", width: 50, minWidth: 44 }] : []),
+              { id: "title", width: 260, minWidth: 180 },
+              { id: "assignee", width: 160, minWidth: 120 },
+              { id: "due_at", width: 160, minWidth: 120 },
+            ]}
+          >
             <thead>
-                <tr
-                  className="border-b border-base-300 bg-base-200/60"
-                >
-                  {(showCheckbox || showUncompleteCheckbox) && (
+              <tr className="border-b border-base-300 bg-base-200/60">
+                {(showCheckbox || showUncompleteCheckbox) && (
                   <ResizableTh columnId="complete">
                     <span className="sr-only">{t("js.tasks.complete")}</span>
                   </ResizableTh>
@@ -404,10 +411,10 @@ function TasksTable({
               </tr>
             </thead>
             <tbody>
-              {                items.length === 0 ? (
+              {items.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={(showCheckbox || showUncompleteCheckbox) ? 4 : 3}
+                    colSpan={showCheckbox || showUncompleteCheckbox ? 4 : 3}
                     className="p-8 text-center"
                     style={{ color: "var(--muted-foreground)" }}
                   >
@@ -435,8 +442,11 @@ function TasksTable({
                     <td className="p-3 font-medium">{notesToPlainText(row.title ?? "") || emptyText}</td>
                     <td className="p-3">{row.assigneeName ?? row.assignee ?? emptyText}</td>
                     <td className="p-3">
-                      {(isCompleted ? row.completed_at ?? row.due_at : row.due_at)
-                        ? formatDateTimeShort(isCompleted ? (row.completed_at ?? row.due_at ?? "") : (row.due_at ?? ""), lang)
+                      {(isCompleted ? (row.completed_at ?? row.due_at) : row.due_at)
+                        ? formatDateTimeShort(
+                            isCompleted ? (row.completed_at ?? row.due_at ?? "") : (row.due_at ?? ""),
+                            lang
+                          )
                         : emptyText}
                     </td>
                   </tr>

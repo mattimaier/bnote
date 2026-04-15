@@ -54,10 +54,9 @@ async function shareRequest<T>(
   data?: Record<string, unknown>
 ): Promise<T> {
   const apiUrl = getApiUrl();
-  const url =
-    apiUrl.startsWith("http")
-      ? new URL(apiUrl)
-      : new URL(apiUrl, typeof window !== "undefined" ? window.location.origin : "http://localhost");
+  const url = apiUrl.startsWith("http")
+    ? new URL(apiUrl)
+    : new URL(apiUrl, typeof window !== "undefined" ? window.location.origin : "http://localhost");
   url.searchParams.set("module", "share");
   url.searchParams.set("action", action);
   Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
@@ -90,29 +89,22 @@ async function shareRequest<T>(
 }
 
 export const shareApi = {
-  listRoots: () =>
-    shareRequest<{ roots: ShareRoot[] }>("list"),
+  listRoots: () => shareRequest<{ roots: ShareRoot[] }>("list"),
 
-  browse: (
-    path: string,
-    sort?: string,
-    order?: "asc" | "desc"
-  ) => {
+  browse: (path: string, sort?: string, order?: "asc" | "desc") => {
     const params: Record<string, string> = { path };
     if (sort) params.sort = sort;
     if (order) params.order = order;
     return shareRequest<ShareBrowseResult>("browse", params);
   },
 
-  getPermissions: (path: string) =>
-    shareRequest<SharePermissions>("permissions", { path }),
+  getPermissions: (path: string) => shareRequest<SharePermissions>("permissions", { path }),
 
   upload: async (path: string, files: File | File[]): Promise<ShareUploadResult> => {
     const apiUrl = getApiUrl();
-    const uploadUrl =
-      apiUrl.startsWith("http")
-        ? new URL(apiUrl)
-        : new URL(apiUrl, typeof window !== "undefined" ? window.location.origin : "http://localhost");
+    const uploadUrl = apiUrl.startsWith("http")
+      ? new URL(apiUrl)
+      : new URL(apiUrl, typeof window !== "undefined" ? window.location.origin : "http://localhost");
     uploadUrl.searchParams.set("module", "share");
     uploadUrl.searchParams.set("action", "upload");
 
@@ -142,29 +134,19 @@ export const shareApi = {
     return json.data as ShareUploadResult;
   },
 
-  delete: (path: string) =>
-    shareRequest<{ success: boolean; message: string }>("delete", {}, { path }),
+  delete: (path: string) => shareRequest<{ success: boolean; message: string }>("delete", {}, { path }),
 
   createFolder: (path: string, name: string) =>
-    shareRequest<{ success: boolean; path: string; message: string }>(
-      "createFolder",
-      {},
-      { path, name }
-    ),
+    shareRequest<{ success: boolean; path: string; message: string }>("createFolder", {}, { path, name }),
 
   rename: (path: string, newName: string) =>
-    shareRequest<{ success: boolean; path: string; message: string }>(
-      "rename",
-      {},
-      { path, newName }
-    ),
+    shareRequest<{ success: boolean; path: string; message: string }>("rename", {}, { path, newName }),
 
   getDownloadUrl: (path: string, inline = true): string => {
     const apiUrl = getApiUrl();
-    const url =
-      apiUrl.startsWith("http")
-        ? new URL(apiUrl)
-        : new URL(apiUrl, typeof window !== "undefined" ? window.location.origin : "http://localhost");
+    const url = apiUrl.startsWith("http")
+      ? new URL(apiUrl)
+      : new URL(apiUrl, typeof window !== "undefined" ? window.location.origin : "http://localhost");
     url.searchParams.set("module", "share");
     url.searchParams.set("action", "download");
     url.searchParams.set("path", path);
@@ -174,10 +156,9 @@ export const shareApi = {
 
   getDownloadZipUrl: (path: string): string => {
     const apiUrl = getApiUrl();
-    const url =
-      apiUrl.startsWith("http")
-        ? new URL(apiUrl)
-        : new URL(apiUrl, typeof window !== "undefined" ? window.location.origin : "http://localhost");
+    const url = apiUrl.startsWith("http")
+      ? new URL(apiUrl)
+      : new URL(apiUrl, typeof window !== "undefined" ? window.location.origin : "http://localhost");
     url.searchParams.set("module", "share");
     url.searchParams.set("action", "downloadZip");
     url.searchParams.set("path", path);

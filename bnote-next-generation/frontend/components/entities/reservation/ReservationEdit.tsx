@@ -86,20 +86,40 @@ export function ReservationEdit() {
 
   useEffect(() => {
     if (!ready) return;
-    locationsApi.list().then((list) => {
-      const opts = (list ?? []).map((l) => ({ id: l.id, name: l.name }));
-      setLocations([{ id: 0, name: t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "—" }, ...opts]);
-    }).catch(() => setLocations([{ id: 0, name: "—" }]));
-    tasksApi.getContacts().then((list) => {
-      const opts = (list ?? []).map((c) => ({ id: c.id, name: c.name ?? "", email: c.email ?? null, instrument: c.instrument ?? null }));
-      setContacts([{ id: 0, name: t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "—" }, ...opts]);
-    }).catch(() => setContacts([{ id: 0, name: "—" }]));
+    locationsApi
+      .list()
+      .then((list) => {
+        const opts = (list ?? []).map((l) => ({ id: l.id, name: l.name }));
+        setLocations([
+          { id: 0, name: t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "—" },
+          ...opts,
+        ]);
+      })
+      .catch(() => setLocations([{ id: 0, name: "—" }]));
+    tasksApi
+      .getContacts()
+      .then((list) => {
+        const opts = (list ?? []).map((c) => ({
+          id: c.id,
+          name: c.name ?? "",
+          email: c.email ?? null,
+          instrument: c.instrument ?? null,
+        }));
+        setContacts([
+          { id: 0, name: t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "—" },
+          ...opts,
+        ]);
+      })
+      .catch(() => setContacts([{ id: 0, name: "—" }]));
   }, [ready, t]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
-      const msg = t("js.calendar.nameRequired") !== "js.calendar.nameRequired" ? t("js.calendar.nameRequired") : "Name is required";
+      const msg =
+        t("js.calendar.nameRequired") !== "js.calendar.nameRequired"
+          ? t("js.calendar.nameRequired")
+          : "Name is required";
       setError(msg);
       showToast(msg, "error");
       return;
@@ -115,7 +135,10 @@ export function ReservationEdit() {
     const beginVal = toApiDatetime(begin);
     const endVal = end ? toApiDatetime(end) : beginVal;
     if (!beginVal) {
-      const msg = t("js.calendar.beginRequired") !== "js.calendar.beginRequired" ? t("js.calendar.beginRequired") : "Start time is required";
+      const msg =
+        t("js.calendar.beginRequired") !== "js.calendar.beginRequired"
+          ? t("js.calendar.beginRequired")
+          : "Start time is required";
       setError(msg);
       showToast(msg, "error");
       return;
@@ -133,7 +156,12 @@ export function ReservationEdit() {
       };
       if (isNew) {
         const res = await reservationsApi.create(payload);
-        showToast(t("js.calendar.reservationCreated") !== "js.calendar.reservationCreated" ? t("js.calendar.reservationCreated") : "Reservation created", "success");
+        showToast(
+          t("js.calendar.reservationCreated") !== "js.calendar.reservationCreated"
+            ? t("js.calendar.reservationCreated")
+            : "Reservation created",
+          "success"
+        );
         router.replace(getEntityPath("reservation", res.id));
       } else {
         await reservationsApi.update(parseInt(id!, 10), payload);
@@ -207,9 +235,7 @@ export function ReservationEdit() {
     <div className={PAGE_CONTENT_CLASS}>
       <form id="reservation-edit-form" onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div className="rounded-box border border-error bg-error/15 px-4 py-3 text-sm text-error">
-            {error}
-          </div>
+          <div className="rounded-box border border-error bg-error/15 px-4 py-3 text-sm text-error">{error}</div>
         )}
         <div className="rounded-none border-0 shadow-none p-4 md:rounded-box md:border md:border-base-300 md:shadow-sm md:p-6 bg-base-100 text-base-content">
           <div className="space-y-4">
@@ -287,13 +313,7 @@ export function ReservationEdit() {
             </div>
           </div>
         </div>
-        {!isNew && (
-          <DetailDeleteSection
-            canDelete
-            entityTitle={name || undefined}
-            onDelete={handleDelete}
-          />
-        )}
+        {!isNew && <DetailDeleteSection canDelete entityTitle={name || undefined} onDelete={handleDelete} />}
       </form>
     </div>
   );

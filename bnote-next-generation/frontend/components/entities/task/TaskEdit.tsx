@@ -68,26 +68,43 @@ export function TaskEdit() {
   useEffect(() => {
     if (!ready) return;
     loadTask();
-    tasksApi.getContacts().then((list) => {
-      const opts = (list ?? []).map((c) => ({
-        id: c.id,
-        name: c.name ?? "",
-        email: c.email ?? null,
-        instrument: c.instrument ?? null,
-      }));
-      setContacts([{ id: 0, name: t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "—" }, ...opts]);
-    }).catch(() => setContacts([{ id: 0, name: "—" }]));
-    tasksApi.getTours().then((list) => {
-      const opts = (list ?? []).map((tour) => ({ id: tour.id, name: tour.name ?? "" }));
-      setTours([{ id: 0, name: t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "—" }, ...opts]);
-    }).catch(() => setTours([{ id: 0, name: "—" }]));
+    tasksApi
+      .getContacts()
+      .then((list) => {
+        const opts = (list ?? []).map((c) => ({
+          id: c.id,
+          name: c.name ?? "",
+          email: c.email ?? null,
+          instrument: c.instrument ?? null,
+        }));
+        setContacts([
+          { id: 0, name: t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "—" },
+          ...opts,
+        ]);
+      })
+      .catch(() => setContacts([{ id: 0, name: "—" }]));
+    tasksApi
+      .getTours()
+      .then((list) => {
+        const opts = (list ?? []).map((tour) => ({ id: tour.id, name: tour.name ?? "" }));
+        setTours([
+          { id: 0, name: t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "—" },
+          ...opts,
+        ]);
+      })
+      .catch(() => setTours([{ id: 0, name: "—" }]));
   }, [ready, loadTask]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) {
-      setError(t("js.tasks.titleRequired") !== "js.tasks.titleRequired" ? t("js.tasks.titleRequired") : "Title is required");
-      showToast(t("js.tasks.titleRequired") !== "js.tasks.titleRequired" ? t("js.tasks.titleRequired") : "Title is required", "error");
+      setError(
+        t("js.tasks.titleRequired") !== "js.tasks.titleRequired" ? t("js.tasks.titleRequired") : "Title is required"
+      );
+      showToast(
+        t("js.tasks.titleRequired") !== "js.tasks.titleRequired" ? t("js.tasks.titleRequired") : "Title is required",
+        "error"
+      );
       return;
     }
     setSaving(true);
@@ -99,20 +116,17 @@ export function TaskEdit() {
       if (isNew) {
         const res = await tasksApi.create({
           title: title.trim(),
-          description: isEmptyEditorJson(description) ? undefined : (description.trim() || undefined),
+          description: isEmptyEditorJson(description) ? undefined : description.trim() || undefined,
           due_at,
           assigned_to,
           tour_id,
         });
-        showToast(
-          t("js.tasks.created") !== "js.tasks.created" ? t("js.tasks.created") : "Task created",
-          "success"
-        );
+        showToast(t("js.tasks.created") !== "js.tasks.created" ? t("js.tasks.created") : "Task created", "success");
         router.replace(getEntityPath("task", res.id, "view"));
       } else {
         await tasksApi.update(parseInt(id!, 10), {
           title: title.trim(),
-          description: isEmptyEditorJson(description) ? undefined : (description.trim() || undefined),
+          description: isEmptyEditorJson(description) ? undefined : description.trim() || undefined,
           due_at,
           assigned_to,
         });
@@ -178,9 +192,12 @@ export function TaskEdit() {
   }
 
   const pageTitle = isNew
-    ? (t("js.tasks.addTask") !== "js.tasks.addTask" ? t("js.tasks.addTask") : "Add Task")
+    ? t("js.tasks.addTask") !== "js.tasks.addTask"
+      ? t("js.tasks.addTask")
+      : "Add Task"
     : (item?.title ?? (t("js.common.edit") !== "js.common.edit" ? t("js.common.edit") : "Edit"));
-  const pageSubtitle = t("js.tasks.subtitle") !== "js.tasks.subtitle" ? t("js.tasks.subtitle") : "Assign and track tasks";
+  const pageSubtitle =
+    t("js.tasks.subtitle") !== "js.tasks.subtitle" ? t("js.tasks.subtitle") : "Assign and track tasks";
 
   return (
     <div className={PAGE_CONTENT_CLASS}>
@@ -193,9 +210,7 @@ export function TaskEdit() {
 
       <form id="task-edit-form" onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div className="rounded-box border border-error bg-error/15 px-4 py-3 text-sm text-error">
-            {error}
-          </div>
+          <div className="rounded-box border border-error bg-error/15 px-4 py-3 text-sm text-error">{error}</div>
         )}
 
         <div className="rounded-none border-0 shadow-none p-4 md:rounded-box md:border md:border-base-300 md:shadow-sm md:p-6 bg-base-100 text-base-content">
@@ -219,7 +234,11 @@ export function TaskEdit() {
               <NotesEditor
                 value={description}
                 onChange={setDescription}
-                placeholder={t("js.news.editorPlaceholder") !== "js.news.editorPlaceholder" ? t("js.news.editorPlaceholder") : "Type or paste content…"}
+                placeholder={
+                  t("js.news.editorPlaceholder") !== "js.news.editorPlaceholder"
+                    ? t("js.news.editorPlaceholder")
+                    : "Type or paste content…"
+                }
                 id="task-description-editor"
               />
             </div>

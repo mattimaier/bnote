@@ -2,10 +2,7 @@
  * Map auth password-reset API errors to i18n.
  */
 
-export function translatePasswordResetApiError(
-  message: string,
-  t: (key: string) => string
-): string {
+export function translatePasswordResetApiError(message: string, t: (key: string) => string): string {
   if (message === "password_reset_rate_limited") {
     return t("js.resetPassword.rateLimited");
   }

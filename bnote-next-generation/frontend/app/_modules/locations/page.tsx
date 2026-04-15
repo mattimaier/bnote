@@ -120,7 +120,6 @@ export default function LocationsPage() {
           }
         });
 
-
   if (!ready) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -134,32 +133,28 @@ export default function LocationsPage() {
       <AppPageHeader
         moduleKey="location"
         title={t("js.locations.title") !== "js.locations.title" ? t("js.locations.title") : "Locations"}
-        subtitle={t("js.locations.subtitle") !== "js.locations.subtitle" ? t("js.locations.subtitle") : "Manage venues and rehearsal rooms"}
-        actions={(
+        subtitle={
+          t("js.locations.subtitle") !== "js.locations.subtitle"
+            ? t("js.locations.subtitle")
+            : "Manage venues and rehearsal rooms"
+        }
+        actions={
           <ActionButton href={getEntityPath("location", "new", "edit")}>
             <Plus className="h-4 w-4" />
             {t("js.locations.addLocation") !== "js.locations.addLocation"
               ? t("js.locations.addLocation")
               : "Add Location"}
           </ActionButton>
-        )}
+        }
       />
 
-      {error && (
-        <div
-          className="rounded-lg border border-error bg-error/15 px-4 py-3 text-sm text-error"
-        >
-          {error}
-        </div>
-      )}
+      {error && <div className="rounded-lg border border-error bg-error/15 px-4 py-3 text-sm text-error">{error}</div>}
 
       <div className="flex items-center gap-2">
         <div className="flex w-full items-center gap-3 rounded-lg bg-base-200 px-3 py-2">
           <input
             type="search"
-            placeholder={
-              t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"
-            }
+            placeholder={t("js.common.search") !== "js.common.search" ? t("js.common.search") : "Search…"}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full bg-transparent px-0 py-1 text-sm outline-none text-base-content"
@@ -167,9 +162,7 @@ export default function LocationsPage() {
         </div>
       </div>
 
-      <div
-        className="overflow-hidden rounded-xl border border-base-300 bg-base-100 text-base-content"
-      >
+      <div className="overflow-hidden rounded-xl border border-base-300 bg-base-100 text-base-content">
         {loading ? (
           <div className="flex items-center justify-center py-12">
             <Spinner />
@@ -231,9 +224,7 @@ export default function LocationsPage() {
               ]}
             >
               <thead>
-                <tr
-                  className="border-b border-base-300 bg-base-200/50"
-                >
+                <tr className="border-b border-base-300 bg-base-200/50">
                   <SortableTh
                     label={t("js.locations.name") !== "js.locations.name" ? t("js.locations.name") : "Name"}
                     columnId="name"
@@ -274,7 +265,11 @@ export default function LocationsPage() {
                       <td className="p-3 font-medium">{loc.name ?? emptyText}</td>
                       <td className="p-3">
                         {loc.notes ? (
-                          <NotesContent value={loc.notes} className="max-w-[200px] whitespace-pre-wrap break-words" maxLines={3} />
+                          <NotesContent
+                            value={loc.notes}
+                            className="max-w-[200px] whitespace-pre-wrap break-words"
+                            maxLines={3}
+                          />
                         ) : (
                           emptyText
                         )}

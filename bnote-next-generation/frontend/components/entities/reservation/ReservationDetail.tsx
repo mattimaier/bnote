@@ -95,22 +95,30 @@ export function ReservationDetail() {
       <DetailCard>
         <div className="space-y-4">
           <div>
-            <span className="text-base-content/60 text-sm">{t("js.calendar.begin") !== "js.calendar.begin" ? t("js.calendar.begin") : "Start"}:</span>{" "}
+            <span className="text-base-content/60 text-sm">
+              {t("js.calendar.begin") !== "js.calendar.begin" ? t("js.calendar.begin") : "Start"}:
+            </span>{" "}
             {item.begin ? formatDateTimeShort(item.begin, lang) : emptyText}
           </div>
           <div>
-            <span className="text-base-content/60 text-sm">{t("js.calendar.end") !== "js.calendar.end" ? t("js.calendar.end") : "End"}:</span>{" "}
+            <span className="text-base-content/60 text-sm">
+              {t("js.calendar.end") !== "js.calendar.end" ? t("js.calendar.end") : "End"}:
+            </span>{" "}
             {item.end ? formatDateTimeShort(item.end, lang) : emptyText}
           </div>
           {item.locationname && (
             <div>
-              <span className="text-base-content/60 text-sm">{t("js.calendar.location") !== "js.calendar.location" ? t("js.calendar.location") : "Location"}:</span>{" "}
+              <span className="text-base-content/60 text-sm">
+                {t("js.calendar.location") !== "js.calendar.location" ? t("js.calendar.location") : "Location"}:
+              </span>{" "}
               {item.locationname}
             </div>
           )}
           {item.contactname && (
             <div>
-              <span className="text-base-content/60 text-sm">{t("js.calendar.contact") !== "js.calendar.contact" ? t("js.calendar.contact") : "Contact"}:</span>{" "}
+              <span className="text-base-content/60 text-sm">
+                {t("js.calendar.contact") !== "js.calendar.contact" ? t("js.calendar.contact") : "Contact"}:
+              </span>{" "}
               <PersonIdentityRow
                 name={item.contactname}
                 email={item.contactEmail}
@@ -122,7 +130,9 @@ export function ReservationDetail() {
           )}
           {item.notes?.trim() && !isEmptyEditorJson(item.notes) && (
             <div>
-              <span className="text-base-content/60 text-sm block mb-1">{t("js.common.notes") !== "js.common.notes" ? t("js.common.notes") : "Notes"}:</span>
+              <span className="text-base-content/60 text-sm block mb-1">
+                {t("js.common.notes") !== "js.common.notes" ? t("js.common.notes") : "Notes"}:
+              </span>
               <NotesContent value={item.notes} className="text-sm" />
             </div>
           )}

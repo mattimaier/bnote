@@ -37,7 +37,6 @@ export const concertsApi = {
   list: (signal?: AbortSignal) => api.get<ConcertListItem[]>("concerts", "list", undefined, { signal }),
   acceptEscalationRisk: (id: number) =>
     api.post<EscalationRiskActionResult>("concerts", "acceptEscalationRisk", { id }),
-  resetEscalationRisk: (id: number) =>
-    api.post<EscalationRiskActionResult>("concerts", "resetEscalationRisk", { id }),
+  resetEscalationRisk: (id: number) => api.post<EscalationRiskActionResult>("concerts", "resetEscalationRisk", { id }),
   delete: (id: number) => api.post<{ success: boolean }>("concerts", "delete", { id }),
 };

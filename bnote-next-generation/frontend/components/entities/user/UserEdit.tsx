@@ -12,12 +12,7 @@ import { useEntityParams } from "@/lib/entities/use-entity-params";
 import { useI18n } from "@/contexts/I18nContext";
 import { useToast } from "@/contexts/ToastContext";
 import { useEditingBar } from "@/contexts/EditingBarContext";
-import {
-  usersApi,
-  type ContactOption,
-  type PrivilegesResponse,
-  type UserDetail,
-} from "@/lib/users-api";
+import { usersApi, type ContactOption, type PrivilegesResponse, type UserDetail } from "@/lib/users-api";
 import { PAGE_CONTENT_CLASS } from "@/lib/layout";
 import { getEntityPath } from "@/lib/entities/paths";
 import { DetailDeleteSection } from "@/components/DetailDeleteSection";
@@ -29,15 +24,11 @@ function normalizeName(value: string) {
   return value.trim().toLowerCase();
 }
 
-function resolveContactId(
-  user: UserDetail | null,
-  contacts: ContactOption[]
-): { id: number; label: string } {
+function resolveContactId(user: UserDetail | null, contacts: ContactOption[]): { id: number; label: string } {
   if (!user) return { id: 0, label: "" };
   const explicitId = Number(user.contact ?? 0) || 0;
   const explicitLabel =
-    user.contactName ||
-    [user.contactFirstName, user.contactSurname].filter(Boolean).join(" ").trim();
+    user.contactName || [user.contactFirstName, user.contactSurname].filter(Boolean).join(" ").trim();
   if (explicitId > 0) return { id: explicitId, label: explicitLabel };
 
   const firstName = normalizeName(user.contactFirstName ?? "");
@@ -101,9 +92,7 @@ export function UserEdit() {
         setLogin(user.login ?? "");
         const normalizedContactId = Number(user.contact ?? 0) || 0;
         setContactId(normalizedContactId);
-        const name =
-          user.contactName ||
-          [user.contactFirstName, user.contactSurname].filter(Boolean).join(" ").trim();
+        const name = user.contactName || [user.contactFirstName, user.contactSurname].filter(Boolean).join(" ").trim();
         setContactLabel(name || "");
         setIsActive(Boolean(user.isActive));
         setContactResolved(false);
@@ -150,10 +139,7 @@ export function UserEdit() {
     try {
       if (isNew) {
         if (!login.trim() || !password.trim()) {
-          showToast(
-            t("js.users.login") + " / " + t("js.users.password") + " required",
-            "error"
-          );
+          showToast(t("js.users.login") + " / " + t("js.users.password") + " required", "error");
           setSaving(false);
           return;
         }
@@ -164,9 +150,7 @@ export function UserEdit() {
           isActive,
         });
         showToast(
-          t("js.users.userCreated") !== "js.users.userCreated"
-            ? t("js.users.userCreated")
-            : "User created",
+          t("js.users.userCreated") !== "js.users.userCreated" ? t("js.users.userCreated") : "User created",
           "success"
         );
         router.replace(getEntityPath("user", res.id, "view"));
@@ -176,10 +160,7 @@ export function UserEdit() {
           contact: contactId,
           isActive,
         });
-        showToast(
-          t("js.common.saved") !== "js.common.saved" ? t("js.common.saved") : "Saved",
-          "success"
-        );
+        showToast(t("js.common.saved") !== "js.common.saved" ? t("js.common.saved") : "Saved", "success");
         router.replace(getEntityPath("user", id, "view"));
       }
     } catch (err) {
@@ -220,14 +201,15 @@ export function UserEdit() {
     if (isNew) return;
     try {
       await usersApi.delete(parseInt(id, 10));
-      showToast(
-        t("js.common.deleted") !== "js.common.deleted" ? t("js.common.deleted") : "Deleted",
-        "success"
-      );
+      showToast(t("js.common.deleted") !== "js.common.deleted" ? t("js.common.deleted") : "Deleted", "success");
       router.replace("/users");
     } catch (err) {
       showToast(
-        err instanceof Error ? err.message : (t("js.common.deleteFailed") !== "js.common.deleteFailed" ? t("js.common.deleteFailed") : "Delete failed"),
+        err instanceof Error
+          ? err.message
+          : t("js.common.deleteFailed") !== "js.common.deleteFailed"
+            ? t("js.common.deleteFailed")
+            : "Delete failed",
         "error"
       );
     }
@@ -304,17 +286,13 @@ export function UserEdit() {
     <div className={PAGE_CONTENT_CLASS}>
       <form id="user-edit-form" onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div className="rounded-box border border-error bg-error/15 px-4 py-3 text-sm text-error">
-            {error}
-          </div>
+          <div className="rounded-box border border-error bg-error/15 px-4 py-3 text-sm text-error">{error}</div>
         )}
 
         <div className="rounded-none border-0 shadow-none p-4 md:rounded-box md:border md:border-base-300 md:shadow-sm md:p-6 bg-base-100 md:bg-base-100 text-base-content">
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1">
-                {t("js.users.login")}
-              </label>
+              <label className="block text-sm font-medium mb-1">{t("js.users.login")}</label>
               <input
                 name="login"
                 type="text"
@@ -341,39 +319,23 @@ export function UserEdit() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder={
-                  isNew
-                    ? t("js.users.passwordPlaceholder")
-                    : t("js.users.passwordLeaveEmpty")
-                }
+                placeholder={isNew ? t("js.users.passwordPlaceholder") : t("js.users.passwordLeaveEmpty")}
                 className="input input-sm w-full text-base-content"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">
-                {t("js.users.contact")}
-              </label>
+              <label className="block text-sm font-medium mb-1">{t("js.users.contact")}</label>
               <SelectPicker
                 options={contactOptions}
                 value={contactId}
                 onChange={setContactId}
                 emptyLabel="—"
-                labelSelect={
-                  t("js.common.select") !== "js.common.select"
-                    ? t("js.common.select")
-                    : "Select…"
-                }
+                labelSelect={t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Select…"}
                 labelNoMatches={
-                  t("js.common.noMatches") !== "js.common.noMatches"
-                    ? t("js.common.noMatches")
-                    : "No matches"
+                  t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "No matches"
                 }
-                labelClose={
-                  t("js.common.close") !== "js.common.close"
-                    ? t("js.common.close")
-                    : "Close"
-                }
+                labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Close"}
               />
             </div>
 
@@ -422,9 +384,7 @@ export function UserEdit() {
                       onChange={(e) => {
                         if (savingPrivileges) return;
                         const nextModules = privileges.modules.map((entry) =>
-                          entry.id === mod.id
-                            ? { ...entry, hasAccess: e.target.checked }
-                            : entry
+                          entry.id === mod.id ? { ...entry, hasAccess: e.target.checked } : entry
                         );
                         setPrivileges({ ...privileges, modules: nextModules });
                         const nextSelected = nextModules.filter((m) => m.hasAccess).map((m) => m.id);
@@ -452,11 +412,7 @@ export function UserEdit() {
         </div>
       )}
 
-      <DetailDeleteSection
-        canDelete={!isNew}
-        onDelete={handleDelete}
-        entityTitle={login || undefined}
-      />
+      <DetailDeleteSection canDelete={!isNew} onDelete={handleDelete} entityTitle={login || undefined} />
     </div>
   );
 }

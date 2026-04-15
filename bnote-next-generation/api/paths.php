@@ -20,14 +20,14 @@
 
 /**
  * Path Configuration
- * 
+ *
  * Defines the path to the original BNote codebase.
  * This allows bnote-next-generation to access the old codebase for:
  * - Database connections
  * - Data classes
  * - Business logic
  * - Configuration files
- * 
+ *
  * Path is calculated relative to this file's location:
  * - This file: /path/to/bnote/bnote-next-generation/api/paths.php
  * - BNote root: /path/to/bnote/BNote/
@@ -37,17 +37,17 @@
 // Calculate path to original BNote codebase
 // From bnote-next-generation/api/paths.php -> go up to bnote/ -> then into BNote/
 // Calculate root of bnote-next-generation folder
-$bnoteNextGenRoot = __DIR__ . '/..';
+$bnoteNextGenRoot = __DIR__ . "/..";
 // Calculate path to original BNote codebase (sibling folder)
-$BNoteRoot = $bnoteNextGenRoot . '/../BNote';
+$BNoteRoot = $bnoteNextGenRoot . "/../BNote";
 $BNoteRoot = realpath($BNoteRoot) ?: $BNoteRoot; // Resolve to absolute path
 
 // Make it available globally
-if (!defined('BNOTE_ROOT')) {
-    define('BNOTE_ROOT', $BNoteRoot);
+if (!defined("BNOTE_ROOT")) {
+  define("BNOTE_ROOT", $BNoteRoot);
 }
 
 // Also set as global variable for compatibility
-if (!isset($GLOBALS['BNOTE_ROOT'])) {
-    $GLOBALS['BNOTE_ROOT'] = $BNoteRoot;
+if (!isset($GLOBALS["BNOTE_ROOT"])) {
+  $GLOBALS["BNOTE_ROOT"] = $BNoteRoot;
 }

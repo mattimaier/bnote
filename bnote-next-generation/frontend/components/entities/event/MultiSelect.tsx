@@ -67,11 +67,7 @@ export function MultiSelect({
 
   return (
     <div ref={rootRef} className="relative w-full min-w-[12rem] max-w-[20rem]">
-      <button
-        type="button"
-        onClick={() => setOpen((prev) => !prev)}
-        className="btn btn-outline w-full justify-between"
-      >
+      <button type="button" onClick={() => setOpen((prev) => !prev)} className="btn btn-outline w-full justify-between">
         <span className="flex items-center justify-between gap-2 w-full min-w-0">
           <span className="text-right flex-1 truncate whitespace-nowrap min-w-0" title={labelSelect}>
             {labelSelect}
@@ -81,11 +77,7 @@ export function MultiSelect({
       </button>
       {showChips && (
         <div className="mt-4 w-full space-y-2">
-          {selected.length === 0 && (
-            <span className="text-xs text-base-content/60">
-              {labelNoSelection}
-            </span>
-          )}
+          {selected.length === 0 && <span className="text-xs text-base-content/60">{labelNoSelection}</span>}
           {selected.map((id) => {
             const opt = options.find((o) => o.id === id);
             if (!opt?.name) return null;
@@ -94,7 +86,7 @@ export function MultiSelect({
                 key={id}
                 className="flex items-center justify-between gap-3 rounded-field border border-base-300 px-3 py-2 text-sm"
               >
-                {(opt.email != null || opt.instrument != null) ? (
+                {opt.email != null || opt.instrument != null ? (
                   <PersonOptionRow
                     name={opt.name}
                     email={opt.email}
@@ -106,9 +98,7 @@ export function MultiSelect({
                   <div className="flex flex-col">
                     <span className="font-medium">{opt.name}</span>
                     {(opt.subtitle ?? opt.instrument) ? (
-                      <span className="text-xs text-base-content/60">
-                        {opt.instrument ?? opt.subtitle}
-                      </span>
+                      <span className="text-xs text-base-content/60">{opt.instrument ?? opt.subtitle}</span>
                     ) : null}
                   </div>
                 )}
@@ -143,7 +133,7 @@ export function MultiSelect({
                   checked={selectedSet.has(opt.id)}
                   onChange={() => toggle(opt.id)}
                 />
-                {(opt.email != null || opt.instrument != null) ? (
+                {opt.email != null || opt.instrument != null ? (
                   <PersonOptionRow
                     name={opt.name ?? "-"}
                     email={opt.email}
@@ -154,19 +144,13 @@ export function MultiSelect({
                   <span className="flex flex-col">
                     <span>{opt.name ?? "-"}</span>
                     {(opt.subtitle ?? opt.instrument) ? (
-                      <span className="text-xs text-base-content/60">
-                        {opt.instrument ?? opt.subtitle}
-                      </span>
+                      <span className="text-xs text-base-content/60">{opt.instrument ?? opt.subtitle}</span>
                     ) : null}
                   </span>
                 )}
               </label>
             ))}
-            {filtered.length === 0 && (
-              <div className="px-3 py-2 text-sm text-base-content/60">
-                {labelNoMatches}
-              </div>
-            )}
+            {filtered.length === 0 && <div className="px-3 py-2 text-sm text-base-content/60">{labelNoMatches}</div>}
           </div>
         </div>
       )}
@@ -176,11 +160,7 @@ export function MultiSelect({
           <div className="absolute inset-0 flex h-full w-full flex-col rounded-none border border-base-300 shadow-xl md:left-1/2 md:top-1/2 md:h-[90vh] md:w-[min(98vw,980px)] md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-box bg-base-100 text-base-content">
             <div className="flex items-center justify-between border-b border-base-300 px-4 py-3">
               <div className="text-sm font-semibold">{labelSelect}</div>
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                className="btn btn-outline btn-sm"
-              >
+              <button type="button" onClick={() => setOpen(false)} className="btn btn-outline btn-sm">
                 {labelClose}
               </button>
             </div>
@@ -200,7 +180,7 @@ export function MultiSelect({
                     checked={selectedSet.has(opt.id)}
                     onChange={() => toggle(opt.id)}
                   />
-                  {(opt.email != null || opt.instrument != null) ? (
+                  {opt.email != null || opt.instrument != null ? (
                     <PersonOptionRow
                       name={opt.name ?? "-"}
                       email={opt.email}
@@ -211,19 +191,13 @@ export function MultiSelect({
                     <span className="flex flex-col">
                       <span>{opt.name ?? "-"}</span>
                       {(opt.subtitle ?? opt.instrument) ? (
-                        <span className="text-xs text-base-content/60">
-                          {opt.instrument ?? opt.subtitle}
-                        </span>
+                        <span className="text-xs text-base-content/60">{opt.instrument ?? opt.subtitle}</span>
                       ) : null}
                     </span>
                   )}
                 </label>
               ))}
-              {filtered.length === 0 && (
-                <div className="px-3 py-2 text-sm text-base-content/60">
-                  {labelNoMatches}
-                </div>
-              )}
+              {filtered.length === 0 && <div className="px-3 py-2 text-sm text-base-content/60">{labelNoMatches}</div>}
             </div>
           </div>
         </div>

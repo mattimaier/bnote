@@ -13,9 +13,5 @@ export interface PageContentProps {
 }
 
 export function PageContent({ children, className }: PageContentProps) {
-  return (
-    <div className={[PAGE_CONTENT_CLASS, className].filter(Boolean).join(" ")}>
-      {children}
-    </div>
-  );
+  return <div className={[PAGE_CONTENT_CLASS, className].filter(Boolean).join(" ")}>{children}</div>;
 }

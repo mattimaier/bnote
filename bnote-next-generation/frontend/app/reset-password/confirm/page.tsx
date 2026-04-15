@@ -133,15 +133,9 @@ function ConfirmInner() {
               />
             </div>
             {error ? (
-              <div className="rounded-lg border border-error/20 bg-error/10 px-4 py-3 text-sm text-error">
-                {error}
-              </div>
+              <div className="rounded-lg border border-error/20 bg-error/10 px-4 py-3 text-sm text-error">{error}</div>
             ) : null}
-            <button
-              type="submit"
-              disabled={submitting || !canSubmit}
-              className="btn btn-primary btn-lg btn-block"
-            >
+            <button type="submit" disabled={submitting || !canSubmit} className="btn btn-primary btn-lg btn-block">
               {submitting ? t("js.resetPassword.saving") : t("js.resetPassword.save")}
             </button>
           </form>

@@ -88,6 +88,8 @@ const SECTION_TO_GROUP: Record<string, ConfigurationGroupId> = {
 };
 
 export function getConfigurationGroupForSection(section: string): ConfigurationGroupId {
-  const key = String(section || "").trim().toLowerCase();
+  const key = String(section || "")
+    .trim()
+    .toLowerCase();
   return SECTION_TO_GROUP[key] ?? "advanced-system";
 }

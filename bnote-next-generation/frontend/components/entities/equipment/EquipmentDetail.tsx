@@ -39,9 +39,7 @@ export function EquipmentDetail() {
     equipmentApi
       .get(numId)
       .then(setItem)
-      .catch((err) =>
-        setError(getErrorMessage(err, t, "js.common.failedToLoad"))
-      )
+      .catch((err) => setError(getErrorMessage(err, t, "js.common.failedToLoad")))
       .finally(() => setLoading(false));
   }, [id, ready]);
 
@@ -69,9 +67,7 @@ export function EquipmentDetail() {
   if (error || !item) {
     return (
       <div className={PAGE_CONTENT_CLASS}>
-        <p className="text-sm text-error">
-          {error || "Equipment not found."}
-        </p>
+        <p className="text-sm text-error">{error || "Equipment not found."}</p>
       </div>
     );
   }
@@ -91,9 +87,7 @@ export function EquipmentDetail() {
           {item.make != null && item.make !== "" && (
             <>
               <dt className="text-sm font-medium text-base-content/60">
-                {t("js.equipment.make") !== "js.equipment.make"
-                  ? t("js.equipment.make")
-                  : "Make"}
+                {t("js.equipment.make") !== "js.equipment.make" ? t("js.equipment.make") : "Make"}
               </dt>
               <dd>{item.make}</dd>
             </>
@@ -101,9 +95,7 @@ export function EquipmentDetail() {
           {item.model != null && item.model !== "" && (
             <>
               <dt className="text-sm font-medium text-base-content/60">
-                {t("js.equipment.model") !== "js.equipment.model"
-                  ? t("js.equipment.model")
-                  : "Model"}
+                {t("js.equipment.model") !== "js.equipment.model" ? t("js.equipment.model") : "Model"}
               </dt>
               <dd>{item.model}</dd>
             </>
@@ -111,9 +103,7 @@ export function EquipmentDetail() {
           {item.quantity != null && (
             <>
               <dt className="text-sm font-medium text-base-content/60">
-                {t("js.equipment.quantity") !== "js.equipment.quantity"
-                  ? t("js.equipment.quantity")
-                  : "Quantity"}
+                {t("js.equipment.quantity") !== "js.equipment.quantity" ? t("js.equipment.quantity") : "Quantity"}
               </dt>
               <dd>{item.quantity}</dd>
             </>
@@ -142,9 +132,7 @@ export function EquipmentDetail() {
 
         <div>
           <h2 className="text-sm font-semibold text-base-content/60">
-            {t("js.equipment.notes") !== "js.equipment.notes"
-              ? t("js.equipment.notes")
-              : "Notes"}
+            {t("js.equipment.notes") !== "js.equipment.notes" ? t("js.equipment.notes") : "Notes"}
           </h2>
           <div className="mt-1 prose prose-sm max-w-none dark:prose-invert">
             {notes.length > 0 ? <NotesContent value={notes} /> : <p>{emptyLabel}</p>}

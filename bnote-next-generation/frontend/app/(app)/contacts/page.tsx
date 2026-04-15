@@ -38,7 +38,9 @@ export default function ContactsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
-  const [sortKey, setSortKey] = useState<"name" | "surname" | "nickname" | "instrument" | "email" | "phone" | "city" | null>(null);
+  const [sortKey, setSortKey] = useState<
+    "name" | "surname" | "nickname" | "instrument" | "email" | "phone" | "city" | null
+  >(null);
   const [sortDir, setSortDir] = useState<SortDirection>("asc");
 
   const loadGroups = useCallback(async () => {
@@ -59,7 +61,12 @@ export default function ContactsPage() {
     } catch (err) {
       setError(getErrorMessage(err, t, "js.common.failedToLoad"));
       if ((err as { status?: number }).status === 403) {
-        showToast(t("js.error.contactsAccessDenied") !== "js.error.contactsAccessDenied" ? t("js.error.contactsAccessDenied") : "Access denied", "error");
+        showToast(
+          t("js.error.contactsAccessDenied") !== "js.error.contactsAccessDenied"
+            ? t("js.error.contactsAccessDenied")
+            : "Access denied",
+          "error"
+        );
       }
     } finally {
       setLoading(false);
@@ -105,12 +112,12 @@ export default function ContactsPage() {
 
   const filteredContacts = search.trim()
     ? contacts.filter(
-      (c) =>
-        (c.name ?? "").toLowerCase().includes(search.toLowerCase()) ||
-        (c.surname ?? "").toLowerCase().includes(search.toLowerCase()) ||
-        (c.nickname ?? "").toLowerCase().includes(search.toLowerCase()) ||
-        (c.email ?? "").toLowerCase().includes(search.toLowerCase())
-    )
+        (c) =>
+          (c.name ?? "").toLowerCase().includes(search.toLowerCase()) ||
+          (c.surname ?? "").toLowerCase().includes(search.toLowerCase()) ||
+          (c.nickname ?? "").toLowerCase().includes(search.toLowerCase()) ||
+          (c.email ?? "").toLowerCase().includes(search.toLowerCase())
+      )
     : contacts;
 
   const handleSort = (key: "name" | "surname" | "nickname" | "instrument" | "email" | "phone" | "city") => {
@@ -126,25 +133,25 @@ export default function ContactsPage() {
     sortKey == null
       ? filteredContacts
       : [...filteredContacts].sort((a, b) => {
-        switch (sortKey) {
-          case "name":
-            return compareString(a.name ?? "", b.name ?? "", sortDir);
-          case "surname":
-            return compareString(a.surname ?? "", b.surname ?? "", sortDir);
-          case "nickname":
-            return compareString(a.nickname ?? "", b.nickname ?? "", sortDir);
-          case "instrument":
-            return compareString(a.instrumentname ?? "", b.instrumentname ?? "", sortDir);
-          case "email":
-            return compareString(a.email ?? "", b.email ?? "", sortDir);
-          case "phone":
-            return compareString(a.phone ?? a.mobile ?? "", b.phone ?? b.mobile ?? "", sortDir);
-          case "city":
-            return compareString(a.city ?? "", b.city ?? "", sortDir);
-          default:
-            return 0;
-        }
-      });
+          switch (sortKey) {
+            case "name":
+              return compareString(a.name ?? "", b.name ?? "", sortDir);
+            case "surname":
+              return compareString(a.surname ?? "", b.surname ?? "", sortDir);
+            case "nickname":
+              return compareString(a.nickname ?? "", b.nickname ?? "", sortDir);
+            case "instrument":
+              return compareString(a.instrumentname ?? "", b.instrumentname ?? "", sortDir);
+            case "email":
+              return compareString(a.email ?? "", b.email ?? "", sortDir);
+            case "phone":
+              return compareString(a.phone ?? a.mobile ?? "", b.phone ?? b.mobile ?? "", sortDir);
+            case "city":
+              return compareString(a.city ?? "", b.city ?? "", sortDir);
+            default:
+              return 0;
+          }
+        });
 
   const openDetail = (id: number) => {
     router.push(getEntityPath("contact", id));
@@ -163,17 +170,20 @@ export default function ContactsPage() {
       <AppPageHeader
         moduleKey="contact"
         title={t("js.contacts.title") !== "js.contacts.title" ? t("js.contacts.title") : "Contacts"}
-        subtitle={t("js.contacts.subtitle") !== "js.contacts.subtitle" ? t("js.contacts.subtitle") : "Manage contacts and groups"}
-        actions={(
+        subtitle={
+          t("js.contacts.subtitle") !== "js.contacts.subtitle"
+            ? t("js.contacts.subtitle")
+            : "Manage contacts and groups"
+        }
+        actions={
           <>
             {canManageContacts ? (
               <>
-                <ActionButton
-                  variant="outline"
-                  onClick={() => router.push("/contacts/groups/")}
-                >
+                <ActionButton variant="outline" onClick={() => router.push("/contacts/groups/")}>
                   <Users className="h-4 w-4" />
-                  {t("js.contacts.manageGroups") !== "js.contacts.manageGroups" ? t("js.contacts.manageGroups") : "Manage Groups"}
+                  {t("js.contacts.manageGroups") !== "js.contacts.manageGroups"
+                    ? t("js.contacts.manageGroups")
+                    : "Manage Groups"}
                 </ActionButton>
                 <ActionButton
                   variant="outline"
@@ -189,19 +199,17 @@ export default function ContactsPage() {
                 </ActionButton>
                 <ActionButton onClick={() => router.push(getEntityPath("contact", "new", "edit"))}>
                   <Plus className="h-4 w-4" />
-                  {t("js.contacts.addContact") !== "js.contacts.addContact" ? t("js.contacts.addContact") : "Add Contact"}
+                  {t("js.contacts.addContact") !== "js.contacts.addContact"
+                    ? t("js.contacts.addContact")
+                    : "Add Contact"}
                 </ActionButton>
               </>
             ) : null}
           </>
-        )}
+        }
       />
 
-      {error && (
-        <div className="rounded-lg border border-error bg-error/15 px-4 py-3 text-sm text-error">
-          {error}
-        </div>
-      )}
+      {error && <div className="rounded-lg border border-error bg-error/15 px-4 py-3 text-sm text-error">{error}</div>}
 
       {/* Group tabs */}
       {!membersOnlyAccess ? (
@@ -259,14 +267,38 @@ export default function ContactsPage() {
               );
             }}
             onRowClick={(c) => openDetail(c.id)}
-            emptyMessage={t("js.contacts.noContacts") !== "js.contacts.noContacts" ? t("js.contacts.noContacts") : "No contacts found"}
+            emptyMessage={
+              t("js.contacts.noContacts") !== "js.contacts.noContacts"
+                ? t("js.contacts.noContacts")
+                : "No contacts found"
+            }
             sortOptions={[
-              { key: "name", label: t("js.contacts.firstName") !== "js.contacts.firstName" ? t("js.contacts.firstName") : "First name" },
-              { key: "surname", label: t("js.contacts.lastName") !== "js.contacts.lastName" ? t("js.contacts.lastName") : "Last name" },
-              { key: "nickname", label: t("js.contacts.nickname") !== "js.contacts.nickname" ? t("js.contacts.nickname") : "Nickname" },
-              { key: "instrument", label: t("js.contacts.instrument") !== "js.contacts.instrument" ? t("js.contacts.instrument") : "Instrument" },
-              { key: "email", label: t("js.contacts.email") !== "js.contacts.email" ? t("js.contacts.email") : "Email" },
-              { key: "phone", label: t("js.contacts.phone") !== "js.contacts.phone" ? t("js.contacts.phone") : "Phone" },
+              {
+                key: "name",
+                label:
+                  t("js.contacts.firstName") !== "js.contacts.firstName" ? t("js.contacts.firstName") : "First name",
+              },
+              {
+                key: "surname",
+                label: t("js.contacts.lastName") !== "js.contacts.lastName" ? t("js.contacts.lastName") : "Last name",
+              },
+              {
+                key: "nickname",
+                label: t("js.contacts.nickname") !== "js.contacts.nickname" ? t("js.contacts.nickname") : "Nickname",
+              },
+              {
+                key: "instrument",
+                label:
+                  t("js.contacts.instrument") !== "js.contacts.instrument" ? t("js.contacts.instrument") : "Instrument",
+              },
+              {
+                key: "email",
+                label: t("js.contacts.email") !== "js.contacts.email" ? t("js.contacts.email") : "Email",
+              },
+              {
+                key: "phone",
+                label: t("js.contacts.phone") !== "js.contacts.phone" ? t("js.contacts.phone") : "Phone",
+              },
               { key: "city", label: t("js.contacts.city") !== "js.contacts.city" ? t("js.contacts.city") : "City" },
             ]}
             sortKey={sortKey}
@@ -277,20 +309,64 @@ export default function ContactsPage() {
               <thead>
                 <tr className="border-b border-base-300 bg-base-200/50">
                   <th className="w-12 p-3" aria-hidden />
-                  <SortableTh label={t("js.contacts.firstName")} sortKey="name" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
-                  <SortableTh label={t("js.contacts.lastName")} sortKey="surname" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
-                  <SortableTh label={t("js.contacts.nickname")} sortKey="nickname" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
-                  <SortableTh label={t("js.contacts.instrument")} sortKey="instrument" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
-                  <SortableTh label={t("js.contacts.email")} sortKey="email" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
-                  <SortableTh label={t("js.contacts.phone")} sortKey="phone" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
-                  <SortableTh label={t("js.contacts.city")} sortKey="city" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
+                  <SortableTh
+                    label={t("js.contacts.firstName")}
+                    sortKey="name"
+                    currentSortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  />
+                  <SortableTh
+                    label={t("js.contacts.lastName")}
+                    sortKey="surname"
+                    currentSortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  />
+                  <SortableTh
+                    label={t("js.contacts.nickname")}
+                    sortKey="nickname"
+                    currentSortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  />
+                  <SortableTh
+                    label={t("js.contacts.instrument")}
+                    sortKey="instrument"
+                    currentSortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  />
+                  <SortableTh
+                    label={t("js.contacts.email")}
+                    sortKey="email"
+                    currentSortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  />
+                  <SortableTh
+                    label={t("js.contacts.phone")}
+                    sortKey="phone"
+                    currentSortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  />
+                  <SortableTh
+                    label={t("js.contacts.city")}
+                    sortKey="city"
+                    currentSortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  />
                 </tr>
               </thead>
               <tbody>
                 {sortedContacts.length === 0 ? (
                   <tr>
                     <td colSpan={8} className="p-8 text-center text-base-content/60">
-                      {t("js.contacts.noContacts") !== "js.contacts.noContacts" ? t("js.contacts.noContacts") : "No contacts found"}
+                      {t("js.contacts.noContacts") !== "js.contacts.noContacts"
+                        ? t("js.contacts.noContacts")
+                        : "No contacts found"}
                     </td>
                   </tr>
                 ) : (

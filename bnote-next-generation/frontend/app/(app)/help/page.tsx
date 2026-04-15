@@ -57,7 +57,10 @@ export default function HelpPage() {
           {label("js.help.hotkeys.title", "Keyboard shortcuts")}
         </h2>
         <p className="mt-1 text-sm text-base-content/70">
-          {label("js.help.hotkeys.description", "Shortcuts are available on macOS and Windows. Typing fields are excluded automatically.")}
+          {label(
+            "js.help.hotkeys.description",
+            "Shortcuts are available on macOS and Windows. Typing fields are excluded automatically."
+          )}
         </p>
 
         <div className="mt-4 overflow-x-auto">

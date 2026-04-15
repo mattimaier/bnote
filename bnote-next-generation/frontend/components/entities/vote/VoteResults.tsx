@@ -17,7 +17,10 @@ import type { VoteOption } from "@/lib/votes-api";
 /** Parse comma-separated voters string into display names (e.g. "John (Piano), Jane" → ["John (Piano)", "Jane"]) */
 function parseVoters(voters: string): string[] {
   if (!voters?.trim()) return [];
-  return voters.split(/,\s*/).map((s) => s.trim()).filter(Boolean);
+  return voters
+    .split(/,\s*/)
+    .map((s) => s.trim())
+    .filter(Boolean);
 }
 
 function parseVoterDisplay(raw: string): { name: string; instrument?: string } {
@@ -65,8 +68,7 @@ function parseResult(
   isMulti: boolean,
   lang: string
 ): { items: ParsedOption[]; totalVotes: number; isDateMultiMaybe: boolean } {
-  const optionLabel = (opt: VoteOption) =>
-    opt.odate ? formatDateShortDisplay(opt.odate, lang) : (opt.name ?? "");
+  const optionLabel = (opt: VoteOption) => (opt.odate ? formatDateShortDisplay(opt.odate, lang) : (opt.name ?? ""));
 
   if (!result || !Array.isArray(result)) {
     return { items: [], totalVotes: 0, isDateMultiMaybe: false };
@@ -84,7 +86,13 @@ function parseResult(
     isDate &&
     isMulti &&
     typeof votesVal === "string" &&
-    (votesVal.includes("Ja") || votesVal.includes("Yes") || votesVal.includes("Oui") || votesVal.includes("Nein") || votesVal.includes("No") || votesVal.includes("Vllt") || votesVal.includes("Maybe"));
+    (votesVal.includes("Ja") ||
+      votesVal.includes("Yes") ||
+      votesVal.includes("Oui") ||
+      votesVal.includes("Nein") ||
+      votesVal.includes("No") ||
+      votesVal.includes("Vllt") ||
+      votesVal.includes("Maybe"));
 
   if (isDateMultiMaybe) {
     // Group by option id: 3 rows per option (yes, no, maybe) - order is yes, no, maybe per option
@@ -169,12 +177,7 @@ function VotersTable({ voters, noVotesText }: { voters: string; noVotesText: str
         const { name, instrument } = parseVoterDisplay(entry);
         return (
           <div key={`${entry}-${i}`} className="px-3 py-2">
-            <PersonOptionRow
-              name={name}
-              instrument={instrument}
-              avatarSize={24}
-              compact
-            />
+            <PersonOptionRow name={name} instrument={instrument} avatarSize={24} compact />
           </div>
         );
       })}
@@ -199,11 +202,7 @@ function VoteResultRow({
     <div className="space-y-1">
       <div className="flex items-center justify-between gap-2">
         <span className="text-sm font-medium text-base-content">{item.label}</span>
-        <button
-          type="button"
-          onClick={() => setModalOpen(true)}
-          className="text-sm text-primary hover:underline"
-        >
+        <button type="button" onClick={() => setModalOpen(true)} className="text-sm text-primary hover:underline">
           {item.votes} {votesSuffix} ({percent}%)
         </button>
       </div>
@@ -226,14 +225,10 @@ export function VoteResults({ result, options, isDate, isMulti, lang }: VoteResu
   const [modalOpen, setModalOpen] = useState(false);
   const { items, totalVotes, isDateMultiMaybe } = parseResult(result, options, isDate, isMulti, lang);
 
-  const resultsLabel =
-    t("js.votes.results") !== "js.votes.results" ? t("js.votes.results") : "Results";
-  const viewAllLabel =
-    t("js.votes.voters") !== "js.votes.voters" ? t("js.votes.voters") : "View votes";
-  const voteLabel =
-    t("js.votes.vote") !== "js.votes.vote" ? t("js.votes.vote") : "vote";
-  const votesLabel =
-    t("js.votes.votes") !== "js.votes.votes" ? t("js.votes.votes") : "votes";
+  const resultsLabel = t("js.votes.results") !== "js.votes.results" ? t("js.votes.results") : "Results";
+  const viewAllLabel = t("js.votes.voters") !== "js.votes.voters" ? t("js.votes.voters") : "View votes";
+  const voteLabel = t("js.votes.vote") !== "js.votes.vote" ? t("js.votes.vote") : "vote";
+  const votesLabel = t("js.votes.votes") !== "js.votes.votes" ? t("js.votes.votes") : "votes";
   const votesSuffix = totalVotes === 1 ? voteLabel : votesLabel;
 
   if (items.length === 0 && totalVotes === 0) {
@@ -276,11 +271,7 @@ export function VoteResults({ result, options, isDate, isMulti, lang }: VoteResu
       <div className="mt-4">
         <div className="flex items-center justify-between gap-2">
           <h2 className="text-sm font-semibold text-base-content/60">{resultsLabel}</h2>
-          <button
-            type="button"
-            onClick={() => setModalOpen(true)}
-            className="btn btn-soft btn-sm btn-primary text-xs"
-          >
+          <button type="button" onClick={() => setModalOpen(true)} className="btn btn-soft btn-sm btn-primary text-xs">
             {viewAllLabel}
           </button>
         </div>
@@ -306,12 +297,10 @@ export function VoteResults({ result, options, isDate, isMulti, lang }: VoteResu
             );
           })}
         </div>
-        <p className="mt-2 text-xs text-base-content/60">Total: {totalVotes} {votesSuffix}</p>
-        <Modal
-          open={modalOpen}
-          onClose={() => setModalOpen(false)}
-          title={resultsLabel}
-        >
+        <p className="mt-2 text-xs text-base-content/60">
+          Total: {totalVotes} {votesSuffix}
+        </p>
+        <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={resultsLabel}>
           <div className="space-y-4">
             {Array.from(optionRows.entries()).map(([optId, row]) => (
               <div key={optId} className="border-b border-base-300 pb-4 last:border-0">
@@ -356,11 +345,7 @@ export function VoteResults({ result, options, isDate, isMulti, lang }: VoteResu
     <div className="mt-4">
       <div className="flex items-center justify-between gap-2">
         <h2 className="text-sm font-semibold text-base-content/60">{resultsLabel}</h2>
-        <button
-          type="button"
-          onClick={() => setModalOpen(true)}
-          className="btn btn-soft btn-sm btn-primary text-xs"
-        >
+        <button type="button" onClick={() => setModalOpen(true)} className="btn btn-soft btn-sm btn-primary text-xs">
           {viewAllLabel}
         </button>
       </div>
@@ -375,7 +360,9 @@ export function VoteResults({ result, options, isDate, isMulti, lang }: VoteResu
           />
         ))}
       </div>
-      <p className="mt-2 text-xs text-base-content/60">Total: {totalVotes} {votesSuffix}</p>
+      <p className="mt-2 text-xs text-base-content/60">
+        Total: {totalVotes} {votesSuffix}
+      </p>
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={resultsLabel}>
         <div className="space-y-4">
           {items.map((item) => (

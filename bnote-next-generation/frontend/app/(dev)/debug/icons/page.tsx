@@ -4,7 +4,7 @@
  * Copyright (C) 2026 BNote Contributors
  */
 
- "use client";
+"use client";
 
 import { useMemo } from "react";
 import { BNoteLogo, type BNoteLogoPadding, type BNoteLogoSize } from "@/components/BNoteLogo";
@@ -12,7 +12,13 @@ import { DebugPageShell, DebugSection } from "@/components/debug/DebugChrome";
 import { prefixPath } from "@/lib/path";
 
 const ICON_SIZES = [16, 32, 64, 180, 512] as const;
-const LOGO_VARIANTS: Array<{ size: BNoteLogoSize; padding: BNoteLogoPadding; forceLight?: boolean; forceDark?: boolean; label: string }> = [
+const LOGO_VARIANTS: Array<{
+  size: BNoteLogoSize;
+  padding: BNoteLogoPadding;
+  forceLight?: boolean;
+  forceDark?: boolean;
+  label: string;
+}> = [
   { size: "sm", padding: "default", label: "sm / default / theme-aware" },
   { size: "sm", padding: "tight", label: "sm / tight / theme-aware" },
   { size: "sm", padding: "default", forceLight: true, label: "sm / default / forceLight" },
@@ -25,7 +31,12 @@ const LOGO_VARIANTS: Array<{ size: BNoteLogoSize; padding: BNoteLogoPadding; for
 
 const RASTER_PREVIEWS = [
   { key: "svg", src: prefixPath("/icon.svg"), label: "App icon SVG", path: "frontend/app/icon.svg" },
-  { key: "png", src: prefixPath("/BNote_Logo_prebuilt.png"), label: "Generated PNG", path: "frontend/public/BNote_Logo_prebuilt.png" },
+  {
+    key: "png",
+    src: prefixPath("/BNote_Logo_prebuilt.png"),
+    label: "Generated PNG",
+    path: "frontend/public/BNote_Logo_prebuilt.png",
+  },
   { key: "ico", src: prefixPath("/favicon.ico"), label: "Generated favicon ICO", path: "frontend/app/favicon.ico" },
 ] as const;
 
@@ -71,10 +82,7 @@ export default function DebugIconsPage() {
         </div>
       </DebugSection>
 
-      <DebugSection
-        title="Generated assets"
-        description="Rendered outputs produced by the build icon generation step."
-      >
+      <DebugSection title="Generated assets" description="Rendered outputs produced by the build icon generation step.">
         <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
           {RASTER_PREVIEWS.map((asset) => (
             <div key={asset.key} className="rounded-box border border-base-300 bg-base-100 p-3">
@@ -89,17 +97,17 @@ export default function DebugIconsPage() {
         </div>
       </DebugSection>
 
-      <DebugSection
-        title="Pixel size strip"
-        description="Quick legibility checks at favicon/app-icon target sizes."
-      >
+      <DebugSection title="Pixel size strip" description="Quick legibility checks at favicon/app-icon target sizes.">
         <div className="space-y-4">
           {RASTER_PREVIEWS.map((asset) => (
             <div key={`strip-${asset.key}`} className="space-y-2">
               <p className="text-sm font-medium text-base-content">{asset.label}</p>
               <div className="flex flex-wrap gap-3">
                 {ICON_SIZES.map((px) => (
-                  <div key={`${asset.key}-${px}`} className="rounded-box border border-base-300 bg-base-100 p-2 text-center">
+                  <div
+                    key={`${asset.key}-${px}`}
+                    className="rounded-box border border-base-300 bg-base-100 p-2 text-center"
+                  >
                     <div className="flex h-20 w-20 items-center justify-center rounded bg-base-200/40">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
@@ -146,7 +154,9 @@ export default function DebugIconsPage() {
                   <p className="mt-1 text-[11px] text-base-content/70">40px badge</p>
                 </div>
               </div>
-              <p className="mt-2 text-xs text-base-content/70 font-mono">frontend/public/generated-mail-icons/{asset.badge}</p>
+              <p className="mt-2 text-xs text-base-content/70 font-mono">
+                frontend/public/generated-mail-icons/{asset.badge}
+              </p>
             </div>
           ))}
         </div>

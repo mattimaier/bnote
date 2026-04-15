@@ -60,7 +60,11 @@ export const usersApi = {
       isActive: data.isActive !== false,
     }),
   update: (id: number, data: { password?: string; contact?: number | string; isActive?: boolean }) =>
-    api.post<{ success: boolean; message: string }>("users", "update", { id, ...data, contact: data.contact != null ? String(data.contact) : undefined }),
+    api.post<{ success: boolean; message: string }>("users", "update", {
+      id,
+      ...data,
+      contact: data.contact != null ? String(data.contact) : undefined,
+    }),
   delete: (id: number) => api.post<{ success: boolean; message: string }>("users", "delete", { id }),
   activate: (id: number) => api.post<{ success: boolean; message: string }>("users", "activate", { id }),
   getPrivileges: (id: number) => api.get<PrivilegesResponse>("users", "getPrivileges", { id: String(id) }),

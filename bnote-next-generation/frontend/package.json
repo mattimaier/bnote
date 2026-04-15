@@ -1,19 +1,4 @@
 {
-  "name": "frontend",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "generate:beta-changelog": "node scripts/generate-beta-changelog.mjs",
-    "generate:icons": "node scripts/generate-logo-png.mjs",
-    "generate:mail-icons": "node scripts/generate-mail-icon-pngs.mjs",
-    "generate:logo": "npm run generate:icons",
-    "sync:mail-design": "node scripts/sync-mail-design.mjs",
-    "dev": "next dev",
-    "dev:webpack": "next dev --webpack",
-    "build": "npm run generate:beta-changelog && npm run generate:icons && npm run generate:mail-icons && npm run sync:mail-design && next build && node scripts/prune-dev-artifacts.mjs",
-    "start": "next start",
-    "lint": "eslint"
-  },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
@@ -60,13 +45,38 @@
   "devDependencies": {
     "@iconify-json/tabler": "^1.2.26",
     "@iconify/tailwind4": "^1.2.1",
+    "@prettier/plugin-php": "^0.25.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "prettier": "^3.8.3",
     "tailwindcss": "^4",
     "typescript": "^5"
-  }
+  },
+  "name": "frontend",
+  "private": true,
+  "scripts": {
+    "audit:harmonization": "node scripts/audit-harmonization.mjs",
+    "audit:licenses": "node scripts/audit-licenses.mjs",
+    "build": "npm run generate:beta-changelog && npm run generate:icons && npm run generate:mail-icons && npm run sync:mail-design && next build && node scripts/prune-dev-artifacts.mjs",
+    "dev": "next dev",
+    "dev:webpack": "next dev --webpack",
+    "format": "npm run format:json && npm run format:prettier",
+    "format:check": "npm run format:json:check && npm run format:prettier:check && npm run audit:harmonization && npm run audit:licenses",
+    "format:json": "node scripts/sort-json.mjs --write",
+    "format:json:check": "node scripts/sort-json.mjs --check",
+    "format:prettier": "prettier --ignore-path ../.prettierignore --write \"**/*.{ts,tsx,js,mjs,cjs,md,yml,yaml}\" \"../api/**/*.php\" \"../docs/**/*.md\" \"../AGENTS.md\"",
+    "format:prettier:check": "prettier --ignore-path ../.prettierignore --check \"**/*.{ts,tsx,js,mjs,cjs,md,yml,yaml}\" \"../api/**/*.php\" \"../docs/**/*.md\" \"../AGENTS.md\"",
+    "generate:beta-changelog": "node scripts/generate-beta-changelog.mjs",
+    "generate:icons": "node scripts/generate-logo-png.mjs",
+    "generate:logo": "npm run generate:icons",
+    "generate:mail-icons": "node scripts/generate-mail-icon-pngs.mjs",
+    "lint": "eslint",
+    "start": "next start",
+    "sync:mail-design": "node scripts/sync-mail-design.mjs"
+  },
+  "version": "0.1.0"
 }

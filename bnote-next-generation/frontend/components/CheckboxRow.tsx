@@ -30,12 +30,7 @@ export function CheckboxRow({
 }) {
   return (
     <label className={CHECKBOX_ROW_LABEL_CLASS}>
-      <input
-        type="checkbox"
-        className={CHECKBOX_ROW_INPUT_CLASS}
-        checked={checked}
-        onChange={() => onToggle()}
-      />
+      <input type="checkbox" className={CHECKBOX_ROW_INPUT_CLASS} checked={checked} onChange={() => onToggle()} />
       {children}
     </label>
   );

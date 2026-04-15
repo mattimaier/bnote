@@ -39,10 +39,7 @@ export interface ModuleEntry {
  * Whether the user can view the given entity type (for cross-entity links).
  * Rehearsal/concert: always true. Others: true iff user has that module (from getModules).
  */
-export function canViewEntityType(
-  entityType: string,
-  modules: ModuleEntry[] | null
-): boolean {
+export function canViewEntityType(entityType: string, modules: ModuleEntry[] | null): boolean {
   const key = entityType?.toLowerCase?.() ?? "";
   if (VIEW_ALWAYS_ALLOWED.has(key)) return true;
   const moduleName = ENTITY_TYPE_TO_MODULE[key];

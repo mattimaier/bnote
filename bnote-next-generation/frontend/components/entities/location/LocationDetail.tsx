@@ -11,10 +11,7 @@ import { useEntityParams } from "@/lib/entities/use-entity-params";
 import { useMemo, useState } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useI18n } from "@/contexts/I18nContext";
-import {
-  locationsApi,
-  type LocationEventItem,
-} from "@/lib/locations-api";
+import { locationsApi, type LocationEventItem } from "@/lib/locations-api";
 import { PAGE_CONTENT_CLASS } from "@/lib/layout";
 import { getEntityPath } from "@/lib/entities/paths";
 import { notesToPlainText } from "@/lib/editorjs-notes";
@@ -62,10 +59,7 @@ export function LocationDetail() {
     staleTime: QUERY_STALE_TIMES.entityDetailMs,
     placeholderData: keepPreviousData,
   });
-  const {
-    data: events = [],
-    isPending: isEventsPending,
-  } = useQuery({
+  const { data: events = [], isPending: isEventsPending } = useQuery({
     queryKey: queryKeys.entities.locationEvents(numId),
     queryFn: ({ signal }) => locationsApi.getEvents(numId, signal),
     enabled: ready && Boolean(location?.id),
@@ -87,7 +81,9 @@ export function LocationDetail() {
       if (!groups.has(key)) groups.set(key, []);
       groups.get(key)!.push(item);
     });
-    const years = Array.from(groups.keys()).filter((y) => y > 0).sort((a, b) => b - a);
+    const years = Array.from(groups.keys())
+      .filter((y) => y > 0)
+      .sort((a, b) => b - a);
     return { years, groups };
   }, [events]);
 
@@ -167,9 +163,7 @@ export function LocationDetail() {
         {addressValue && (
           <div>
             <h2 className="text-sm font-semibold text-base-content/60">
-              {t("js.event.detail.location") !== "js.event.detail.location"
-                ? t("js.event.detail.location")
-                : "Address"}
+              {t("js.event.detail.location") !== "js.event.detail.location" ? t("js.event.detail.location") : "Address"}
             </h2>
             <div className="mt-1">
               <AddressLink value={addressValue} t={t} renderRawIfNoAddress />
@@ -180,9 +174,7 @@ export function LocationDetail() {
 
       {events.length > 0 && (
         <div>
-          <h2 className="text-lg font-semibold text-base-content">
-            {t("js.locations.eventsAtLocation")}
-          </h2>
+          <h2 className="text-lg font-semibold text-base-content">{t("js.locations.eventsAtLocation")}</h2>
           {eventsLoading ? (
             <div className={`mt-3 flex items-center justify-center py-12 ${DETAIL_SECTION_CLASS}`}>
               <Spinner />
@@ -248,9 +240,7 @@ function SortableTh({
 function getEventDisplayTitle(row: LocationEventItem, t: (k: string) => string): string {
   const title = notesToPlainText(row.title ?? "").trim();
   if (row.type === "concert" && title) return title;
-  return row.type === "concert"
-    ? t("js.event.performance")
-    : t("js.event.rehearsal");
+  return row.type === "concert" ? t("js.event.performance") : t("js.event.rehearsal");
 }
 
 function LocationEventsTable({
@@ -281,11 +271,7 @@ function LocationEventsTable({
     return [...items].sort((a, b) => {
       switch (key) {
         case "title":
-          return compareString(
-            getEventDisplayTitle(a, t),
-            getEventDisplayTitle(b, t),
-            dir
-          );
+          return compareString(getEventDisplayTitle(a, t), getEventDisplayTitle(b, t), dir);
         case "begin":
           return compareDate(a.begin, b.begin, dir);
         case "status":
@@ -302,12 +288,8 @@ function LocationEventsTable({
 
   return (
     <div>
-      <h3 className="text-base font-semibold text-base-content">
-        {year}
-      </h3>
-      <div
-        className={`mt-2 overflow-hidden ${DETAIL_SECTION_CLASS}`}
-      >
+      <h3 className="text-base font-semibold text-base-content">{year}</h3>
+      <div className={`mt-2 overflow-hidden ${DETAIL_SECTION_CLASS}`}>
         <ResponsiveTable<LocationEventItem, EventSortKey>
           rows={sortedItems}
           getRowKey={(row) => `${row.type}-${row.id}`}
@@ -324,16 +306,27 @@ function LocationEventsTable({
             return (
               <EntityListRow
                 icon={
-                  <span className={`rounded-full flex items-center justify-center w-6 h-6 text-white ${typeConfig.dotClass}`}>
+                  <span
+                    className={`rounded-full flex items-center justify-center w-6 h-6 text-white ${typeConfig.dotClass}`}
+                  >
                     <Icon className="h-3 w-3" />
                   </span>
                 }
-                primary={hasCustomTitle ? primaryText : <span className="font-bold leading-tight text-primary">{primaryText}</span>}
+                primary={
+                  hasCustomTitle ? (
+                    primaryText
+                  ) : (
+                    <span className="font-bold leading-tight text-primary">{primaryText}</span>
+                  )
+                }
                 badge={
                   <>
                     {hasCustomTitle && <span className="text-sm">{dateStr}</span>}
                     {row.status && (
-                      <span className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium border" style={getStatusPillStyle(row.status)}>
+                      <span
+                        className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium border"
+                        style={getStatusPillStyle(row.status)}
+                      >
                         {statusLabelFor(row.status)}
                       </span>
                     )}
@@ -371,9 +364,7 @@ function LocationEventsTable({
             ]}
           >
             <thead>
-              <tr
-                className="border-b border-base-300 bg-base-200/50"
-              >
+              <tr className="border-b border-base-300 bg-base-200/50">
                 <SortableTh
                   columnId="title"
                   label={titleLabel}
@@ -403,10 +394,7 @@ function LocationEventsTable({
             <tbody>
               {sortedItems.length === 0 ? (
                 <tr>
-                  <td
-                    colSpan={3}
-                    className="p-8 text-center text-base-content/60"
-                  >
+                  <td colSpan={3} className="p-8 text-center text-base-content/60">
                     {t("js.locations.noEventsAtLocation")}
                   </td>
                 </tr>
@@ -432,9 +420,7 @@ function LocationEventsTable({
                           <span className="truncate">{displayTitle || emptyText}</span>
                         </div>
                       </td>
-                      <td className="p-3">
-                        {row.begin ? formatDateTime(new Date(row.begin)) : emptyText}
-                      </td>
+                      <td className="p-3">{row.begin ? formatDateTime(new Date(row.begin)) : emptyText}</td>
                       <td className="p-3">
                         {row.status ? (
                           <span

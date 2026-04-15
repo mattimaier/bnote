@@ -28,7 +28,14 @@ export type EntityType =
   | "outfit"
   | "vote";
 
-export type EventDisplayType = "rehearsal" | "performance" | "meeting" | "vote" | "task" | "reservation" | "appointment";
+export type EventDisplayType =
+  | "rehearsal"
+  | "performance"
+  | "meeting"
+  | "vote"
+  | "task"
+  | "reservation"
+  | "appointment";
 
 interface EntityEntry {
   color: string;
@@ -108,8 +115,7 @@ function colorToEventClasses(color: string | null): { dotClass: string; badgeCla
     return { dotClass: "bg-[var(--chart-3)]", badgeClass: "event-badge chart-3" };
   if (color.includes("#A855F7") || color.includes("#a855f7"))
     return { dotClass: "bg-[#a855f7]", badgeClass: "event-badge event-badge-vote" };
-  if (color.includes("#25A65A"))
-    return { dotClass: "bg-[#25A65A]", badgeClass: "event-badge event-badge-task" };
+  if (color.includes("#25A65A")) return { dotClass: "bg-[#25A65A]", badgeClass: "event-badge event-badge-task" };
   if (color.includes("#F97316") || color.includes("#f97316"))
     return { dotClass: "bg-[#f97316]", badgeClass: "event-badge event-badge-reservation" };
   if (color.includes("#8b6914") || color.includes("oklch(0.58 0.22 20)"))
@@ -126,10 +132,7 @@ export interface EventTypeConfigResult {
   color: string | null;
 }
 
-export function getEventTypeConfig(
-  eventType: EventDisplayType,
-  t: (k: string) => string
-): EventTypeConfigResult {
+export function getEventTypeConfig(eventType: EventDisplayType, t: (k: string) => string): EventTypeConfigResult {
   const entityKey = EVENT_TO_ENTITY[eventType] ?? "meeting";
   const entity = getEntityConfig(entityKey);
   const labelKey =
@@ -223,9 +226,7 @@ export function getEntityTypeForSearchCategory(categoryKey: string): string {
 
 function hexToRgb(hex: string): string {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result
-    ? `rgb(${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)})`
-    : hex;
+  return result ? `rgb(${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)})` : hex;
 }
 
 /**
@@ -282,9 +283,7 @@ export interface EscalationWarningUiConfig {
 export function getEscalationWarningUiConfig(severityRaw: string): EscalationWarningUiConfig {
   const severity = severityRaw === "critical" ? "critical" : "soon";
   const color =
-    severity === "critical"
-      ? mailDesignTokens.participationDestructive
-      : mailDesignTokens.participationWarning;
+    severity === "critical" ? mailDesignTokens.participationDestructive : mailDesignTokens.participationWarning;
   const bg =
     severity === "critical"
       ? mailDesignTokens.participationDestructiveBgMuted

@@ -63,4 +63,3 @@ Users with neither permission cannot access contacts endpoints.
 - Do not reintroduce a separate `/members` route unless this decision is superseded.
 - Any new contacts write endpoint must remain blocked for members-only mode.
 - Any new contacts UI action must check access profile before rendering.
-

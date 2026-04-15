@@ -7,12 +7,7 @@ export interface SearchFieldProps {
   className?: string;
 }
 
-export function SearchField({
-  value,
-  onChange,
-  placeholder,
-  className = "",
-}: SearchFieldProps) {
+export function SearchField({ value, onChange, placeholder, className = "" }: SearchFieldProps) {
   return (
     <div className={`flex w-full items-center gap-3 rounded-lg bg-base-200 px-3 py-2 ${className}`.trim()}>
       <input

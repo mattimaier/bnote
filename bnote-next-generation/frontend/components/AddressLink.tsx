@@ -83,9 +83,7 @@ export function AddressLink({
 
   if (!interactive) {
     return (
-      <span className={`whitespace-pre-line text-left ${textClassName ?? ""} ${className ?? ""}`}>
-        {combinedText}
-      </span>
+      <span className={`whitespace-pre-line text-left ${textClassName ?? ""} ${className ?? ""}`}>{combinedText}</span>
     );
   }
 

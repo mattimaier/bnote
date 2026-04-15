@@ -178,22 +178,12 @@ export function EventChatPanel({
               </div>
             );
             return (
-              <div
-                key={c.id}
-                className={`chat ${isSelf ? "chat-sender" : "chat-receiver"}`}
-              >
+              <div key={c.id} className={`chat ${isSelf ? "chat-sender" : "chat-receiver"}`}>
                 <div className="chat-avatar avatar shrink-0">
-                  <Avatar
-                    name={c.author || "?"}
-                    email={c.author_email ?? undefined}
-                    size={40}
-                    variant="soft"
-                  />
+                  <Avatar name={c.author || "?"} email={c.author_email ?? undefined} size={40} variant="soft" />
                 </div>
                 <div className="chat-header text-base-content text-sm flex items-center gap-2 min-w-0">
-                  <span className="font-medium truncate min-w-0">
-                    {c.author || "?"}
-                  </span>
+                  <span className="font-medium truncate min-w-0">{c.author || "?"}</span>
                   <time className="text-base-content/50 shrink-0 whitespace-nowrap">
                     {formatDateTime(new Date(c.created_at))}
                   </time>
@@ -232,11 +222,7 @@ export function EventChatPanel({
             disabled={!input.trim() || sending}
             className="btn btn-primary join-item"
           >
-            {sending ? (
-              <Spinner size="sm" />
-            ) : (
-              sendLabel
-            )}
+            {sending ? <Spinner size="sm" /> : sendLabel}
           </button>
         </div>
       </div>

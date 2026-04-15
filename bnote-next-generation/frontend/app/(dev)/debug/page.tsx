@@ -15,7 +15,13 @@ import { DebugPageShell, DebugSection } from "@/components/debug/DebugChrome";
 
 const ENTITIES = (entityConfigData as { entities?: Record<string, { color: string; icon: string }> }).entities ?? {};
 
-const API_PRESETS: { label: string; module: string; action: string; method?: "GET" | "POST"; params?: Record<string, string> }[] = [
+const API_PRESETS: {
+  label: string;
+  module: string;
+  action: string;
+  method?: "GET" | "POST";
+  params?: Record<string, string>;
+}[] = [
   { label: "Session", module: "auth", action: "session" },
   { label: "Public config", module: "auth", action: "getPublicConfig", params: { debug: "1" } },
   { label: "Get modules", module: "auth", action: "getModules", params: { debug: "1" } },
@@ -39,7 +45,10 @@ export default function DebugPage() {
     setLoading(true);
     try {
       const baseUrl = getApiUrl();
-      const url = new URL(baseUrl.startsWith("http") ? baseUrl : baseUrl, typeof window !== "undefined" ? window.location.origin : "http://localhost");
+      const url = new URL(
+        baseUrl.startsWith("http") ? baseUrl : baseUrl,
+        typeof window !== "undefined" ? window.location.origin : "http://localhost"
+      );
       url.searchParams.set("module", module);
       url.searchParams.set("action", action);
       let params: Record<string, string> = {};
@@ -89,10 +98,7 @@ export default function DebugPage() {
 
   return (
     <DebugPageShell
-      breadcrumb={[
-        { label: "Developer", href: "/developer/" },
-        { label: "Debug" },
-      ]}
+      breadcrumb={[{ label: "Developer", href: "/developer/" }, { label: "Debug" }]}
       title="Debug"
       subtitle="API tester, entity shortcuts, and configuration reference. English-only tooling surface."
       headerActions={
@@ -127,7 +133,9 @@ export default function DebugPage() {
         description={
           <>
             Base URL:{" "}
-            <code className="rounded-md bg-base-200 px-1.5 py-0.5 text-xs font-mono text-base-content/90">{getApiUrl()}</code>
+            <code className="rounded-md bg-base-200 px-1.5 py-0.5 text-xs font-mono text-base-content/90">
+              {getApiUrl()}
+            </code>
           </>
         }
       >
@@ -137,7 +145,7 @@ export default function DebugPage() {
               key={`${p.module}-${p.action}`}
               type="button"
               onClick={() => applyPreset(p)}
-                className="btn btn-soft btn-xs sm:btn-sm"
+              className="btn btn-soft btn-xs sm:btn-sm"
             >
               {p.label}
             </button>
@@ -194,10 +202,7 @@ export default function DebugPage() {
         ) : null}
       </DebugSection>
 
-      <DebugSection
-        title="Entity / icon configuration"
-        description="Definitions in config/entity-config.json."
-      >
+      <DebugSection title="Entity / icon configuration" description="Definitions in config/entity-config.json.">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {Object.entries(ENTITIES).map(([type, entry]) => {
             const pillStyle = getPillStyle(entry.color);

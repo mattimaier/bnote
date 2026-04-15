@@ -12,6 +12,7 @@ Use for layout, component, interaction, and visual behavior changes.
 - Required output: changed routes/components, visual behavior notes, mobile verification notes.
 
 Required mobile checks:
+
 - widths ~375px and ~430px,
 - no horizontal overflow or clipped overlays,
 - topbar/search/header usable,

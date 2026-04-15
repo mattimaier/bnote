@@ -14,14 +14,7 @@ export interface AppPageHeaderProps {
   iconColor?: string;
 }
 
-export function AppPageHeader({
-  title,
-  subtitle,
-  actions,
-  moduleKey,
-  iconName,
-  iconColor,
-}: AppPageHeaderProps) {
+export function AppPageHeader({ title, subtitle, actions, moduleKey, iconName, iconColor }: AppPageHeaderProps) {
   const moduleConfig = getModuleHeadlineConfig(moduleKey);
   const resolvedIconName = iconName ?? moduleConfig?.icon ?? null;
   const resolvedIconColor = iconColor ?? moduleConfig?.color ?? null;
@@ -34,9 +27,7 @@ export function AppPageHeader({
           style={{ color: "var(--foreground)" }}
         >
           <span className="inline-flex items-center gap-3">
-            {Icon && (
-              <SquircleIconBadge Icon={Icon} color={resolvedIconColor ?? "var(--foreground)"} />
-            )}
+            {Icon && <SquircleIconBadge Icon={Icon} color={resolvedIconColor ?? "var(--foreground)"} />}
             <span className="min-w-0 break-words whitespace-normal">{title}</span>
           </span>
         </h1>

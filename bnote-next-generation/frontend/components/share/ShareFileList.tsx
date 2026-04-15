@@ -86,8 +86,20 @@ export function ShareFileList({
       <table className="w-full min-w-[32rem] text-sm">
         <thead>
           <tr className="border-b border-base-300 bg-base-200/50">
-            <SortTh label={t("js.share.name")} columnKey="name" activeSortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
-            <SortTh label={t("js.share.size")} columnKey="size" activeSortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
+            <SortTh
+              label={t("js.share.name")}
+              columnKey="name"
+              activeSortKey={sortKey}
+              sortDir={sortDir}
+              onSort={handleSort}
+            />
+            <SortTh
+              label={t("js.share.size")}
+              columnKey="size"
+              activeSortKey={sortKey}
+              sortDir={sortDir}
+              onSort={handleSort}
+            />
             <SortTh
               label={t("js.share.modified")}
               columnKey="modifiedAt"
@@ -127,34 +139,32 @@ export function ShareFileList({
                       <span className="font-medium">{item.name}</span>
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-base-content/60">
-                    {isFolder ? "—" : formatSize(item.size)}
-                  </td>
+                  <td className="px-4 py-3 text-base-content/60">{isFolder ? "—" : formatSize(item.size)}</td>
                   <td className="px-4 py-3 text-base-content/60 whitespace-nowrap" title={item.modifiedAt}>
                     {formatDateTimeShort(item.modifiedAt, lang) ?? "—"}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
-                    {item.canRename && permissions.canWrite ? (
-                      <button
-                        type="button"
-                        onClick={() => onRename(item)}
-                        className="p-1.5 rounded hover:bg-base-300/60 text-base-content/60 hover:text-base-content"
-                        aria-label={t("js.share.renameAria")}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </button>
-                    ) : null}
-                    {item.canDelete && permissions.canDelete ? (
-                      <button
-                        type="button"
-                        onClick={() => onDelete(item)}
-                        className="p-1.5 rounded hover:bg-error/20 text-base-content/60 hover:text-error"
-                        aria-label={t("js.share.deleteAria")}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    ) : null}
+                      {item.canRename && permissions.canWrite ? (
+                        <button
+                          type="button"
+                          onClick={() => onRename(item)}
+                          className="p-1.5 rounded hover:bg-base-300/60 text-base-content/60 hover:text-base-content"
+                          aria-label={t("js.share.renameAria")}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </button>
+                      ) : null}
+                      {item.canDelete && permissions.canDelete ? (
+                        <button
+                          type="button"
+                          onClick={() => onDelete(item)}
+                          className="p-1.5 rounded hover:bg-error/20 text-base-content/60 hover:text-error"
+                          aria-label={t("js.share.deleteAria")}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      ) : null}
                     </div>
                   </td>
                 </tr>

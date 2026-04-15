@@ -153,13 +153,9 @@ function ParticipateInner() {
 
   const loginHref = "/login/";
   const loginHrefWithEntityRedirect =
-    entityHref !== null && entityHref !== ""
-      ? `${loginHref}?redirect=${encodeURIComponent(entityHref)}`
-      : loginHref;
+    entityHref !== null && entityHref !== "" ? `${loginHref}?redirect=${encodeURIComponent(entityHref)}` : loginHref;
   const bugReportLabel =
-    t("js.bugReport.openButton") !== "js.bugReport.openButton"
-      ? t("js.bugReport.openButton")
-      : "Report bug";
+    t("js.bugReport.openButton") !== "js.bugReport.openButton" ? t("js.bugReport.openButton") : "Report bug";
 
   return (
     <div className="w-full max-w-md pb-6 sm:mx-4 sm:pb-0">

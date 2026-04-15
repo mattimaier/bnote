@@ -87,10 +87,7 @@ export interface BandOverviewContentProps {
   onReload: () => Promise<void>;
 }
 
-function useTileOrder(): [
-  string[],
-  (value: string[] | ((prev: string[]) => string[])) => void,
-] {
+function useTileOrder(): [string[], (value: string[] | ((prev: string[]) => string[])) => void] {
   const [order, setOrderState] = useState<string[]>(() => {
     if (typeof window === "undefined") return [...DEFAULT_TILE_ORDER];
     try {
@@ -107,22 +104,19 @@ function useTileOrder(): [
     return [...DEFAULT_TILE_ORDER];
   });
 
-  const setOrder = useCallback(
-    (value: string[] | ((prev: string[]) => string[])) => {
-      setOrderState((prev) => {
-        const newOrder = typeof value === "function" ? value(prev) : value;
-        if (typeof window !== "undefined") {
-          try {
-            localStorage.setItem(TILE_ORDER_KEY, JSON.stringify(newOrder));
-          } catch {
-            // ignore
-          }
+  const setOrder = useCallback((value: string[] | ((prev: string[]) => string[])) => {
+    setOrderState((prev) => {
+      const newOrder = typeof value === "function" ? value(prev) : value;
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem(TILE_ORDER_KEY, JSON.stringify(newOrder));
+        } catch {
+          // ignore
         }
-        return newOrder;
-      });
-    },
-    []
-  );
+      }
+      return newOrder;
+    });
+  }, []);
 
   return [order, setOrder];
 }
@@ -134,14 +128,7 @@ function SortableTile({
   id: string;
   children: (handleProps: React.HTMLAttributes<HTMLElement>) => React.ReactNode;
 }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
 
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
@@ -242,23 +229,14 @@ export function BandOverviewContent({
               <h2 className="text-xl font-semibold">{t("js.bandOverview.sectionTitle")}</h2>
               <span className="badge badge-soft badge-info">{t("js.bandOverview.admin")}</span>
             </div>
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
-            >
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
               <SortableContext items={tileOrder} strategy={rectSortingStrategy}>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-5 items-start">
                   {tileOrder.map((tileId) => (
                     <SortableTile key={tileId} id={tileId}>
                       {(handleProps) =>
-                        renderAdminTile(
-                          tileId,
-                          adminOverview,
-                          t,
-                          lang,
-                          handleProps,
-                          () => setInstrumentSettingsOpen(true)
+                        renderAdminTile(tileId, adminOverview, t, lang, handleProps, () =>
+                          setInstrumentSettingsOpen(true)
                         )
                       }
                     </SortableTile>
@@ -277,7 +255,14 @@ export function BandOverviewContent({
                 <h3 className="text-sm font-medium mb-2">{t("js.bandOverview.recentActivity")}</h3>
                 <ul className="space-y-2">
                   {activityFeed.slice(0, 10).map((item: unknown, i: number) => {
-                    const it = item as { activity_type?: string; author_name?: string; message?: string; entity_title?: string; created_at?: string; title?: string };
+                    const it = item as {
+                      activity_type?: string;
+                      author_name?: string;
+                      message?: string;
+                      entity_title?: string;
+                      created_at?: string;
+                      title?: string;
+                    };
                     return (
                       <li key={i} className="text-sm flex items-start gap-2">
                         {it.activity_type === "task_created" ? (
@@ -288,7 +273,9 @@ export function BandOverviewContent({
                         ) : (
                           <>
                             <span className="badge badge-soft badge-info badge-sm">Comment</span>
-                            <span>{it.author_name}: {String(it.message ?? "").slice(0, 60)}…</span>
+                            <span>
+                              {it.author_name}: {String(it.message ?? "").slice(0, 60)}…
+                            </span>
                           </>
                         )}
                       </li>
@@ -311,6 +298,7 @@ export function BandOverviewContent({
                       t={t}
                       lang={lang}
                       showParticipation={true}
+                      participationQueryMode="cache-first"
                       onParticipationChange={handleEventStateChange}
                       onTaskComplete={handleEventStateChange}
                     />
@@ -350,7 +338,16 @@ export function BandOverviewContent({
   );
 }
 
-type TileEvent = { id: number; otype: string; title?: string; begin?: string; approve_until?: string; participation_stats?: { pending?: number }; gaps?: { instrument_name?: string; current?: number; minimum?: number }[]; pending_users?: unknown[] };
+type TileEvent = {
+  id: number;
+  otype: string;
+  title?: string;
+  begin?: string;
+  approve_until?: string;
+  participation_stats?: { pending?: number };
+  gaps?: { instrument_name?: string; current?: number; minimum?: number }[];
+  pending_users?: unknown[];
+};
 type VoteEntry = { id: number; name?: string; end?: string };
 type UpcomingEvent = { title?: string; eventBegin?: string; otype?: string };
 
@@ -436,9 +433,7 @@ function renderAdminTile(
           icon="vote"
           statDesc={
             (votesSummary?.votes_closing_soon?.length ?? 0) > 0
-              ? t("js.bandOverview.closingSoon", [
-                  String(votesSummary?.votes_closing_soon?.length ?? 0),
-                ])
+              ? t("js.bandOverview.closingSoon", [String(votesSummary?.votes_closing_soon?.length ?? 0)])
               : undefined
           }
           dragHandleProps={dragHandleProps}
@@ -449,7 +444,9 @@ function renderAdminTile(
             return (
               <div key={v.id} className="flex items-center justify-between gap-2 text-xs">
                 <span className={`truncate min-w-0 ${soon ? "font-medium" : ""}`}>{v.name ?? ""}</span>
-                <span className={`shrink-0 ${soon ? "badge badge-sm badge-warning" : "text-base-content/60"}`}>{dateStr}</span>
+                <span className={`shrink-0 ${soon ? "badge badge-sm badge-warning" : "text-base-content/60"}`}>
+                  {dateStr}
+                </span>
               </div>
             );
           })}
@@ -468,7 +465,9 @@ function renderAdminTile(
           dragHandleProps={dragHandleProps}
         >
           {missedEvents.slice(0, 5).map((ev) => (
-            <div key={`${ev.otype}-${ev.id}`} className="truncate text-xs">{ev.title ?? ""}</div>
+            <div key={`${ev.otype}-${ev.id}`} className="truncate text-xs">
+              {ev.title ?? ""}
+            </div>
           ))}
         </DashboardTile>
       );

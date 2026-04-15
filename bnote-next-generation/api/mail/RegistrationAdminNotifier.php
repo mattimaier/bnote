@@ -4,82 +4,76 @@
  */
 declare(strict_types=1);
 
-require_once BNOTE_ROOT . '/src/data/modules/kontaktedata.php';
-require_once __DIR__ . '/MailRecipientPolicy.php';
-require_once __DIR__ . '/MailEnv.php';
-require_once __DIR__ . '/MailI18n.php';
-require_once __DIR__ . '/MailHtmlShell.php';
-require_once __DIR__ . '/NextGenMailMessage.php';
-require_once __DIR__ . '/NextGenMailPolicy.php';
-require_once __DIR__ . '/NextGenMailer.php';
+require_once BNOTE_ROOT . "/src/data/modules/kontaktedata.php";
+require_once __DIR__ . "/MailRecipientPolicy.php";
+require_once __DIR__ . "/MailEnv.php";
+require_once __DIR__ . "/MailI18n.php";
+require_once __DIR__ . "/MailHtmlShell.php";
+require_once __DIR__ . "/NextGenMailMessage.php";
+require_once __DIR__ . "/NextGenMailPolicy.php";
+require_once __DIR__ . "/NextGenMailer.php";
 
-final class RegistrationAdminNotifier {
-    /**
-     * @param array{userId:int,contactId:int,name:string,surname:string,email:string,login:string,autoUserActivation:bool} $ctx
-     */
-    public static function sendSafe($system_data, array $ctx): void {
-        try {
-            if (!NextGenMailPolicy::shouldSendPublicMail($system_data)) {
-                return;
-            }
-            $kd = new KontakteData();
-            $admins = $kd->getAdmins();
-            /** @var list<array{email:string,firstName:string}> $recipients */
-            $recipients = [];
-            $seen = [];
-            $n = is_array($admins) ? count($admins) : 0;
-            for ($i = 1; $i < $n; $i++) {
-                $row = $admins[$i];
-                $contactId = (int) ($row['id'] ?? 0);
-                if (!self::contactHasActiveUser($system_data, $contactId)) {
-                    continue;
-                }
-                $e = trim((string) ($row['email'] ?? ''));
-                if ($e === '' || !filter_var($e, FILTER_VALIDATE_EMAIL) || isset($seen[$e])) {
-                    continue;
-                }
-                if (MailRecipientPolicy::shouldSkipOutboundDelivery($e)) {
-                    continue;
-                }
-                $seen[$e] = true;
-                $recipients[] = [
-                    'email' => $e,
-                    'firstName' => trim((string) ($row['name'] ?? '')),
-                ];
-            }
-            if (count($recipients) < 1) {
-                return;
-            }
-
-            $locale = method_exists($system_data, 'getLang') ? (string) ($system_data->getLang() ?: 'en') : 'en';
-
-            require_once __DIR__ . '/builders/NewUserAdminMailBuilder.php';
-            $messages = [];
-            foreach ($recipients as $r) {
-                $messages[] = NewUserAdminMailBuilder::build(
-                    $system_data,
-                    $locale,
-                    $ctx,
-                    [$r['email']],
-                    [],
-                    $r['firstName']
-                );
-            }
-            NextGenMailer::sendBulk($messages);
-        } catch (Throwable $e) {
-            error_log('RegistrationAdminNotifier: ' . $e->getMessage());
+final class RegistrationAdminNotifier
+{
+  /**
+   * @param array{userId:int,contactId:int,name:string,surname:string,email:string,login:string,autoUserActivation:bool} $ctx
+   */
+  public static function sendSafe($system_data, array $ctx): void
+  {
+    try {
+      if (!NextGenMailPolicy::shouldSendPublicMail($system_data)) {
+        return;
+      }
+      $kd = new KontakteData();
+      $admins = $kd->getAdmins();
+      /** @var list<array{email:string,firstName:string}> $recipients */
+      $recipients = [];
+      $seen = [];
+      $n = is_array($admins) ? count($admins) : 0;
+      for ($i = 1; $i < $n; $i++) {
+        $row = $admins[$i];
+        $contactId = (int) ($row["id"] ?? 0);
+        if (!self::contactHasActiveUser($system_data, $contactId)) {
+          continue;
         }
-    }
-
-    private static function contactHasActiveUser($system_data, int $contactId): bool {
-        if ($contactId < 1 || !$system_data || !isset($system_data->dbcon)) {
-            return false;
+        $e = trim((string) ($row["email"] ?? ""));
+        if ($e === "" || !filter_var($e, FILTER_VALIDATE_EMAIL) || isset($seen[$e])) {
+          continue;
         }
-        $activeUid = $system_data->dbcon->colValue(
-            'SELECT id FROM user WHERE contact = ? AND isActive = 1 LIMIT 1',
-            'id',
-            [['i', $contactId]]
-        );
-        return $activeUid !== null;
+        if (MailRecipientPolicy::shouldSkipOutboundDelivery($e)) {
+          continue;
+        }
+        $seen[$e] = true;
+        $recipients[] = [
+          "email" => $e,
+          "firstName" => trim((string) ($row["name"] ?? "")),
+        ];
+      }
+      if (count($recipients) < 1) {
+        return;
+      }
+
+      $locale = method_exists($system_data, "getLang") ? (string) ($system_data->getLang() ?: "en") : "en";
+
+      require_once __DIR__ . "/builders/NewUserAdminMailBuilder.php";
+      $messages = [];
+      foreach ($recipients as $r) {
+        $messages[] = NewUserAdminMailBuilder::build($system_data, $locale, $ctx, [$r["email"]], [], $r["firstName"]);
+      }
+      NextGenMailer::sendBulk($messages);
+    } catch (Throwable $e) {
+      error_log("RegistrationAdminNotifier: " . $e->getMessage());
     }
+  }
+
+  private static function contactHasActiveUser($system_data, int $contactId): bool
+  {
+    if ($contactId < 1 || !$system_data || !isset($system_data->dbcon)) {
+      return false;
+    }
+    $activeUid = $system_data->dbcon->colValue("SELECT id FROM user WHERE contact = ? AND isActive = 1 LIMIT 1", "id", [
+      ["i", $contactId],
+    ]);
+    return $activeUid !== null;
+  }
 }

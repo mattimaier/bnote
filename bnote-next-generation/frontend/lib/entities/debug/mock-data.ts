@@ -21,7 +21,10 @@ export function getMockRehearsal(_id: string): Record<string, unknown> {
     title: "",
     location: { id: 1, name: "Proberaum 1", address: { street: "Musterstr. 1", city: "Berlin", zip: "10115" } },
     conductor: { id: 1, name: "Max Dirigent" },
-    eventContacts: [{ id: 10, name: "Anna Kontakt" }, { id: 11, name: "Bernd Musiker" }],
+    eventContacts: [
+      { id: 10, name: "Anna Kontakt" },
+      { id: 11, name: "Bernd Musiker" },
+    ],
     participantsByInstrument: [
       {
         instrument: { id: 1, name: "Violin", category: { id: 1, name: "Strings" } },

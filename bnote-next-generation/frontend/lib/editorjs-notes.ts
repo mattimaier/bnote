@@ -97,7 +97,13 @@ export function notesToPlainText(value: string): string {
 
 function stripHtml(html: string): string {
   if (typeof document === "undefined") {
-    return html.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"');
+    return html
+      .replace(/<[^>]*>/g, "")
+      .replace(/&nbsp;/g, " ")
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&quot;/g, '"');
   }
   const div = document.createElement("div");
   div.innerHTML = html;

@@ -74,11 +74,7 @@ export function ConfirmModal({
       aria-modal="true"
       aria-labelledby="bn-confirm-title"
     >
-      <div
-        className="absolute inset-0 bg-base-content/20"
-        aria-hidden="true"
-        onClick={handleBackdropClick}
-      />
+      <div className="absolute inset-0 bg-base-content/20" aria-hidden="true" onClick={handleBackdropClick} />
       <div className="modal-dialog modal-dialog-sm modal-middle relative z-10 w-full max-w-md">
         <div className="modal-content rounded-box border border-base-300 bg-base-100 shadow-xl">
           <div className="modal-header p-4">

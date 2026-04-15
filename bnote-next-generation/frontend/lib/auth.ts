@@ -38,10 +38,7 @@ export async function checkSession(signal?: AbortSignal): Promise<Session> {
   }
 }
 
-export async function login(
-  username: string,
-  password: string
-): Promise<SessionUser> {
+export async function login(username: string, password: string): Promise<SessionUser> {
   const data = await api.post<SessionUser>("auth", "login", {
     username,
     password,
@@ -61,19 +58,13 @@ export interface PasswordResetRequestResult {
   dev_reset_url?: string;
 }
 
-export async function requestPasswordReset(
-  identifier: string
-): Promise<PasswordResetRequestResult> {
+export async function requestPasswordReset(identifier: string): Promise<PasswordResetRequestResult> {
   return api.post<PasswordResetRequestResult>("auth", "requestPasswordReset", {
     identifier,
   });
 }
 
-export async function completePasswordReset(
-  token: string,
-  pw1: string,
-  pw2: string
-): Promise<{ ok: boolean }> {
+export async function completePasswordReset(token: string, pw1: string, pw2: string): Promise<{ ok: boolean }> {
   return api.post<{ ok: boolean }>("auth", "completePasswordReset", {
     token,
     pw1,

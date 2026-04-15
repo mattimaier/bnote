@@ -13,13 +13,7 @@ interface ChangelogModalProps {
   onViewDetails: () => void;
 }
 
-export function ChangelogModal({
-  open,
-  releaseId,
-  entries,
-  onClose,
-  onViewDetails,
-}: ChangelogModalProps) {
+export function ChangelogModal({ open, releaseId, entries, onClose, onViewDetails }: ChangelogModalProps) {
   const { t, lang } = useI18n();
   const label = (key: string, fallback: string) => (t(key) !== key ? t(key) : fallback);
   const changeTypeLabel = (type: ChangelogEntry["changeType"]) => {
@@ -45,12 +39,11 @@ export function ChangelogModal({
             <ul className="space-y-3">
               {entries.slice(0, 6).map((entry) => (
                 <li key={`${entry.bugId ?? "note"}-${entry.title}-${entry.date}`} className="text-sm">
-                  <div className="text-base-content">- {changeTypeLabel(entry.changeType)}: {entry.title}</div>
+                  <div className="text-base-content">
+                    - {changeTypeLabel(entry.changeType)}: {entry.title}
+                  </div>
                   <div className="mt-1 text-xs text-base-content/65 pl-4">
-                    {[
-                      entry.bugId ?? "",
-                      entry.date ? formatDateShortDisplay(entry.date, lang) : "",
-                    ]
+                    {[entry.bugId ?? "", entry.date ? formatDateShortDisplay(entry.date, lang) : ""]
                       .filter(Boolean)
                       .join(" · ")}
                   </div>

@@ -17,7 +17,10 @@ import { getIcon } from "@/components/icons";
 import { isQuickActionsEnabled } from "@/lib/entity-config";
 import { useModules } from "@/lib/use-modules";
 import { useNewsHtml, MAX_SHOW_DEFAULT } from "@/lib/dashboard-utils";
-import { pickDashboardEmptyResponseVariantKey, resolveDashboardEmptyResponseMessage } from "@/lib/dashboard-empty-state";
+import {
+  pickDashboardEmptyResponseVariantKey,
+  resolveDashboardEmptyResponseMessage,
+} from "@/lib/dashboard-empty-state";
 import { Spinner } from "@/components/Spinner";
 import { PAGE_CONTENT_BASE_CLASS } from "@/lib/layout";
 import { SquircleIconBadge } from "@/components/SquircleIconBadge";
@@ -27,14 +30,30 @@ export interface DashboardData {
   inbox: InboxEvent[];
   news?: string;
   company?: string | Record<string, string> | string[];
-  counts?: { rehearsal: number; performance: number; meeting: number; vote?: number; task?: number; reservation?: number; appointment?: number };
+  counts?: {
+    rehearsal: number;
+    performance: number;
+    meeting: number;
+    vote?: number;
+    task?: number;
+    reservation?: number;
+    appointment?: number;
+  };
   config?: { max_show?: number };
 }
 
 export interface EventsNeedingResponse {
   events: InboxEvent[];
   config?: { max_show?: number };
-  counts?: { rehearsal: number; performance: number; meeting: number; vote?: number; task?: number; reservation?: number; appointment?: number };
+  counts?: {
+    rehearsal: number;
+    performance: number;
+    meeting: number;
+    vote?: number;
+    task?: number;
+    reservation?: number;
+    appointment?: number;
+  };
 }
 
 export type SectionId = "events-needing-response" | "events-timeline";
@@ -175,13 +194,16 @@ export default function DashboardContent({
   }, [showNeed, showTimeline]);
   usePrefetchParticipationBatch(visibleParticipationEvents, ready);
 
-  const loadMore = useCallback((sectionId: SectionId) => {
-    const max = sectionId === "events-needing-response" ? maxNeed : maxTimeline;
-    setDisplayedCount((prev) => ({
-      ...prev,
-      [sectionId]: prev[sectionId] + max,
-    }));
-  }, [maxNeed, maxTimeline]);
+  const loadMore = useCallback(
+    (sectionId: SectionId) => {
+      const max = sectionId === "events-needing-response" ? maxNeed : maxTimeline;
+      setDisplayedCount((prev) => ({
+        ...prev,
+        [sectionId]: prev[sectionId] + max,
+      }));
+    },
+    [maxNeed, maxTimeline]
+  );
 
   const canEditNews = Boolean(
     modules?.some((m) => (m.route ?? "").replace(/^\//, "").toLowerCase() === "news" || m.name === "Nachrichten")
@@ -193,14 +215,27 @@ export default function DashboardContent({
   const defaultCounts = { rehearsal: 0, performance: 0, meeting: 0, vote: 0, task: 0, reservation: 0, appointment: 0 };
   const needResponseCounts = needResponse?.counts ?? defaultCounts;
   const timelineCounts = dashboard?.counts ?? defaultCounts;
-  const filterCountsNeed: { rehearsal: number; performance: number; meeting: number; vote: number; task: number; reservation: number; appointment: number } =
+  const filterCountsNeed: {
+    rehearsal: number;
+    performance: number;
+    meeting: number;
+    vote: number;
+    task: number;
+    reservation: number;
+    appointment: number;
+  } =
     filters["events-needing-response"]?.size > 0
       ? countByType(needResponseFiltered)
       : { ...defaultCounts, ...needResponseCounts };
-  const filterCountsTimeline: { rehearsal: number; performance: number; meeting: number; vote: number; task: number; reservation: number; appointment: number } =
-    filters["events-timeline"]?.size > 0
-      ? countByType(timelineFiltered)
-      : { ...defaultCounts, ...timelineCounts };
+  const filterCountsTimeline: {
+    rehearsal: number;
+    performance: number;
+    meeting: number;
+    vote: number;
+    task: number;
+    reservation: number;
+    appointment: number;
+  } = filters["events-timeline"]?.size > 0 ? countByType(timelineFiltered) : { ...defaultCounts, ...timelineCounts };
 
   const FilterBubbles = useCallback(
     ({
@@ -209,71 +244,86 @@ export default function DashboardContent({
       unfilteredCounts,
     }: {
       sectionId: SectionId;
-      counts: { rehearsal: number; performance: number; meeting: number; vote: number; task: number; reservation: number; appointment: number };
-      unfilteredCounts: { rehearsal: number; performance: number; meeting: number; vote: number; task: number; reservation: number; appointment: number };
+      counts: {
+        rehearsal: number;
+        performance: number;
+        meeting: number;
+        vote: number;
+        task: number;
+        reservation: number;
+        appointment: number;
+      };
+      unfilteredCounts: {
+        rehearsal: number;
+        performance: number;
+        meeting: number;
+        vote: number;
+        task: number;
+        reservation: number;
+        appointment: number;
+      };
     }) => {
-      const entityTypesWithItems = (["rehearsal", "performance", "vote", "task", "reservation", "appointment"] as const).filter(
-        (k) => (unfilteredCounts[k] ?? 0) > 0
-      );
+      const entityTypesWithItems = (
+        ["rehearsal", "performance", "vote", "task", "reservation", "appointment"] as const
+      ).filter((k) => (unfilteredCounts[k] ?? 0) > 0);
       if (entityTypesWithItems.length < 2) return null;
       return (
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-2 md:gap-3">
-        <span className="text-xs font-medium tracking-wide uppercase" style={{ color: "var(--muted-foreground)" }}>
-          {t("js.common.filter")}
-        </span>
-        {entityTypesWithItems.map((filterType) => {
-          const count = counts[filterType] ?? 0;
-          const selected = filters[sectionId]?.has(filterType);
-          const bubbleClass =
-            filterType === "rehearsal"
-              ? "filter-bubble filter-bubble-rehearsal"
-              : filterType === "performance"
-                ? "filter-bubble filter-bubble-performance"
-                : filterType === "vote"
-                  ? "filter-bubble filter-bubble-vote"
-                  : filterType === "task"
-                    ? "filter-bubble filter-bubble-task"
-                    : filterType === "reservation"
-                      ? "filter-bubble filter-bubble-reservation"
-                      : filterType === "appointment"
-                        ? "filter-bubble filter-bubble-appointment"
-                        : "filter-bubble filter-bubble-task";
-          const labelKey =
-            filterType === "rehearsal"
-              ? "js.event.rehearsal"
-              : filterType === "performance"
-                ? "js.event.performance"
-                : filterType === "vote"
-                  ? "js.sidebar.votes"
-                  : filterType === "task"
-                    ? "js.sidebar.tasks"
-                    : filterType === "reservation"
-                      ? "js.calendar.reservationLabel"
-                      : filterType === "appointment"
-                        ? "js.calendar.appointmentLabel"
-                        : "js.sidebar.tasks";
-          return (
-            <button
-              key={filterType}
-              type="button"
-              onClick={() => toggleFilter(sectionId, filterType)}
-              className={`${bubbleClass} ${selected ? "selected" : ""}`}
-            >
-              {t(labelKey)}{" "}
-              <span className="opacity-70 ml-1">({count})</span>
-            </button>
-          );
-        })}
-        <button
-          type="button"
-          onClick={() => clearFilters(sectionId)}
-          className="text-xs px-2 py-1 rounded-md transition-colors hover:bg-[var(--muted)] whitespace-nowrap ml-auto sm:ml-0"
-          style={{ color: "var(--muted-foreground)" }}
-        >
-          {t("js.common.clear")}
-        </button>
-      </div>
-    );
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-2 md:gap-3">
+          <span className="text-xs font-medium tracking-wide uppercase" style={{ color: "var(--muted-foreground)" }}>
+            {t("js.common.filter")}
+          </span>
+          {entityTypesWithItems.map((filterType) => {
+            const count = counts[filterType] ?? 0;
+            const selected = filters[sectionId]?.has(filterType);
+            const bubbleClass =
+              filterType === "rehearsal"
+                ? "filter-bubble filter-bubble-rehearsal"
+                : filterType === "performance"
+                  ? "filter-bubble filter-bubble-performance"
+                  : filterType === "vote"
+                    ? "filter-bubble filter-bubble-vote"
+                    : filterType === "task"
+                      ? "filter-bubble filter-bubble-task"
+                      : filterType === "reservation"
+                        ? "filter-bubble filter-bubble-reservation"
+                        : filterType === "appointment"
+                          ? "filter-bubble filter-bubble-appointment"
+                          : "filter-bubble filter-bubble-task";
+            const labelKey =
+              filterType === "rehearsal"
+                ? "js.event.rehearsal"
+                : filterType === "performance"
+                  ? "js.event.performance"
+                  : filterType === "vote"
+                    ? "js.sidebar.votes"
+                    : filterType === "task"
+                      ? "js.sidebar.tasks"
+                      : filterType === "reservation"
+                        ? "js.calendar.reservationLabel"
+                        : filterType === "appointment"
+                          ? "js.calendar.appointmentLabel"
+                          : "js.sidebar.tasks";
+            return (
+              <button
+                key={filterType}
+                type="button"
+                onClick={() => toggleFilter(sectionId, filterType)}
+                className={`${bubbleClass} ${selected ? "selected" : ""}`}
+              >
+                {t(labelKey)} <span className="opacity-70 ml-1">({count})</span>
+              </button>
+            );
+          })}
+          <button
+            type="button"
+            onClick={() => clearFilters(sectionId)}
+            className="text-xs px-2 py-1 rounded-md transition-colors hover:bg-[var(--muted)] whitespace-nowrap ml-auto sm:ml-0"
+            style={{ color: "var(--muted-foreground)" }}
+          >
+            {t("js.common.clear")}
+          </button>
+        </div>
+      );
     },
     [t, filters, toggleFilter, clearFilters]
   );
@@ -339,22 +389,48 @@ export default function DashboardContent({
     const d = new Date(dateValue);
     if (Number.isNaN(d.getTime())) return false;
     const now = new Date();
-    return (
-      d.getFullYear() === now.getFullYear() &&
-      d.getMonth() === now.getMonth() &&
-      d.getDate() === now.getDate()
-    );
+    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
   };
 
-  const todayDueTasks = allEvents.filter((event) => event.otype === "T" && isSameLocalDay(event.dueDate || event.eventBegin || event.begin)).length;
-  const todayRehearsals = allEvents.filter((event) => event.otype === "R" && isSameLocalDay(event.eventBegin || event.begin || event.dueDate)).length;
-  const todayConcerts = allEvents.filter((event) => event.otype === "C" && isSameLocalDay(event.eventBegin || event.begin || event.dueDate)).length;
+  const todayDueTasks = allEvents.filter(
+    (event) => event.otype === "T" && isSameLocalDay(event.dueDate || event.eventBegin || event.begin)
+  ).length;
+  const todayRehearsals = allEvents.filter(
+    (event) => event.otype === "R" && isSameLocalDay(event.eventBegin || event.begin || event.dueDate)
+  ).length;
+  const todayConcerts = allEvents.filter(
+    (event) => event.otype === "C" && isSameLocalDay(event.eventBegin || event.begin || event.dueDate)
+  ).length;
 
   const quickActions = [
-    { titleKey: "js.dashboard.quickAction.viewCalendar", descKey: "js.dashboard.quickAction.viewCalendarDesc", icon: "calendar-days", colorClass: "bg-primary/10 text-primary hover:bg-primary/20", href: "/calendar" },
-    { titleKey: "js.dashboard.quickAction.contactBand", descKey: "js.dashboard.quickAction.contactBandDesc", icon: "message-square", colorClass: "bg-accent/10 text-accent hover:bg-accent/20", href: "#" },
-    { titleKey: "js.dashboard.quickAction.bandDirectory", descKey: "js.dashboard.quickAction.bandDirectoryDesc", icon: "users", colorClass: "bg-chart-3/10 text-chart-3 hover:bg-chart-3/20", href: "/contacts" },
-    { titleKey: "js.dashboard.quickAction.myProfile", descKey: "js.dashboard.quickAction.myProfileDesc", icon: "music", colorClass: "bg-chart-4/10 text-chart-4 hover:bg-chart-4/20", href: "#" },
+    {
+      titleKey: "js.dashboard.quickAction.viewCalendar",
+      descKey: "js.dashboard.quickAction.viewCalendarDesc",
+      icon: "calendar-days",
+      colorClass: "bg-primary/10 text-primary hover:bg-primary/20",
+      href: "/calendar",
+    },
+    {
+      titleKey: "js.dashboard.quickAction.contactBand",
+      descKey: "js.dashboard.quickAction.contactBandDesc",
+      icon: "message-square",
+      colorClass: "bg-accent/10 text-accent hover:bg-accent/20",
+      href: "#",
+    },
+    {
+      titleKey: "js.dashboard.quickAction.bandDirectory",
+      descKey: "js.dashboard.quickAction.bandDirectoryDesc",
+      icon: "users",
+      colorClass: "bg-chart-3/10 text-chart-3 hover:bg-chart-3/20",
+      href: "/contacts",
+    },
+    {
+      titleKey: "js.dashboard.quickAction.myProfile",
+      descKey: "js.dashboard.quickAction.myProfileDesc",
+      icon: "music",
+      colorClass: "bg-chart-4/10 text-chart-4 hover:bg-chart-4/20",
+      href: "#",
+    },
   ];
 
   return (
@@ -408,7 +484,7 @@ export default function DashboardContent({
                 <Link
                   key={action.titleKey}
                   href={action.href}
-                    className={`group flex flex-col items-center gap-2 p-3 md:gap-3 md:p-4 rounded-lg border border-border/20 md:border-border/40 transition-colors duration-200 hover:border-primary/30 hover:bg-primary/5 ${action.colorClass}`}
+                  className={`group flex flex-col items-center gap-2 p-3 md:gap-3 md:p-4 rounded-lg border border-border/20 md:border-border/40 transition-colors duration-200 hover:border-primary/30 hover:bg-primary/5 ${action.colorClass}`}
                 >
                   <SquircleIconBadge Icon={Icon} color="currentColor" size="md" />
                   <div className="text-center">
@@ -445,6 +521,7 @@ export default function DashboardContent({
                   t={t}
                   lang={lang}
                   showParticipation
+                  participationQueryMode="cache-first"
                   isLast={idx === showNeed.length - 1 && !hasMoreNeed}
                   onParticipationChange={handleEventStateChange}
                   onTaskComplete={handleEventStateChange}
@@ -483,7 +560,9 @@ export default function DashboardContent({
           <div className="relative space-y-3 md:space-y-3 px-0 md:px-4 lg:px-5">
             {showTimeline.length === 0 ? (
               <p className="text-sm py-10 text-center" style={{ color: "var(--muted-foreground)" }}>
-                {t("js.dashboard.noUpcomingEvents") !== "js.dashboard.noUpcomingEvents" ? t("js.dashboard.noUpcomingEvents") : "No upcoming events scheduled."}
+                {t("js.dashboard.noUpcomingEvents") !== "js.dashboard.noUpcomingEvents"
+                  ? t("js.dashboard.noUpcomingEvents")
+                  : "No upcoming events scheduled."}
               </p>
             ) : (
               showTimeline.map((ev, idx) => (
@@ -493,6 +572,7 @@ export default function DashboardContent({
                   t={t}
                   lang={lang}
                   showParticipation
+                  participationQueryMode="cache-first"
                   isLast={idx === showTimeline.length - 1 && !hasMoreTimeline}
                   onParticipationChange={handleEventStateChange}
                   onTaskComplete={handleEventStateChange}

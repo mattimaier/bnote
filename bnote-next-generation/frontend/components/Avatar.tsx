@@ -41,26 +41,14 @@ export interface AvatarProps {
   className?: string;
 }
 
-export function Avatar({
-  email,
-  name,
-  size = 32,
-  variant = "solid",
-  className = "",
-}: AvatarProps) {
+export function Avatar({ email, name, size = 32, variant = "solid", className = "" }: AvatarProps) {
   const [usePlaceholder, setUsePlaceholder] = useState(false);
   const initials = getInitials(name);
   const sizeClass = SIZE_CLASSES[size];
   const placeholderClasses =
-    variant === "birthday"
-      ? PLACEHOLDER_BIRTHDAY
-      : variant === "soft"
-        ? PLACEHOLDER_SOFT
-        : PLACEHOLDER_SOLID;
+    variant === "birthday" ? PLACEHOLDER_BIRTHDAY : variant === "soft" ? PLACEHOLDER_SOFT : PLACEHOLDER_SOLID;
   const showImage = email?.trim() && !usePlaceholder;
-  const gravatarSrc = email?.trim()
-    ? gravatarUrl(email.trim(), { size: size * 2, default: "404" })
-    : "";
+  const gravatarSrc = email?.trim() ? gravatarUrl(email.trim(), { size: size * 2, default: "404" }) : "";
 
   if (showImage && gravatarSrc) {
     return (

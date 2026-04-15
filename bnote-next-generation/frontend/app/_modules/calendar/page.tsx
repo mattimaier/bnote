@@ -11,8 +11,8 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useI18n } from "@/contexts/I18nContext";
 import { useEditingBar } from "@/contexts/EditingBarContext";
 import { calendarApi, type CalendarEvent, type CalendarSubscriptionLink } from "@/lib/calendar-api";
-import { CalendarView } from "@/components/Calendar/CalendarView";
-import { CalendarEventModal } from "@/components/Calendar/CalendarEventModal";
+import { CalendarView } from "@/components/calendar/CalendarView";
+import { CalendarEventModal } from "@/components/calendar/CalendarEventModal";
 import { PageContent } from "@/components/PageContent";
 import { Spinner } from "@/components/Spinner";
 import { getErrorMessage } from "@/lib/error-utils";
@@ -151,11 +151,7 @@ export default function CalendarPage() {
       }
 
       const primaryError =
-        eventsRes.status === "rejected"
-          ? eventsRes.reason
-          : capsRes.status === "rejected"
-            ? capsRes.reason
-            : null;
+        eventsRes.status === "rejected" ? eventsRes.reason : capsRes.status === "rejected" ? capsRes.reason : null;
       if (primaryError) {
         setError(getErrorMessage(primaryError, t, "js.common.failedToLoad"));
       } else {
@@ -208,11 +204,14 @@ export default function CalendarPage() {
     [router]
   );
 
-  const handleSelectRange = useCallback((startStr: string, endStr: string, allDay: boolean) => {
-    if (!canEditCalendar) return;
-    setSelectRange({ start: startStr, end: endStr, allDay });
-    setSelectMenuOpen(true);
-  }, [canEditCalendar]);
+  const handleSelectRange = useCallback(
+    (startStr: string, endStr: string, allDay: boolean) => {
+      if (!canEditCalendar) return;
+      setSelectRange({ start: startStr, end: endStr, allDay });
+      setSelectMenuOpen(true);
+    },
+    [canEditCalendar]
+  );
 
   const handleAddAppointment = useCallback(() => {
     if (!canEditCalendar) return;
@@ -233,20 +232,17 @@ export default function CalendarPage() {
   }, [canEditCalendar, selectRange, router]);
 
   const noEditTooltip = "Keine Bearbeitungsrechte";
-  const subscriptionMissing = t("js.calendar.subscriptionMissing") !== "js.calendar.subscriptionMissing"
-    ? t("js.calendar.subscriptionMissing")
-    : "Calendar subscription link unavailable.";
+  const subscriptionMissing =
+    t("js.calendar.subscriptionMissing") !== "js.calendar.subscriptionMissing"
+      ? t("js.calendar.subscriptionMissing")
+      : "Calendar subscription link unavailable.";
   const subscriptionDescription = isAndroid
-    ? (
-      t("js.calendar.subscriptionDescriptionAndroid") !== "js.calendar.subscriptionDescriptionAndroid"
-        ? t("js.calendar.subscriptionDescriptionAndroid")
-        : "On Android, direct calendar subscription may not open in the browser. Use the link below in your calendar app or add it via Google Calendar on the web."
-    )
-    : (
-      t("js.calendar.subscriptionDescription") !== "js.calendar.subscriptionDescription"
-        ? t("js.calendar.subscriptionDescription")
-        : "Use this personal link to subscribe in your calendar app. Regenerating invalidates the old link."
-    );
+    ? t("js.calendar.subscriptionDescriptionAndroid") !== "js.calendar.subscriptionDescriptionAndroid"
+      ? t("js.calendar.subscriptionDescriptionAndroid")
+      : "On Android, direct calendar subscription may not open in the browser. Use the link below in your calendar app or add it via Google Calendar on the web."
+    : t("js.calendar.subscriptionDescription") !== "js.calendar.subscriptionDescription"
+      ? t("js.calendar.subscriptionDescription")
+      : "Use this personal link to subscribe in your calendar app. Regenerating invalidates the old link.";
 
   const handleListSort = useCallback((key: string) => {
     const k = key as "title" | "start" | "type";
@@ -260,32 +256,35 @@ export default function CalendarPage() {
     });
   }, []);
 
-  const handleSubscribeClick = useCallback((event: MouseEvent<HTMLAnchorElement>) => {
-    if (!subscription) return;
-    const webcalUrl = String(subscription.subscriptionUrl ?? "").trim();
-    const httpUrl = String(subscription.subscriptionHttpUrl ?? "").trim();
-    if (!webcalUrl && !httpUrl) return;
+  const handleSubscribeClick = useCallback(
+    (event: MouseEvent<HTMLAnchorElement>) => {
+      if (!subscription) return;
+      const webcalUrl = String(subscription.subscriptionUrl ?? "").trim();
+      const httpUrl = String(subscription.subscriptionHttpUrl ?? "").trim();
+      if (!webcalUrl && !httpUrl) return;
 
-    const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
-    const isAndroid = /\bAndroid\b/i.test(ua);
-    const fallbackUrl = httpUrl || webcalUrl;
-    if (!fallbackUrl) return;
+      const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
+      const isAndroid = /\bAndroid\b/i.test(ua);
+      const fallbackUrl = httpUrl || webcalUrl;
+      if (!fallbackUrl) return;
 
-    event.preventDefault();
+      event.preventDefault();
 
-    // Android browsers frequently ignore webcal:// with no user feedback.
-    if (isAndroid || !webcalUrl) {
-      window.location.assign(fallbackUrl);
-      return;
-    }
-
-    window.location.assign(webcalUrl);
-    window.setTimeout(() => {
-      if (document.visibilityState === "visible") {
+      // Android browsers frequently ignore webcal:// with no user feedback.
+      if (isAndroid || !webcalUrl) {
         window.location.assign(fallbackUrl);
+        return;
       }
-    }, 700);
-  }, [subscription]);
+
+      window.location.assign(webcalUrl);
+      window.setTimeout(() => {
+        if (document.visibilityState === "visible") {
+          window.location.assign(fallbackUrl);
+        }
+      }, 700);
+    },
+    [subscription]
+  );
 
   const sortedEvents = useMemo(() => {
     const now = new Date();
@@ -308,11 +307,7 @@ export default function CalendarPage() {
       arr.sort((a, b) => compareString(notesToPlainText(a.title ?? ""), notesToPlainText(b.title ?? ""), listSortDir));
     } else if (listSortKey === "type") {
       arr.sort((a, b) =>
-        compareString(
-          a.extendedProps?.bnoteType ?? "",
-          b.extendedProps?.bnoteType ?? "",
-          listSortDir
-        )
+        compareString(a.extendedProps?.bnoteType ?? "", b.extendedProps?.bnoteType ?? "", listSortDir)
       );
     }
     return arr;
@@ -333,7 +328,7 @@ export default function CalendarPage() {
       <AppPageHeader
         moduleKey="calendar"
         title={t("js.sidebar.calendar") !== "js.sidebar.calendar" ? t("js.sidebar.calendar") : "Kalender"}
-        actions={(
+        actions={
           <>
             <ActionButton
               onClick={() => router.push(getEntityPath("reservation", "new", "edit"))}
@@ -356,14 +351,10 @@ export default function CalendarPage() {
                 : "Add Appointment"}
             </ActionButton>
           </>
-        )}
+        }
       />
 
-      {error && (
-        <div className="rounded-lg border border-error bg-error/15 px-4 py-3 text-sm text-error">
-          {error}
-        </div>
-      )}
+      {error && <div className="rounded-lg border border-error bg-error/15 px-4 py-3 text-sm text-error">{error}</div>}
 
       <section className="rounded-xl border border-base-300 bg-base-100 p-4">
         <h2 className="text-sm font-semibold">
@@ -371,9 +362,7 @@ export default function CalendarPage() {
             ? t("js.calendar.subscriptionTitle")
             : "Calendar Subscription"}
         </h2>
-        <p className="mt-1 text-xs text-base-content/70">
-          {subscriptionDescription}
-        </p>
+        <p className="mt-1 text-xs text-base-content/70">{subscriptionDescription}</p>
         {subscription?.subscriptionUrl ? (
           <div className="mt-3 grid gap-2 md:grid-cols-2">
             <div className="rounded-lg border border-base-300 bg-base-200/40 p-2 text-xs font-mono break-all">
@@ -416,39 +405,22 @@ export default function CalendarPage() {
               className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
               onClick={() => setSelectMenuOpen(false)}
             >
-              <div
-                className="rounded-box bg-base-100 p-4 shadow-lg"
-                onClick={(e) => e.stopPropagation()}
-              >
+              <div className="rounded-box bg-base-100 p-4 shadow-lg" onClick={(e) => e.stopPropagation()}>
                 <p className="mb-3 text-sm font-medium">
-                  {t("js.calendar.addEvent") !== "js.calendar.addEvent"
-                    ? t("js.calendar.addEvent")
-                    : "Add event"}
+                  {t("js.calendar.addEvent") !== "js.calendar.addEvent" ? t("js.calendar.addEvent") : "Add event"}
                 </p>
                 <div className="flex gap-2">
-                  <button
-                    type="button"
-                    className="btn btn-primary btn-sm"
-                    onClick={handleAddAppointment}
-                  >
+                  <button type="button" className="btn btn-primary btn-sm" onClick={handleAddAppointment}>
                     {t("js.calendar.addAppointment") !== "js.calendar.addAppointment"
                       ? t("js.calendar.addAppointment")
                       : "Add Appointment"}
                   </button>
-                  <button
-                    type="button"
-                    className="btn btn-soft btn-sm"
-                    onClick={handleAddReservation}
-                  >
+                  <button type="button" className="btn btn-soft btn-sm" onClick={handleAddReservation}>
                     {t("js.calendar.addReservation") !== "js.calendar.addReservation"
                       ? t("js.calendar.addReservation")
                       : "Add Reservation"}
                   </button>
-                  <button
-                    type="button"
-                    className="btn btn-soft btn-sm"
-                    onClick={() => setSelectMenuOpen(false)}
-                  >
+                  <button type="button" className="btn btn-soft btn-sm" onClick={() => setSelectMenuOpen(false)}>
                     {t("js.common.cancel") !== "js.common.cancel" ? t("js.common.cancel") : "Cancel"}
                   </button>
                 </div>
@@ -497,15 +469,19 @@ export default function CalendarPage() {
                   );
                 }}
                 onRowClick={(ev) => handleEventClick(ev)}
-                emptyMessage={
-                  t("js.common.empty") !== "js.common.empty" ? t("js.common.empty") : "No entries"
-                }
+                emptyMessage={t("js.common.empty") !== "js.common.empty" ? t("js.common.empty") : "No entries"}
                 sortKey={listSortKey}
                 sortDir={listSortDir}
                 onSort={handleListSort}
                 sortOptions={[
-                  { key: "start", label: t("js.calendar.date") !== "js.calendar.date" ? t("js.calendar.date") : "Date" },
-                  { key: "title", label: t("js.calendar.title") !== "js.calendar.title" ? t("js.calendar.title") : "Title" },
+                  {
+                    key: "start",
+                    label: t("js.calendar.date") !== "js.calendar.date" ? t("js.calendar.date") : "Date",
+                  },
+                  {
+                    key: "title",
+                    label: t("js.calendar.title") !== "js.calendar.title" ? t("js.calendar.title") : "Title",
+                  },
                   { key: "type", label: t("js.calendar.type") !== "js.calendar.type" ? t("js.calendar.type") : "Type" },
                 ]}
               >
@@ -557,9 +533,7 @@ export default function CalendarPage() {
                               </span>
                             </td>
                             <td className="p-3 font-medium">{notesToPlainText(ev.title ?? "")}</td>
-                            <td className="p-3 text-base-content/70">
-                              {formatEventDateRange(ev, lang)}
-                            </td>
+                            <td className="p-3 text-base-content/70">{formatEventDateRange(ev, lang)}</td>
                           </tr>
                         );
                       })

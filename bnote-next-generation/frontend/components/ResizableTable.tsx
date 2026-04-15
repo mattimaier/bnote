@@ -64,37 +64,40 @@ export function ResizableTable({
     return () => mq.removeListener(update);
   }, []);
 
-  const startResize = useCallback((columnId: string, event: React.PointerEvent) => {
-    if (!isDesktop) return;
-    event.preventDefault();
-    event.stopPropagation();
+  const startResize = useCallback(
+    (columnId: string, event: React.PointerEvent) => {
+      if (!isDesktop) return;
+      event.preventDefault();
+      event.stopPropagation();
 
-    const column = columns.find((c) => c.id === columnId);
-    const handle = event.currentTarget as HTMLElement;
-    const th = handle.closest("th");
-    const startWidth = th?.getBoundingClientRect().width ?? column?.width ?? 160;
-    const startX = event.clientX;
-    const minWidth = column?.minWidth ?? 80;
-    const maxWidth = column?.maxWidth ?? 800;
+      const column = columns.find((c) => c.id === columnId);
+      const handle = event.currentTarget as HTMLElement;
+      const th = handle.closest("th");
+      const startWidth = th?.getBoundingClientRect().width ?? column?.width ?? 160;
+      const startX = event.clientX;
+      const minWidth = column?.minWidth ?? 80;
+      const maxWidth = column?.maxWidth ?? 800;
 
-    const onMove = (moveEvent: PointerEvent) => {
-      const delta = moveEvent.clientX - startX;
-      const next = Math.min(maxWidth, Math.max(minWidth, startWidth + delta));
-      setWidths((prev) => ({ ...prev, [columnId]: next }));
-    };
+      const onMove = (moveEvent: PointerEvent) => {
+        const delta = moveEvent.clientX - startX;
+        const next = Math.min(maxWidth, Math.max(minWidth, startWidth + delta));
+        setWidths((prev) => ({ ...prev, [columnId]: next }));
+      };
 
-    const onUp = () => {
-      document.body.style.cursor = "";
-      document.body.style.userSelect = "";
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup", onUp);
-    };
+      const onUp = () => {
+        document.body.style.cursor = "";
+        document.body.style.userSelect = "";
+        window.removeEventListener("pointermove", onMove);
+        window.removeEventListener("pointerup", onUp);
+      };
 
-    document.body.style.cursor = "col-resize";
-    document.body.style.userSelect = "none";
-    window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup", onUp);
-  }, [columns, isDesktop]);
+      document.body.style.cursor = "col-resize";
+      document.body.style.userSelect = "none";
+      window.addEventListener("pointermove", onMove);
+      window.addEventListener("pointerup", onUp);
+    },
+    [columns, isDesktop]
+  );
 
   const ctxValue = useMemo(
     () => ({ columns, widths, isDesktop, startResize }),

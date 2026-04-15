@@ -31,11 +31,7 @@ export function ParticipationDiagram({ stats }: ParticipationDiagramProps) {
   if (!stats) return null;
   const { yes = 0, maybe = 0, no = 0, pending = 0, total = 0 } = stats;
   if (total === 0) {
-    return (
-      <div className="text-center py-4 text-sm text-base-content/70">
-        No participants yet
-      </div>
-    );
+    return <div className="text-center py-4 text-sm text-base-content/70">No participants yet</div>;
   }
 
   const segments: { key: keyof typeof PARTICIPATION_SEGMENT_COLORS; count: number; pct: number }[] = [];

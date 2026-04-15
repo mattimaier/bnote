@@ -76,9 +76,7 @@ function LoginFormInner() {
       .get<PublicConfig>("auth", "getPublicConfig")
       .then((config) => {
         const company = safeString(config?.company);
-        setWelcomeText(
-          company ? t("js.dashboard.subtitle", [company]) : t("js.common.appName")
-        );
+        setWelcomeText(company ? t("js.dashboard.subtitle", [company]) : t("js.common.appName"));
         setUserRegistration(Boolean(config?.user_registration));
         setBugReportEnabled(Boolean(config?.beta_bug_report_enabled));
       })
@@ -97,11 +95,7 @@ function LoginFormInner() {
       const redirect = searchParams.get("redirect") ?? "/dashboard";
       router.replace(redirect);
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : t("js.login.loginFailed")
-      );
+      setError(err instanceof Error ? err.message : t("js.login.loginFailed"));
     } finally {
       setLoading(false);
     }
@@ -116,9 +110,7 @@ function LoginFormInner() {
   }
 
   const bugReportLabel =
-    t("js.bugReport.openButton") !== "js.bugReport.openButton"
-      ? t("js.bugReport.openButton")
-      : "Report bug";
+    t("js.bugReport.openButton") !== "js.bugReport.openButton" ? t("js.bugReport.openButton") : "Report bug";
 
   return (
     <div className="w-full max-w-md pb-6 sm:mx-4 sm:pb-0">
@@ -141,12 +133,7 @@ function LoginFormInner() {
       <div className="construction-tape fixed right-0 bottom-0 left-0 z-40 sm:static">
         <div className="construction-tape-text">
           <span className="font-bold">BNote Next Generation</span>
-          <svg
-            className="inline-block h-4 w-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
+          <svg className="inline-block h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -163,9 +150,7 @@ function LoginFormInner() {
           <div className="mx-auto mb-4 flex justify-center">
             <BNoteLogo size="lg" padding="tight" />
           </div>
-          <h1 className="mb-2 text-2xl font-bold text-base-content">
-            {t("js.common.appName")}
-          </h1>
+          <h1 className="mb-2 text-2xl font-bold text-base-content">{t("js.common.appName")}</h1>
           <p className="text-base-content/60">{welcomeText}</p>
         </div>
 
@@ -177,10 +162,7 @@ function LoginFormInner() {
 
         <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
           <div>
-            <label
-              htmlFor="username"
-              className="mb-2 block text-sm font-medium text-base-content"
-            >
+            <label htmlFor="username" className="mb-2 block text-sm font-medium text-base-content">
               {t("js.login.usernameLabel")}
             </label>
             <input
@@ -196,10 +178,7 @@ function LoginFormInner() {
             />
           </div>
           <div>
-            <label
-              htmlFor="password"
-              className="mb-2 block text-sm font-medium text-base-content"
-            >
+            <label htmlFor="password" className="mb-2 block text-sm font-medium text-base-content">
               {t("js.login.passwordLabel")}
             </label>
             <input
@@ -215,15 +194,9 @@ function LoginFormInner() {
             />
           </div>
           {error && (
-            <div className="rounded-lg border border-error/20 bg-error/10 px-4 py-3 text-sm text-error">
-              {error}
-            </div>
+            <div className="rounded-lg border border-error/20 bg-error/10 px-4 py-3 text-sm text-error">{error}</div>
           )}
-          <button
-            type="submit"
-            disabled={loading}
-            className="btn btn-primary btn-lg btn-block"
-          >
+          <button type="submit" disabled={loading} className="btn btn-primary btn-lg btn-block">
             {loading ? t("js.login.loggingIn") : t("js.login.login")}
           </button>
         </form>

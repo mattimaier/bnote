@@ -101,7 +101,9 @@ async function main() {
   ]);
 
   const entries = Object.entries(entities).filter(([, value]) => {
-    return Boolean(value && typeof value === "object" && typeof value.icon === "string" && typeof value.color === "string");
+    return Boolean(
+      value && typeof value === "object" && typeof value.icon === "string" && typeof value.color === "string"
+    );
   });
 
   for (const [entityKey, value] of entries) {

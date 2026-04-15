@@ -40,9 +40,7 @@ export function SongDetail() {
     repertoireApi
       .get(numId)
       .then(setItem)
-      .catch((err) =>
-        setError(getErrorMessage(err, t, "js.common.failedToLoad"))
-      )
+      .catch((err) => setError(getErrorMessage(err, t, "js.common.failedToLoad")))
       .finally(() => setLoading(false));
   }, [id, ready]);
 
@@ -70,21 +68,18 @@ export function SongDetail() {
   if (error || !item) {
     return (
       <div className={PAGE_CONTENT_CLASS}>
-        <p className="text-sm text-error">
-          {error || "Song not found."}
-        </p>
+        <p className="text-sm text-error">{error || "Song not found."}</p>
       </div>
     );
   }
 
-  const isActiveLabel =
-    item.is_active
-      ? t("js.common.active") !== "js.common.active"
-        ? t("js.common.active")
-        : "Active"
-      : t("js.common.inactive") !== "js.common.inactive"
-        ? t("js.common.inactive")
-        : "Inactive";
+  const isActiveLabel = item.is_active
+    ? t("js.common.active") !== "js.common.active"
+      ? t("js.common.active")
+      : "Active"
+    : t("js.common.inactive") !== "js.common.inactive"
+      ? t("js.common.inactive")
+      : "Inactive";
   const statusKey = item.is_active ? "active" : "inactive";
   const songStatusLabel = item.statusname ?? "";
   const songStatusKey = songStatusLabel.trim().toLowerCase().replace(/\s+/g, "-");
@@ -100,9 +95,7 @@ export function SongDetail() {
             ? [item.composer, item.genrename, item.statusname].filter(Boolean).join(" · ")
             : undefined
         }
-        right={
-          <DetailEditButton onClick={() => router.push(getEntityPath("song", item.id, "edit"))} />
-        }
+        right={<DetailEditButton onClick={() => router.push(getEntityPath("song", item.id, "edit"))} />}
       />
 
       <DetailCard>
@@ -110,9 +103,7 @@ export function SongDetail() {
           {item.composer && (
             <>
               <dt className="text-sm font-medium text-base-content/60">
-                {t("js.repertoire.composer") !== "js.repertoire.composer"
-                  ? t("js.repertoire.composer")
-                  : "Composer"}
+                {t("js.repertoire.composer") !== "js.repertoire.composer" ? t("js.repertoire.composer") : "Composer"}
               </dt>
               <dd>{item.composer}</dd>
             </>
@@ -128,9 +119,7 @@ export function SongDetail() {
           {item.length != null && item.length !== "" && (
             <>
               <dt className="text-sm font-medium text-base-content/60">
-                {t("js.repertoire.length") !== "js.repertoire.length"
-                  ? t("js.repertoire.length")
-                  : "Length"}
+                {t("js.repertoire.length") !== "js.repertoire.length" ? t("js.repertoire.length") : "Length"}
               </dt>
               <dd>{item.length}</dd>
             </>
@@ -138,9 +127,7 @@ export function SongDetail() {
           {item.bpm != null && item.bpm > 0 && (
             <>
               <dt className="text-sm font-medium text-base-content/60">
-                {t("js.repertoire.bpm") !== "js.repertoire.bpm"
-                  ? t("js.repertoire.bpm")
-                  : "BPM"}
+                {t("js.repertoire.bpm") !== "js.repertoire.bpm" ? t("js.repertoire.bpm") : "BPM"}
               </dt>
               <dd>{item.bpm}</dd>
             </>
@@ -148,9 +135,7 @@ export function SongDetail() {
           {item.music_key != null && item.music_key !== "" && (
             <>
               <dt className="text-sm font-medium text-base-content/60">
-                {t("js.repertoire.musicKey") !== "js.repertoire.musicKey"
-                  ? t("js.repertoire.musicKey")
-                  : "Key"}
+                {t("js.repertoire.musicKey") !== "js.repertoire.musicKey" ? t("js.repertoire.musicKey") : "Key"}
               </dt>
               <dd>{item.music_key}</dd>
             </>
@@ -158,9 +143,7 @@ export function SongDetail() {
           {item.setting != null && item.setting !== "" && (
             <>
               <dt className="text-sm font-medium text-base-content/60">
-                {t("js.repertoire.setting") !== "js.repertoire.setting"
-                  ? t("js.repertoire.setting")
-                  : "Setting"}
+                {t("js.repertoire.setting") !== "js.repertoire.setting" ? t("js.repertoire.setting") : "Setting"}
               </dt>
               <dd>{item.setting}</dd>
             </>
@@ -181,9 +164,7 @@ export function SongDetail() {
             </>
           )}
           <dt className="text-sm font-medium text-base-content/60">
-            {t("js.repertoire.isActive") !== "js.repertoire.isActive"
-              ? t("js.repertoire.isActive")
-              : "Active"}
+            {t("js.repertoire.isActive") !== "js.repertoire.isActive" ? t("js.repertoire.isActive") : "Active"}
           </dt>
           <dd>
             <span
@@ -197,9 +178,7 @@ export function SongDetail() {
 
         <div className="mt-4">
           <h2 className="text-sm font-semibold text-base-content/60">
-            {t("js.repertoire.notes") !== "js.repertoire.notes"
-              ? t("js.repertoire.notes")
-              : "Notes"}
+            {t("js.repertoire.notes") !== "js.repertoire.notes" ? t("js.repertoire.notes") : "Notes"}
           </h2>
           <div className="mt-1 prose prose-sm max-w-none dark:prose-invert">
             {notes.length > 0 ? <NotesContent value={notes} /> : <p>{emptyLabel}</p>}

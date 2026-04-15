@@ -106,11 +106,7 @@ export const rehearsalsApi = {
   createSeries: (payload: CreateRehearsalSeriesPayload) =>
     api.post<CreateRehearsalSeriesResult>("rehearsals", "create_series", payload as unknown as Record<string, unknown>),
   updateSeries: (payload: UpdateRehearsalSeriesPayload) =>
-    api.post<UpdateRehearsalSeriesResult>(
-      "rehearsals",
-      "update_series",
-      payload as unknown as Record<string, unknown>
-    ),
+    api.post<UpdateRehearsalSeriesResult>("rehearsals", "update_series", payload as unknown as Record<string, unknown>),
   acceptEscalationRisk: (id: number) =>
     api.post<EscalationRiskActionResult>("rehearsals", "acceptEscalationRisk", { id }),
   resetEscalationRisk: (id: number) =>

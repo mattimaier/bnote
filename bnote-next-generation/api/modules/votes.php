@@ -22,161 +22,170 @@
  * Votes API module
  * Provides vote (poll/abstimmung) management and cast-vote flow
  */
-require_once BNOTE_ROOT . '/src/data/modules/abstimmungdata.php';
-require_once BNOTE_ROOT . '/src/data/modules/startdata.php';
-require_once __DIR__ . '/../response.php';
-require_once __DIR__ . '/../auth.php';
+require_once BNOTE_ROOT . "/src/data/modules/abstimmungdata.php";
+require_once BNOTE_ROOT . "/src/data/modules/startdata.php";
+require_once __DIR__ . "/../response.php";
+require_once __DIR__ . "/../auth.php";
 
-class VotesModule {
-    private $data;
+class VotesModule
+{
+  private $data;
 
-    public function __construct() {
-        global $system_data;
-        $moduleId = $system_data->getModuleId('Abstimmung');
-        if (!$moduleId || !$system_data->userHasPermission($moduleId)) {
-            Response::error('Access denied to Votes', 403);
-        }
-
-        $this->data = new AbstimmungData();
+  public function __construct()
+  {
+    global $system_data;
+    $moduleId = getLegacyModuleId($system_data, LegacyModuleKey::VOTING);
+    if (!$moduleId || !$system_data->userHasPermission($moduleId)) {
+      Response::error("Access denied to Votes", 403);
     }
 
-    public function handle() {
-        $action = $_GET['action'] ?? $_POST['action'] ?? 'list';
+    $this->data = new AbstimmungData();
+  }
 
-        switch ($action) {
-            case 'list':
-                return $this->listVotes();
-            case 'get':
-                return $this->getVote();
-            case 'getAssignableVoters':
-                return $this->getAssignableVoters();
-            case 'getAssignedVoters':
-                return $this->getAssignedVoters();
-            case 'create':
-                return $this->createVote();
-            case 'update':
-                return $this->updateVote();
-            case 'delete':
-                return $this->deleteVote();
-            case 'addVoters':
-                return $this->addVoters();
-            case 'removeVoters':
-                return $this->removeVoters();
-            case 'setVoters':
-                return $this->setVoters();
-            case 'getOptions':
-                return $this->getOptions();
-            case 'addOption':
-                return $this->addOption();
-            case 'removeOption':
-                return $this->removeOption();
-            case 'finish':
-                return $this->finish();
-            case 'submit':
-                return $this->submit();
-            case 'getVoters':
-                return $this->getVoters();
-            default:
-                Response::error('Unknown action: ' . $action, 400);
-        }
+  public function handle()
+  {
+    $action = $_GET["action"] ?? ($_POST["action"] ?? "list");
+
+    switch ($action) {
+      case "list":
+        return $this->listVotes();
+      case "get":
+        return $this->getVote();
+      case "getAssignableVoters":
+        return $this->getAssignableVoters();
+      case "getAssignedVoters":
+        return $this->getAssignedVoters();
+      case "create":
+        return $this->createVote();
+      case "update":
+        return $this->updateVote();
+      case "delete":
+        return $this->deleteVote();
+      case "addVoters":
+        return $this->addVoters();
+      case "removeVoters":
+        return $this->removeVoters();
+      case "setVoters":
+        return $this->setVoters();
+      case "getOptions":
+        return $this->getOptions();
+      case "addOption":
+        return $this->addOption();
+      case "removeOption":
+        return $this->removeOption();
+      case "finish":
+        return $this->finish();
+      case "submit":
+        return $this->submit();
+      case "getVoters":
+        return $this->getVoters();
+      default:
+        Response::error("Unknown action: " . $action, 400);
     }
+  }
 
-    private function getUserId() {
-        return Auth::getUserId();
+  private function getUserId()
+  {
+    return Auth::getUserId();
+  }
+
+  private function canManageVotes($userId)
+  {
+    global $system_data;
+    $uid = intval($userId);
+    if ($uid <= 0) {
+      return false;
     }
+    $moduleId = getLegacyModuleId($system_data, LegacyModuleKey::VOTING);
+    $hasVotesModulePermission = $moduleId ? $system_data->userHasPermission($moduleId) : false;
+    return $system_data->isUserSuperUser($uid) || $system_data->isUserMemberGroup(1, $uid) || $hasVotesModulePermission;
+  }
 
-    private function canManageVotes($userId) {
-        global $system_data;
-        $uid = intval($userId);
-        if ($uid <= 0) {
-            return false;
-        }
-        $moduleId = $system_data->getModuleId('Abstimmung');
-        $hasVotesModulePermission = $moduleId ? $system_data->userHasPermission($moduleId) : false;
-        return $system_data->isUserSuperUser($uid)
-            || $system_data->isUserMemberGroup(1, $uid)
-            || $hasVotesModulePermission;
+  private function requireVoteEditPermission($voteId)
+  {
+    $uid = $this->getUserId();
+    if (!$this->canManageVotes($uid)) {
+      Response::error("Access denied: missing vote edit permission", 403);
     }
-
-    private function requireVoteEditPermission($voteId) {
-        $uid = $this->getUserId();
-        if (!$this->canManageVotes($uid)) {
-            Response::error('Access denied: missing vote edit permission', 403);
-        }
-        if (!$voteId || !is_numeric($voteId)) {
-            Response::error('Vote ID required', 400);
-        }
+    if (!$voteId || !is_numeric($voteId)) {
+      Response::error("Vote ID required", 400);
     }
+  }
 
-    /**
-     * Get user's choices for a vote (optionId => "yes"|"no"|"maybe").
-     * Implemented in API only (never modify BNote). Uses global dbcon.
-     */
-    private function getUserChoicesForVote($vid, $uid) {
-        global $system_data;
-        $query = "SELECT vo.id as option_id, vou.choice
+  /**
+   * Get user's choices for a vote (optionId => "yes"|"no"|"maybe").
+   * Implemented in API only (never modify BNote). Uses global dbcon.
+   */
+  private function getUserChoicesForVote($vid, $uid)
+  {
+    global $system_data;
+    $query = "SELECT vo.id as option_id, vou.choice
                   FROM vote_option vo
                   LEFT JOIN vote_option_user vou ON vo.id = vou.vote_option AND vou.user = ?
                   WHERE vo.vote = ?";
-        $rows = $system_data->dbcon->getSelection($query, [['i', (int) $uid], ['i', (int) $vid]]);
-        $choices = [];
-        if (is_array($rows)) {
-            for ($i = 1; $i < count($rows); $i++) {
-                $r = $rows[$i];
-                $optId = (int) ($r['option_id'] ?? 0);
-                $choice = isset($r['choice']) ? (int) $r['choice'] : 0;
-                $choices[$optId] = $choice === 2 ? 'maybe' : ($choice === 1 ? 'yes' : 'no');
-            }
-        }
-        return $choices;
+    $rows = $system_data->dbcon->getSelection($query, [["i", (int) $uid], ["i", (int) $vid]]);
+    $choices = [];
+    if (is_array($rows)) {
+      for ($i = 1; $i < count($rows); $i++) {
+        $r = $rows[$i];
+        $optId = (int) ($r["option_id"] ?? 0);
+        $choice = isset($r["choice"]) ? (int) $r["choice"] : 0;
+        $choices[$optId] = $choice === 2 ? "maybe" : ($choice === 1 ? "yes" : "no");
+      }
     }
+    return $choices;
+  }
 
-    /**
-     * List votes for current user (active and finished)
-     */
-    private function listVotes() {
-        $activeOnly = isset($_GET['active']) && $_GET['active'] === '1';
-        $uid = $this->getUserId();
-        $active = $this->data->getVotesForUser(true, $uid);
-        $finished = $this->data->getVotesForUser(false, $uid);
-        $list = [];
-        $append = function ($sel) use (&$list) {
-            if (!is_array($sel)) return;
-            for ($i = 1; $i < count($sel); $i++) {
-                $row = $sel[$i];
-                $list[] = [
-                    'id' => intval($row['id']),
-                    'name' => $row['name'] ?? '',
-                    'end' => $row['end'] ?? '',
-                    'is_date' => !empty($row['is_date']),
-                    'is_multi' => !empty($row['is_multi']),
-                    'is_finished' => !empty($row['is_finished']),
-                ];
-            }
-        };
-        $append($active);
-        if (!$activeOnly) {
-            $append($finished);
-        }
-        return $list;
+  /**
+   * List votes for current user (active and finished)
+   */
+  private function listVotes()
+  {
+    $activeOnly = isset($_GET["active"]) && $_GET["active"] === "1";
+    $uid = $this->getUserId();
+    $active = $this->data->getVotesForUser(true, $uid);
+    $finished = $this->data->getVotesForUser(false, $uid);
+    $list = [];
+    $append = function ($sel) use (&$list) {
+      if (!is_array($sel)) {
+        return;
+      }
+      for ($i = 1; $i < count($sel); $i++) {
+        $row = $sel[$i];
+        $list[] = [
+          "id" => intval($row["id"]),
+          "name" => $row["name"] ?? "",
+          "end" => $row["end"] ?? "",
+          "is_date" => !empty($row["is_date"]),
+          "is_multi" => !empty($row["is_multi"]),
+          "is_finished" => !empty($row["is_finished"]),
+        ];
+      }
+    };
+    $append($active);
+    if (!$activeOnly) {
+      $append($finished);
     }
+    return $list;
+  }
 
-    /**
-     * Get eligible voters with vote status (participantsByInstrument format for ParticipantOverview).
-     * Implemented in API only (never modify BNote). Uses global dbcon for custom query.
-     */
-    private function getVoters() {
-        $id = $_GET['id'] ?? $_POST['id'] ?? null;
-        if (!$id || !is_numeric($id)) {
-            Response::error('Vote ID required', 400);
-        }
-        $vote = $this->data->findByIdNoRef($id);
-        if (!$vote || empty($vote)) {
-            Response::error('Vote not found', 404);
-        }
-        global $system_data;
-        $params = [['i', (int) $id], ['i', (int) $id]];
-        $query = "SELECT vg.user as user_id, c.id as contact_id, CONCAT(c.name, ' ', c.surname) as name, c.email,
+  /**
+   * Get eligible voters with vote status (participantsByInstrument format for ParticipantOverview).
+   * Implemented in API only (never modify BNote). Uses global dbcon for custom query.
+   */
+  private function getVoters()
+  {
+    $id = $_GET["id"] ?? ($_POST["id"] ?? null);
+    if (!$id || !is_numeric($id)) {
+      Response::error("Vote ID required", 400);
+    }
+    $vote = $this->data->findByIdNoRef($id);
+    if (!$vote || empty($vote)) {
+      Response::error("Vote not found", 404);
+    }
+    global $system_data;
+    $params = [["i", (int) $id], ["i", (int) $id]];
+    $query = "SELECT vg.user as user_id, c.id as contact_id, CONCAT(c.name, ' ', c.surname) as name, c.email,
                   i.id as instrument_id, i.name as instrument_name, cat.id as category_id, cat.name as category_name,
                   (SELECT COUNT(*) FROM vote_option_user vou
                    JOIN vote_option vo ON vou.vote_option = vo.id
@@ -188,525 +197,536 @@ class VotesModule {
                   LEFT JOIN category cat ON i.category = cat.id
                   WHERE vg.vote = ?
                   ORDER BY COALESCE(cat.name, 'zzz'), i.name, c.name, c.surname";
-        $rows = $system_data->dbcon->getSelection($query, $params);
-        if (!is_array($rows) || count($rows) < 2) {
-            return [];
-        }
-        $byInstrument = [];
-        for ($i = 1; $i < count($rows); $i++) {
-            $r = $rows[$i];
-            $instId = (int) ($r['instrument_id'] ?? 0);
-            $instName = $r['instrument_name'] ?? '';
-            if ($instName === '') {
-                $instName = 'Uncategorized';
-            }
-            $catId = (int) ($r['category_id'] ?? 0);
-            $catName = $r['category_name'] ?? 'Uncategorized';
-            $key = $instId > 0 ? ('i' . $instId) : ('u' . $r['contact_id']);
-            if (!isset($byInstrument[$key])) {
-                $byInstrument[$key] = [
-                    'instrument' => ['id' => $instId, 'name' => $instName, 'category' => ['id' => $catId, 'name' => $catName]],
-                    'participants' => [],
-                    'stats' => ['yes' => 0, 'maybe' => 0, 'no' => 0, 'pending' => 0],
-                ];
-            }
-            $hasVoted = (int) ($r['voted'] ?? 0) > 0;
-            $participate = $hasVoted ? 1 : null;
-            if ($hasVoted) {
-                $byInstrument[$key]['stats']['yes']++;
-            } else {
-                $byInstrument[$key]['stats']['pending']++;
-            }
-            $byInstrument[$key]['participants'][] = [
-                'id' => (int) $r['contact_id'],
-                'userId' => (int) $r['user_id'],
-                'name' => $r['name'] ?? '',
-                'email' => $r['email'] ?? null,
-                'participate' => $participate,
-                'reason' => null,
-            ];
-        }
-        return array_values($byInstrument);
+    $rows = $system_data->dbcon->getSelection($query, $params);
+    if (!is_array($rows) || count($rows) < 2) {
+      return [];
     }
+    $byInstrument = [];
+    for ($i = 1; $i < count($rows); $i++) {
+      $r = $rows[$i];
+      $instId = (int) ($r["instrument_id"] ?? 0);
+      $instName = $r["instrument_name"] ?? "";
+      if ($instName === "") {
+        $instName = "Uncategorized";
+      }
+      $catId = (int) ($r["category_id"] ?? 0);
+      $catName = $r["category_name"] ?? "Uncategorized";
+      $key = $instId > 0 ? "i" . $instId : "u" . $r["contact_id"];
+      if (!isset($byInstrument[$key])) {
+        $byInstrument[$key] = [
+          "instrument" => ["id" => $instId, "name" => $instName, "category" => ["id" => $catId, "name" => $catName]],
+          "participants" => [],
+          "stats" => ["yes" => 0, "maybe" => 0, "no" => 0, "pending" => 0],
+        ];
+      }
+      $hasVoted = (int) ($r["voted"] ?? 0) > 0;
+      $participate = $hasVoted ? 1 : null;
+      if ($hasVoted) {
+        $byInstrument[$key]["stats"]["yes"]++;
+      } else {
+        $byInstrument[$key]["stats"]["pending"]++;
+      }
+      $byInstrument[$key]["participants"][] = [
+        "id" => (int) $r["contact_id"],
+        "userId" => (int) $r["user_id"],
+        "name" => $r["name"] ?? "",
+        "email" => $r["email"] ?? null,
+        "participate" => $participate,
+        "reason" => null,
+      ];
+    }
+    return array_values($byInstrument);
+  }
 
-    /**
-     * Get single vote with options and (if finished) result
-     */
-    private function getVote() {
-        $id = $_GET['id'] ?? $_POST['id'] ?? null;
-        if (!$id || !is_numeric($id)) {
-            Response::error('Vote ID required', 400);
-        }
+  /**
+   * Get single vote with options and (if finished) result
+   */
+  private function getVote()
+  {
+    $id = $_GET["id"] ?? ($_POST["id"] ?? null);
+    if (!$id || !is_numeric($id)) {
+      Response::error("Vote ID required", 400);
+    }
+    $vote = $this->data->findByIdNoRef($id);
+    if (!$vote || empty($vote)) {
+      Response::error("Vote not found", 404);
+    }
+    $options = $this->data->getOptions($id);
+    $optionsList = [];
+    if (is_array($options)) {
+      for ($i = 1; $i < count($options); $i++) {
+        $row = $options[$i];
+        $optionsList[] = [
+          "id" => intval($row["id"]),
+          "name" => $row["name"] ?? "",
+          "odate" => $row["odate"] ?? null,
+        ];
+      }
+    }
+    // Return result for live display (active and finished votes)
+    $result = $this->data->getResult($id);
+    $uid = $this->getUserId();
+    $userChoices = $this->getUserChoicesForVote($id, $uid);
+    return [
+      "id" => intval($vote["id"]),
+      "name" => $vote["name"] ?? "",
+      "end" => $vote["end"] ?? "",
+      "is_date" => !empty($vote["is_date"]),
+      "is_multi" => !empty($vote["is_multi"]),
+      "is_finished" => !empty($vote["is_finished"]),
+      "author" => isset($vote["author"]) ? intval($vote["author"]) : null,
+      "is_author" => $this->data->isUserAuthorOfVote($uid, $id),
+      "can_edit" => $this->canManageVotes($uid),
+      "is_active" => $this->data->isVoteActive($id),
+      "options" => $optionsList,
+      "result" => $result,
+      "user_choices" => $userChoices,
+    ];
+  }
+
+  /**
+   * Create vote
+   */
+  private function createVote()
+  {
+    $rawInput = file_get_contents("php://input");
+    $data = json_decode($rawInput, true);
+    if (!$data) {
+      $data = $_POST;
+    }
+    $_POST["name"] = $data["name"] ?? "";
+    $_POST["end"] = $data["end"] ?? "";
+    $_POST["is_date"] = isset($data["is_date"]) && $data["is_date"] ? 1 : 0;
+    $_POST["is_multi"] = isset($data["is_multi"]) && $data["is_multi"] ? 1 : 0;
+    $groups = $data["groups"] ?? [];
+    foreach ($groups as $gid) {
+      $_POST["group_" . $gid] = "on";
+    }
+    try {
+      $id = $this->data->create([]);
+      return ["success" => true, "id" => intval($id), "message" => "Vote created"];
+    } catch (BNoteError $e) {
+      Response::error($e->getMessage(), 400);
+    }
+  }
+
+  /**
+   * Update vote
+   */
+  private function updateVote()
+  {
+    $rawInput = file_get_contents("php://input");
+    $data = json_decode($rawInput, true);
+    if (!$data) {
+      $data = $_POST;
+    }
+    $id = $data["id"] ?? ($_GET["id"] ?? null);
+    if (!$id || !is_numeric($id)) {
+      Response::error("Vote ID required", 400);
+    }
+    $this->requireVoteEditPermission($id);
+    try {
+      $hasNameOrEnd = array_key_exists("name", $data) || array_key_exists("end", $data);
+      if ($hasNameOrEnd) {
+        // AbstimmungData::update requires non-empty name and end - fetch current values for missing fields
         $vote = $this->data->findByIdNoRef($id);
-        if (!$vote || empty($vote)) {
-            Response::error('Vote not found', 404);
-        }
-        $options = $this->data->getOptions($id);
-        $optionsList = [];
-        if (is_array($options)) {
-            for ($i = 1; $i < count($options); $i++) {
-                $row = $options[$i];
-                $optionsList[] = [
-                    'id' => intval($row['id']),
-                    'name' => $row['name'] ?? '',
-                    'odate' => $row['odate'] ?? null,
-                ];
-            }
-        }
-        // Return result for live display (active and finished votes)
-        $result = $this->data->getResult($id);
-        $uid = $this->getUserId();
-        $userChoices = $this->getUserChoicesForVote($id, $uid);
-        return [
-            'id' => intval($vote['id']),
-            'name' => $vote['name'] ?? '',
-            'end' => $vote['end'] ?? '',
-            'is_date' => !empty($vote['is_date']),
-            'is_multi' => !empty($vote['is_multi']),
-            'is_finished' => !empty($vote['is_finished']),
-            'author' => isset($vote['author']) ? intval($vote['author']) : null,
-            'is_author' => $this->data->isUserAuthorOfVote($uid, $id),
-            'can_edit' => $this->canManageVotes($uid),
-            'is_active' => $this->data->isVoteActive($id),
-            'options' => $optionsList,
-            'result' => $result,
-            'user_choices' => $userChoices,
+        $values = [
+          "name" => array_key_exists("name", $data) ? $data["name"] ?? "" : $vote["name"] ?? "",
+          "end" => array_key_exists("end", $data) ? $data["end"] ?? "" : $vote["end"] ?? "",
         ];
-    }
-
-    /**
-     * Create vote
-     */
-    private function createVote() {
-        $rawInput = file_get_contents('php://input');
-        $data = json_decode($rawInput, true);
-        if (!$data) {
-            $data = $_POST;
-        }
-        $_POST['name'] = $data['name'] ?? '';
-        $_POST['end'] = $data['end'] ?? '';
-        $_POST['is_date'] = isset($data['is_date']) && $data['is_date'] ? 1 : 0;
-        $_POST['is_multi'] = isset($data['is_multi']) && $data['is_multi'] ? 1 : 0;
-        $groups = $data['groups'] ?? [];
-        foreach ($groups as $gid) {
-            $_POST['group_' . $gid] = 'on';
-        }
-        try {
-            $id = $this->data->create([]);
-            return ['success' => true, 'id' => intval($id), 'message' => 'Vote created'];
-        } catch (BNoteError $e) {
-            Response::error($e->getMessage(), 400);
-        }
-    }
-
-    /**
-     * Update vote
-     */
-    private function updateVote() {
-        $rawInput = file_get_contents('php://input');
-        $data = json_decode($rawInput, true);
-        if (!$data) {
-            $data = $_POST;
-        }
-        $id = $data['id'] ?? $_GET['id'] ?? null;
-        if (!$id || !is_numeric($id)) {
-            Response::error('Vote ID required', 400);
-        }
-        $this->requireVoteEditPermission($id);
-        try {
-            $hasNameOrEnd = array_key_exists('name', $data) || array_key_exists('end', $data);
-            if ($hasNameOrEnd) {
-                // AbstimmungData::update requires non-empty name and end - fetch current values for missing fields
-                $vote = $this->data->findByIdNoRef($id);
-                $values = [
-                    'name' => array_key_exists('name', $data) ? ($data['name'] ?? '') : ($vote['name'] ?? ''),
-                    'end' => array_key_exists('end', $data) ? ($data['end'] ?? '') : ($vote['end'] ?? ''),
-                ];
-                $this->data->update($id, $values);
-            }
-            // Status (is_finished): update via API only (never modify BNote)
-            if (array_key_exists('is_finished', $data)) {
-                global $system_data;
-                $finished = $data['is_finished'] ? 1 : 0;
-                $system_data->dbcon->execute(
-                    'UPDATE vote SET is_finished = ? WHERE id = ?',
-                    [['i', $finished], ['i', (int) $id]]
-                );
-            }
-            return ['success' => true, 'message' => 'Vote updated'];
-        } catch (BNoteError $e) {
-            Response::error($e->getMessage(), 400);
-        }
-    }
-
-    /**
-     * Delete vote
-     */
-    private function deleteVote() {
-        $rawInput = file_get_contents('php://input');
-        $data = json_decode($rawInput, true);
-        if (!$data) {
-            $data = $_POST;
-        }
-        $id = $data['id'] ?? $_GET['id'] ?? null;
-        if (!$id || !is_numeric($id)) {
-            Response::error('Vote ID required', 400);
-        }
-        $this->requireVoteEditPermission($id);
-        try {
-            $this->data->delete($id);
-            return ['success' => true, 'message' => 'Vote deleted'];
-        } catch (BNoteError $e) {
-            Response::error($e->getMessage(), 400);
-        }
-    }
-
-    private function getOptions() {
-        $id = $_GET['id'] ?? $_POST['id'] ?? null;
-        if (!$id || !is_numeric($id)) {
-            Response::error('Vote ID required', 400);
-        }
-        $options = $this->data->getOptions($id);
-        $list = [];
-        if (is_array($options)) {
-            for ($i = 1; $i < count($options); $i++) {
-                $row = $options[$i];
-                $list[] = [
-                    'id' => intval($row['id']),
-                    'name' => $row['name'] ?? '',
-                    'odate' => $row['odate'] ?? null,
-                ];
-            }
-        }
-        return $list;
-    }
-
-    private function addOption() {
-        $rawInput = file_get_contents('php://input');
-        $data = json_decode($rawInput, true);
-        if (!$data) {
-            $data = $_POST;
-        }
-        $vid = $data['vote_id'] ?? $data['voteId'] ?? null;
-        if (!$vid || !is_numeric($vid)) {
-            Response::error('Vote ID required', 400);
-        }
-        $this->requireVoteEditPermission($vid);
-        $_POST['vote_id'] = $vid;
-        $_POST['name'] = $data['name'] ?? '';
-        $_POST['odate'] = $data['odate'] ?? '';
-        try {
-            $oid = $this->data->addOption($vid);
-            return ['success' => true, 'id' => intval($oid), 'message' => 'Option added'];
-        } catch (BNoteError $e) {
-            Response::error($e->getMessage(), 400);
-        }
-    }
-
-    private function getAssignableVoters() {
-        $id = $_GET['id'] ?? $_POST['id'] ?? null;
-        if (!$id || !is_numeric($id)) {
-            Response::error('Vote ID required', 400);
-        }
-        $this->requireVoteEditPermission($id);
-
-        $assigned = $this->data->getGroup($id);
-        $assignedMap = [];
-        if (is_array($assigned)) {
-            for ($i = 1; $i < count($assigned); $i++) {
-                $uid = intval($assigned[$i]['id'] ?? 0);
-                if ($uid > 0) {
-                    $assignedMap[$uid] = true;
-                }
-            }
-        }
-
-        $users = $this->data->getUsers();
-        $result = [];
-        if (is_array($users)) {
-            for ($i = 1; $i < count($users); $i++) {
-                $row = $users[$i];
-                $uid = intval($row['id'] ?? 0);
-                if ($uid <= 0 || isset($assignedMap[$uid])) {
-                    continue;
-                }
-                $name = trim(($row['name'] ?? '') . ' ' . ($row['surname'] ?? ''));
-                $result[] = [
-                    'id' => $uid,
-                    'name' => $name,
-                ];
-            }
-        }
-        return $result;
-    }
-
-    private function getAssignedVoters() {
-        $id = $_GET['id'] ?? $_POST['id'] ?? null;
-        if (!$id || !is_numeric($id)) {
-            Response::error('Vote ID required', 400);
-        }
-        $this->requireVoteEditPermission($id);
-
-        $assigned = $this->data->getGroup($id);
-        $result = [];
-        if (is_array($assigned)) {
-            for ($i = 1; $i < count($assigned); $i++) {
-                $row = $assigned[$i];
-                $uid = intval($row['id'] ?? 0);
-                if ($uid <= 0) {
-                    continue;
-                }
-                $name = trim(($row['name'] ?? '') . ' ' . ($row['surname'] ?? ''));
-                $result[] = [
-                    'id' => $uid,
-                    'name' => $name,
-                ];
-            }
-        }
-        return $result;
-    }
-
-    private function addVoters() {
-        $rawInput = file_get_contents('php://input');
-        $data = json_decode($rawInput, true);
-        if (!$data) {
-            $data = $_POST;
-        }
-        $id = $data['id'] ?? $data['vote_id'] ?? $data['voteId'] ?? $_GET['id'] ?? null;
-        if (!$id || !is_numeric($id)) {
-            Response::error('Vote ID required', 400);
-        }
-        $this->requireVoteEditPermission($id);
-
-        $rawUserIds = $data['user_ids'] ?? $data['userIds'] ?? [];
-        if (!is_array($rawUserIds) || count($rawUserIds) === 0) {
-            Response::error('At least one user ID is required', 400);
-        }
-
-        $assigned = $this->data->getGroup($id);
-        $assignedMap = [];
-        if (is_array($assigned)) {
-            for ($i = 1; $i < count($assigned); $i++) {
-                $uid = intval($assigned[$i]['id'] ?? 0);
-                if ($uid > 0) {
-                    $assignedMap[$uid] = true;
-                }
-            }
-        }
-
-        $added = 0;
-        foreach ($rawUserIds as $rawUid) {
-            $uid = intval($rawUid);
-            if ($uid <= 0 || isset($assignedMap[$uid])) {
-                continue;
-            }
-            $this->data->addToGroup($id, $uid);
-            $assignedMap[$uid] = true;
-            $added++;
-        }
-
-        return [
-            'success' => true,
-            'message' => 'Voters added',
-            'added' => $added,
-        ];
-    }
-
-    private function removeVoters() {
-        $rawInput = file_get_contents('php://input');
-        $data = json_decode($rawInput, true);
-        if (!$data) {
-            $data = $_POST;
-        }
-        $id = $data['id'] ?? $data['vote_id'] ?? $data['voteId'] ?? $_GET['id'] ?? null;
-        if (!$id || !is_numeric($id)) {
-            Response::error('Vote ID required', 400);
-        }
-        $this->requireVoteEditPermission($id);
-
-        $rawUserIds = $data['user_ids'] ?? $data['userIds'] ?? [];
-        if (!is_array($rawUserIds) || count($rawUserIds) === 0) {
-            Response::error('At least one user ID is required', 400);
-        }
-
-        $removed = 0;
+        $this->data->update($id, $values);
+      }
+      // Status (is_finished): update via API only (never modify BNote)
+      if (array_key_exists("is_finished", $data)) {
         global $system_data;
-        foreach ($rawUserIds as $rawUid) {
-            $uid = intval($rawUid);
-            if ($uid <= 0) {
-                continue;
-            }
-            $this->data->deleteFromGroup($id, $uid);
-            $system_data->dbcon->execute(
-                'DELETE vou FROM vote_option_user vou JOIN vote_option vo ON vou.vote_option = vo.id WHERE vo.vote = ? AND vou.user = ?',
-                [['i', (int) $id], ['i', (int) $uid]]
-            );
-            $removed++;
-        }
+        $finished = $data["is_finished"] ? 1 : 0;
+        $system_data->dbcon->execute("UPDATE vote SET is_finished = ? WHERE id = ?", [
+          ["i", $finished],
+          ["i", (int) $id],
+        ]);
+      }
+      return ["success" => true, "message" => "Vote updated"];
+    } catch (BNoteError $e) {
+      Response::error($e->getMessage(), 400);
+    }
+  }
 
-        return [
-            'success' => true,
-            'message' => 'Voters removed',
-            'removed' => $removed,
+  /**
+   * Delete vote
+   */
+  private function deleteVote()
+  {
+    $rawInput = file_get_contents("php://input");
+    $data = json_decode($rawInput, true);
+    if (!$data) {
+      $data = $_POST;
+    }
+    $id = $data["id"] ?? ($_GET["id"] ?? null);
+    if (!$id || !is_numeric($id)) {
+      Response::error("Vote ID required", 400);
+    }
+    $this->requireVoteEditPermission($id);
+    try {
+      $this->data->delete($id);
+      return ["success" => true, "message" => "Vote deleted"];
+    } catch (BNoteError $e) {
+      Response::error($e->getMessage(), 400);
+    }
+  }
+
+  private function getOptions()
+  {
+    $id = $_GET["id"] ?? ($_POST["id"] ?? null);
+    if (!$id || !is_numeric($id)) {
+      Response::error("Vote ID required", 400);
+    }
+    $options = $this->data->getOptions($id);
+    $list = [];
+    if (is_array($options)) {
+      for ($i = 1; $i < count($options); $i++) {
+        $row = $options[$i];
+        $list[] = [
+          "id" => intval($row["id"]),
+          "name" => $row["name"] ?? "",
+          "odate" => $row["odate"] ?? null,
         ];
+      }
+    }
+    return $list;
+  }
+
+  private function addOption()
+  {
+    $rawInput = file_get_contents("php://input");
+    $data = json_decode($rawInput, true);
+    if (!$data) {
+      $data = $_POST;
+    }
+    $vid = $data["vote_id"] ?? ($data["voteId"] ?? null);
+    if (!$vid || !is_numeric($vid)) {
+      Response::error("Vote ID required", 400);
+    }
+    $this->requireVoteEditPermission($vid);
+    $_POST["vote_id"] = $vid;
+    $_POST["name"] = $data["name"] ?? "";
+    $_POST["odate"] = $data["odate"] ?? "";
+    try {
+      $oid = $this->data->addOption($vid);
+      return ["success" => true, "id" => intval($oid), "message" => "Option added"];
+    } catch (BNoteError $e) {
+      Response::error($e->getMessage(), 400);
+    }
+  }
+
+  private function getAssignableVoters()
+  {
+    $id = $_GET["id"] ?? ($_POST["id"] ?? null);
+    if (!$id || !is_numeric($id)) {
+      Response::error("Vote ID required", 400);
+    }
+    $this->requireVoteEditPermission($id);
+
+    $assigned = $this->data->getGroup($id);
+    $assignedMap = [];
+    if (is_array($assigned)) {
+      for ($i = 1; $i < count($assigned); $i++) {
+        $uid = intval($assigned[$i]["id"] ?? 0);
+        if ($uid > 0) {
+          $assignedMap[$uid] = true;
+        }
+      }
     }
 
-    private function setVoters() {
-        $rawInput = file_get_contents('php://input');
-        $data = json_decode($rawInput, true);
-        if (!$data) {
-            $data = $_POST;
+    $users = $this->data->getUsers();
+    $result = [];
+    if (is_array($users)) {
+      for ($i = 1; $i < count($users); $i++) {
+        $row = $users[$i];
+        $uid = intval($row["id"] ?? 0);
+        if ($uid <= 0 || isset($assignedMap[$uid])) {
+          continue;
         }
-        $id = $data['id'] ?? $data['vote_id'] ?? $data['voteId'] ?? $_GET['id'] ?? null;
-        if (!$id || !is_numeric($id)) {
-            Response::error('Vote ID required', 400);
-        }
-        $this->requireVoteEditPermission($id);
-
-        $rawUserIds = $data['user_ids'] ?? $data['userIds'] ?? [];
-        if (!is_array($rawUserIds)) {
-            Response::error('user_ids must be an array', 400);
-        }
-
-        $targetMap = [];
-        foreach ($rawUserIds as $rawUid) {
-            $uid = intval($rawUid);
-            if ($uid > 0) {
-                $targetMap[$uid] = true;
-            }
-        }
-        $targetIds = array_keys($targetMap);
-
-        $assigned = $this->data->getGroup($id);
-        $currentMap = [];
-        if (is_array($assigned)) {
-            for ($i = 1; $i < count($assigned); $i++) {
-                $uid = intval($assigned[$i]['id'] ?? 0);
-                if ($uid > 0) {
-                    $currentMap[$uid] = true;
-                }
-            }
-        }
-        $currentIds = array_keys($currentMap);
-
-        $toAdd = array_values(array_diff($targetIds, $currentIds));
-        $toRemove = array_values(array_diff($currentIds, $targetIds));
-
-        foreach ($toAdd as $uid) {
-            $this->data->addToGroup($id, $uid);
-        }
-
-        if (count($toRemove) > 0) {
-            global $system_data;
-            foreach ($toRemove as $uid) {
-                $this->data->deleteFromGroup($id, $uid);
-                $system_data->dbcon->execute(
-                    'DELETE vou FROM vote_option_user vou JOIN vote_option vo ON vou.vote_option = vo.id WHERE vo.vote = ? AND vou.user = ?',
-                    [['i', (int) $id], ['i', (int) $uid]]
-                );
-            }
-        }
-
-        return [
-            'success' => true,
-            'message' => 'Voters updated',
-            'added' => count($toAdd),
-            'removed' => count($toRemove),
+        $name = trim(($row["name"] ?? "") . " " . ($row["surname"] ?? ""));
+        $result[] = [
+          "id" => $uid,
+          "name" => $name,
         ];
+      }
+    }
+    return $result;
+  }
+
+  private function getAssignedVoters()
+  {
+    $id = $_GET["id"] ?? ($_POST["id"] ?? null);
+    if (!$id || !is_numeric($id)) {
+      Response::error("Vote ID required", 400);
+    }
+    $this->requireVoteEditPermission($id);
+
+    $assigned = $this->data->getGroup($id);
+    $result = [];
+    if (is_array($assigned)) {
+      for ($i = 1; $i < count($assigned); $i++) {
+        $row = $assigned[$i];
+        $uid = intval($row["id"] ?? 0);
+        if ($uid <= 0) {
+          continue;
+        }
+        $name = trim(($row["name"] ?? "") . " " . ($row["surname"] ?? ""));
+        $result[] = [
+          "id" => $uid,
+          "name" => $name,
+        ];
+      }
+    }
+    return $result;
+  }
+
+  private function addVoters()
+  {
+    $rawInput = file_get_contents("php://input");
+    $data = json_decode($rawInput, true);
+    if (!$data) {
+      $data = $_POST;
+    }
+    $id = $data["id"] ?? ($data["vote_id"] ?? ($data["voteId"] ?? ($_GET["id"] ?? null)));
+    if (!$id || !is_numeric($id)) {
+      Response::error("Vote ID required", 400);
+    }
+    $this->requireVoteEditPermission($id);
+
+    $rawUserIds = $data["user_ids"] ?? ($data["userIds"] ?? []);
+    if (!is_array($rawUserIds) || count($rawUserIds) === 0) {
+      Response::error("At least one user ID is required", 400);
     }
 
-    private function removeOption() {
-        $rawInput = file_get_contents('php://input');
-        $data = json_decode($rawInput, true);
-        if (!$data) {
-            $data = $_POST;
+    $assigned = $this->data->getGroup($id);
+    $assignedMap = [];
+    if (is_array($assigned)) {
+      for ($i = 1; $i < count($assigned); $i++) {
+        $uid = intval($assigned[$i]["id"] ?? 0);
+        if ($uid > 0) {
+          $assignedMap[$uid] = true;
         }
-        $oid = $data['option_id'] ?? $data['optionId'] ?? null;
-        if (!$oid || !is_numeric($oid)) {
-            Response::error('Option ID required', 400);
-        }
-        try {
-            global $system_data;
-            $sel = $system_data->dbcon->getSelection(
-                'SELECT vote FROM vote_option WHERE id = ?',
-                [['i', (int) $oid]]
-            );
-            $voteId = (is_array($sel) && isset($sel[1]['vote'])) ? intval($sel[1]['vote']) : 0;
-            if ($voteId <= 0) {
-                Response::error('Option not found', 404);
-            }
-            $this->requireVoteEditPermission($voteId);
-            $this->data->deleteOption($oid);
-            return ['success' => true, 'message' => 'Option removed'];
-        } catch (BNoteError $e) {
-            Response::error($e->getMessage(), 400);
-        }
+      }
     }
 
-    private function finish() {
-        $rawInput = file_get_contents('php://input');
-        $data = json_decode($rawInput, true);
-        if (!$data) {
-            $data = $_POST;
-        }
-        $id = $data['id'] ?? $_GET['id'] ?? null;
-        if (!$id || !is_numeric($id)) {
-            Response::error('Vote ID required', 400);
-        }
-        $this->requireVoteEditPermission($id);
-        $this->data->finish($id);
-        return ['success' => true, 'message' => 'Vote finished'];
+    $added = 0;
+    foreach ($rawUserIds as $rawUid) {
+      $uid = intval($rawUid);
+      if ($uid <= 0 || isset($assignedMap[$uid])) {
+        continue;
+      }
+      $this->data->addToGroup($id, $uid);
+      $assignedMap[$uid] = true;
+      $added++;
     }
 
-    /**
-     * Submit current user's vote (choices)
-     */
-    private function submit() {
-        $rawInput = file_get_contents('php://input');
-        $data = json_decode($rawInput, true);
-        if (!$data) {
-            $data = $_POST;
-        }
-        $vid = $data['vote_id'] ?? $data['voteId'] ?? null;
-        if (!$vid || !is_numeric($vid)) {
-            Response::error('Vote ID required', 400);
-        }
-        if (!$this->data->isVoteActive($vid)) {
-            Response::error('Vote is not active', 400);
-        }
-        $uid = $this->getUserId();
-        $vote = $this->data->findByIdNoRef($vid);
-        $isMulti = !empty($vote['is_multi']);
-        try {
-            $startData = new StartData();
-            if ($isMulti) {
-                $values = $data['choices'] ?? [];
-                $startData->saveVote($vid, $values, $uid);
-            } else {
-                $optionId = $data['uservote'] ?? $data['option_id'] ?? null;
-                if ($optionId !== null && $optionId !== '') {
-                    $optionId = (int) $optionId;
-                    $startData->saveVote($vid, ['uservote' => $optionId], $uid);
-                } else {
-                    // Clear single-choice vote (StartData::saveVote inserts null otherwise and can fail)
-                    $options = $startData->getOptionsForVote($vid);
-                    $params = [];
-                    $tuples = [];
-                    for ($i = 1; $i < count($options); $i++) {
-                        $tuples[] = 'vote_option = ?';
-                        $params[] = ['i', (int) $options[$i]['id']];
-                    }
-                    if (!empty($tuples)) {
-                        $params[] = ['i', (int) $uid];
-                        $system_data = $GLOBALS['system_data'];
-                        $query = 'DELETE FROM vote_option_user WHERE (' . implode(' OR ', $tuples) . ') AND user = ?';
-                        $system_data->dbcon->execute($query, $params);
-                    }
-                }
-            }
-            return ['success' => true, 'message' => 'Vote submitted'];
-        } catch (Exception $e) {
-            Response::error($e->getMessage(), 400);
-        }
+    return [
+      "success" => true,
+      "message" => "Voters added",
+      "added" => $added,
+    ];
+  }
+
+  private function removeVoters()
+  {
+    $rawInput = file_get_contents("php://input");
+    $data = json_decode($rawInput, true);
+    if (!$data) {
+      $data = $_POST;
     }
+    $id = $data["id"] ?? ($data["vote_id"] ?? ($data["voteId"] ?? ($_GET["id"] ?? null)));
+    if (!$id || !is_numeric($id)) {
+      Response::error("Vote ID required", 400);
+    }
+    $this->requireVoteEditPermission($id);
+
+    $rawUserIds = $data["user_ids"] ?? ($data["userIds"] ?? []);
+    if (!is_array($rawUserIds) || count($rawUserIds) === 0) {
+      Response::error("At least one user ID is required", 400);
+    }
+
+    $removed = 0;
+    global $system_data;
+    foreach ($rawUserIds as $rawUid) {
+      $uid = intval($rawUid);
+      if ($uid <= 0) {
+        continue;
+      }
+      $this->data->deleteFromGroup($id, $uid);
+      $system_data->dbcon->execute(
+        "DELETE vou FROM vote_option_user vou JOIN vote_option vo ON vou.vote_option = vo.id WHERE vo.vote = ? AND vou.user = ?",
+        [["i", (int) $id], ["i", (int) $uid]],
+      );
+      $removed++;
+    }
+
+    return [
+      "success" => true,
+      "message" => "Voters removed",
+      "removed" => $removed,
+    ];
+  }
+
+  private function setVoters()
+  {
+    $rawInput = file_get_contents("php://input");
+    $data = json_decode($rawInput, true);
+    if (!$data) {
+      $data = $_POST;
+    }
+    $id = $data["id"] ?? ($data["vote_id"] ?? ($data["voteId"] ?? ($_GET["id"] ?? null)));
+    if (!$id || !is_numeric($id)) {
+      Response::error("Vote ID required", 400);
+    }
+    $this->requireVoteEditPermission($id);
+
+    $rawUserIds = $data["user_ids"] ?? ($data["userIds"] ?? []);
+    if (!is_array($rawUserIds)) {
+      Response::error("user_ids must be an array", 400);
+    }
+
+    $targetMap = [];
+    foreach ($rawUserIds as $rawUid) {
+      $uid = intval($rawUid);
+      if ($uid > 0) {
+        $targetMap[$uid] = true;
+      }
+    }
+    $targetIds = array_keys($targetMap);
+
+    $assigned = $this->data->getGroup($id);
+    $currentMap = [];
+    if (is_array($assigned)) {
+      for ($i = 1; $i < count($assigned); $i++) {
+        $uid = intval($assigned[$i]["id"] ?? 0);
+        if ($uid > 0) {
+          $currentMap[$uid] = true;
+        }
+      }
+    }
+    $currentIds = array_keys($currentMap);
+
+    $toAdd = array_values(array_diff($targetIds, $currentIds));
+    $toRemove = array_values(array_diff($currentIds, $targetIds));
+
+    foreach ($toAdd as $uid) {
+      $this->data->addToGroup($id, $uid);
+    }
+
+    if (count($toRemove) > 0) {
+      global $system_data;
+      foreach ($toRemove as $uid) {
+        $this->data->deleteFromGroup($id, $uid);
+        $system_data->dbcon->execute(
+          "DELETE vou FROM vote_option_user vou JOIN vote_option vo ON vou.vote_option = vo.id WHERE vo.vote = ? AND vou.user = ?",
+          [["i", (int) $id], ["i", (int) $uid]],
+        );
+      }
+    }
+
+    return [
+      "success" => true,
+      "message" => "Voters updated",
+      "added" => count($toAdd),
+      "removed" => count($toRemove),
+    ];
+  }
+
+  private function removeOption()
+  {
+    $rawInput = file_get_contents("php://input");
+    $data = json_decode($rawInput, true);
+    if (!$data) {
+      $data = $_POST;
+    }
+    $oid = $data["option_id"] ?? ($data["optionId"] ?? null);
+    if (!$oid || !is_numeric($oid)) {
+      Response::error("Option ID required", 400);
+    }
+    try {
+      global $system_data;
+      $sel = $system_data->dbcon->getSelection("SELECT vote FROM vote_option WHERE id = ?", [["i", (int) $oid]]);
+      $voteId = is_array($sel) && isset($sel[1]["vote"]) ? intval($sel[1]["vote"]) : 0;
+      if ($voteId <= 0) {
+        Response::error("Option not found", 404);
+      }
+      $this->requireVoteEditPermission($voteId);
+      $this->data->deleteOption($oid);
+      return ["success" => true, "message" => "Option removed"];
+    } catch (BNoteError $e) {
+      Response::error($e->getMessage(), 400);
+    }
+  }
+
+  private function finish()
+  {
+    $rawInput = file_get_contents("php://input");
+    $data = json_decode($rawInput, true);
+    if (!$data) {
+      $data = $_POST;
+    }
+    $id = $data["id"] ?? ($_GET["id"] ?? null);
+    if (!$id || !is_numeric($id)) {
+      Response::error("Vote ID required", 400);
+    }
+    $this->requireVoteEditPermission($id);
+    $this->data->finish($id);
+    return ["success" => true, "message" => "Vote finished"];
+  }
+
+  /**
+   * Submit current user's vote (choices)
+   */
+  private function submit()
+  {
+    $rawInput = file_get_contents("php://input");
+    $data = json_decode($rawInput, true);
+    if (!$data) {
+      $data = $_POST;
+    }
+    $vid = $data["vote_id"] ?? ($data["voteId"] ?? null);
+    if (!$vid || !is_numeric($vid)) {
+      Response::error("Vote ID required", 400);
+    }
+    if (!$this->data->isVoteActive($vid)) {
+      Response::error("Vote is not active", 400);
+    }
+    $uid = $this->getUserId();
+    $vote = $this->data->findByIdNoRef($vid);
+    $isMulti = !empty($vote["is_multi"]);
+    try {
+      $startData = new StartData();
+      if ($isMulti) {
+        $values = $data["choices"] ?? [];
+        $startData->saveVote($vid, $values, $uid);
+      } else {
+        $optionId = $data["uservote"] ?? ($data["option_id"] ?? null);
+        if ($optionId !== null && $optionId !== "") {
+          $optionId = (int) $optionId;
+          $startData->saveVote($vid, ["uservote" => $optionId], $uid);
+        } else {
+          // Clear single-choice vote (StartData::saveVote inserts null otherwise and can fail)
+          $options = $startData->getOptionsForVote($vid);
+          $params = [];
+          $tuples = [];
+          for ($i = 1; $i < count($options); $i++) {
+            $tuples[] = "vote_option = ?";
+            $params[] = ["i", (int) $options[$i]["id"]];
+          }
+          if (!empty($tuples)) {
+            $params[] = ["i", (int) $uid];
+            $system_data = $GLOBALS["system_data"];
+            $query = "DELETE FROM vote_option_user WHERE (" . implode(" OR ", $tuples) . ") AND user = ?";
+            $system_data->dbcon->execute($query, $params);
+          }
+        }
+      }
+      return ["success" => true, "message" => "Vote submitted"];
+    } catch (Exception $e) {
+      Response::error($e->getMessage(), 400);
+    }
+  }
 }

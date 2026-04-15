@@ -141,11 +141,17 @@ export function RehearsalsTable({
               return (
                 <EntityListRow
                   icon={
-                    <span className={`rounded-full flex items-center justify-center w-6 h-6 text-white ${typeConfig.dotClass}`}>
+                    <span
+                      className={`rounded-full flex items-center justify-center w-6 h-6 text-white ${typeConfig.dotClass}`}
+                    >
                       <Icon className="h-3 w-3" />
                     </span>
                   }
-                  primary={<span className="font-bold leading-tight" style={{ color: "var(--primary)" }}>{dateStr}</span>}
+                  primary={
+                    <span className="font-bold leading-tight" style={{ color: "var(--primary)" }}>
+                      {dateStr}
+                    </span>
+                  }
                   badge={
                     <>
                       {WarningIcon && (
@@ -158,7 +164,10 @@ export function RehearsalsTable({
                         </span>
                       )}
                       {row.status ? (
-                        <span className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium border" style={getStatusPillStyle(row.status)}>
+                        <span
+                          className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium border"
+                          style={getStatusPillStyle(row.status)}
+                        >
                           {statusLabelFor(row.status)}
                         </span>
                       ) : undefined}
@@ -187,7 +196,10 @@ export function RehearsalsTable({
             sortOptions={[
               { key: "begin", label: t("js.event.begin") !== "js.event.begin" ? t("js.event.begin") : "Begin" },
               { key: "status", label: t("js.common.status") !== "js.common.status" ? t("js.common.status") : "Status" },
-              { key: "location", label: t("js.event.location") !== "js.event.location" ? t("js.event.location") : "Location" },
+              {
+                key: "location",
+                label: t("js.event.location") !== "js.event.location" ? t("js.event.location") : "Location",
+              },
               { key: "notes", label: t("js.common.notes") !== "js.common.notes" ? t("js.common.notes") : "Notes" },
             ]}
             sortKey={sortKey}
@@ -224,7 +236,9 @@ export function RehearsalsTable({
                     onSort={onSort}
                   />
                   <ResizableTh columnId="warning">
-                    {t("mail.escalation.alertBadge") !== "mail.escalation.alertBadge" ? t("mail.escalation.alertBadge") : "Alert"}
+                    {t("mail.escalation.alertBadge") !== "mail.escalation.alertBadge"
+                      ? t("mail.escalation.alertBadge")
+                      : "Alert"}
                   </ResizableTh>
                   <SortableTh
                     columnId="location"
@@ -264,7 +278,10 @@ export function RehearsalsTable({
                       <td className="p-3">{row.begin ? formatDateTime(new Date(row.begin)) : emptyText}</td>
                       <td className="p-3">
                         {row.status ? (
-                          <span className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium border" style={getStatusPillStyle(row.status)}>
+                          <span
+                            className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium border"
+                            style={getStatusPillStyle(row.status)}
+                          >
                             {statusLabelFor(row.status)}
                           </span>
                         ) : (
@@ -272,21 +289,21 @@ export function RehearsalsTable({
                         )}
                       </td>
                       <td className="p-3">
-                        {row.escalationWarning ? (() => {
-                          const warningUi = getEscalationWarningUiConfig(row.escalationWarning.severity);
-                          const WarningIcon = getIcon(warningUi.iconName);
-                          return (
-                            <span
-                              className="inline-flex items-center justify-center rounded-full border px-2 py-0.5"
-                              style={warningUi.badgeStyle}
-                              title={row.escalationWarning.reasons?.join(" • ")}
-                            >
-                              <WarningIcon className={`h-5 w-5 ${warningUi.iconClassName}`} />
-                            </span>
-                          );
-                        })() : (
-                          emptyText
-                        )}
+                        {row.escalationWarning
+                          ? (() => {
+                              const warningUi = getEscalationWarningUiConfig(row.escalationWarning.severity);
+                              const WarningIcon = getIcon(warningUi.iconName);
+                              return (
+                                <span
+                                  className="inline-flex items-center justify-center rounded-full border px-2 py-0.5"
+                                  style={warningUi.badgeStyle}
+                                  title={row.escalationWarning.reasons?.join(" • ")}
+                                >
+                                  <WarningIcon className={`h-5 w-5 ${warningUi.iconClassName}`} />
+                                </span>
+                              );
+                            })()
+                          : emptyText}
                       </td>
                       <td className="p-3">{row.location_name || emptyText}</td>
                       <td className="p-3">
@@ -300,7 +317,11 @@ export function RehearsalsTable({
                       </td>
                       <td className="p-3">
                         {row.notes ? (
-                          <NotesContent value={row.notes} className="max-w-[200px] whitespace-pre-wrap break-words" maxLines={3} />
+                          <NotesContent
+                            value={row.notes}
+                            className="max-w-[200px] whitespace-pre-wrap break-words"
+                            maxLines={3}
+                          />
                         ) : (
                           emptyText
                         )}

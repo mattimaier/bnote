@@ -26,12 +26,6 @@ export function resolveDashboardEmptyResponseMessage(
   return "No events need your response at this time.";
 }
 
-export function getDashboardEmptyResponseMessage({
-  variantCount,
-  t,
-}: DashboardEmptyStateOptions): string {
-  return resolveDashboardEmptyResponseMessage(
-    pickDashboardEmptyResponseVariantKey(variantCount),
-    t
-  );
+export function getDashboardEmptyResponseMessage({ variantCount, t }: DashboardEmptyStateOptions): string {
+  return resolveDashboardEmptyResponseMessage(pickDashboardEmptyResponseVariantKey(variantCount), t);
 }

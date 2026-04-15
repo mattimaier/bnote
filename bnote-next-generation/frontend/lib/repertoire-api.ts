@@ -37,8 +37,7 @@ export interface RepertoireMeta {
 export const repertoireApi = {
   list: (params?: { genre?: number; status?: number; is_active?: number; title?: string }) =>
     api.get<Song[]>("repertoire", "list", params as Record<string, string> | undefined),
-  get: (id: number) =>
-    api.get<SongDetail>("repertoire", "get", { id: String(id) }),
+  get: (id: number) => api.get<SongDetail>("repertoire", "get", { id: String(id) }),
   meta: () => api.get<RepertoireMeta>("repertoire", "meta"),
   create: (data: Partial<SongDetail>) =>
     api.post<{ success: boolean; id: number; message: string }>(
@@ -47,11 +46,7 @@ export const repertoireApi = {
       data as Record<string, unknown>
     ),
   update: (id: number, data: Partial<SongDetail>) =>
-    api.post<{ success: boolean; message: string }>(
-      "repertoire",
-      "update",
-      { id, ...data } as Record<string, unknown>
-    ),
+    api.post<{ success: boolean; message: string }>("repertoire", "update", { id, ...data } as Record<string, unknown>),
   delete: (id: number) =>
     api.post<{ success: boolean; message: string }>("repertoire", "delete", {
       id,

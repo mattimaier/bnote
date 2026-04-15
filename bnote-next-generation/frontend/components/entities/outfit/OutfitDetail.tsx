@@ -39,9 +39,7 @@ export function OutfitDetail() {
     outfitsApi
       .get(numId)
       .then(setItem)
-      .catch((err) =>
-        setError(getErrorMessage(err, t, "js.common.failedToLoad"))
-      )
+      .catch((err) => setError(getErrorMessage(err, t, "js.common.failedToLoad")))
       .finally(() => setLoading(false));
   }, [id, ready]);
 
@@ -69,9 +67,7 @@ export function OutfitDetail() {
   if (error || !item) {
     return (
       <div className={PAGE_CONTENT_CLASS}>
-        <p className="text-sm text-error">
-          {error || "Outfit not found."}
-        </p>
+        <p className="text-sm text-error">{error || "Outfit not found."}</p>
       </div>
     );
   }
@@ -89,9 +85,7 @@ export function OutfitDetail() {
       <DetailCard className="space-y-4">
         <div>
           <h2 className="text-sm font-semibold text-base-content/60">
-            {t("js.outfits.description") !== "js.outfits.description"
-              ? t("js.outfits.description")
-              : "Description"}
+            {t("js.outfits.description") !== "js.outfits.description" ? t("js.outfits.description") : "Description"}
           </h2>
           <div className="mt-1 prose prose-sm max-w-none dark:prose-invert">
             {description.length > 0 ? <MarkdownText value={description} /> : <p>{emptyLabel}</p>}

@@ -35,8 +35,7 @@ function resolveContactId(
   if (!user) return { id: 0, label: "" };
   const explicitId = Number(user.contact ?? 0) || 0;
   const explicitLabel =
-    user.contactName ||
-    [user.contactFirstName, user.contactSurname].filter(Boolean).join(" ").trim();
+    user.contactName || [user.contactFirstName, user.contactSurname].filter(Boolean).join(" ").trim();
   if (explicitId > 0) return { id: explicitId, label: explicitLabel };
 
   const firstName = normalizeName(user.contactFirstName ?? "");
@@ -124,17 +123,10 @@ export function UserDetail() {
   }
 
   const title = user.login || emptyText;
-  const contactDisplayName =
-    [user.contactFirstName, user.contactSurname].filter(Boolean).join(" ").trim() || title;
+  const contactDisplayName = [user.contactFirstName, user.contactSurname].filter(Boolean).join(" ").trim() || title;
   const titleWithAvatar = (
     <div className="flex items-center gap-3">
-      <Avatar
-        email={user.contactEmail}
-        name={contactDisplayName}
-        size={40}
-        variant="solid"
-        className="shrink-0"
-      />
+      <Avatar email={user.contactEmail} name={contactDisplayName} size={40} variant="solid" className="shrink-0" />
       <span className="truncate">{title}</span>
     </div>
   );
@@ -146,9 +138,7 @@ export function UserDetail() {
       ? t("js.users.inactive")
       : "Inactive";
 
-  const formattedLastLogin = user.lastlogin
-    ? formatDateTimeShort(user.lastlogin, lang) ?? emptyText
-    : emptyText;
+  const formattedLastLogin = user.lastlogin ? (formatDateTimeShort(user.lastlogin, lang) ?? emptyText) : emptyText;
   const removeFromFutureLabel =
     t("js.contacts.removeFromFutureEvents") !== "js.contacts.removeFromFutureEvents"
       ? t("js.contacts.removeFromFutureEvents")
@@ -158,8 +148,10 @@ export function UserDetail() {
     <div className={PAGE_CONTENT_CLASS}>
       <DetailPageHeader
         title={titleWithAvatar}
-        subtitle={t("js.users.subtitle") !== "js.users.subtitle" ? t("js.users.subtitle") : "Manage users and permissions"}
-        right={(
+        subtitle={
+          t("js.users.subtitle") !== "js.users.subtitle" ? t("js.users.subtitle") : "Manage users and permissions"
+        }
+        right={
           <div className="flex items-center gap-2">
             {contactInfo.id > 0 ? (
               <ActionButton
@@ -176,7 +168,7 @@ export function UserDetail() {
             ) : null}
             <DetailEditButton onClick={() => router.push(getEntityPath("user", user.id, "edit"))} />
           </div>
-        )}
+        }
       />
 
       <DetailCard className="space-y-6">
@@ -207,10 +199,7 @@ export function UserDetail() {
           </span>
           <div className="text-sm mt-1">
             {contactInfo.id > 0 ? (
-              <Link
-                href={getEntityPath("contact", contactInfo.id)}
-                className="no-underline text-base-content"
-              >
+              <Link href={getEntityPath("contact", contactInfo.id)} className="no-underline text-base-content">
                 {contactInfo.label}
               </Link>
             ) : (
@@ -221,9 +210,7 @@ export function UserDetail() {
 
         <div>
           <span className="text-xs font-medium text-base-content/60">
-            {t("js.users.privileges") !== "js.users.privileges"
-              ? t("js.users.privileges")
-              : "Berechtigungen"}
+            {t("js.users.privileges") !== "js.users.privileges" ? t("js.users.privileges") : "Berechtigungen"}
           </span>
           {privileges ? (
             <div className="mt-2 flex flex-wrap gap-2">
@@ -236,9 +223,7 @@ export function UserDetail() {
                 ))}
               {privileges.modules.filter((mod) => mod.hasAccess).length === 0 && (
                 <span className="text-sm text-base-content/60">
-                  {t("js.common.noSelection") !== "js.common.noSelection"
-                    ? t("js.common.noSelection")
-                    : "No selection"}
+                  {t("js.common.noSelection") !== "js.common.noSelection" ? t("js.common.noSelection") : "No selection"}
                 </span>
               )}
             </div>

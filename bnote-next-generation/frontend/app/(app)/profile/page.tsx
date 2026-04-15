@@ -11,7 +11,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useI18n } from "@/contexts/I18nContext";
 import { useToast } from "@/contexts/ToastContext";
 import { useEditingBar } from "@/contexts/EditingBarContext";
-import { kontaktdatenApi, type MyContactDetail, type InstrumentOption } from "@/lib/kontaktdaten-api";
+import { profileApi, type MyContactDetail, type InstrumentOption } from "@/lib/profile-api";
 import { DatePicker } from "@/components/DatePicker";
 import { DetailPageHeader, DetailEditButton } from "@/components/DetailPageHeader";
 import { DetailCard } from "@/components/DetailCard";
@@ -46,8 +46,8 @@ export default function ProfilePage() {
     setError("");
     try {
       const [contactRes, instrumentsRes] = await Promise.all([
-        kontaktdatenApi.getMine(),
-        kontaktdatenApi.getInstruments().catch(() => []),
+        profileApi.getMine(),
+        profileApi.getInstruments().catch(() => []),
       ]);
       setContact(contactRes ?? null);
       setInstruments(instrumentsRes ?? []);
@@ -111,10 +111,13 @@ export default function ProfilePage() {
     };
     setSaving(true);
     try {
-      await kontaktdatenApi.updateMine(data);
+      await profileApi.updateMine(data);
       router.replace("/profile/");
       loadData();
-      showToast(t("js.profile.saved") !== "js.profile.saved" ? t("js.profile.saved") : "Data saved successfully", "success");
+      showToast(
+        t("js.profile.saved") !== "js.profile.saved" ? t("js.profile.saved") : "Data saved successfully",
+        "success"
+      );
     } catch (err) {
       showToast(getErrorMessage(err, t, "js.common.saveFailed"), "error");
     } finally {
@@ -165,7 +168,9 @@ export default function ProfilePage() {
           title={t("js.profile.title") !== "js.profile.title" ? t("js.profile.title") : "My Contact Data"}
         />
         <p className="rounded-box border border-base-300 px-4 py-3 text-sm text-base-content/60">
-          {t("js.profile.noContact") !== "js.profile.noContact" ? t("js.profile.noContact") : "Ihrem Benutzer wurde kein Kontakt zugeordnet."}
+          {t("js.profile.noContact") !== "js.profile.noContact"
+            ? t("js.profile.noContact")
+            : "Ihrem Benutzer wurde kein Kontakt zugeordnet."}
         </p>
       </div>
     );
@@ -178,30 +183,34 @@ export default function ProfilePage() {
     <div className={`${PAGE_CONTENT_BASE_CLASS} space-y-6`}>
       <DetailPageHeader
         title={t("js.profile.title") !== "js.profile.title" ? t("js.profile.title") : "My Contact Data"}
-        subtitle={t("js.profile.subtitle") !== "js.profile.subtitle" ? t("js.profile.subtitle") : "Edit your personal data"}
+        subtitle={
+          t("js.profile.subtitle") !== "js.profile.subtitle" ? t("js.profile.subtitle") : "Edit your personal data"
+        }
         right={!isEditing ? <DetailEditButton onClick={() => router.push("/profile/edit/")} /> : undefined}
       />
 
-      {error && (
-        <div className="rounded-box border border-error bg-error/15 px-4 py-3 text-sm text-error">
-          {error}
-        </div>
-      )}
+      {error && <div className="rounded-box border border-error bg-error/15 px-4 py-3 text-sm text-error">{error}</div>}
 
       {!isEditing ? (
         <DetailCard className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <span className="text-xs font-medium text-base-content/60">{label("js.contacts.firstName", "Vorname")}</span>
+              <span className="text-xs font-medium text-base-content/60">
+                {label("js.contacts.firstName", "Vorname")}
+              </span>
               <p className="text-sm mt-1">{c.name || emptyText}</p>
             </div>
             <div>
-              <span className="text-xs font-medium text-base-content/60">{label("js.contacts.lastName", "Nachname")}</span>
+              <span className="text-xs font-medium text-base-content/60">
+                {label("js.contacts.lastName", "Nachname")}
+              </span>
               <p className="text-sm mt-1">{c.surname || emptyText}</p>
             </div>
           </div>
           <div>
-            <span className="text-xs font-medium text-base-content/60">{label("js.contacts.nickname", "Spitzname")}</span>
+            <span className="text-xs font-medium text-base-content/60">
+              {label("js.contacts.nickname", "Spitzname")}
+            </span>
             <p className="text-sm mt-1">{c.nickname || emptyText}</p>
           </div>
           <div>
@@ -209,11 +218,15 @@ export default function ProfilePage() {
             <p className="text-sm mt-1">{c.email || emptyText}</p>
           </div>
           <div>
-            <span className="text-xs font-medium text-base-content/60">{label("js.contacts.birthday", "Geburtstag")}</span>
+            <span className="text-xs font-medium text-base-content/60">
+              {label("js.contacts.birthday", "Geburtstag")}
+            </span>
             <p className="text-sm mt-1">{formatDateShortDisplay(c.birthday, lang)}</p>
           </div>
           <div>
-            <span className="text-xs font-medium text-base-content/60">{label("js.contacts.instrument", "Instrument")}</span>
+            <span className="text-xs font-medium text-base-content/60">
+              {label("js.contacts.instrument", "Instrument")}
+            </span>
             <p className="text-sm mt-1">{c.instrumentname || emptyText}</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -253,128 +266,237 @@ export default function ProfilePage() {
         </DetailCard>
       ) : (
         <DetailCard>
-      <form id="profile-form" onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">{t("js.contacts.firstName") !== "js.contacts.firstName" ? t("js.contacts.firstName") : "Vorname"}</label>
-            <input name="name" type="text" defaultValue={c.name} className="input input-sm w-full text-base-content" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">{t("js.contacts.lastName") !== "js.contacts.lastName" ? t("js.contacts.lastName") : "Nachname"}</label>
-            <input name="surname" type="text" defaultValue={c.surname} className="input input-sm w-full text-base-content" />
-          </div>
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">{t("js.contacts.nickname") !== "js.contacts.nickname" ? t("js.contacts.nickname") : "Spitzname"}</label>
-          <input name="nickname" type="text" defaultValue={c.nickname} className="input input-sm w-full text-base-content" />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">{t("js.contacts.email") !== "js.contacts.email" ? t("js.contacts.email") : "E-Mail"}</label>
-          <input name="email" type="email" defaultValue={c.email} className="input input-sm w-full text-base-content" />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">{t("js.contacts.birthday") !== "js.contacts.birthday" ? t("js.contacts.birthday") : "Geburtstag"}</label>
-          <input type="hidden" name="birthday" value={birthday} />
-          <DatePicker
-            value={birthday}
-            onChange={setBirthday}
-            mode="date"
-            locale={lang}
-            className="input input-sm w-full text-base-content"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">{label("js.contacts.instrument", "Instrument")}</label>
-          {instruments.length > 0 ? (
-            <>
-              <input type="hidden" name="instrument" value={instrumentId} />
-              <SelectPicker
-                options={[
-                  { id: 0, name: t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Auswählen…" },
-                  ...instruments,
-                ]}
-                value={instrumentId}
-                onChange={setInstrumentId}
-                emptyLabel={emptyText}
-                labelSelect={t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Auswählen…"}
-                labelNoMatches={t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "Keine Treffer"}
-                labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Schließen"}
-              />
-            </>
-          ) : (
-            <div className="rounded-field border border-base-300 bg-base-200/50 px-3 py-2 text-sm text-base-content/60">
-              {c.instrumentname || emptyText}
-              <p className="text-xs mt-1">
-                {t("js.profile.instrumentsEmpty") !== "js.profile.instrumentsEmpty"
-                  ? t("js.profile.instrumentsEmpty")
-                  : "Keine Instrumente hinterlegt. Ein Administrator kann Instrumente in der Konfiguration anlegen."}
-              </p>
+          <form id="profile-form" onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  {t("js.contacts.firstName") !== "js.contacts.firstName" ? t("js.contacts.firstName") : "Vorname"}
+                </label>
+                <input
+                  name="name"
+                  type="text"
+                  defaultValue={c.name}
+                  className="input input-sm w-full text-base-content"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  {t("js.contacts.lastName") !== "js.contacts.lastName" ? t("js.contacts.lastName") : "Nachname"}
+                </label>
+                <input
+                  name="surname"
+                  type="text"
+                  defaultValue={c.surname}
+                  className="input input-sm w-full text-base-content"
+                />
+              </div>
             </div>
-          )}
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">{t("js.contacts.phone") !== "js.contacts.phone" ? t("js.contacts.phone") : "Telefon"}</label>
-            <input name="phone" type="text" defaultValue={c.phone} className="input input-sm w-full text-base-content" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">{t("js.contacts.mobile") !== "js.contacts.mobile" ? t("js.contacts.mobile") : "Mobil"}</label>
-            <input name="mobile" type="text" defaultValue={c.mobile} className="input input-sm w-full text-base-content" />
-          </div>
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">{t("js.contacts.company") !== "js.contacts.company" ? t("js.contacts.company") : "Firma"}</label>
-          <input name="company" type="text" defaultValue={c.company} className="input input-sm w-full text-base-content" />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">{t("js.contacts.business") !== "js.contacts.business" ? t("js.contacts.business") : "Geschäftlich"}</label>
-          <input name="business" type="text" defaultValue={c.business} className="input input-sm w-full text-base-content" />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">{t("js.contacts.street") !== "js.contacts.street" ? t("js.contacts.street") : "Straße"}</label>
-          <input name="street" type="text" defaultValue={c.street} className="input input-sm w-full text-base-content" />
-        </div>
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">{t("js.contacts.zip") !== "js.contacts.zip" ? t("js.contacts.zip") : "PLZ"}</label>
-            <input name="zip" type="text" defaultValue={c.zip} className="input input-sm w-full text-base-content" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">{t("js.contacts.city") !== "js.contacts.city" ? t("js.contacts.city") : "Ort"}</label>
-            <input name="city" type="text" defaultValue={c.city} className="input input-sm w-full text-base-content" />
-          </div>
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">{t("js.contacts.notes") !== "js.contacts.notes" ? t("js.contacts.notes") : "Notizen"}</label>
-          <input type="hidden" name="notes" value={profileNotes} />
-          <NotesEditor
-            value={profileNotes}
-            onChange={setProfileNotes}
-            placeholder={t("js.contacts.notes") !== "js.contacts.notes" ? t("js.contacts.notes") : "Notizen"}
-            id="profile-notes-editor"
-          />
-        </div>
-
-        {/* Privacy / share settings */}
-        <div className="space-y-3 rounded-box border border-base-300 p-4">
-          <h3 className="text-sm font-semibold text-base-content">
-            {t("js.profile.privacyTitle") !== "js.profile.privacyTitle" ? t("js.profile.privacyTitle") : "Sichtbarkeit"}
-          </h3>
-          <div className="space-y-2">
-            {[
-              { name: "share_email", key: "js.profile.shareEmail", fallback: "E-Mail mit anderen Mitgliedern teilen" },
-              { name: "share_address", key: "js.profile.shareAddress", fallback: "Adresse mit anderen Mitgliedern teilen" },
-              { name: "share_phones", key: "js.profile.sharePhones", fallback: "Telefonnummern mit anderen Mitgliedern teilen" },
-              { name: "share_birthday", key: "js.profile.shareBirthday", fallback: "Geburtstag mit anderen Mitgliedern teilen" },
-            ].map(({ name, key, fallback }) => (
-              <label key={name} className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" name={name} defaultChecked={Boolean((c as unknown as Record<string, unknown>)[name])} className="checkbox checkbox-primary checkbox-sm" />
-                <span className="text-sm">{t(key) !== key ? t(key) : fallback}</span>
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                {t("js.contacts.nickname") !== "js.contacts.nickname" ? t("js.contacts.nickname") : "Spitzname"}
               </label>
-            ))}
-          </div>
-        </div>
-      </form>
+              <input
+                name="nickname"
+                type="text"
+                defaultValue={c.nickname}
+                className="input input-sm w-full text-base-content"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                {t("js.contacts.email") !== "js.contacts.email" ? t("js.contacts.email") : "E-Mail"}
+              </label>
+              <input
+                name="email"
+                type="email"
+                defaultValue={c.email}
+                className="input input-sm w-full text-base-content"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                {t("js.contacts.birthday") !== "js.contacts.birthday" ? t("js.contacts.birthday") : "Geburtstag"}
+              </label>
+              <input type="hidden" name="birthday" value={birthday} />
+              <DatePicker
+                value={birthday}
+                onChange={setBirthday}
+                mode="date"
+                locale={lang}
+                className="input input-sm w-full text-base-content"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">{label("js.contacts.instrument", "Instrument")}</label>
+              {instruments.length > 0 ? (
+                <>
+                  <input type="hidden" name="instrument" value={instrumentId} />
+                  <SelectPicker
+                    options={[
+                      {
+                        id: 0,
+                        name: t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Auswählen…",
+                      },
+                      ...instruments,
+                    ]}
+                    value={instrumentId}
+                    onChange={setInstrumentId}
+                    emptyLabel={emptyText}
+                    labelSelect={t("js.common.select") !== "js.common.select" ? t("js.common.select") : "Auswählen…"}
+                    labelNoMatches={
+                      t("js.common.noMatches") !== "js.common.noMatches" ? t("js.common.noMatches") : "Keine Treffer"
+                    }
+                    labelClose={t("js.common.close") !== "js.common.close" ? t("js.common.close") : "Schließen"}
+                  />
+                </>
+              ) : (
+                <div className="rounded-field border border-base-300 bg-base-200/50 px-3 py-2 text-sm text-base-content/60">
+                  {c.instrumentname || emptyText}
+                  <p className="text-xs mt-1">
+                    {t("js.profile.instrumentsEmpty") !== "js.profile.instrumentsEmpty"
+                      ? t("js.profile.instrumentsEmpty")
+                      : "Keine Instrumente hinterlegt. Ein Administrator kann Instrumente in der Konfiguration anlegen."}
+                  </p>
+                </div>
+              )}
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  {t("js.contacts.phone") !== "js.contacts.phone" ? t("js.contacts.phone") : "Telefon"}
+                </label>
+                <input
+                  name="phone"
+                  type="text"
+                  defaultValue={c.phone}
+                  className="input input-sm w-full text-base-content"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  {t("js.contacts.mobile") !== "js.contacts.mobile" ? t("js.contacts.mobile") : "Mobil"}
+                </label>
+                <input
+                  name="mobile"
+                  type="text"
+                  defaultValue={c.mobile}
+                  className="input input-sm w-full text-base-content"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                {t("js.contacts.company") !== "js.contacts.company" ? t("js.contacts.company") : "Firma"}
+              </label>
+              <input
+                name="company"
+                type="text"
+                defaultValue={c.company}
+                className="input input-sm w-full text-base-content"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                {t("js.contacts.business") !== "js.contacts.business" ? t("js.contacts.business") : "Geschäftlich"}
+              </label>
+              <input
+                name="business"
+                type="text"
+                defaultValue={c.business}
+                className="input input-sm w-full text-base-content"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                {t("js.contacts.street") !== "js.contacts.street" ? t("js.contacts.street") : "Straße"}
+              </label>
+              <input
+                name="street"
+                type="text"
+                defaultValue={c.street}
+                className="input input-sm w-full text-base-content"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  {t("js.contacts.zip") !== "js.contacts.zip" ? t("js.contacts.zip") : "PLZ"}
+                </label>
+                <input
+                  name="zip"
+                  type="text"
+                  defaultValue={c.zip}
+                  className="input input-sm w-full text-base-content"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  {t("js.contacts.city") !== "js.contacts.city" ? t("js.contacts.city") : "Ort"}
+                </label>
+                <input
+                  name="city"
+                  type="text"
+                  defaultValue={c.city}
+                  className="input input-sm w-full text-base-content"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                {t("js.contacts.notes") !== "js.contacts.notes" ? t("js.contacts.notes") : "Notizen"}
+              </label>
+              <input type="hidden" name="notes" value={profileNotes} />
+              <NotesEditor
+                value={profileNotes}
+                onChange={setProfileNotes}
+                placeholder={t("js.contacts.notes") !== "js.contacts.notes" ? t("js.contacts.notes") : "Notizen"}
+                id="profile-notes-editor"
+              />
+            </div>
+
+            {/* Privacy / share settings */}
+            <div className="space-y-3 rounded-box border border-base-300 p-4">
+              <h3 className="text-sm font-semibold text-base-content">
+                {t("js.profile.privacyTitle") !== "js.profile.privacyTitle"
+                  ? t("js.profile.privacyTitle")
+                  : "Sichtbarkeit"}
+              </h3>
+              <div className="space-y-2">
+                {[
+                  {
+                    name: "share_email",
+                    key: "js.profile.shareEmail",
+                    fallback: "E-Mail mit anderen Mitgliedern teilen",
+                  },
+                  {
+                    name: "share_address",
+                    key: "js.profile.shareAddress",
+                    fallback: "Adresse mit anderen Mitgliedern teilen",
+                  },
+                  {
+                    name: "share_phones",
+                    key: "js.profile.sharePhones",
+                    fallback: "Telefonnummern mit anderen Mitgliedern teilen",
+                  },
+                  {
+                    name: "share_birthday",
+                    key: "js.profile.shareBirthday",
+                    fallback: "Geburtstag mit anderen Mitgliedern teilen",
+                  },
+                ].map(({ name, key, fallback }) => (
+                  <label key={name} className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      name={name}
+                      defaultChecked={Boolean((c as unknown as Record<string, unknown>)[name])}
+                      className="checkbox checkbox-primary checkbox-sm"
+                    />
+                    <span className="text-sm">{t(key) !== key ? t(key) : fallback}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          </form>
         </DetailCard>
       )}
     </div>

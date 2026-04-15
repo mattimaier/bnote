@@ -11,17 +11,18 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useI18n } from "@/contexts/I18nContext";
 import { PAGE_CONTENT_CLASS } from "@/lib/layout";
-import { performSearch, getSearchYears, type SearchResults, type SearchFilters, type SearchEventItem, type SearchListItem } from "@/lib/search";
+import {
+  performSearch,
+  getSearchYears,
+  type SearchResults,
+  type SearchFilters,
+  type SearchEventItem,
+  type SearchListItem,
+} from "@/lib/search";
 import { EventCard, type InboxEvent } from "@/components/EventCard";
 import { TablerIconByName } from "@/components/icons";
 import { AddressLink } from "@/components/AddressLink";
-import {
-  getEntityTypeForSearchCategory,
-  getColor,
-  getIconName,
-  getPillStyle,
-  getDotStyle,
-} from "@/lib/entity-config";
+import { getEntityTypeForSearchCategory, getColor, getIconName, getPillStyle, getDotStyle } from "@/lib/entity-config";
 import { Avatar } from "@/components/Avatar";
 import { getEntityPath } from "@/lib/entities/paths";
 import { prefixPath } from "@/lib/path";
@@ -94,20 +95,14 @@ function SearchListItemRow({
       {isPerson ? (
         <Avatar email={item.email} name={title} size={32} variant="soft" className="shrink-0" />
       ) : (
-        <div
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full"
-          style={dotStyle}
-        >
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full" style={dotStyle}>
           <TablerIconByName name={iconName} className="h-4 w-4" />
         </div>
       )}
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-1.5">
           <p className="font-semibold text-sm">{title}</p>
-          <span
-            className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium border"
-            style={pillStyle}
-          >
+          <span className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium border" style={pillStyle}>
             {categoryLabel}
           </span>
         </div>
@@ -163,28 +158,33 @@ export default function SearchPageContent() {
     return f;
   }, [yearParam, monthParam, typeParam]);
 
-  const search = useCallback(async (signal?: AbortSignal) => {
-    if (!ready || q.trim().length < 2) {
-      setResults(null);
-      return;
-    }
-    setLoading(true);
-    setError("");
-    try {
-      const data = await performSearch(q.trim(), filters, 50, signal);
-      setResults(data);
-    } catch (err) {
-      if ((err as { name?: string } | null)?.name === "AbortError") return;
-      setError(getErrorMessage(err, t, "js.common.searchFailed"));
-      setResults(null);
-    } finally {
-      setLoading(false);
-    }
-  }, [ready, q, filters, t]);
+  const search = useCallback(
+    async (signal?: AbortSignal) => {
+      if (!ready || q.trim().length < 2) {
+        setResults(null);
+        return;
+      }
+      setLoading(true);
+      setError("");
+      try {
+        const data = await performSearch(q.trim(), filters, 50, signal);
+        setResults(data);
+      } catch (err) {
+        if ((err as { name?: string } | null)?.name === "AbortError") return;
+        setError(getErrorMessage(err, t, "js.common.searchFailed"));
+        setResults(null);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [ready, q, filters, t]
+  );
 
   useEffect(() => {
     const controller = new AbortController();
-    getSearchYears(controller.signal).then(setYears).catch(() => setYears([]));
+    getSearchYears(controller.signal)
+      .then(setYears)
+      .catch(() => setYears([]));
     return () => controller.abort();
   }, []);
 
@@ -223,7 +223,11 @@ export default function SearchPageContent() {
     <div className={PAGE_CONTENT_CLASS}>
       <AppPageHeader title={t("js.dashboard.searchPlaceholder")} moduleKey="search" />
 
-      <form action={prefixPath("/search/")} method="get" className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+      <form
+        action={prefixPath("/search/")}
+        method="get"
+        className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4"
+      >
         <input type="hidden" name="year" value={yearParam ?? ""} />
         <input type="hidden" name="month" value={monthParam ?? ""} />
         <input type="hidden" name="type" value={typeParam ?? ""} />
@@ -322,7 +326,9 @@ export default function SearchPageContent() {
               className="text-xs font-medium hover:underline"
               style={{ color: "var(--muted-foreground)" }}
             >
-              {t("js.search.filter.clearAll") !== "js.search.filter.clearAll" ? t("js.search.filter.clearAll") : "Clear all"}
+              {t("js.search.filter.clearAll") !== "js.search.filter.clearAll"
+                ? t("js.search.filter.clearAll")
+                : "Clear all"}
             </Link>
           )}
         </div>
@@ -370,7 +376,8 @@ export default function SearchPageContent() {
                   >
                     <div className="border-b border-[var(--border)] bg-[var(--muted)]/20 px-4 py-3">
                       <h2 className="text-base font-semibold" style={{ color: "var(--foreground)" }}>
-                        {t(cat.labelKey)} <span className="font-normal text-[var(--muted-foreground)]">({totalCount})</span>
+                        {t(cat.labelKey)}{" "}
+                        <span className="font-normal text-[var(--muted-foreground)]">({totalCount})</span>
                       </h2>
                     </div>
                     <div className="px-4 py-4 space-y-2 md:space-y-3">
@@ -390,7 +397,13 @@ export default function SearchPageContent() {
                         })}
                       {cat.type === "list" &&
                         (list as SearchListItem[]).map((item, idx) => (
-                          <SearchListItemRow key={`${cat.key}-${item.id}-${idx}`} category={cat.key} item={item} t={t} categoryLabel={t(cat.labelKey)} />
+                          <SearchListItemRow
+                            key={`${cat.key}-${item.id}-${idx}`}
+                            category={cat.key}
+                            item={item}
+                            t={t}
+                            categoryLabel={t(cat.labelKey)}
+                          />
                         ))}
                     </div>
                   </div>

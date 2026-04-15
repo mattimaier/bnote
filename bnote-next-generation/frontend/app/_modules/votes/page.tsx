@@ -157,14 +157,12 @@ export default function VotesPage() {
         moduleKey="vote"
         title={t("js.votes.title") !== "js.votes.title" ? t("js.votes.title") : "Votes"}
         subtitle={t("js.votes.subtitle") !== "js.votes.subtitle" ? t("js.votes.subtitle") : "Polls and surveys"}
-        actions={(
+        actions={
           <ActionButton href={getEntityPath("vote", "new", "edit")}>
             <Plus className="h-4 w-4" />
-            {t("js.votes.addVote") !== "js.votes.addVote"
-              ? t("js.votes.addVote")
-              : "Add Vote"}
+            {t("js.votes.addVote") !== "js.votes.addVote" ? t("js.votes.addVote") : "Add Vote"}
           </ActionButton>
-        )}
+        }
       />
 
       {error && (
@@ -218,7 +216,10 @@ export default function VotesPage() {
               {t("js.common.history") !== "js.common.history" ? t("js.common.history") : "History"}
             </h2>
             {pastByYear.years.length === 0 ? (
-              <div className="mt-3 rounded-xl border p-8 text-center text-sm" style={{ color: "var(--muted-foreground)", borderColor: "var(--border)", background: "var(--card)" }}>
+              <div
+                className="mt-3 rounded-xl border p-8 text-center text-sm"
+                style={{ color: "var(--muted-foreground)", borderColor: "var(--border)", background: "var(--card)" }}
+              >
                 {t("js.votes.noVotes") !== "js.votes.noVotes" ? t("js.votes.noVotes") : "No votes found"}
               </div>
             ) : (
@@ -231,7 +232,9 @@ export default function VotesPage() {
                       title={`${year}`}
                       items={pastByYear.groups.get(year) ?? []}
                       loading={loading}
-                      emptyLabel={t("js.votes.noVotes") !== "js.votes.noVotes" ? t("js.votes.noVotes") : "No votes found"}
+                      emptyLabel={
+                        t("js.votes.noVotes") !== "js.votes.noVotes" ? t("js.votes.noVotes") : "No votes found"
+                      }
                       onRowClick={handleRowClick}
                       emptyText={emptyText}
                       sortKey={state.key}
@@ -269,11 +272,7 @@ function SortableTh({
   onSort: (k: SortKey) => void;
 }) {
   const active = currentSortKey === sortKey;
-  const Icon = active
-    ? sortDir === "asc"
-      ? ArrowUp
-      : ArrowDown
-    : ArrowUpDown;
+  const Icon = active ? (sortDir === "asc" ? ArrowUp : ArrowDown) : ArrowUpDown;
   return (
     <ResizableTh columnId={columnId}>
       <button
@@ -366,14 +365,30 @@ function VotesTable({
               const Icon = getIcon("vote");
               const endStr = row.end ? formatDateTimeShort(row.end, lang) : emptyText;
               const statusLabel = row.is_finished
-                ? (t("js.votes.finished") !== "js.votes.finished" ? t("js.votes.finished") : "Finished")
-                : (t("js.votes.active") !== "js.votes.active" ? t("js.votes.active") : "Active");
+                ? t("js.votes.finished") !== "js.votes.finished"
+                  ? t("js.votes.finished")
+                  : "Finished"
+                : t("js.votes.active") !== "js.votes.active"
+                  ? t("js.votes.active")
+                  : "Active";
               return (
                 <EntityListRow
-                  icon={<span className="rounded-full flex items-center justify-center w-6 h-6 text-white" style={{ ...dotStyle, background: pillStyle.backgroundColor, color: pillStyle.color }}><Icon className="h-3.5 w-3.5" /></span>}
+                  icon={
+                    <span
+                      className="rounded-full flex items-center justify-center w-6 h-6 text-white"
+                      style={{ ...dotStyle, background: pillStyle.backgroundColor, color: pillStyle.color }}
+                    >
+                      <Icon className="h-3.5 w-3.5" />
+                    </span>
+                  }
                   primary={row.name ?? emptyText}
                   badge={
-                    <span className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium border" style={getStatusPillStyle(row.is_finished ? "inactive" : "active")}>{statusLabel}</span>
+                    <span
+                      className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium border"
+                      style={getStatusPillStyle(row.is_finished ? "inactive" : "active")}
+                    >
+                      {statusLabel}
+                    </span>
                   }
                   secondary={endStr ? <span>{endStr}</span> : undefined}
                   onClick={() => onRowClick(row.id)}
