@@ -776,16 +776,16 @@
         },
         {
             "name": "tinymce/tinymce",
-            "version": "7.9.1",
+            "version": "7.9.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tinymce/tinymce-dist.git",
-                "reference": "3d6219296c9a92c87337bb38fb502a469ac1167f"
+                "reference": "4e5c520b2b6d52a6251316ab2e4af383c5e753bd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tinymce/tinymce-dist/zipball/3d6219296c9a92c87337bb38fb502a469ac1167f",
-                "reference": "3d6219296c9a92c87337bb38fb502a469ac1167f",
+                "url": "https://api.github.com/repos/tinymce/tinymce-dist/zipball/4e5c520b2b6d52a6251316ab2e4af383c5e753bd",
+                "reference": "4e5c520b2b6d52a6251316ab2e4af383c5e753bd",
                 "shasum": ""
             },
             "type": "component",
@@ -829,9 +829,9 @@
                 "wysiwyg"
             ],
             "support": {
-                "source": "https://github.com/tinymce/tinymce-dist/tree/7.9.1"
+                "source": "https://github.com/tinymce/tinymce-dist/tree/7.9.3"
             },
-            "time": "2025-05-29T02:22:36+00:00"
+            "time": "2026-05-19T23:38:56+00:00"
         },
         {
             "name": "twbs/bootstrap",
@@ -931,5 +931,5 @@
     "prefer-lowest": false,
     "platform": {},
     "platform-dev": {},
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }
